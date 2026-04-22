@@ -34,7 +34,7 @@ const MIN_ZOOM_DRAG_SIZE = 20;
 const MIN_INSET_DRAG_SIZE = 8;
 const MAP_RENDER_CLIP_PADDING = 24;
 const INSET_RENDER_CLIP_PADDING = 18;
-const MIN_INSET_ZOOM_SCALE = 0.45;
+const MIN_INSET_ZOOM_SCALE = 0.2;
 const MAX_INSET_ZOOM_SCALE = 2.4;
 
 const projectionModeLabels = {
@@ -3702,7 +3702,7 @@ function addInsetFromRect(rect) {
     panelWidth: frame.width,
     panelHeight: frame.height,
     aspectRatio,
-    zoomScale: 1,
+    zoomScale: 0.7,
     outline: sample.outline,
     focusPoints: sample.focusPoints,
     geoBounds: sample.geoBounds,
