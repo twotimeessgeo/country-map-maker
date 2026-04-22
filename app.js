@@ -24,8 +24,8 @@ const EARTH_RADIUS_KM = 6371.0088;
 const MAP_FONT_FAMILY = "SidaeAi_S";
 const MAP_FONT_STRETCH_X = 0.95;
 const OUTLINE_STROKE_WIDTH = "0.4pt";
-const MIN_INSET_PANEL_WIDTH = 120;
-const MIN_INSET_PANEL_HEIGHT = 120;
+const MIN_INSET_PANEL_WIDTH = 56;
+const MIN_INSET_PANEL_HEIGHT = 56;
 const MAX_INSET_PANEL_WIDTH = 310;
 const MAIN_CANVAS_WIDTH = 310;
 const MIN_CANVAS_WIDTH = 140;
@@ -3935,7 +3935,7 @@ function nextAnnotationLabel(type) {
 }
 
 function getDefaultInsetFrame(index, aspectRatio = 1) {
-  const preferredWidth = clamp(Math.round(state.width * 0.28), 180, Math.min(MAX_INSET_PANEL_WIDTH, state.width));
+  const preferredWidth = getDefaultInsetPreferredWidth(aspectRatio);
   const { width, height } = fitInsetPanelSize(
     aspectRatio,
     preferredWidth,
@@ -3956,6 +3956,18 @@ function getDefaultInsetFrame(index, aspectRatio = 1) {
     width,
     height,
   };
+}
+
+function getDefaultInsetPreferredWidth(aspectRatio) {
+  const safeAspectRatio = clamp(Number(aspectRatio) || 1, 0.35, 3.8);
+  const shorterCanvasSide = Math.max(1, Math.min(state.width, state.height));
+  const targetLongSide = clamp(Math.round(shorterCanvasSide * 0.22), 96, 220);
+  const preferredWidth = safeAspectRatio >= 1 ? targetLongSide : targetLongSide * safeAspectRatio;
+  return clamp(
+    Math.round(preferredWidth),
+    MIN_INSET_PANEL_WIDTH,
+    Math.min(MAX_INSET_PANEL_WIDTH, state.width),
+  );
 }
 
 function projectCoordinateRaw(projection, coordinate) {
