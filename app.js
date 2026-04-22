@@ -2999,8 +2999,17 @@ function buildBorderGeometry(atlasDataset, selectedIds) {
 function renderAtlasLayer(container, projection, atlasDataset, selectedColorById, borderGeometry, options = {}) {
   const copyOffsets = options.wrap === false ? [0] : getProjectionCopyOffsets(projection);
   const lakeDataset = atlasLakeDatasets[atlasDataset.datasetKey] ?? baseLakeDataset;
-  // Paint shared land once, then carve inland water back out before borders.
-  const selectedFeatures = atlasDataset.countryFeatures.filter((feature) => selectedColorById.has(feature.id));
+  const renderDetailedCountryFills = atlasDataset.datasetKey === "10m";
+  const fillAtlasDataset =
+    renderDetailedCountryFills
+      ? atlasDataset
+      : atlasDataset.datasetKey === "10m"
+        ? atlasDatasets["50m"] ?? atlasDatasets["110m"] ?? atlasDataset
+        : atlasDataset;
+  // Paint shared land once for coarse layers; at 10m, fill countries individually to avoid merged-land inversions.
+  const selectedFeatures = renderDetailedCountryFills
+    ? []
+    : fillAtlasDataset.countryFeatures.filter((feature) => selectedColorById.has(feature.id));
   const clipRect = normalizeClipRect(options.clipRect, options.clipPadding ?? 0);
 
   copyOffsets.forEach((offset) => {
@@ -3011,14 +3020,25 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
       .attr("class", "map-copy")
       .attr("transform", offset ? `translate(${offset} 0)` : null);
 
-    copyGroup
-      .append("path")
-      .datum(atlasDataset.landFeature)
-      .attr("class", "map-land")
-      .attr("d", path)
-      .attr("fill", state.landColor)
-      .attr("fill-rule", "evenodd")
-      .attr("stroke", "none");
+    if (renderDetailedCountryFills) {
+      copyGroup
+        .selectAll(".map-country-fill")
+        .data(atlasDataset.countryFeatures)
+        .join("path")
+        .attr("class", "map-country-fill")
+        .attr("d", path)
+        .attr("fill", (feature) => selectedColorById.get(feature.id) ?? state.landColor)
+        .attr("stroke", "none")
+        .attr("data-country-id", (feature) => feature.id);
+    } else {
+      copyGroup
+        .append("path")
+        .datum(fillAtlasDataset.landFeature)
+        .attr("class", "map-land")
+        .attr("d", path)
+        .attr("fill", state.landColor)
+        .attr("stroke", "none");
+    }
 
     if (selectedFeatures.length) {
       copyGroup
@@ -3028,7 +3048,6 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
         .attr("class", "map-country")
         .attr("d", path)
         .attr("fill", (feature) => selectedColorById.get(feature.id) ?? state.landColor)
-        .attr("fill-rule", "evenodd")
         .attr("stroke", "none")
         .attr("data-country-id", (feature) => feature.id)
         .attr("data-selected", "true");
@@ -3041,7 +3060,6 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
         .attr("class", "map-lakes")
         .attr("d", path)
         .attr("fill", state.oceanColor)
-        .attr("fill-rule", "evenodd")
         .attr("stroke", "none");
 
       copyGroup
