@@ -86,6 +86,11 @@ const atlasTopologyVariants = {
   "50m": window.WORLD_ATLAS_TOPOLOGY,
   "10m": window.WORLD_ATLAS_VARIANTS?.["10m"] ?? null,
 };
+const atlasLakeVariants = {
+  "110m": window.WORLD_LAKES_VARIANTS?.["110m"] ?? null,
+  "50m": window.WORLD_LAKES_VARIANTS?.["50m"] ?? null,
+  "10m": window.WORLD_LAKES_VARIANTS?.["10m"] ?? null,
+};
 const countryNameRows = d3.tsvParse(window.WORLD_COUNTRY_NAMES_TSV);
 const countryNameById = new Map(
   countryNameRows.map((row) => [String(Number(row.id)), row.name.trim()]),
@@ -96,7 +101,13 @@ const atlasDatasets = Object.fromEntries(
     .filter(([, variantTopology]) => Boolean(variantTopology))
     .map(([key, variantTopology]) => [key, buildAtlasDataset(variantTopology, key)]),
 );
+const atlasLakeDatasets = Object.fromEntries(
+  Object.entries(atlasLakeVariants)
+    .filter(([, geometry]) => geometry?.type === "GeometryCollection")
+    .map(([key, geometry]) => [key, buildLakeDataset(geometry, key)]),
+);
 const baseAtlas = atlasDatasets["50m"] ?? atlasDatasets["110m"] ?? atlasDatasets["10m"];
+const baseLakeDataset = atlasLakeDatasets["50m"] ?? atlasLakeDatasets["110m"] ?? atlasLakeDatasets["10m"] ?? null;
 
 const countryFeatures = baseAtlas.countryFeatures;
 const countryById = baseAtlas.countryById;
@@ -258,6 +269,13 @@ function buildAtlasDataset(variantTopology, datasetKey) {
     borderMesh,
     countryFeatures: variantCountryFeatures,
     countryById: new Map(variantCountryFeatures.map((feature) => [feature.id, feature])),
+  };
+}
+
+function buildLakeDataset(geometryCollection, datasetKey) {
+  return {
+    datasetKey,
+    geometry: geometryCollection,
   };
 }
 
@@ -2980,10 +2998,9 @@ function buildBorderGeometry(atlasDataset, selectedIds) {
 
 function renderAtlasLayer(container, projection, atlasDataset, selectedColorById, borderGeometry, options = {}) {
   const copyOffsets = options.wrap === false ? [0] : getProjectionCopyOffsets(projection);
-  const fillAtlasDataset =
-    atlasDataset.datasetKey === "10m" ? atlasDatasets["50m"] ?? atlasDatasets["110m"] ?? atlasDataset : atlasDataset;
-  // Keep zoom rerenders responsive by painting shared land once, then overlaying only selected countries.
-  const selectedFeatures = fillAtlasDataset.countryFeatures.filter((feature) => selectedColorById.has(feature.id));
+  const lakeDataset = atlasLakeDatasets[atlasDataset.datasetKey] ?? baseLakeDataset;
+  // Paint shared land once, then carve inland water back out before borders.
+  const selectedFeatures = atlasDataset.countryFeatures.filter((feature) => selectedColorById.has(feature.id));
   const clipRect = normalizeClipRect(options.clipRect, options.clipPadding ?? 0);
 
   copyOffsets.forEach((offset) => {
@@ -2996,10 +3013,11 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
 
     copyGroup
       .append("path")
-      .datum(fillAtlasDataset.landFeature)
+      .datum(atlasDataset.landFeature)
       .attr("class", "map-land")
       .attr("d", path)
       .attr("fill", state.landColor)
+      .attr("fill-rule", "evenodd")
       .attr("stroke", "none");
 
     if (selectedFeatures.length) {
@@ -3010,9 +3028,32 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
         .attr("class", "map-country")
         .attr("d", path)
         .attr("fill", (feature) => selectedColorById.get(feature.id) ?? state.landColor)
+        .attr("fill-rule", "evenodd")
         .attr("stroke", "none")
         .attr("data-country-id", (feature) => feature.id)
         .attr("data-selected", "true");
+    }
+
+    if (lakeDataset?.geometry?.geometries?.length) {
+      copyGroup
+        .append("path")
+        .datum(lakeDataset.geometry)
+        .attr("class", "map-lakes")
+        .attr("d", path)
+        .attr("fill", state.oceanColor)
+        .attr("fill-rule", "evenodd")
+        .attr("stroke", "none");
+
+      copyGroup
+        .append("path")
+        .datum(lakeDataset.geometry)
+        .attr("class", "map-lake-lines")
+        .attr("d", path)
+        .attr("fill", "none")
+        .attr("stroke", state.borderColor)
+        .attr("stroke-width", OUTLINE_STROKE_WIDTH)
+        .attr("stroke-linejoin", "round")
+        .attr("vector-effect", "non-scaling-stroke");
     }
 
     if (borderGeometry) {
