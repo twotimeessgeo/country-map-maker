@@ -239,6 +239,7 @@ const koreaMunicipalitiesByParentCode = d3.group(
   (feature) => feature.properties.parentCode,
 );
 
+const MAX_STABLE_SPHERICAL_FILL_AREA = 2 * Math.PI;
 function buildAtlasDataset(variantTopology, datasetKey) {
   const countriesObject = variantTopology.objects.countries;
   const landFeature = topojson.feature(variantTopology, variantTopology.objects.land);
@@ -260,6 +261,11 @@ function buildAtlasDataset(variantTopology, datasetKey) {
   const variantCountryFeatures = allCountryFeatures
     .filter((feature) => feature.id && countryNameById.has(feature.id))
     .sort((a, b) => d3.ascending(a.properties.name, b.properties.name));
+  const unstableFillCountryIds = new Set(
+    variantCountryFeatures
+      .filter((feature) => d3.geoArea(feature) > MAX_STABLE_SPHERICAL_FILL_AREA)
+      .map((feature) => feature.id),
+  );
 
   return {
     datasetKey,
@@ -269,6 +275,7 @@ function buildAtlasDataset(variantTopology, datasetKey) {
     borderMesh,
     countryFeatures: variantCountryFeatures,
     countryById: new Map(variantCountryFeatures.map((feature) => [feature.id, feature])),
+    unstableFillCountryIds,
   };
 }
 
@@ -3000,12 +3007,23 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
   const copyOffsets = options.wrap === false ? [0] : getProjectionCopyOffsets(projection);
   const lakeDataset = atlasLakeDatasets[atlasDataset.datasetKey] ?? baseLakeDataset;
   const renderDetailedCountryFills = atlasDataset.datasetKey === "10m";
+  const fallbackCountryDataset =
+    renderDetailedCountryFills ? atlasDatasets["50m"] ?? atlasDatasets["110m"] ?? atlasDataset : null;
   const fillAtlasDataset =
     renderDetailedCountryFills
       ? atlasDataset
       : atlasDataset.datasetKey === "10m"
         ? atlasDatasets["50m"] ?? atlasDatasets["110m"] ?? atlasDataset
         : atlasDataset;
+  const detailedFillFeatures = renderDetailedCountryFills
+    ? atlasDataset.countryFeatures
+        .map((feature) =>
+          atlasDataset.unstableFillCountryIds.has(feature.id)
+            ? fallbackCountryDataset?.countryById.get(feature.id) ?? feature
+            : feature,
+        )
+        .filter(Boolean)
+    : [];
   // Paint shared land once for coarse layers; at 10m, fill countries individually to avoid merged-land inversions.
   const selectedFeatures = renderDetailedCountryFills
     ? []
@@ -3023,7 +3041,7 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
     if (renderDetailedCountryFills) {
       copyGroup
         .selectAll(".map-country-fill")
-        .data(atlasDataset.countryFeatures)
+        .data(detailedFillFeatures)
         .join("path")
         .attr("class", "map-country-fill")
         .attr("d", path)
