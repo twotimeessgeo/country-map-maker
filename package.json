@@ -1,0 +1,15 @@
+{
+  "name": "country-map-maker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "python3 -m http.server 4173"
+  },
+  "keywords": [
+    "svg",
+    "map",
+    "countries"
+  ],
+  "license": "MIT",
+  "description": "Select countries, fit a regional map automatically, and export the result as SVG."
+}

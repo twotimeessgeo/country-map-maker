@@ -1,0 +1,38 @@
+:root {
+  --tw-paper: #efefec;
+  --tw-panel: #ffffff;
+  --tw-panel-soft: #f7f7f7;
+  --tw-ink: #111111;
+  --tw-muted: #666666;
+  --tw-line: #111111;
+  --tw-line-soft: #d6d6d6;
+  --tw-line-faint: #e7e7e7;
+  --tw-shadow: none;
+  --tw-radius: 0px;
+
+  --tw-font-sans: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --tw-text-base: 0.875rem;
+  --tw-text-sm: 0.84rem;
+  --tw-text-md: 1rem;
+  --tw-text-lg: 1.18rem;
+  --tw-text-xl: 1.45rem;
+  --tw-text-hero: clamp(2.45rem, 4.2vw, 4.25rem);
+
+  --tw-space-1: 6px;
+  --tw-space-2: 8px;
+  --tw-space-3: 10px;
+  --tw-space-4: 12px;
+  --tw-space-5: 14px;
+  --tw-space-6: 16px;
+  --tw-space-7: 18px;
+  --tw-space-8: 20px;
+  --tw-space-9: 24px;
+  --tw-space-10: 28px;
+  --tw-space-11: 30px;
+
+  --tw-page-width: min(1480px, calc(100vw - 28px));
+  --tw-field-height: 52px;
+  --tw-chip-height: 40px;
+  --tw-switch-height: 34px;
+  --tw-border: 1px solid var(--tw-line);
+}

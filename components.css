@@ -1,0 +1,138 @@
+.tw-panel,
+.tw-hero {
+  border: var(--tw-border);
+  border-radius: var(--tw-radius);
+  background: var(--tw-panel);
+  box-shadow: var(--tw-shadow);
+}
+
+.tw-eyebrow,
+.tw-kicker {
+  margin: 0 0 10px;
+  color: var(--tw-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.tw-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.tw-switch-item,
+.tw-button,
+.tw-chip,
+.tw-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--tw-border);
+  border-radius: 0;
+  background: #ffffff;
+  color: var(--tw-ink);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.tw-switch-item {
+  min-height: var(--tw-switch-height);
+  min-width: 98px;
+  padding: 0 14px;
+  color: var(--tw-muted);
+  font-size: 0.88rem;
+  line-height: 1;
+}
+
+.tw-switch-item.is-active {
+  background: var(--tw-ink);
+  color: #ffffff;
+}
+
+.tw-button,
+.tw-chip {
+  min-height: var(--tw-chip-height);
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.tw-chip.is-active,
+.tw-badge.is-solid {
+  background: var(--tw-ink);
+  color: #ffffff;
+}
+
+.tw-badge {
+  min-height: 34px;
+  padding: 0 10px;
+  font-size: 0.88rem;
+}
+
+.tw-field {
+  display: grid;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.tw-field input,
+.tw-field select,
+.tw-field textarea {
+  width: 100%;
+  min-height: var(--tw-field-height);
+  padding: 14px 16px;
+  border: var(--tw-border);
+  border-radius: 0;
+  background: #ffffff;
+  color: var(--tw-ink);
+}
+
+.tw-field input:focus,
+.tw-field select:focus,
+.tw-field textarea:focus {
+  outline: 2px solid rgba(0, 0, 0, 0.08);
+  outline-offset: 1px;
+}
+
+.tw-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: var(--tw-border);
+  background: #ffffff;
+}
+
+.tw-table th,
+.tw-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--tw-line-faint);
+  text-align: left;
+}
+
+.tw-table thead th {
+  background: var(--tw-panel-soft);
+  font-weight: 800;
+}
+
+.tw-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.tw-chart-panel {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: var(--tw-border);
+  border-radius: 0;
+  background: var(--tw-panel-soft);
+}
+
+.tw-footnotes {
+  display: grid;
+  gap: 4px;
+  color: var(--tw-muted);
+  font-size: 0.9rem;
+}

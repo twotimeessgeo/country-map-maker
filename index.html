@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>국가 선택형 지도 메이커</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+    />
+    <link rel="stylesheet" href="./tokens.css" />
+    <link rel="stylesheet" href="./base.css" />
+    <link rel="stylesheet" href="./components.css" />
+    <link rel="stylesheet" href="./patterns.css" />
+    <link rel="stylesheet" href="./styles.css?v=20260423b" />
+  </head>
+  <body>
+    <div class="tw-page tw-stack app-page">
+      <header class="tw-hero app-hero">
+        <div class="tw-hero-copy">
+          <p class="tw-eyebrow">TWOTIMESS ATLAS BUILDER</p>
+          <nav class="tw-switch" aria-label="지도 시점 선택">
+            <button class="projection-button tw-switch-item" type="button" data-projection="rectangular">
+              평면
+            </button>
+            <button class="projection-button tw-switch-item" type="button" data-projection="northPolar">
+              북극
+            </button>
+            <button class="projection-button tw-switch-item" type="button" data-projection="southPolar">
+              남극
+            </button>
+          </nav>
+          <h1 class="tw-hero-title">국가 선택형 지도 메이커</h1>
+          <p class="tw-hero-text">
+            국가를 검색하거나 지도에서 바로 선택해 원하는 지역 구도를 잡고, 현재 보이는 결과를
+            그대로 SVG로 내보낼 수 있습니다.
+          </p>
+        </div>
+        <aside class="tw-hero-note">
+          <p class="tw-kicker">현재 작업</p>
+          <strong id="selectionSummary">국가 선택 없음</strong>
+          <span id="exportMeta">1200 × 1200 px · 평면 · 중심 0° · 보기 100% · 윤곽선 0.4pt</span>
+        </aside>
+      </header>
+
+      <section class="tw-panel workspace-panel">
+        <div class="tw-section-heading">
+          <div>
+            <p class="tw-kicker">1. Workspace</p>
+            <h2 class="tw-section-title">설정하고 조정하고 바로 확인하는 작업 구역</h2>
+          </div>
+          <button id="downloadSvgButton" class="tw-button export-button" type="button">SVG 내보내기</button>
+        </div>
+
+        <div class="workspace-shell">
+          <div class="workspace-controls-column">
+            <div class="workspace-controls-head">
+              <div>
+                <p class="tw-kicker">Control Rack</p>
+                <h3 class="tw-card-title">캔버스와 지도 표현 설정</h3>
+              </div>
+              <div class="tw-badge">설정 패널</div>
+            </div>
+
+            <div id="statusMessage" class="status-message" aria-live="polite">
+              지도를 클릭해서 바로 국가를 추가하거나 제거할 수도 있습니다.
+            </div>
+            <div class="tw-card-grid app-control-grid">
+              <article class="tw-data-card app-control-card app-control-card--wide">
+                <div class="app-card-head">
+                  <h3 class="tw-card-title">국가 선택</h3>
+                  <button id="clearSelectionButton" class="tw-button ghost-button" type="button">모두 비우기</button>
+                </div>
+                <p class="hint">
+                  영문 국가명 기준이며, 자주 쓰는 영문 별칭과 일부 한글 표기도 함께 인식합니다.
+                  예: <code>France</code>, <code>South Korea</code>, <code>알제리</code>
+                </p>
+                <div class="input-row">
+                  <label class="tw-field">
+                    <span>국가명</span>
+                    <input
+                      id="countryInput"
+                      list="countryOptions"
+                      type="text"
+                      placeholder="예: France, South Korea, 알제리"
+                      autocomplete="off"
+                    />
+                  </label>
+                  <button id="addCountryButton" class="tw-button" type="button">추가</button>
+                </div>
+                <datalist id="countryOptions"></datalist>
+              </article>
+
+              <article class="tw-data-card app-control-card">
+                <h3 class="tw-card-title">캔버스 비율</h3>
+                <div class="chip-grid">
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="310">1:1</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="233">4:3</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="174">16:9</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="413">세로형</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="233">가로형</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="440">A4 세로</button>
+                </div>
+                <div class="number-grid">
+                  <label class="tw-field">
+                    <span>너비</span>
+                    <input id="widthInput" type="number" min="240" max="310" step="10" value="310" />
+                  </label>
+                  <label class="tw-field">
+                    <span>높이</span>
+                    <input id="heightInput" type="number" min="174" max="3200" step="10" value="310" />
+                  </label>
+                </div>
+              </article>
+
+              <article class="tw-data-card app-control-card">
+                <h3 class="tw-card-title">중심과 보기 범위</h3>
+                <p class="hint">평면형은 중심 경도를, 북극/남극 시점은 회전 방향을 바꾸는 데 씁니다.</p>
+                <div class="chip-grid">
+                  <button class="tw-chip center-button" type="button" data-center="0">그리니치</button>
+                  <button class="tw-chip center-button" type="button" data-center="180">태평양</button>
+                  <button class="tw-chip center-button" type="button" data-center="100">아시아</button>
+                </div>
+                <label class="range-field">
+                  <span>중심 경도</span>
+                  <div class="range-row">
+                    <input id="centerLongitudeInput" type="range" min="-180" max="180" step="1" value="0" />
+                    <output id="centerLongitudeValue">0°</output>
+                  </div>
+                </label>
+                <label class="checkbox-field">
+                  <input id="selectedBordersOnlyToggle" type="checkbox" />
+                  <span>선택 국가 외 국경선 숨기기</span>
+                </label>
+              </article>
+
+              <article class="tw-data-card app-control-card">
+                <h3 class="tw-card-title">기준선</h3>
+                <p class="hint">기준선을 켜면 위도 기준을 빠르게 비교할 수 있고, 선 표시 여부도 따로 조정할 수 있습니다.</p>
+                <div class="guide-grid">
+                  <label class="guide-chip">
+                    <input class="guide-toggle" type="checkbox" data-guide="equator" />
+                    <span>적도</span>
+                  </label>
+                  <label class="guide-chip">
+                    <input class="guide-toggle" type="checkbox" data-guide="lat30" />
+                    <span>30°N/S</span>
+                  </label>
+                  <label class="guide-chip">
+                    <input class="guide-toggle" type="checkbox" data-guide="lat60" />
+                    <span>60°N/S</span>
+                  </label>
+                  <label class="guide-chip">
+                    <input class="guide-toggle" type="checkbox" data-guide="tropicCancer" />
+                    <span>북회귀선</span>
+                  </label>
+                  <label class="guide-chip">
+                    <input class="guide-toggle" type="checkbox" data-guide="tropicCapricorn" />
+                    <span>남회귀선</span>
+                  </label>
+                </div>
+                <label class="checkbox-field">
+                  <input id="guideLineToggle" type="checkbox" />
+                  <span>기준선 선 표시</span>
+                </label>
+                <label class="checkbox-field">
+                  <input id="latitudeLabelToggle" type="checkbox" />
+                  <span>위도 라벨 표시</span>
+                </label>
+              </article>
+
+              <article class="tw-data-card app-control-card app-control-card--wide">
+                <h3 class="tw-card-title">스타일</h3>
+                <label class="range-field">
+                  <span>주변 여백</span>
+                  <div class="range-row">
+                    <input id="paddingInput" type="range" min="4" max="24" step="1" value="10" />
+                    <output id="paddingValue">10%</output>
+                  </div>
+                </label>
+                <div class="color-grid">
+                  <label class="tw-field">
+                    <span>바다색</span>
+                    <input id="oceanColorInput" type="color" value="#d8d8d8" />
+                  </label>
+                  <label class="tw-field">
+                    <span>비선택 국가</span>
+                    <input id="landColorInput" type="color" value="#ffffff" />
+                  </label>
+                  <label class="tw-field">
+                    <span>선 색상</span>
+                    <input id="borderColorInput" type="color" value="#101010" />
+                  </label>
+                </div>
+                <label class="tw-field">
+                  <span>국경선 스타일</span>
+                  <select id="borderModeInput">
+                    <option value="solid">실선</option>
+                    <option value="dashed">점선</option>
+                    <option value="none">끄기</option>
+                  </select>
+                </label>
+                <label class="tw-field">
+                  <span>해안선 디테일</span>
+                  <select id="coastlineDetailInput">
+                    <option value="performance">성능 우선</option>
+                    <option value="auto" selected>자동</option>
+                    <option value="detailed">선명하게</option>
+                    <option value="max">최대</option>
+                  </select>
+                </label>
+                <label class="checkbox-field">
+                  <input id="frameToggle" type="checkbox" checked />
+                  <span>프레임 표시</span>
+                </label>
+                <p class="hint">평면 시점에서는 바깥 프레임을, 극 시점에서는 원형 윤곽선을 사용하며 선 두께는 모두 <code>0.4pt</code>입니다.</p>
+              </article>
+
+              <article class="tw-data-card app-control-card">
+                <h3 class="tw-card-title">문자와 축척</h3>
+                <label class="range-field">
+                  <span>지도 글자 크기</span>
+                  <div class="range-row">
+                    <input id="mapFontSizeInput" type="range" min="7" max="9" step="0.5" value="8" />
+                    <output id="mapFontSizeValue">8pt</output>
+                  </div>
+                </label>
+                <label class="checkbox-field">
+                  <input id="scaleBarToggle" type="checkbox" />
+                  <span>축척 막대 표시</span>
+                </label>
+                <p class="hint"><code>SidaeAi_S</code> 서체를 장평 95% 기준으로 적용합니다.</p>
+              </article>
+            </div>
+          </div>
+
+          <div class="workspace-preview-column">
+            <div class="workspace-preview-head">
+              <div>
+                <p class="tw-kicker">Preview</p>
+                <h3 class="tw-card-title">현재 지도</h3>
+              </div>
+              <div class="tw-badge">실시간 편집</div>
+            </div>
+
+            <div class="workspace-banner">
+              <div class="workspace-banner__copy">
+                <p class="tw-kicker">Quick Workspace</p>
+                <h3 class="workspace-banner__title">지도 위에서 바로 조작</h3>
+                <p id="previewHint" class="hint preview-hint">
+                  영역 확대 모드에서 드래그하면 원하는 부분만 바로 표시할 수 있습니다.
+                </p>
+              </div>
+              <div class="workspace-banner__stats" aria-live="polite">
+                <div class="workspace-stat">
+                  <span>활성 도구</span>
+                  <strong id="activeModeLabel">영역 확대</strong>
+                </div>
+                <div class="workspace-stat">
+                  <span>보기 배율</span>
+                  <strong id="viewZoomLabel">100%</strong>
+                </div>
+                <div class="workspace-stat">
+                  <span>편집 대상</span>
+                  <strong id="workspaceObjectSummary">국가 0 · 마커 0 · 인셋 0</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="tw-chart-panel preview-card">
+              <div class="preview-workspace">
+                <aside class="preview-toolbox" aria-label="빠른 도구">
+                  <section class="preview-toolbox__section preview-toolbox__section--focus">
+                    <p class="tw-kicker">Active Tool</p>
+                    <strong id="activeModeTitle" class="preview-toolbox__title">영역 확대</strong>
+                    <p id="activeModeDescription" class="hint preview-toolbox__description">
+                      드래그 박스로 원하는 부분만 크게 보고, 짧게 클릭하면 국가를 바로 선택합니다.
+                    </p>
+                    <div id="workspaceModeTips" class="workspace-mode-tips" aria-live="polite"></div>
+                  </section>
+
+                  <section class="preview-toolbox__section">
+                    <p class="tw-kicker">Mode Switch</p>
+                    <div class="preview-tool-grid">
+                      <button class="mode-button preview-mode-button" type="button" data-mode="zoom" title="1">
+                        <span class="preview-mode-button__index">1</span>
+                        <span class="preview-mode-button__body">
+                          <strong>영역 확대</strong>
+                          <small>드래그 박스로 확대</small>
+                        </span>
+                      </button>
+                      <button class="mode-button preview-mode-button" type="button" data-mode="pan" title="2 · Space">
+                        <span class="preview-mode-button__index">2</span>
+                        <span class="preview-mode-button__body">
+                          <strong>이동</strong>
+                          <small>끌어서 위치 이동</small>
+                        </span>
+                      </button>
+                      <button class="mode-button preview-mode-button" type="button" data-mode="marker" title="3">
+                        <span class="preview-mode-button__index">3</span>
+                        <span class="preview-mode-button__body">
+                          <strong>마커 추가</strong>
+                          <small>클릭 또는 드래그 크기</small>
+                        </span>
+                      </button>
+                      <button class="mode-button preview-mode-button" type="button" data-mode="inset" title="4">
+                        <span class="preview-mode-button__index">4</span>
+                        <span class="preview-mode-button__body">
+                          <strong>인셋 추가</strong>
+                          <small>드래그해 확대 박스 생성</small>
+                        </span>
+                      </button>
+                    </div>
+                  </section>
+
+                  <section class="preview-toolbox__section">
+                    <p class="tw-kicker">Quick Actions</p>
+                    <div class="preview-quick-actions">
+                      <button id="undoButton" class="tw-chip preview-quick-button" type="button">실행 취소</button>
+                      <button id="redoButton" class="tw-chip preview-quick-button" type="button">다시 실행</button>
+                      <button id="zoomOutButton" class="tw-chip preview-quick-button" type="button">줌 아웃</button>
+                      <button id="resetViewButton" class="tw-chip preview-quick-button" type="button">전체 보기</button>
+                    </div>
+                  </section>
+
+                  <section class="preview-toolbox__section">
+                    <p class="tw-kicker">Shortcuts</p>
+                    <div class="shortcut-list">
+                      <div class="shortcut-item">
+                        <kbd>Wheel</kbd>
+                        <span>어디서든 확대/축소</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>Space</kbd>
+                        <span>누르고 있는 동안 이동</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>0</kbd>
+                        <span>전체 보기로 복귀</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>1-4</kbd>
+                        <span>도구를 바로 전환</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>⌘/Ctrl+Z</kbd>
+                        <span>최근 편집 실행 취소</span>
+                      </div>
+                      <div class="shortcut-item">
+                        <kbd>⇧⌘/Ctrl+Z</kbd>
+                        <span>되돌린 편집 다시 실행</span>
+                      </div>
+                    </div>
+                  </section>
+                </aside>
+
+                <div class="preview-stage-shell">
+                  <div id="previewStage" class="preview-stage" aria-live="polite"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="tw-panel">
+        <div class="tw-section-heading">
+          <div>
+            <p class="tw-kicker">2. Detail</p>
+            <h2 class="tw-section-title">선택 국가와 표시 요소 관리</h2>
+          </div>
+          <div class="tw-badge">색상 · 라벨 · 위치 편집</div>
+        </div>
+
+        <div class="app-detail-grid">
+          <article class="tw-data-card app-detail-card">
+            <div class="app-card-head">
+              <div>
+                <h3 class="tw-card-title">선택 국가</h3>
+                <p class="hint">검색창 또는 지도 클릭으로 추가한 국가를 여기서 색상과 함께 관리합니다.</p>
+              </div>
+            </div>
+            <ul id="selectedCountryList" class="selected-country-list"></ul>
+          </article>
+
+          <article class="tw-data-card app-detail-card">
+            <div class="app-toolbar">
+              <div>
+                <h3 class="tw-card-title">마커</h3>
+                <p class="hint">마커 추가 모드에서 만든 표시를 라벨, 크기, 회전값과 함께 조정합니다.</p>
+              </div>
+              <button id="clearAnnotationsButton" class="tw-button ghost-button" type="button">표시 지우기</button>
+            </div>
+            <label class="tw-field">
+              <span>새 마커 스타일</span>
+              <select id="markerStyleInput">
+                <option value="ring">원형</option>
+                <option value="dashedOval">점선 타원</option>
+                <option value="point">점</option>
+                <option value="filledDot">검은 점</option>
+              </select>
+            </label>
+            <ul id="markerList" class="annotation-list"></ul>
+          </article>
+
+          <article class="tw-data-card app-detail-card">
+            <div class="app-card-head">
+              <div>
+                <h3 class="tw-card-title">인셋</h3>
+                <p class="hint">인셋 추가 모드에서 드래그한 확대 박스를 위치와 크기 기준으로 다듬습니다.</p>
+              </div>
+            </div>
+            <ul id="insetList" class="annotation-list"></ul>
+          </article>
+        </div>
+      </section>
+    </div>
+
+    <script src="./vendor/d3.min.js"></script>
+    <script src="./vendor/d3-geo-projection.min.js"></script>
+    <script src="./vendor/topojson-client.min.js"></script>
+    <script src="./data/world-atlas.js"></script>
+    <script src="./data/world-atlas-variants.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
