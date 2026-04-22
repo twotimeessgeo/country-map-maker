@@ -28,6 +28,14 @@ const MIN_INSET_PANEL_WIDTH = 120;
 const MIN_INSET_PANEL_HEIGHT = 120;
 const MAX_INSET_PANEL_WIDTH = 310;
 const MAIN_CANVAS_WIDTH = 310;
+const MIN_CANVAS_WIDTH = 140;
+const MIN_CANVAS_HEIGHT = 120;
+const MIN_ZOOM_DRAG_SIZE = 20;
+const MIN_INSET_DRAG_SIZE = 8;
+const MAP_RENDER_CLIP_PADDING = 24;
+const INSET_RENDER_CLIP_PADDING = 18;
+const MIN_INSET_ZOOM_SCALE = 0.45;
+const MAX_INSET_ZOOM_SCALE = 2.4;
 
 const projectionModeLabels = {
   rectangular: "평면",
@@ -265,10 +273,13 @@ const state = {
   oceanColor: "#d8d8d8",
   landColor: "#ffffff",
   borderColor: "#101010",
-  borderMode: "solid",
+  borderMode: "dashed",
   coastlineDetail: "auto",
   showFrame: true,
   selectedBordersOnly: false,
+  autoFocusOnSelection: false,
+  unifySelectedCountryColors: false,
+  unifiedSelectedCountryColor: atlasPalette[0],
   showGuideLines: false,
   showLatitudeLabels: false,
   showScaleBar: false,
@@ -316,6 +327,9 @@ const elements = {
   borderColorInput: document.querySelector("#borderColorInput"),
   borderModeInput: document.querySelector("#borderModeInput"),
   coastlineDetailInput: document.querySelector("#coastlineDetailInput"),
+  autoFocusSelectionToggle: document.querySelector("#autoFocusSelectionToggle"),
+  unifySelectedCountryColorsToggle: document.querySelector("#unifySelectedCountryColorsToggle"),
+  unifiedCountryColorInput: document.querySelector("#unifiedCountryColorInput"),
   frameToggle: document.querySelector("#frameToggle"),
   scaleBarToggle: document.querySelector("#scaleBarToggle"),
   mapFontSizeInput: document.querySelector("#mapFontSizeInput"),
@@ -397,7 +411,7 @@ function attachEventListeners() {
 
     beginHistoryStep("선택 국가 비우기");
     state.selected = [];
-    resetViewWindow();
+    resetViewForSelectionIfNeeded();
     renderSelectedCountries();
     renderMap();
     setStatus("선택한 국가를 모두 비웠습니다.");
@@ -530,6 +544,30 @@ function attachEventListeners() {
   elements.coastlineDetailInput.addEventListener("change", () => {
     beginHistoryStep("해안선 디테일 변경");
     state.coastlineDetail = elements.coastlineDetailInput.value;
+    renderMap();
+  });
+
+  elements.autoFocusSelectionToggle.addEventListener("change", () => {
+    beginHistoryStep("선택 자동 맞춤 변경");
+    state.autoFocusOnSelection = elements.autoFocusSelectionToggle.checked;
+    if (state.autoFocusOnSelection) {
+      resetViewWindow();
+    }
+    renderMap();
+  });
+
+  elements.unifySelectedCountryColorsToggle.addEventListener("change", () => {
+    beginHistoryStep("국가 색상 설정 변경");
+    state.unifySelectedCountryColors = elements.unifySelectedCountryColorsToggle.checked;
+    syncStyleControls();
+    renderSelectedCountries();
+    renderMap();
+  });
+
+  elements.unifiedCountryColorInput.addEventListener("input", () => {
+    beginHistoryStep("국가 색상 설정 변경");
+    state.unifiedSelectedCountryColor = elements.unifiedCountryColorInput.value;
+    renderSelectedCountries();
     renderMap();
   });
 
@@ -920,7 +958,7 @@ function syncControls() {
 
 function syncDimensionInputs() {
   elements.widthInput.value = String(clampCanvasWidth(state.width));
-  elements.heightInput.value = String(state.height);
+  elements.heightInput.value = String(clampCanvasHeight(state.height));
 }
 
 function syncPresetButtons() {
@@ -966,6 +1004,10 @@ function syncStyleControls() {
   elements.borderColorInput.value = state.borderColor;
   elements.borderModeInput.value = state.borderMode;
   elements.coastlineDetailInput.value = state.coastlineDetail;
+  elements.autoFocusSelectionToggle.checked = Boolean(state.autoFocusOnSelection);
+  elements.unifySelectedCountryColorsToggle.checked = Boolean(state.unifySelectedCountryColors);
+  elements.unifiedCountryColorInput.value = getUnifiedSelectedCountryColor();
+  elements.unifiedCountryColorInput.disabled = !state.unifySelectedCountryColors;
   elements.frameToggle.checked = canShowCanvasFrame ? state.showFrame : false;
   elements.frameToggle.disabled = !canShowCanvasFrame;
   elements.frameToggle.title = canShowCanvasFrame ? "" : "극 시점에서는 바깥 프레임 대신 원형 윤곽선을 사용합니다.";
@@ -1056,7 +1098,7 @@ function addCountriesFromInput(rawValue) {
   elements.countryInput.value = "";
 
   if (addedNames.length) {
-    resetViewWindow();
+    resetViewForSelectionIfNeeded();
     setStatus(`${addedNames.join(", ")} 추가됨`);
   } else if (missingNames.length) {
     setStatus(`찾을 수 없는 국가: ${missingNames.join(", ")}`, true);
@@ -1116,6 +1158,28 @@ function nextPaletteColor() {
   return atlasPalette[state.selected.length % atlasPalette.length];
 }
 
+function getUnifiedSelectedCountryColor() {
+  return state.unifiedSelectedCountryColor || atlasPalette[0];
+}
+
+function getSelectedCountryColor(country) {
+  if (state.unifySelectedCountryColors) {
+    return getUnifiedSelectedCountryColor();
+  }
+
+  return country.color || atlasPalette[0];
+}
+
+function buildSelectedColorById() {
+  return new Map(state.selected.map((country) => [country.id, getSelectedCountryColor(country)]));
+}
+
+function resetViewForSelectionIfNeeded() {
+  if (state.autoFocusOnSelection) {
+    resetViewWindow();
+  }
+}
+
 function renderSelectedCountries() {
   elements.selectedCountryList.innerHTML = "";
 
@@ -1127,18 +1191,19 @@ function renderSelectedCountries() {
   }
 
   state.selected.forEach((country) => {
+    const displayedColor = getSelectedCountryColor(country);
     const listItem = document.createElement("li");
     listItem.className = "selected-country-item";
 
     const swatch = document.createElement("div");
     swatch.className = "swatch";
-    swatch.style.backgroundColor = country.color;
+    swatch.style.backgroundColor = displayedColor;
 
     const textWrap = document.createElement("div");
     const name = document.createElement("strong");
     name.textContent = country.name;
     const code = document.createElement("span");
-    code.textContent = "색상은 자유롭게 바꿀 수 있습니다";
+    code.textContent = state.unifySelectedCountryColors ? "통일 색상 사용 중" : "색상은 자유롭게 바꿀 수 있습니다";
     textWrap.append(name, code);
 
     const controls = document.createElement("div");
@@ -1146,7 +1211,9 @@ function renderSelectedCountries() {
 
     const colorInput = document.createElement("input");
     colorInput.type = "color";
-    colorInput.value = country.color;
+    colorInput.value = displayedColor;
+    colorInput.disabled = state.unifySelectedCountryColors;
+    colorInput.title = state.unifySelectedCountryColors ? "통일 색상 옵션이 켜져 있어 개별 색상 편집이 잠겨 있습니다." : "";
     colorInput.setAttribute("aria-label", `${country.name} 색상`);
     colorInput.addEventListener("input", () => {
       beginHistoryStep("국가 색상 변경");
@@ -1337,6 +1404,18 @@ function renderInsetList() {
       renderMap();
     });
 
+    const zoomInput = buildNumberInput(
+      Math.round(getInsetZoomScale(inset) * 100),
+      Math.round(MIN_INSET_ZOOM_SCALE * 100),
+      Math.round(MAX_INSET_ZOOM_SCALE * 100),
+      5,
+      "인셋 확대 배율 변경",
+      (value) => {
+        inset.zoomScale = clamp(value / 100, MIN_INSET_ZOOM_SCALE, MAX_INSET_ZOOM_SCALE);
+        renderMap();
+      },
+    );
+
     const fieldGrid = document.createElement("div");
     fieldGrid.className = "annotation-grid";
     fieldGrid.append(
@@ -1345,11 +1424,14 @@ function renderInsetList() {
       createField("패널 Y", yInput),
       createField("너비", widthInput),
       createField("높이", heightInput),
+      createField("확대 %", zoomInput),
     );
 
     const meta = document.createElement("div");
     meta.className = "annotation-meta";
-    meta.textContent = `드래그한 확대 비율 고정 · 샘플 점 ${inset.focusPoints.length}개 기준 · 미리보기에서 직접 이동/크기 조절`;
+    meta.textContent =
+      `확대 ${Math.round(getInsetZoomScale(inset) * 100)}% · 샘플 점 ${inset.focusPoints.length}개 기준 · ` +
+      `미리보기에서 직접 이동/크기 조절`;
 
     item.append(head, fieldGrid, meta);
     elements.insetList.appendChild(item);
@@ -1405,7 +1487,7 @@ function buildNumberInput(value, min, max, step, historyLabel, onInput) {
 function removeCountry(countryId) {
   beginHistoryStep("국가 제거");
   state.selected = state.selected.filter((country) => country.id !== countryId);
-  resetViewWindow();
+  resetViewForSelectionIfNeeded();
   renderSelectedCountries();
   renderMap();
 }
@@ -1430,7 +1512,7 @@ function toggleCountry(countryId) {
     name: feature.properties.name,
     color: nextPaletteColor(),
   });
-  resetViewWindow();
+  resetViewForSelectionIfNeeded();
   renderSelectedCountries();
   renderMap();
   setStatus(`${feature.properties.name} 추가됨`);
@@ -1448,7 +1530,7 @@ function renderMap() {
   const path = d3.geoPath(projection);
   const atlasDataset = getAtlasDataset(state.viewZoom);
   const selectedIds = new Set(state.selected.map((country) => country.id));
-  const selectedColorById = new Map(state.selected.map((country) => [country.id, country.color]));
+  const selectedColorById = buildSelectedColorById();
   const borderGeometry = buildBorderGeometry(atlasDataset, selectedIds);
   const guideGraphics = buildGuideGraphics(projection);
   const latitudeScaleGraphics = buildLatitudeScaleGraphics(projection);
@@ -1507,7 +1589,15 @@ function renderMap() {
       .attr("vector-effect", "non-scaling-stroke");
   }
 
-  renderAtlasLayer(countriesGroup, projection, atlasDataset, selectedColorById, borderGeometry);
+  renderAtlasLayer(countriesGroup, projection, atlasDataset, selectedColorById, borderGeometry, {
+    clipRect: {
+      x: 0,
+      y: 0,
+      width: state.width,
+      height: state.height,
+    },
+    clipPadding: MAP_RENDER_CLIP_PADDING,
+  });
 
   if (guideGraphics.length) {
     renderGuideLayer(root, guideGraphics);
@@ -1565,7 +1655,7 @@ function shouldRenderCanvasFrame() {
 }
 
 function buildFocusGeometry() {
-  if (!state.selected.length) {
+  if (!state.autoFocusOnSelection || !state.selected.length) {
     return { type: "Sphere" };
   }
 
@@ -1667,14 +1757,16 @@ function buildBorderGeometry(atlasDataset, selectedIds) {
 }
 
 function renderAtlasLayer(container, projection, atlasDataset, selectedColorById, borderGeometry, options = {}) {
-  const path = d3.geoPath(projection);
   const copyOffsets = options.wrap === false ? [0] : getProjectionCopyOffsets(projection);
   const fillAtlasDataset =
     atlasDataset.datasetKey === "10m" ? atlasDatasets["50m"] ?? atlasDatasets["110m"] ?? atlasDataset : atlasDataset;
   // Keep zoom rerenders responsive by painting shared land once, then overlaying only selected countries.
   const selectedFeatures = fillAtlasDataset.countryFeatures.filter((feature) => selectedColorById.has(feature.id));
+  const clipRect = normalizeClipRect(options.clipRect, options.clipPadding ?? 0);
 
   copyOffsets.forEach((offset) => {
+    const renderProjection = createRenderProjection(projection, shiftClipRect(clipRect, -offset, 0));
+    const path = d3.geoPath(renderProjection);
     const copyGroup = container
       .append("g")
       .attr("class", "map-copy")
@@ -1730,6 +1822,53 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
 
 function getBorderStrokeDasharray() {
   return state.borderMode === "dashed" ? "2.8pt 2.2pt" : null;
+}
+
+function normalizeClipRect(rect, padding = 0) {
+  if (!rect) {
+    return null;
+  }
+
+  const x = Number(rect.x);
+  const y = Number(rect.y);
+  const width = Number(rect.width);
+  const height = Number(rect.height);
+  const insetPadding = Math.max(0, Number(padding) || 0);
+
+  if (![x, y, width, height].every(Number.isFinite) || width <= 0 || height <= 0) {
+    return null;
+  }
+
+  return {
+    x: x - insetPadding,
+    y: y - insetPadding,
+    width: width + insetPadding * 2,
+    height: height + insetPadding * 2,
+  };
+}
+
+function shiftClipRect(rect, deltaX = 0, deltaY = 0) {
+  if (!rect) {
+    return null;
+  }
+
+  return {
+    x: rect.x + deltaX,
+    y: rect.y + deltaY,
+    width: rect.width,
+    height: rect.height,
+  };
+}
+
+function createRenderProjection(projection, clipRect) {
+  if (!clipRect || typeof projection.copy !== "function") {
+    return projection;
+  }
+
+  return projection.copy().clipExtent([
+    [clipRect.x, clipRect.y],
+    [clipRect.x + clipRect.width, clipRect.y + clipRect.height],
+  ]);
 }
 
 function getProjectionCopyOffsets(projection) {
@@ -2175,26 +2314,34 @@ function renderInsetMapContent(insetGroup, mainProjection, frame, sourceFrame, s
     const insetBorderGeometry = buildBorderGeometry(insetAtlasDataset, selectedIds);
     renderAtlasLayer(insetGroup, insetProjection, insetAtlasDataset, selectedColorById, insetBorderGeometry, {
       wrap: false,
+      clipRect: frame,
+      clipPadding: INSET_RENDER_CLIP_PADDING,
     });
     return;
   }
 
   const insetPadding = 10;
+  const zoomScale = getInsetZoomScale(inset);
+  const adjustedSourceFrame = scaleRectFromCenter(sourceFrame, 1 / zoomScale);
   const availableWidth = Math.max(1, frame.width - insetPadding * 2);
   const availableHeight = Math.max(1, frame.height - insetPadding * 2);
-  const scale = Math.min(availableWidth / sourceFrame.width, availableHeight / sourceFrame.height);
-  const offsetX = frame.x + insetPadding + (availableWidth - sourceFrame.width * scale) / 2;
-  const offsetY = frame.y + insetPadding + (availableHeight - sourceFrame.height * scale) / 2;
+  const scale = Math.min(availableWidth / adjustedSourceFrame.width, availableHeight / adjustedSourceFrame.height);
+  const offsetX = frame.x + insetPadding + (availableWidth - adjustedSourceFrame.width * scale) / 2;
+  const offsetY = frame.y + insetPadding + (availableHeight - adjustedSourceFrame.height * scale) / 2;
   const transformedGroup = insetGroup
     .append("g")
     .attr(
       "transform",
-      `translate(${offsetX - sourceFrame.x * scale} ${offsetY - sourceFrame.y * scale}) scale(${scale})`,
+      `translate(${offsetX - adjustedSourceFrame.x * scale} ${offsetY - adjustedSourceFrame.y * scale}) scale(${scale})`,
     );
   const insetAtlasDataset = getAtlasDataset(Math.max(state.viewZoom * scale * 2.2, 6), true);
   const selectedIds = new Set(state.selected.map((country) => country.id));
   const insetBorderGeometry = buildBorderGeometry(insetAtlasDataset, selectedIds);
-  renderAtlasLayer(transformedGroup, mainProjection, insetAtlasDataset, selectedColorById, insetBorderGeometry);
+  renderAtlasLayer(transformedGroup, mainProjection, insetAtlasDataset, selectedColorById, insetBorderGeometry, {
+    wrap: false,
+    clipRect: adjustedSourceFrame,
+    clipPadding: INSET_RENDER_CLIP_PADDING,
+  });
 }
 
 function buildInsetProjection(frame, inset) {
@@ -2276,7 +2423,11 @@ function buildInsetSourceFrame(mainProjection, inset) {
   }
 
   const projectedBounds = computeBounds(outlinePoints);
-  const padding = 12;
+  const padding = clamp(
+    Math.round(Math.min(projectedBounds.maxX - projectedBounds.minX, projectedBounds.maxY - projectedBounds.minY) * 0.16),
+    6,
+    12,
+  );
   return {
     x: projectedBounds.minX - padding,
     y: projectedBounds.minY - padding,
@@ -2362,6 +2513,27 @@ function normalizeInsetFrame(inset) {
   inset.panelY = y;
 
   return { x, y, width, height };
+}
+
+function getInsetZoomScale(inset) {
+  const zoomScale = Number(inset?.zoomScale);
+  const normalized = Number.isFinite(zoomScale) ? zoomScale : 1;
+  inset.zoomScale = clamp(normalized, MIN_INSET_ZOOM_SCALE, MAX_INSET_ZOOM_SCALE);
+  return inset.zoomScale;
+}
+
+function scaleRectFromCenter(rect, factor) {
+  const normalizedFactor = Math.max(0.05, Number(factor) || 1);
+  const centerX = rect.x + rect.width / 2;
+  const centerY = rect.y + rect.height / 2;
+  const width = Math.max(1, rect.width * normalizedFactor);
+  const height = Math.max(1, rect.height * normalizedFactor);
+  return {
+    x: centerX - width / 2,
+    y: centerY - height / 2,
+    width,
+    height,
+  };
 }
 
 function getInsetAspectRatio(inset) {
@@ -3412,7 +3584,8 @@ function startBoxInteraction(shell, startPoint, mode) {
     }
 
     const rect = normalizeRect(startPoint, endPoint);
-    if (rect.width < 20 || rect.height < 20) {
+    const minimumDragSize = mode === "inset" ? MIN_INSET_DRAG_SIZE : MIN_ZOOM_DRAG_SIZE;
+    if (rect.width < minimumDragSize || rect.height < minimumDragSize) {
       if (mode === "zoom") {
         const toggled = toggleCountryAtCanvasPoint(endPoint);
         if (!toggled) {
@@ -3513,7 +3686,7 @@ function updateMarkerDraft(draft, startPoint, endPoint) {
 
 function addInsetFromRect(rect) {
   const sample = sampleGeoCollectionFromRect(rect);
-  if (!sample || sample.focusPoints.length < 4 || sample.outline.length < 4) {
+  if (!sample || sample.focusPoints.length < 3 || sample.outline.length < 4) {
     setStatus("이 영역으로는 인셋을 만들기 어렵습니다. 조금 더 넓게 잡아 주세요.", true);
     return;
   }
@@ -3529,6 +3702,7 @@ function addInsetFromRect(rect) {
     panelWidth: frame.width,
     panelHeight: frame.height,
     aspectRatio,
+    zoomScale: 1,
     outline: sample.outline,
     focusPoints: sample.focusPoints,
     geoBounds: sample.geoBounds,
@@ -3541,7 +3715,7 @@ function addInsetFromRect(rect) {
 
 function sampleGeoCollectionFromRect(rect) {
   const outlineScreenPoints = [];
-  const edgeSteps = 10;
+  const edgeSteps = clamp(Math.round(Math.max(rect.width, rect.height) / 18), 4, 12);
 
   for (let step = 0; step <= edgeSteps; step += 1) {
     const ratio = step / edgeSteps;
@@ -3562,10 +3736,11 @@ function sampleGeoCollectionFromRect(rect) {
 
   const outline = dedupeCoordinates(
     outlineScreenPoints.map((point) => invertCanvasPoint(point)).filter(Boolean),
+    5,
   );
 
   const focusPoints = [];
-  const gridSize = 4;
+  const gridSize = clamp(Math.round(Math.min(rect.width, rect.height) / 22), 2, 4);
   for (let row = 0; row <= gridSize; row += 1) {
     for (let column = 0; column <= gridSize; column += 1) {
       const point = {
@@ -3592,7 +3767,7 @@ function sampleGeoCollectionFromRect(rect) {
 
   return {
     outline: closedOutline,
-    focusPoints: dedupeCoordinates(focusPoints),
+    focusPoints: dedupeCoordinates(focusPoints, 5),
     geoBounds: computeGeoBounds(focusPoints),
   };
 }
@@ -3866,7 +4041,7 @@ function clampCanvasWidth(value, fallback = MAIN_CANVAS_WIDTH) {
     return fallback;
   }
 
-  return clamp(Math.round(parsed), 240, MAIN_CANVAS_WIDTH);
+  return clamp(Math.round(parsed), MIN_CANVAS_WIDTH, MAIN_CANVAS_WIDTH);
 }
 
 function clampCanvasHeight(value, fallback = 310) {
@@ -3875,7 +4050,7 @@ function clampCanvasHeight(value, fallback = 310) {
     return fallback;
   }
 
-  return clamp(Math.round(parsed), 174, 3200);
+  return clamp(Math.round(parsed), MIN_CANVAS_HEIGHT, 3200);
 }
 
 function normalizeCanvasStateDimensions() {
@@ -3887,10 +4062,10 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
-function dedupeCoordinates(coordinates) {
+function dedupeCoordinates(coordinates, precision = 4) {
   const seen = new Set();
   return coordinates.filter((coordinate) => {
-    const key = `${coordinate[0].toFixed(4)}:${coordinate[1].toFixed(4)}`;
+    const key = `${coordinate[0].toFixed(precision)}:${coordinate[1].toFixed(precision)}`;
     if (seen.has(key)) {
       return false;
     }

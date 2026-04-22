@@ -104,11 +104,11 @@
                 <div class="number-grid">
                   <label class="tw-field">
                     <span>너비</span>
-                    <input id="widthInput" type="number" min="240" max="310" step="10" value="310" />
+                    <input id="widthInput" type="number" min="140" max="310" step="5" value="310" />
                   </label>
                   <label class="tw-field">
                     <span>높이</span>
-                    <input id="heightInput" type="number" min="174" max="3200" step="10" value="310" />
+                    <input id="heightInput" type="number" min="120" max="3200" step="5" value="310" />
                   </label>
                 </div>
               </article>
@@ -131,6 +131,10 @@
                 <label class="checkbox-field">
                   <input id="selectedBordersOnlyToggle" type="checkbox" />
                   <span>선택 국가 외 국경선 숨기기</span>
+                </label>
+                <label class="checkbox-field">
+                  <input id="autoFocusSelectionToggle" type="checkbox" />
+                  <span>국가 선택 시 자동 맞춤</span>
                 </label>
               </article>
 
@@ -196,7 +200,7 @@
                   <span>국경선 스타일</span>
                   <select id="borderModeInput">
                     <option value="solid">실선</option>
-                    <option value="dashed">점선</option>
+                    <option value="dashed" selected>점선</option>
                     <option value="none">끄기</option>
                   </select>
                 </label>
@@ -212,6 +216,14 @@
                 <label class="checkbox-field">
                   <input id="frameToggle" type="checkbox" checked />
                   <span>프레임 표시</span>
+                </label>
+                <label class="checkbox-field">
+                  <input id="unifySelectedCountryColorsToggle" type="checkbox" />
+                  <span>선택 국가 색상 통일</span>
+                </label>
+                <label class="tw-field">
+                  <span>통일 색상</span>
+                  <input id="unifiedCountryColorInput" type="color" value="#9c9c9c" />
                 </label>
                 <p class="hint">평면 시점에서는 바깥 프레임을, 극 시점에서는 원형 윤곽선을 사용하며 선 두께는 모두 <code>0.4pt</code>입니다.</p>
               </article>
