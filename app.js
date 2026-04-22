@@ -1,7 +1,7 @@
 const d3 = window.d3;
 const topojson = window.topojson;
 
-if (!d3 || !topojson || !window.WORLD_ATLAS_TOPOLOGY || !window.WORLD_COUNTRY_NAMES_TSV) {
+if (!d3 || !topojson || !window.WORLD_ATLAS_TOPOLOGY || !window.WORLD_COUNTRY_NAMES_TSV || !window.KOREA_ADMIN_DATA) {
   throw new Error("필수 지도 데이터 또는 라이브러리를 불러오지 못했습니다.");
 }
 
@@ -31,7 +31,7 @@ const MAIN_CANVAS_WIDTH = 310;
 const MIN_CANVAS_WIDTH = 140;
 const MIN_CANVAS_HEIGHT = 120;
 const MIN_ZOOM_DRAG_SIZE = 20;
-const MIN_INSET_DRAG_SIZE = 8;
+const MIN_INSET_DRAG_SIZE = 2;
 const MAP_RENDER_CLIP_PADDING = 24;
 const INSET_RENDER_CLIP_PADDING = 18;
 const MIN_INSET_ZOOM_SCALE = 0.2;
@@ -41,6 +41,14 @@ const projectionModeLabels = {
   rectangular: "평면",
   northPolar: "북극",
   southPolar: "남극",
+};
+const mapVersionLabels = {
+  world: "세계",
+  korea: "대한민국",
+};
+const koreaRegionLevelLabels = {
+  provinces: "도/광역시",
+  municipalities: "시/군/구",
 };
 
 const viewModeLabels = {
@@ -187,6 +195,39 @@ const countryByAlias = new Map(
     .filter(([, feature]) => Boolean(feature)),
 );
 
+const countryStatsById = window.COUNTRY_STATS_BY_ID ?? {};
+const countryStatsMeta = window.COUNTRY_STATS_META ?? { sources: {} };
+const countryStatsReligionLabels = {
+  christians: "기독교",
+  muslims: "이슬람",
+  hindus: "힌두교",
+  buddhists: "불교",
+  jews: "유대교",
+  other: "기타 종교",
+  noReligion: "무종교",
+};
+const countryStatsEnergyLabels = {
+  coal: "석탄",
+  oil: "석유",
+  gas: "가스",
+  nuclear: "원자력",
+  hydropower: "수력",
+  wind: "풍력",
+  solar: "태양광",
+  biofuels: "바이오연료",
+  bioenergy: "바이오에너지",
+  otherRenewables: "기타 재생",
+};
+const koreaDatasets = {
+  provinces: buildKoreaDataset(window.KOREA_ADMIN_DATA.provinces, "provinces"),
+  municipalities: buildKoreaDataset(window.KOREA_ADMIN_DATA.municipalities, "municipalities"),
+};
+const koreaProvinceByCode = koreaDatasets.provinces.featureById;
+const koreaMunicipalitiesByParentCode = d3.group(
+  koreaDatasets.municipalities.features,
+  (feature) => feature.properties.parentCode,
+);
+
 function buildAtlasDataset(variantTopology, datasetKey) {
   const countriesObject = variantTopology.objects.countries;
   const landFeature = topojson.feature(variantTopology, variantTopology.objects.land);
@@ -217,6 +258,37 @@ function buildAtlasDataset(variantTopology, datasetKey) {
     borderMesh,
     countryFeatures: variantCountryFeatures,
     countryById: new Map(variantCountryFeatures.map((feature) => [feature.id, feature])),
+  };
+}
+
+function buildKoreaDataset(topology, level) {
+  const objectKey = Object.keys(topology.objects)[0];
+  const regionsObject = topology.objects[objectKey];
+  const regionFeatures = topojson
+    .feature(topology, regionsObject)
+    .features
+    .map((feature) => {
+      const code = String(feature.properties?.code ?? feature.id ?? "");
+      return {
+        ...feature,
+        id: code,
+        properties: {
+          ...feature.properties,
+          code,
+          name: feature.properties?.name ?? code,
+          parentCode: level === "municipalities" ? code.slice(0, 2) : "",
+        },
+      };
+    })
+    .sort((a, b) => d3.ascending(a.properties.code, b.properties.code));
+
+  return {
+    level,
+    topology,
+    regionsObject,
+    landFeature: topojson.merge(topology, regionsObject.geometries),
+    features: regionFeatures,
+    featureById: new Map(regionFeatures.map((feature) => [feature.id, feature])),
   };
 }
 
@@ -261,6 +333,7 @@ function getAtlasDataset(zoomLevel = state.viewZoom, preferFine = false) {
 const atlasPalette = ["#9c9c9c", "#b9b9b9", "#6a6a6a", "#858585", "#cacaca", "#777777"];
 
 const state = {
+  mapVersion: "world",
   width: MAIN_CANVAS_WIDTH,
   height: 310,
   paddingPercent: 10,
@@ -284,6 +357,7 @@ const state = {
   showLatitudeLabels: false,
   showScaleBar: false,
   mapFontSizePt: 8,
+  activeStatsCountryId: null,
   guides: {
     equator: false,
     lat30: false,
@@ -292,6 +366,10 @@ const state = {
     tropicCapricorn: false,
   },
   selected: [],
+  koreaLevel: "provinces",
+  koreaParentCode: "",
+  koreaSelectedProvinces: [],
+  koreaSelectedMunicipalities: [],
   markerDraftStyle: "ring",
   markers: [],
   insets: [],
@@ -300,11 +378,18 @@ const state = {
 };
 
 const elements = {
+  mapVersionButtons: [...document.querySelectorAll(".map-version-button")],
+  worldSections: [...document.querySelectorAll(".world-only")],
+  koreaSections: [...document.querySelectorAll(".korea-only")],
   countryInput: document.querySelector("#countryInput"),
   countryOptions: document.querySelector("#countryOptions"),
   addCountryButton: document.querySelector("#addCountryButton"),
   clearSelectionButton: document.querySelector("#clearSelectionButton"),
+  selectionCardTitle: document.querySelector("#selectionCardTitle"),
+  selectionDetailTitle: document.querySelector("#selectionDetailTitle"),
+  selectionDetailHint: document.querySelector("#selectionDetailHint"),
   selectedCountryList: document.querySelector("#selectedCountryList"),
+  countryStatsPanel: document.querySelector("#countryStatsPanel"),
   statusMessage: document.querySelector("#statusMessage"),
   widthInput: document.querySelector("#widthInput"),
   heightInput: document.querySelector("#heightInput"),
@@ -346,6 +431,12 @@ const elements = {
   workspaceObjectSummary: document.querySelector("#workspaceObjectSummary"),
   workspaceModeTips: document.querySelector("#workspaceModeTips"),
   selectionSummary: document.querySelector("#selectionSummary"),
+  koreaLevelButtons: [...document.querySelectorAll(".korea-level-button")],
+  koreaParentRegionSelect: document.querySelector("#koreaParentRegionSelect"),
+  koreaRegionChipList: document.querySelector("#koreaRegionChipList"),
+  activateVisibleKoreaRegionsButton: document.querySelector("#activateVisibleKoreaRegionsButton"),
+  clearVisibleKoreaRegionsButton: document.querySelector("#clearVisibleKoreaRegionsButton"),
+  unifySelectedColorLabel: document.querySelector("#unifySelectedColorLabel"),
   presetButtons: [...document.querySelectorAll(".preset-button[data-width]")],
   markerStyleInput: document.querySelector("#markerStyleInput"),
   clearAnnotationsButton: document.querySelector("#clearAnnotationsButton"),
@@ -383,15 +474,22 @@ const historyState = {
 };
 
 buildCountryDatalist();
+buildKoreaParentRegionOptions();
 attachEventListeners();
 syncControls();
-setStatus("영역 확대 모드에서 드래그하면 원하는 부분만 바로 크게 잡을 수 있습니다.");
-renderSelectedCountries();
+setStatus(getDefaultStatusMessage());
+renderSelectionViews();
 renderAnnotations();
 renderMap();
 void loadEmbeddedMapFontData();
 
 function attachEventListeners() {
+  elements.mapVersionButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      setMapVersion(button.dataset.mapVersion);
+    });
+  });
+
   elements.addCountryButton.addEventListener("click", () => {
     addCountriesFromInput(elements.countryInput.value);
   });
@@ -404,17 +502,20 @@ function attachEventListeners() {
   });
 
   elements.clearSelectionButton.addEventListener("click", () => {
-    if (!state.selected.length) {
-      setStatus("비울 선택 국가가 없습니다.");
+    const currentSelection = getCurrentSelectionEntries();
+    if (!currentSelection.length) {
+      setStatus(state.mapVersion === "world" ? "비울 선택 국가가 없습니다." : "비울 권역이 없습니다.");
       return;
     }
 
-    beginHistoryStep("선택 국가 비우기");
-    state.selected = [];
+    beginHistoryStep(state.mapVersion === "world" ? "선택 국가 비우기" : "선택 권역 비우기");
+    setCurrentSelectionEntries([]);
+    syncActiveStatsCountry();
     resetViewForSelectionIfNeeded();
-    renderSelectedCountries();
+    renderSelectionViews();
+    syncKoreaControls();
     renderMap();
-    setStatus("선택한 국가를 모두 비웠습니다.");
+    setStatus(state.mapVersion === "world" ? "선택한 국가를 모두 비웠습니다." : "선택한 권역을 모두 비웠습니다.");
   });
 
   elements.widthInput.addEventListener("input", () => {
@@ -464,6 +565,24 @@ function attachEventListeners() {
     });
   });
 
+  elements.koreaLevelButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      setKoreaLevel(button.dataset.koreaLevel);
+    });
+  });
+
+  elements.koreaParentRegionSelect.addEventListener("change", () => {
+    setKoreaParentCode(elements.koreaParentRegionSelect.value);
+  });
+
+  elements.activateVisibleKoreaRegionsButton.addEventListener("click", () => {
+    selectAllVisibleKoreaRegions();
+  });
+
+  elements.clearVisibleKoreaRegionsButton.addEventListener("click", () => {
+    clearVisibleKoreaRegions();
+  });
+
   elements.projectionButtons.forEach((button) => {
     button.addEventListener("click", () => {
       beginHistoryStep("시점 변경");
@@ -479,6 +598,11 @@ function attachEventListeners() {
   elements.redoButton.addEventListener("click", redoLastChange);
 
   elements.zoomOutButton.addEventListener("click", () => {
+    if (state.mapVersion !== "world") {
+      setStatus("한국 지도는 권역 on/off 전용으로 고정 보기입니다.");
+      return;
+    }
+
     if (state.viewZoom <= 1.001 && nearZero(state.viewOffsetX) && nearZero(state.viewOffsetY)) {
       setStatus("이미 전체 보기 상태입니다.");
       return;
@@ -491,6 +615,11 @@ function attachEventListeners() {
   });
 
   elements.resetViewButton.addEventListener("click", () => {
+    if (state.mapVersion !== "world") {
+      setStatus("한국 지도는 지도를 이동하지 않고 권역만 켜고 끕니다.");
+      return;
+    }
+
     beginHistoryStep("전체 보기");
     resetViewWindow();
     renderMap();
@@ -557,17 +686,17 @@ function attachEventListeners() {
   });
 
   elements.unifySelectedCountryColorsToggle.addEventListener("change", () => {
-    beginHistoryStep("국가 색상 설정 변경");
+    beginHistoryStep(state.mapVersion === "world" ? "국가 색상 설정 변경" : "권역 색상 설정 변경");
     state.unifySelectedCountryColors = elements.unifySelectedCountryColorsToggle.checked;
     syncStyleControls();
-    renderSelectedCountries();
+    renderSelectionViews();
     renderMap();
   });
 
   elements.unifiedCountryColorInput.addEventListener("input", () => {
-    beginHistoryStep("국가 색상 설정 변경");
+    beginHistoryStep(state.mapVersion === "world" ? "국가 색상 설정 변경" : "권역 색상 설정 변경");
     state.unifiedSelectedCountryColor = elements.unifiedCountryColorInput.value;
-    renderSelectedCountries();
+    renderSelectionViews();
     renderMap();
   });
 
@@ -744,9 +873,10 @@ function applyStateSnapshot(snapshot) {
     state[key] = nextState[key];
   });
   normalizeCanvasStateDimensions();
+  syncActiveStatsCountry(state.activeStatsCountryId);
 
   syncControls();
-  renderSelectedCountries();
+  renderSelectionViews();
   renderAnnotations();
   renderMap();
 
@@ -824,7 +954,7 @@ function syncPreviewCanvasMode() {
   }
 
   Object.keys(viewModeLabels).forEach((mode) => {
-    shell.classList.toggle(`mode-${mode}`, getActiveViewMode() === mode);
+    shell.classList.toggle(`mode-${mode}`, state.mapVersion === "world" && getActiveViewMode() === mode);
   });
 }
 
@@ -848,6 +978,10 @@ function handleWindowKeyDown(event) {
   if (event.ctrlKey && !event.metaKey && event.key.toLowerCase() === "y") {
     event.preventDefault();
     redoLastChange();
+    return;
+  }
+
+  if (state.mapVersion !== "world") {
     return;
   }
 
@@ -917,6 +1051,10 @@ function handleWindowKeyDown(event) {
 }
 
 function handleWindowKeyUp(event) {
+  if (state.mapVersion !== "world") {
+    return;
+  }
+
   if (event.code !== "Space") {
     return;
   }
@@ -942,8 +1080,143 @@ function isFormControl(target) {
   return Boolean(target.closest("input, select, textarea, [contenteditable='true']"));
 }
 
+function getDefaultStatusMessage() {
+  return state.mapVersion === "world"
+    ? "영역 확대 모드에서 드래그하면 원하는 부분만 바로 크게 잡을 수 있습니다."
+    : "한국 지도에서는 지도를 움직이기보다 권역을 바로 켜고 끄면서 구도를 만듭니다.";
+}
+
+function buildKoreaParentRegionOptions() {
+  const fragment = document.createDocumentFragment();
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = "광역시도를 먼저 고르세요";
+  fragment.appendChild(placeholder);
+
+  koreaDatasets.provinces.features.forEach((feature) => {
+    const option = document.createElement("option");
+    option.value = feature.id;
+    option.textContent = feature.properties.name;
+    fragment.appendChild(option);
+  });
+
+  elements.koreaParentRegionSelect.replaceChildren(fragment);
+}
+
+function setSectionVisibility(nodes, isVisible) {
+  nodes.forEach((node) => {
+    node.hidden = !isVisible;
+    node.style.display = isVisible ? "" : "none";
+  });
+}
+
+function setMapVersion(mapVersion, { silent = false } = {}) {
+  if (!mapVersionLabels[mapVersion] || state.mapVersion === mapVersion) {
+    syncMapVersionControls();
+    return;
+  }
+
+  beginHistoryStep("지도 버전 변경");
+  state.mapVersion = mapVersion;
+  interactionState.temporaryViewMode = null;
+  keyboardState.temporaryPanSourceMode = null;
+  syncControls();
+  renderSelectionViews();
+  renderMap();
+
+  if (!silent) {
+    setStatus(
+      state.mapVersion === "world"
+        ? "세계 지도 모드로 돌아왔습니다."
+        : "대한민국 권역 지도 모드로 전환했습니다.",
+    );
+  }
+}
+
+function setKoreaLevel(level, { silent = false } = {}) {
+  if (!koreaRegionLevelLabels[level] || state.koreaLevel === level) {
+    syncKoreaControls();
+    return;
+  }
+
+  beginHistoryStep("한국 권역 레벨 변경");
+  state.koreaLevel = level;
+  if (level === "municipalities" && !state.koreaParentCode) {
+    state.koreaParentCode = inferPreferredKoreaParentCode();
+  }
+  syncControls();
+  renderSelectionViews();
+  renderMap();
+
+  if (!silent) {
+    setStatus(`${koreaRegionLevelLabels[level]} 보기로 전환했습니다.`);
+  }
+}
+
+function inferPreferredKoreaParentCode() {
+  if (state.koreaSelectedProvinces.length === 1) {
+    return state.koreaSelectedProvinces[0].id;
+  }
+
+  const municipalityParents = [...new Set(state.koreaSelectedMunicipalities.map((region) => region.parentCode))];
+  return municipalityParents.length === 1 ? municipalityParents[0] : "";
+}
+
+function setKoreaParentCode(code, { silent = false } = {}) {
+  const nextCode = code && koreaProvinceByCode.has(code) ? code : "";
+  if (state.koreaParentCode === nextCode) {
+    syncKoreaControls();
+    return;
+  }
+
+  beginHistoryStep("시군구 범위 변경");
+  state.koreaParentCode = nextCode;
+  syncKoreaControls();
+  renderMap();
+
+  if (!silent) {
+    setStatus(
+      nextCode
+        ? `${getKoreaProvinceName(nextCode)} 시/군/구 보기로 전환했습니다.`
+        : "시/군/구 범위 선택을 초기화했습니다.",
+    );
+  }
+}
+
+function syncMapVersionControls() {
+  const isWorldMode = state.mapVersion === "world";
+  document.body.dataset.mapVersion = state.mapVersion;
+  setSectionVisibility(elements.worldSections, isWorldMode);
+  setSectionVisibility(elements.koreaSections, !isWorldMode);
+  elements.mapVersionButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.mapVersion === state.mapVersion);
+  });
+  elements.selectionCardTitle.textContent = isWorldMode ? "국가 선택" : "한국 권역 선택";
+  elements.selectionDetailTitle.textContent = isWorldMode ? "선택 국가" : "선택 권역";
+  elements.selectionDetailHint.textContent = isWorldMode
+    ? "검색창 또는 지도 클릭으로 추가한 국가를 여기서 색상과 함께 관리합니다."
+    : "도/광역시 또는 시/군/구 권역을 켜고 끈 결과를 여기서 색상과 함께 관리합니다.";
+  elements.unifySelectedColorLabel.textContent = isWorldMode ? "선택 국가 색상 통일" : "선택 권역 색상 통일";
+  elements.modeButtons.forEach((button) => {
+    button.disabled = !isWorldMode;
+  });
+  elements.zoomOutButton.disabled = !isWorldMode;
+  elements.resetViewButton.disabled = !isWorldMode;
+}
+
+function syncKoreaControls() {
+  elements.koreaLevelButtons.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.koreaLevel === state.koreaLevel);
+  });
+
+  elements.koreaParentRegionSelect.value = state.koreaParentCode;
+  elements.koreaParentRegionSelect.disabled = state.koreaLevel !== "municipalities";
+  renderKoreaRegionChips();
+}
+
 function syncControls() {
   normalizeCanvasStateDimensions();
+  syncMapVersionControls();
   syncDimensionInputs();
   syncPresetButtons();
   syncCenterControls();
@@ -951,6 +1224,7 @@ function syncControls() {
   syncProjectionButtons();
   syncGuideControls();
   syncStyleControls();
+  syncKoreaControls();
   updatePreviewHint();
   updateWorkspaceStats();
   syncHistoryButtons();
@@ -997,7 +1271,7 @@ function syncGuideControls() {
 }
 
 function syncStyleControls() {
-  const canShowCanvasFrame = state.projectionMode === "rectangular";
+  const canShowCanvasFrame = state.projectionMode === "rectangular" || state.mapVersion === "korea";
   elements.paddingValue.textContent = `${state.paddingPercent}%`;
   elements.oceanColorInput.value = state.oceanColor;
   elements.landColorInput.value = state.landColor;
@@ -1021,6 +1295,24 @@ function syncStyleControls() {
 }
 
 function updatePreviewHint() {
+  if (state.mapVersion === "korea") {
+    const scopeText =
+      state.koreaLevel === "municipalities" && state.koreaParentCode
+        ? `${getKoreaProvinceName(state.koreaParentCode)} 범위에서 권역을 켜고 끄고 있습니다.`
+        : "광역시도 또는 시/군/구 권역을 클릭해서 바로 켜고 끌 수 있습니다.";
+    elements.previewHint.textContent = scopeText;
+    elements.activeModeLabel.textContent = "권역 on/off";
+    elements.activeModeTitle.textContent = "권역 on/off";
+    elements.activeModeDescription.textContent =
+      "한국 지도에서는 지도를 이동하지 않고 권역을 바로 켜고 끄며 구도를 정합니다.";
+    renderWorkspaceModeTips(
+      state.koreaLevel === "municipalities"
+        ? ["클릭: 권역 on/off", "상위 범위: 광역시도 선택", "Undo: 최근 변경 되돌리기"]
+        : ["클릭: 권역 on/off", "레벨 전환: 도/광역시/시·군·구", "Undo: 최근 변경 되돌리기"],
+    );
+    return;
+  }
+
   const activeMode = getActiveViewMode();
   const details = viewModeDetails[activeMode] ?? viewModeDetails.zoom;
 
@@ -1043,6 +1335,17 @@ function renderWorkspaceModeTips(tips = []) {
 }
 
 function updateWorkspaceStats() {
+  if (state.mapVersion === "korea") {
+    const currentSelection = getCurrentSelectionEntries();
+    elements.viewZoomLabel.textContent = "고정 보기";
+    elements.workspaceObjectSummary.textContent =
+      `권역 ${currentSelection.length} · ${koreaRegionLevelLabels[state.koreaLevel]}` +
+      (state.koreaLevel === "municipalities" && state.koreaParentCode
+        ? ` · ${getKoreaProvinceName(state.koreaParentCode)}`
+        : "");
+    return;
+  }
+
   const zoomRatio = state.viewZoom * previewInteraction.scale;
   elements.viewZoomLabel.textContent = `${Math.round(zoomRatio * 100)}%`;
   elements.workspaceObjectSummary.textContent =
@@ -1062,6 +1365,11 @@ function buildCountryDatalist() {
 }
 
 function addCountriesFromInput(rawValue) {
+  if (state.mapVersion !== "world") {
+    setStatus("한국 지도에서는 검색 대신 권역 칩이나 지도 클릭으로 선택합니다.");
+    return;
+  }
+
   const tokens = rawValue
     .split(/[,\n]/)
     .map((value) => value.trim())
@@ -1074,6 +1382,7 @@ function addCountriesFromInput(rawValue) {
 
   beginHistoryStep("국가 추가");
   const addedNames = [];
+  const addedIds = [];
   const missingNames = [];
 
   tokens.forEach((token) => {
@@ -1090,14 +1399,16 @@ function addCountriesFromInput(rawValue) {
     state.selected.push({
       id: country.id,
       name: country.properties.name,
-      color: nextPaletteColor(),
+      color: nextPaletteColor(state.selected.length),
     });
     addedNames.push(country.properties.name);
+    addedIds.push(country.id);
   });
 
   elements.countryInput.value = "";
 
   if (addedNames.length) {
+    syncActiveStatsCountry(addedIds[addedIds.length - 1] ?? null);
     resetViewForSelectionIfNeeded();
     setStatus(`${addedNames.join(", ")} 추가됨`);
   } else if (missingNames.length) {
@@ -1106,7 +1417,7 @@ function addCountriesFromInput(rawValue) {
     setStatus("이미 선택된 국가입니다.");
   }
 
-  renderSelectedCountries();
+  renderSelectionViews();
   renderMap();
 }
 
@@ -1154,8 +1465,187 @@ function normalizeText(value) {
     .toLowerCase();
 }
 
-function nextPaletteColor() {
-  return atlasPalette[state.selected.length % atlasPalette.length];
+function nextPaletteColor(index = state.selected.length) {
+  return atlasPalette[index % atlasPalette.length];
+}
+
+function getCurrentSelectionEntries() {
+  if (state.mapVersion === "world") {
+    return state.selected;
+  }
+
+  return state.koreaLevel === "provinces" ? state.koreaSelectedProvinces : state.koreaSelectedMunicipalities;
+}
+
+function setCurrentSelectionEntries(entries) {
+  if (state.mapVersion === "world") {
+    state.selected = entries;
+    return;
+  }
+
+  if (state.koreaLevel === "provinces") {
+    state.koreaSelectedProvinces = entries;
+    return;
+  }
+
+  state.koreaSelectedMunicipalities = entries;
+}
+
+function getKoreaProvinceName(code) {
+  return koreaProvinceByCode.get(code)?.properties?.name ?? code;
+}
+
+function formatSelectionDisplayName(selection) {
+  if (state.mapVersion === "korea" && state.koreaLevel === "municipalities") {
+    return `${getKoreaProvinceName(selection.parentCode)} · ${selection.name}`;
+  }
+
+  return selection.name;
+}
+
+function getCurrentSelectionEmptyMessage() {
+  if (state.mapVersion === "world") {
+    return "아직 선택된 국가가 없습니다. 검색창이나 미리보기 클릭으로 추가해 보세요.";
+  }
+
+  if (state.koreaLevel === "municipalities" && !state.koreaParentCode) {
+    return "시/군/구를 보려면 먼저 광역시도를 고르거나 지도에서 한 번 클릭해 주세요.";
+  }
+
+  return "아직 선택된 권역이 없습니다. 권역 칩이나 미리보기 클릭으로 추가해 보세요.";
+}
+
+function createKoreaSelectionEntry(feature, color = nextPaletteColor(getCurrentSelectionEntries().length)) {
+  return {
+    id: feature.id,
+    name: feature.properties.name,
+    parentCode: feature.properties.parentCode,
+    color,
+  };
+}
+
+function getVisibleKoreaSelectableFeatures() {
+  if (state.koreaLevel === "provinces") {
+    return koreaDatasets.provinces.features;
+  }
+
+  if (!state.koreaParentCode) {
+    return [];
+  }
+
+  return koreaMunicipalitiesByParentCode.get(state.koreaParentCode) ?? [];
+}
+
+function getKoreaHitTestFeatures() {
+  if (state.koreaLevel === "provinces") {
+    return koreaDatasets.provinces.features;
+  }
+
+  if (!state.koreaParentCode) {
+    return koreaDatasets.provinces.features;
+  }
+
+  return getVisibleKoreaSelectableFeatures();
+}
+
+function renderKoreaRegionChips() {
+  elements.koreaRegionChipList.replaceChildren();
+
+  if (state.mapVersion !== "korea") {
+    return;
+  }
+
+  const visibleFeatures = getVisibleKoreaSelectableFeatures();
+  const selectedIds = new Set(getCurrentSelectionEntries().map((selection) => selection.id));
+
+  if (!visibleFeatures.length) {
+    const emptyText =
+      state.koreaLevel === "municipalities"
+        ? "시/군/구를 보려면 먼저 광역시도를 고르거나 지도에서 한 번 클릭해 주세요."
+        : "표시할 권역이 없습니다.";
+    elements.koreaRegionChipList.appendChild(createEmptyState(emptyText));
+    elements.activateVisibleKoreaRegionsButton.disabled = true;
+    elements.clearVisibleKoreaRegionsButton.disabled = true;
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+
+  visibleFeatures.forEach((feature) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "tw-chip region-chip";
+    button.textContent = feature.properties.name;
+    button.classList.toggle("is-active", selectedIds.has(feature.id));
+    button.addEventListener("click", () => {
+      toggleKoreaRegion(feature.id);
+    });
+    fragment.appendChild(button);
+  });
+
+  elements.koreaRegionChipList.appendChild(fragment);
+  elements.activateVisibleKoreaRegionsButton.disabled = false;
+  elements.clearVisibleKoreaRegionsButton.disabled = false;
+}
+
+function selectAllVisibleKoreaRegions() {
+  const visibleFeatures = getVisibleKoreaSelectableFeatures();
+  if (!visibleFeatures.length) {
+    setStatus("현재 켤 수 있는 권역이 없습니다.");
+    return;
+  }
+
+  const selections = [...getCurrentSelectionEntries()];
+  const existingIds = new Set(selections.map((selection) => selection.id));
+  let paletteIndex = selections.length;
+  let addedCount = 0;
+
+  visibleFeatures.forEach((feature) => {
+    if (existingIds.has(feature.id)) {
+      return;
+    }
+
+    selections.push(createKoreaSelectionEntry(feature, nextPaletteColor(paletteIndex)));
+    existingIds.add(feature.id);
+    paletteIndex += 1;
+    addedCount += 1;
+  });
+
+  if (!addedCount) {
+    setStatus("현재 보이는 권역은 이미 모두 켜져 있습니다.");
+    return;
+  }
+
+  beginHistoryStep("권역 선택 변경");
+  setCurrentSelectionEntries(selections);
+  renderSelectionViews();
+  syncKoreaControls();
+  renderMap();
+  setStatus(`현재 보이는 ${visibleFeatures.length}개 권역을 켰습니다.`);
+}
+
+function clearVisibleKoreaRegions() {
+  const visibleFeatures = getVisibleKoreaSelectableFeatures();
+  if (!visibleFeatures.length) {
+    setStatus("현재 끌 수 있는 권역이 없습니다.");
+    return;
+  }
+
+  const visibleIds = new Set(visibleFeatures.map((feature) => feature.id));
+  const currentSelection = getCurrentSelectionEntries();
+  const nextSelection = currentSelection.filter((selection) => !visibleIds.has(selection.id));
+
+  if (nextSelection.length === currentSelection.length) {
+    setStatus("현재 보이는 권역 중 꺼진 항목만 있습니다.");
+    return;
+  }
+
+  beginHistoryStep("권역 선택 변경");
+  setCurrentSelectionEntries(nextSelection);
+  renderSelectionViews();
+  syncKoreaControls();
+  renderMap();
+  setStatus("현재 보이는 권역을 모두 껐습니다.");
 }
 
 function getUnifiedSelectedCountryColor() {
@@ -1171,26 +1661,61 @@ function getSelectedCountryColor(country) {
 }
 
 function buildSelectedColorById() {
-  return new Map(state.selected.map((country) => [country.id, getSelectedCountryColor(country)]));
+  return new Map(getCurrentSelectionEntries().map((country) => [country.id, getSelectedCountryColor(country)]));
 }
 
 function resetViewForSelectionIfNeeded() {
-  if (state.autoFocusOnSelection) {
+  if (state.mapVersion === "world" && state.autoFocusOnSelection) {
     resetViewWindow();
   }
 }
 
-function renderSelectedCountries() {
-  elements.selectedCountryList.innerHTML = "";
-
-  if (!state.selected.length) {
-    elements.selectedCountryList.appendChild(
-      createEmptyState("아직 선택된 국가가 없습니다. 검색창이나 미리보기 클릭으로 추가해 보세요."),
-    );
+function syncActiveStatsCountry(preferredId = null) {
+  if (state.mapVersion !== "world") {
     return;
   }
 
-  state.selected.forEach((country) => {
+  const selectedIds = new Set(state.selected.map((country) => country.id));
+  if (preferredId && selectedIds.has(preferredId)) {
+    state.activeStatsCountryId = preferredId;
+    return;
+  }
+
+  if (state.activeStatsCountryId && selectedIds.has(state.activeStatsCountryId)) {
+    return;
+  }
+
+  state.activeStatsCountryId = state.selected[state.selected.length - 1]?.id ?? null;
+}
+
+function renderSelectionViews() {
+  renderSelectedCountries();
+  renderCountryStatsPanel();
+}
+
+function getActiveStatsCountry() {
+  if (state.mapVersion !== "world") {
+    return null;
+  }
+
+  syncActiveStatsCountry();
+  return state.selected.find((country) => country.id === state.activeStatsCountryId) ?? null;
+}
+
+function renderSelectedCountries() {
+  elements.selectedCountryList.replaceChildren();
+
+  const currentSelection = getCurrentSelectionEntries();
+  if (state.mapVersion === "world") {
+    syncActiveStatsCountry();
+  }
+
+  if (!currentSelection.length) {
+    elements.selectedCountryList.appendChild(createEmptyState(getCurrentSelectionEmptyMessage()));
+    return;
+  }
+
+  currentSelection.forEach((country) => {
     const displayedColor = getSelectedCountryColor(country);
     const listItem = document.createElement("li");
     listItem.className = "selected-country-item";
@@ -1201,22 +1726,43 @@ function renderSelectedCountries() {
 
     const textWrap = document.createElement("div");
     const name = document.createElement("strong");
-    name.textContent = country.name;
+    name.textContent = formatSelectionDisplayName(country);
     const code = document.createElement("span");
-    code.textContent = state.unifySelectedCountryColors ? "통일 색상 사용 중" : "색상은 자유롭게 바꿀 수 있습니다";
+    const baseMetaText = state.unifySelectedCountryColors
+      ? "통일 색상 사용 중"
+      : state.mapVersion === "world"
+        ? "색상은 자유롭게 바꿀 수 있습니다"
+        : `${koreaRegionLevelLabels[state.koreaLevel]} · 색상은 자유롭게 바꿀 수 있습니다`;
+    code.textContent =
+      state.mapVersion === "world" && country.id === state.activeStatsCountryId
+        ? `현재 통계 패널 표시 중 · ${baseMetaText}`
+        : baseMetaText;
     textWrap.append(name, code);
 
     const controls = document.createElement("div");
     controls.className = "inline-actions";
+
+    if (state.mapVersion === "world") {
+      const statsButton = document.createElement("button");
+      statsButton.className = "remove-button tw-button";
+      statsButton.type = "button";
+      statsButton.textContent = country.id === state.activeStatsCountryId ? "보고 있음" : "통계";
+      statsButton.disabled = country.id === state.activeStatsCountryId;
+      statsButton.addEventListener("click", () => {
+        state.activeStatsCountryId = country.id;
+        renderSelectionViews();
+      });
+      controls.appendChild(statsButton);
+    }
 
     const colorInput = document.createElement("input");
     colorInput.type = "color";
     colorInput.value = displayedColor;
     colorInput.disabled = state.unifySelectedCountryColors;
     colorInput.title = state.unifySelectedCountryColors ? "통일 색상 옵션이 켜져 있어 개별 색상 편집이 잠겨 있습니다." : "";
-    colorInput.setAttribute("aria-label", `${country.name} 색상`);
+    colorInput.setAttribute("aria-label", `${formatSelectionDisplayName(country)} 색상`);
     colorInput.addEventListener("input", () => {
-      beginHistoryStep("국가 색상 변경");
+      beginHistoryStep(state.mapVersion === "world" ? "국가 색상 변경" : "권역 색상 변경");
       country.color = colorInput.value;
       swatch.style.backgroundColor = colorInput.value;
       renderMap();
@@ -1227,14 +1773,461 @@ function renderSelectedCountries() {
     removeButton.type = "button";
     removeButton.textContent = "제거";
     removeButton.addEventListener("click", () => {
-      removeCountry(country.id);
-      setStatus(`${country.name} 제거됨`);
+      removeSelectionEntry(country.id);
+      setStatus(`${formatSelectionDisplayName(country)} 제거됨`);
     });
 
     controls.append(colorInput, removeButton);
     listItem.append(swatch, textWrap, controls);
     elements.selectedCountryList.appendChild(listItem);
   });
+}
+
+function renderCountryStatsPanel() {
+  if (!elements.countryStatsPanel) {
+    return;
+  }
+
+  elements.countryStatsPanel.replaceChildren();
+
+  if (state.mapVersion !== "world") {
+    return;
+  }
+
+  if (!state.selected.length) {
+    elements.countryStatsPanel.appendChild(
+      createEmptyState("국가를 선택하면 인구, 도시화, FAOSTAT, 종교, 에너지 통계를 여기서 함께 볼 수 있습니다."),
+    );
+    return;
+  }
+
+  const activeCountry = getActiveStatsCountry();
+  const stats = activeCountry ? countryStatsById[activeCountry.id] ?? null : null;
+  const shell = document.createElement("div");
+  shell.className = "country-stats-shell";
+
+  if (state.selected.length > 1) {
+    shell.appendChild(buildCountryStatsTabs(activeCountry?.id ?? null));
+  }
+
+  shell.appendChild(buildCountryStatsHeader(activeCountry, stats));
+  shell.appendChild(buildCountryStatsSummaryGrid(stats));
+
+  const sectionGrid = document.createElement("div");
+  sectionGrid.className = "country-stats-section-grid";
+  sectionGrid.append(
+    buildPopulationStatsSection(stats?.population),
+    buildAgricultureStatsSection(stats?.agriculture),
+    buildReligionStatsSection(stats?.religion2020),
+    buildEnergyStatsSection(
+      stats?.energy?.consumption,
+      "에너지 소비 구조",
+      "최신 가용연도 기준 1차 에너지 소비를 화석·재생·원자력 비중과 세부 에너지원으로 정리했습니다.",
+    ),
+    buildEnergyStatsSection(
+      stats?.energy?.electricity,
+      "발전 구조",
+      "최신 가용연도 기준 발전량 구성을 비중 중심으로 정리했습니다.",
+    ),
+  );
+  shell.appendChild(sectionGrid);
+  shell.appendChild(buildCountryStatsSourceRow());
+
+  elements.countryStatsPanel.appendChild(shell);
+}
+
+function buildCountryStatsTabs(activeId) {
+  const tabs = document.createElement("div");
+  tabs.className = "country-stats-tabs";
+
+  state.selected.forEach((country) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "country-stats-tab";
+    button.classList.toggle("is-active", country.id === activeId);
+    button.textContent = country.name;
+    button.addEventListener("click", () => {
+      state.activeStatsCountryId = country.id;
+      renderSelectionViews();
+    });
+    tabs.appendChild(button);
+  });
+
+  return tabs;
+}
+
+function buildCountryStatsHeader(activeCountry, stats) {
+  const header = document.createElement("div");
+  header.className = "country-stats-header";
+
+  const copy = document.createElement("div");
+  const kicker = document.createElement("p");
+  kicker.className = "tw-kicker";
+  kicker.textContent = stats?.iso3 ? `선택 국가 · ${stats.iso3}` : "선택 국가";
+  const title = document.createElement("h4");
+  title.className = "country-stats-header__title";
+  title.textContent = activeCountry?.name ?? "통계 국가 없음";
+  const description = document.createElement("p");
+  description.className = "country-stats-header__meta";
+  description.textContent = stats
+    ? buildCountryStatsMetaText(stats)
+    : "이 국가는 현재 로컬 통계 묶음에 포함된 항목이 적어 일부 카드만 표시될 수 있습니다.";
+  copy.append(kicker, title, description);
+
+  const note = document.createElement("div");
+  note.className = "country-stats-source";
+  note.innerHTML = `<strong>생성 기준</strong><br />${countryStatsMeta.generatedAt ?? "알 수 없음"} · 최신 가용연도 기준`;
+
+  header.append(copy, note);
+  return header;
+}
+
+function buildCountryStatsMetaText(stats) {
+  const parts = [];
+
+  if (stats.population?.latestYear) {
+    parts.push(`인구 ${stats.population.latestYear}`);
+  }
+
+  const faostatYears = [
+    ...Object.values(stats.agriculture?.crops ?? {}).map((entry) => entry.year),
+    ...Object.values(stats.agriculture?.livestock ?? {}).map((entry) => entry.year),
+  ].filter(Boolean);
+  if (faostatYears.length) {
+    parts.push(`FAOSTAT ${Math.max(...faostatYears)}`);
+  }
+
+  if (stats.religion2020?.year) {
+    parts.push(`종교 ${stats.religion2020.year}`);
+  }
+
+  if (stats.energy?.consumption?.year) {
+    parts.push(`에너지 ${stats.energy.consumption.year}`);
+  }
+
+  if (!parts.length) {
+    return "선택 국가의 세부 통계가 아직 준비되지 않았습니다.";
+  }
+
+  return `${parts.join(" · ")} 기준으로 묶은 통계입니다. 인구/도시화는 10년 단위와 최신 가용연도를 함께 보여줍니다.`;
+}
+
+function buildCountryStatsSummaryGrid(stats) {
+  const grid = document.createElement("div");
+  grid.className = "country-stats-summary-grid";
+
+  const latestPopulationRow = getLatestPopulationRow(stats?.population);
+  const topReligion = getTopReligionShare(stats?.religion2020);
+  const energySummary = stats?.energy?.consumption?.summaryShares ?? null;
+
+  grid.append(
+    createCountryStatsSummaryCard(
+      "최신 인구",
+      latestPopulationRow ? formatStatNumber(latestPopulationRow.population) : "자료 없음",
+      latestPopulationRow ? `${latestPopulationRow.year}년` : "UN 최신 가용연도",
+    ),
+    createCountryStatsSummaryCard(
+      "도시화율",
+      latestPopulationRow?.urbanShare != null ? formatPercent(latestPopulationRow.urbanShare) : "자료 없음",
+      latestPopulationRow?.urbanPopulation != null
+        ? `도시 인구 ${formatStatNumber(latestPopulationRow.urbanPopulation)}명`
+        : "도시 인구 추정치 없음",
+    ),
+    createCountryStatsSummaryCard(
+      "종교 구도",
+      topReligion ? `${topReligion.label} ${formatPercent(topReligion.value)}` : "자료 없음",
+      stats?.religion2020?.year ? `${stats.religion2020.year}년 Pew 기준` : "Pew 2020 없음",
+    ),
+    createCountryStatsSummaryCard(
+      "에너지 소비",
+      energySummary ? `화석 ${formatPercent(energySummary.fossil)}` : "자료 없음",
+      energySummary
+        ? `재생 ${formatPercent(energySummary.renewables)} · 원자력 ${formatPercent(energySummary.nuclear)}`
+        : "최신 가용연도 데이터 없음",
+    ),
+  );
+
+  return grid;
+}
+
+function createCountryStatsSummaryCard(label, value, detail) {
+  const card = document.createElement("div");
+  card.className = "country-stats-summary-card";
+
+  const labelNode = document.createElement("span");
+  labelNode.textContent = label;
+  const valueNode = document.createElement("strong");
+  valueNode.textContent = value;
+  const detailNode = document.createElement("small");
+  detailNode.textContent = detail;
+
+  card.append(labelNode, valueNode, detailNode);
+  return card;
+}
+
+function buildPopulationStatsSection(population) {
+  const section = createCountryStatsSection(
+    "인구 · 도시화",
+    "UN 기반 시계열을 10년 단위와 최신 가용연도로 묶었습니다.",
+  );
+
+  if (!population?.rows?.length) {
+    section.appendChild(createCountryStatsUnavailable("표시할 인구/도시화 시계열이 없습니다."));
+    return section;
+  }
+
+  const table = document.createElement("table");
+  table.className = "country-stats-table";
+
+  const thead = document.createElement("thead");
+  thead.innerHTML =
+    "<tr><th>연도</th><th>총인구</th><th>도시화율</th><th>도시인구</th></tr>";
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  population.rows.forEach((row) => {
+    const tableRow = document.createElement("tr");
+    tableRow.innerHTML =
+      `<td>${row.year}</td>` +
+      `<td>${formatStatNumber(row.population)}</td>` +
+      `<td>${row.urbanShare != null ? formatPercent(row.urbanShare) : "자료 없음"}</td>` +
+      `<td>${row.urbanPopulation != null ? formatStatNumber(row.urbanPopulation) : "자료 없음"}</td>`;
+    tbody.appendChild(tableRow);
+  });
+  table.appendChild(tbody);
+  section.appendChild(table);
+  return section;
+}
+
+function buildAgricultureStatsSection(agriculture) {
+  const section = createCountryStatsSection(
+    "FAOSTAT 최신 농축산",
+    "밀·쌀·옥수수 생산량과 소·돼지·양 사육두수의 최신 가용연도입니다.",
+  );
+
+  const metricGrid = document.createElement("div");
+  metricGrid.className = "country-stats-metric-grid";
+
+  [
+    ["crops", "wheat"],
+    ["crops", "rice"],
+    ["crops", "maize"],
+    ["livestock", "cattle"],
+    ["livestock", "pigs"],
+    ["livestock", "sheep"],
+  ].forEach(([group, key]) => {
+    metricGrid.appendChild(buildAgricultureMetricCard(agriculture?.[group]?.[key] ?? null));
+  });
+
+  section.appendChild(metricGrid);
+  return section;
+}
+
+function buildAgricultureMetricCard(entry) {
+  const card = document.createElement("div");
+  card.className = "country-stats-metric";
+
+  const labelNode = document.createElement("span");
+  labelNode.textContent = entry?.label ?? "자료 없음";
+  const valueNode = document.createElement("strong");
+  valueNode.textContent = entry ? `${formatStatNumber(entry.value, 2)} ${formatFaostatUnit(entry.unit)}` : "자료 없음";
+  const detailNode = document.createElement("small");
+  detailNode.textContent = entry ? `${entry.year}년` : "최신 가용연도 없음";
+
+  card.append(labelNode, valueNode, detailNode);
+  return card;
+}
+
+function buildReligionStatsSection(religion) {
+  const section = createCountryStatsSection(
+    "Pew 종교 구성",
+    "2020년 종교별 인구 비중입니다.",
+  );
+
+  if (!religion?.shares) {
+    section.appendChild(createCountryStatsUnavailable("표시할 2020년 종교 통계가 없습니다."));
+    return section;
+  }
+
+  const list = document.createElement("div");
+  list.className = "country-stats-religion-list";
+
+  Object.entries(religion.shares)
+    .map(([key, value]) => ({
+      key,
+      label: countryStatsReligionLabels[key] ?? key,
+      value: Number(value) || 0,
+    }))
+    .sort((a, b) => b.value - a.value)
+    .forEach((entry) => {
+      const bar = buildShareBar(entry.label, entry.value);
+      list.appendChild(bar);
+    });
+
+  section.appendChild(list);
+  return section;
+}
+
+function buildEnergyStatsSection(entry, title, description) {
+  const section = createCountryStatsSection(title, description);
+
+  if (!entry) {
+    section.appendChild(createCountryStatsUnavailable("표시할 최신 에너지 구성이 없습니다."));
+    return section;
+  }
+
+  const summaryGrid = document.createElement("div");
+  summaryGrid.className = "country-stats-metric-grid";
+  summaryGrid.append(
+    createCountryStatsMetric("화석", formatPercent(entry.summaryShares?.fossil), `${entry.year}년 비중`),
+    createCountryStatsMetric("재생", formatPercent(entry.summaryShares?.renewables), `${entry.year}년 비중`),
+    createCountryStatsMetric(
+      "원자력",
+      formatPercent(entry.summaryShares?.nuclear),
+      `총량 ${formatStatNumber(entry.totalTWh, 2)} TWh`,
+    ),
+  );
+  section.appendChild(summaryGrid);
+
+  const bars = document.createElement("div");
+  bars.className = "country-stats-bars";
+  Object.entries(entry.shareBreakdown ?? {})
+    .map(([key, value]) => ({
+      key,
+      label: countryStatsEnergyLabels[key] ?? key,
+      value: Number(value) || 0,
+    }))
+    .filter((item) => item.value > 0)
+    .sort((a, b) => b.value - a.value)
+    .forEach((item) => {
+      bars.appendChild(buildShareBar(item.label, item.value));
+    });
+  section.appendChild(bars);
+
+  return section;
+}
+
+function createCountryStatsSection(title, description) {
+  const section = document.createElement("article");
+  section.className = "country-stats-section";
+
+  const titleNode = document.createElement("h4");
+  titleNode.textContent = title;
+  const descriptionNode = document.createElement("p");
+  descriptionNode.textContent = description;
+
+  section.append(titleNode, descriptionNode);
+  return section;
+}
+
+function createCountryStatsMetric(label, value, detail) {
+  const card = document.createElement("div");
+  card.className = "country-stats-metric";
+
+  const labelNode = document.createElement("span");
+  labelNode.textContent = label;
+  const valueNode = document.createElement("strong");
+  valueNode.textContent = value;
+  const detailNode = document.createElement("small");
+  detailNode.textContent = detail;
+
+  card.append(labelNode, valueNode, detailNode);
+  return card;
+}
+
+function createCountryStatsUnavailable(message) {
+  return createEmptyState(message);
+}
+
+function buildShareBar(label, value) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "country-stats-bar";
+
+  const head = document.createElement("div");
+  head.className = "country-stats-bar__head";
+  const labelNode = document.createElement("span");
+  labelNode.textContent = label;
+  const valueNode = document.createElement("strong");
+  valueNode.textContent = formatPercent(value);
+  head.append(labelNode, valueNode);
+
+  const track = document.createElement("div");
+  track.className = "country-stats-bar__track";
+  const fill = document.createElement("div");
+  fill.className = "country-stats-bar__fill";
+  fill.style.width = `${clamp(Number(value) || 0, 0, 100)}%`;
+  track.appendChild(fill);
+
+  wrapper.append(head, track);
+  return wrapper;
+}
+
+function buildCountryStatsSourceRow() {
+  const row = document.createElement("div");
+  row.className = "country-stats-source-row";
+
+  ["population", "urbanization", "faostat", "religion", "primaryEnergy", "electricityMix"].forEach((key) => {
+    const source = countryStatsMeta.sources?.[key];
+    if (!source?.url) {
+      return;
+    }
+
+    const card = document.createElement("div");
+    card.className = "country-stats-source";
+    const link = document.createElement("a");
+    link.href = source.url;
+    link.target = "_blank";
+    link.rel = "noreferrer";
+    link.textContent = source.label;
+    card.appendChild(link);
+    row.appendChild(card);
+  });
+
+  return row;
+}
+
+function getLatestPopulationRow(population) {
+  if (!population?.rows?.length) {
+    return null;
+  }
+
+  return population.rows[population.rows.length - 1];
+}
+
+function getTopReligionShare(religion) {
+  if (!religion?.shares) {
+    return null;
+  }
+
+  return Object.entries(religion.shares)
+    .map(([key, value]) => ({
+      key,
+      label: countryStatsReligionLabels[key] ?? key,
+      value: Number(value) || 0,
+    }))
+    .sort((a, b) => b.value - a.value)[0];
+}
+
+function formatStatNumber(value, maximumFractionDigits = 0) {
+  if (value == null || !Number.isFinite(Number(value))) {
+    return "자료 없음";
+  }
+
+  return Number(value).toLocaleString("ko-KR", {
+    maximumFractionDigits,
+  });
+}
+
+function formatPercent(value) {
+  if (value == null || !Number.isFinite(Number(value))) {
+    return "자료 없음";
+  }
+
+  return `${Number(value).toLocaleString("ko-KR", { maximumFractionDigits: 2 })}%`;
+}
+
+function formatFaostatUnit(unit) {
+  return unit === "An" ? "두" : unit || "";
 }
 
 function renderAnnotations() {
@@ -1484,11 +2477,13 @@ function buildNumberInput(value, min, max, step, historyLabel, onInput) {
   return input;
 }
 
-function removeCountry(countryId) {
-  beginHistoryStep("국가 제거");
-  state.selected = state.selected.filter((country) => country.id !== countryId);
+function removeSelectionEntry(regionId) {
+  beginHistoryStep(state.mapVersion === "world" ? "국가 제거" : "권역 제거");
+  setCurrentSelectionEntries(getCurrentSelectionEntries().filter((country) => country.id !== regionId));
+  syncActiveStatsCountry();
   resetViewForSelectionIfNeeded();
-  renderSelectedCountries();
+  renderSelectionViews();
+  syncKoreaControls();
   renderMap();
 }
 
@@ -1501,7 +2496,7 @@ function toggleCountry(countryId) {
   }
 
   if (existing) {
-    removeCountry(countryId);
+    removeSelectionEntry(countryId);
     setStatus(`${existing.name} 제거됨`);
     return;
   }
@@ -1510,15 +2505,56 @@ function toggleCountry(countryId) {
   state.selected.push({
     id: feature.id,
     name: feature.properties.name,
-    color: nextPaletteColor(),
+    color: nextPaletteColor(state.selected.length),
   });
+  syncActiveStatsCountry(feature.id);
   resetViewForSelectionIfNeeded();
-  renderSelectedCountries();
+  renderSelectionViews();
   renderMap();
   setStatus(`${feature.properties.name} 추가됨`);
 }
 
+function toggleKoreaRegion(regionId) {
+  if (state.koreaLevel === "municipalities" && !state.koreaParentCode) {
+    if (koreaProvinceByCode.has(regionId)) {
+      setKoreaParentCode(regionId);
+    }
+    return;
+  }
+
+  const sourceDataset =
+    state.koreaLevel === "provinces" ? koreaDatasets.provinces : koreaDatasets.municipalities;
+  const feature = sourceDataset.featureById.get(regionId);
+  const currentSelection = getCurrentSelectionEntries();
+  const existing = currentSelection.find((region) => region.id === regionId);
+
+  if (!feature) {
+    return;
+  }
+
+  if (existing) {
+    removeSelectionEntry(regionId);
+    setStatus(`${formatSelectionDisplayName(existing)} 제거됨`);
+    return;
+  }
+
+  beginHistoryStep("권역 선택 변경");
+  setCurrentSelectionEntries([
+    ...currentSelection,
+    createKoreaSelectionEntry(feature, nextPaletteColor(currentSelection.length)),
+  ]);
+  renderSelectionViews();
+  syncKoreaControls();
+  renderMap();
+  setStatus(`${formatSelectionDisplayName(createKoreaSelectionEntry(feature))} 추가됨`);
+}
+
 function renderMap() {
+  if (state.mapVersion === "korea") {
+    renderKoreaMap();
+    return;
+  }
+
   normalizeCanvasStateDimensions();
   const focusGeometry = buildFocusGeometry();
   const padding = Math.max(
@@ -1644,6 +2680,192 @@ function renderMap() {
   updateSelectionSummary();
   updateExportMeta();
   updateWorkspaceStats();
+}
+
+function renderKoreaMap() {
+  normalizeCanvasStateDimensions();
+  const visibleFeatures = getVisibleKoreaRenderFeatures();
+  const fitGeometry = buildKoreaFitGeometry(visibleFeatures);
+  const padding = Math.max(
+    18,
+    Math.round(Math.min(state.width, state.height) * (state.paddingPercent / 100)),
+  );
+  const projection = d3.geoMercator();
+  projection.fitExtent(
+    [
+      [padding, padding],
+      [state.width - padding, state.height - padding],
+    ],
+    fitGeometry,
+  );
+  projection.precision(0.14);
+
+  const path = d3.geoPath(projection);
+  const selectedEntries = getCurrentSelectionEntries();
+  const selectedIds = new Set(selectedEntries.map((region) => region.id));
+  const selectedColorById = buildSelectedColorById();
+  const koreaDataset =
+    state.koreaLevel === "provinces" || !state.koreaParentCode ? koreaDatasets.provinces : koreaDatasets.municipalities;
+  const visibleIds = new Set(visibleFeatures.map((feature) => feature.id));
+  const landFeature = buildKoreaLandFeature(koreaDataset, visibleIds);
+  const borderGeometry = buildKoreaBorderGeometry(koreaDataset, visibleIds, selectedIds);
+
+  const svg = d3
+    .create("svg")
+    .attr("xmlns", "http://www.w3.org/2000/svg")
+    .attr("viewBox", `0 0 ${state.width} ${state.height}`)
+    .attr("width", state.width)
+    .attr("height", state.height)
+    .attr("preserveAspectRatio", "xMidYMid meet")
+    .attr(
+      "aria-label",
+      `대한민국 ${koreaRegionLevelLabels[state.koreaLevel]} 지도, 선택 권역 ${selectedEntries.length}개`,
+    );
+  svg.style("background", state.oceanColor);
+
+  const root = svg.append("g").attr("class", "root-layer");
+  root
+    .append("rect")
+    .attr("class", "map-ocean")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", state.width)
+    .attr("height", state.height)
+    .attr("fill", state.oceanColor);
+
+  if (landFeature) {
+    root
+      .append("path")
+      .datum(landFeature)
+      .attr("class", "map-land")
+      .attr("d", path)
+      .attr("fill", state.landColor)
+      .attr("stroke", "none");
+  }
+
+  root
+    .selectAll(".map-region")
+    .data(visibleFeatures.filter((feature) => selectedColorById.has(feature.id)))
+    .join("path")
+    .attr("class", "map-region")
+    .attr("d", path)
+    .attr("fill", (feature) => selectedColorById.get(feature.id) ?? state.landColor)
+    .attr("stroke", "none");
+
+  if (borderGeometry) {
+    root
+      .append("path")
+      .datum(borderGeometry)
+      .attr("class", "map-border-lines")
+      .attr("d", path)
+      .attr("fill", "none")
+      .attr("stroke", state.borderColor)
+      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
+      .attr("stroke-dasharray", getBorderStrokeDasharray())
+      .attr("stroke-linecap", "round")
+      .attr("stroke-linejoin", "round")
+      .attr("vector-effect", "non-scaling-stroke");
+  }
+
+  if (landFeature) {
+    root
+      .append("path")
+      .datum(landFeature)
+      .attr("d", path)
+      .attr("fill", "none")
+      .attr("stroke", state.borderColor)
+      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
+      .attr("stroke-linejoin", "round")
+      .attr("vector-effect", "non-scaling-stroke");
+  }
+
+  if (state.showScaleBar) {
+    renderScaleBar(root, projection, padding);
+  }
+
+  if (state.showFrame) {
+    root
+      .append("rect")
+      .attr("x", 0.2)
+      .attr("y", 0.2)
+      .attr("width", Math.max(0, state.width - 0.4))
+      .attr("height", Math.max(0, state.height - 0.4))
+      .attr("fill", "none")
+      .attr("stroke", state.borderColor)
+      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
+      .attr("vector-effect", "non-scaling-stroke");
+  }
+
+  currentSvgNode = svg.node();
+  currentRenderContext = {
+    projection,
+    path,
+    baseScale: projection.scale(),
+    baseTranslate: [...projection.translate()],
+    padding,
+  };
+
+  resetPreviewInteractionState();
+  mountPreviewCanvas();
+  updateSelectionSummary();
+  updateExportMeta();
+  updateWorkspaceStats();
+}
+
+function getVisibleKoreaRenderFeatures() {
+  if (state.koreaLevel === "provinces") {
+    return koreaDatasets.provinces.features;
+  }
+
+  if (!state.koreaParentCode) {
+    return koreaDatasets.provinces.features;
+  }
+
+  return getVisibleKoreaSelectableFeatures();
+}
+
+function buildKoreaFitGeometry(visibleFeatures) {
+  if (state.koreaLevel === "municipalities" && state.koreaParentCode) {
+    return koreaProvinceByCode.get(state.koreaParentCode) ?? {
+      type: "FeatureCollection",
+      features: visibleFeatures,
+    };
+  }
+
+  return {
+    type: "FeatureCollection",
+    features: visibleFeatures.length ? visibleFeatures : koreaDatasets.provinces.features,
+  };
+}
+
+function buildKoreaLandFeature(dataset, visibleIds) {
+  const geometries = dataset.regionsObject.geometries.filter((geometry) =>
+    visibleIds.has(String(geometry.properties?.code ?? geometry.id ?? "")),
+  );
+  return geometries.length ? topojson.merge(dataset.topology, geometries) : null;
+}
+
+function buildKoreaBorderGeometry(dataset, visibleIds, selectedIds) {
+  if (state.borderMode === "none") {
+    return null;
+  }
+
+  const hasVisibleSelection = [...selectedIds].some((id) => visibleIds.has(id));
+
+  return topojson.mesh(dataset.topology, dataset.regionsObject, (a, b) => {
+    const aCode = String(a?.properties?.code ?? a?.id ?? "");
+    const bCode = String(b?.properties?.code ?? b?.id ?? "");
+
+    if (!visibleIds.has(aCode) || !visibleIds.has(bCode)) {
+      return false;
+    }
+
+    if (!state.selectedBordersOnly || !selectedIds.size || !hasVisibleSelection) {
+      return a !== b;
+    }
+
+    return a !== b && (selectedIds.has(aCode) || selectedIds.has(bCode));
+  });
 }
 
 function shouldRenderProjectionOutline() {
@@ -2249,7 +3471,7 @@ function renderInsetLayer(root, defs, mainProjection, selectedColorById) {
 
 function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById, index) {
   const frame = normalizeInsetFrame(inset);
-  const sourceFrame = buildInsetSourceFrame(mainProjection, inset);
+  const sourceFrame = buildInsetSourceFrame(mainProjection, inset, frame);
 
   if (sourceFrame) {
     renderDashedFrame(layer, sourceFrame, {
@@ -2313,26 +3535,21 @@ function renderInsetMapContent(insetGroup, mainProjection, frame, sourceFrame, s
     return;
   }
 
-  const insetPadding = 10;
-  const zoomScale = getInsetZoomScale(inset);
-  const adjustedSourceFrame = scaleRectFromCenter(sourceFrame, 1 / zoomScale);
-  const availableWidth = Math.max(1, frame.width - insetPadding * 2);
-  const availableHeight = Math.max(1, frame.height - insetPadding * 2);
-  const scale = Math.min(availableWidth / adjustedSourceFrame.width, availableHeight / adjustedSourceFrame.height);
-  const offsetX = frame.x + insetPadding + (availableWidth - adjustedSourceFrame.width * scale) / 2;
-  const offsetY = frame.y + insetPadding + (availableHeight - adjustedSourceFrame.height * scale) / 2;
+  const scale = Math.min(frame.width / sourceFrame.width, frame.height / sourceFrame.height);
+  const offsetX = frame.x + (frame.width - sourceFrame.width * scale) / 2;
+  const offsetY = frame.y + (frame.height - sourceFrame.height * scale) / 2;
   const transformedGroup = insetGroup
     .append("g")
     .attr(
       "transform",
-      `translate(${offsetX - adjustedSourceFrame.x * scale} ${offsetY - adjustedSourceFrame.y * scale}) scale(${scale})`,
+      `translate(${offsetX - sourceFrame.x * scale} ${offsetY - sourceFrame.y * scale}) scale(${scale})`,
     );
   const insetAtlasDataset = getAtlasDataset(Math.max(state.viewZoom * scale * 2.2, 6), true);
   const selectedIds = new Set(state.selected.map((country) => country.id));
   const insetBorderGeometry = buildBorderGeometry(insetAtlasDataset, selectedIds);
   renderAtlasLayer(transformedGroup, mainProjection, insetAtlasDataset, selectedColorById, insetBorderGeometry, {
     wrap: false,
-    clipRect: adjustedSourceFrame,
+    clipRect: sourceFrame,
     clipPadding: INSET_RENDER_CLIP_PADDING,
   });
 }
@@ -2401,32 +3618,20 @@ function buildInsetFocusGeometry(inset) {
   return { type: "FeatureCollection", features };
 }
 
-function buildInsetSourceFrame(mainProjection, inset) {
-  const outline = getInsetOutline(inset);
-  const bounds = getInsetGeoBounds(inset);
-  if (outline.length < 4 && !bounds) {
-    return null;
-  }
-  const outlinePoints = getCompactProjectedPoints(
-    mainProjection,
-    outline.length >= 4 ? outline : buildInsetBoundsRing(bounds),
-  );
-  if (outlinePoints.length < 3) {
+function buildInsetSourceFrame(mainProjection, inset, panelFrame = null) {
+  const projectedBounds = buildInsetProjectedBounds(mainProjection, inset);
+  if (!projectedBounds) {
     return null;
   }
 
-  const projectedBounds = computeBounds(outlinePoints);
-  const padding = clamp(
-    Math.round(Math.min(projectedBounds.maxX - projectedBounds.minX, projectedBounds.maxY - projectedBounds.minY) * 0.16),
-    6,
-    12,
-  );
-  return {
-    x: projectedBounds.minX - padding,
-    y: projectedBounds.minY - padding,
-    width: projectedBounds.maxX - projectedBounds.minX + padding * 2,
-    height: projectedBounds.maxY - projectedBounds.minY + padding * 2,
-  };
+  const padding = clamp(Math.round(Math.min(projectedBounds.width, projectedBounds.height) * 0.12), 1, 10);
+  const paddedBounds = padRect(projectedBounds, padding);
+  const aspectFrame =
+    panelFrame && panelFrame.width > 0 && panelFrame.height > 0
+      ? expandRectToAspect(paddedBounds, panelFrame.width / panelFrame.height)
+      : paddedBounds;
+
+  return scaleRectFromCenter(aspectFrame, 1 / getInsetZoomScale(inset));
 }
 
 function renderInsetConnectors(layer, frame, sourceFrame) {
@@ -2471,6 +3676,74 @@ function renderInsetConnectors(layer, frame, sourceFrame) {
       .attr("opacity", 0.76)
       .attr("vector-effect", "non-scaling-stroke");
   });
+}
+
+function buildInsetProjectedBounds(mainProjection, inset) {
+  const outline = getInsetOutline(inset);
+  const focusPoints = getInsetFocusPoints(inset);
+  const bounds = getInsetGeoBounds(inset);
+  const coordinateSet =
+    outline.length >= 4 ? outline : focusPoints.length ? focusPoints : bounds ? buildInsetBoundsRing(bounds) : [];
+
+  if (!coordinateSet.length) {
+    return null;
+  }
+
+  const projectedPoints = getCompactProjectedPoints(mainProjection, coordinateSet);
+  if (!projectedPoints.length) {
+    return null;
+  }
+
+  return rectFromBounds(computeBounds(projectedPoints), 1, 1);
+}
+
+function rectFromBounds(bounds, minWidth = 1, minHeight = 1) {
+  const width = Math.max(minWidth, bounds.maxX - bounds.minX);
+  const height = Math.max(minHeight, bounds.maxY - bounds.minY);
+  const centerX = (bounds.minX + bounds.maxX) / 2;
+  const centerY = (bounds.minY + bounds.maxY) / 2;
+  return {
+    x: centerX - width / 2,
+    y: centerY - height / 2,
+    width,
+    height,
+  };
+}
+
+function padRect(rect, padding) {
+  const safePadding = Math.max(0, Number(padding) || 0);
+  return {
+    x: rect.x - safePadding,
+    y: rect.y - safePadding,
+    width: rect.width + safePadding * 2,
+    height: rect.height + safePadding * 2,
+  };
+}
+
+function expandRectToAspect(rect, aspectRatio) {
+  const safeAspect = Math.max(0.05, Number(aspectRatio) || 1);
+  const currentAspect = rect.width / Math.max(rect.height, 1);
+  if (Math.abs(currentAspect - safeAspect) < 0.0001) {
+    return rect;
+  }
+
+  if (currentAspect < safeAspect) {
+    const width = Math.max(1, rect.height * safeAspect);
+    return {
+      x: rect.x + rect.width / 2 - width / 2,
+      y: rect.y,
+      width,
+      height: rect.height,
+    };
+  }
+
+  const height = Math.max(1, rect.width / safeAspect);
+  return {
+    x: rect.x,
+    y: rect.y + rect.height / 2 - height / 2,
+    width: rect.width,
+    height,
+  };
 }
 
 function normalizeInsetFrame(inset) {
@@ -2817,25 +4090,47 @@ function getMapLabelStrokeWidth() {
 
 function updateSelectionSummary() {
   const parts = [];
+  const currentSelection = getCurrentSelectionEntries();
 
-  if (state.selected.length) {
-    parts.push(`${state.selected.length}개 국가`);
+  if (currentSelection.length) {
+    parts.push(`${currentSelection.length}개 ${state.mapVersion === "world" ? "국가" : "권역"}`);
   } else {
-    parts.push("국가 선택 없음");
+    parts.push(state.mapVersion === "world" ? "국가 선택 없음" : "권역 선택 없음");
   }
 
-  if (state.markers.length) {
+  if (state.mapVersion === "world" && state.markers.length) {
     parts.push(`마커 ${state.markers.length}개`);
   }
 
-  if (state.insets.length) {
+  if (state.mapVersion === "world" && state.insets.length) {
     parts.push(`인셋 ${state.insets.length}개`);
+  }
+
+  if (state.mapVersion === "korea") {
+    parts.push(koreaRegionLevelLabels[state.koreaLevel]);
+    if (state.koreaLevel === "municipalities" && state.koreaParentCode) {
+      parts.push(getKoreaProvinceName(state.koreaParentCode));
+    }
   }
 
   elements.selectionSummary.textContent = parts.join(" · ");
 }
 
 function updateExportMeta() {
+  if (state.mapVersion === "korea") {
+    const scaleText = state.showScaleBar ? "축척 포함" : "축척 없음";
+    const borderText =
+      state.borderMode === "none" ? "경계선 없음" : state.borderMode === "dashed" ? "경계선 점선" : "경계선 실선";
+    const scopeText =
+      state.koreaLevel === "municipalities" && state.koreaParentCode
+        ? `범위 ${getKoreaProvinceName(state.koreaParentCode)}`
+        : "범위 전국";
+    elements.exportMeta.textContent =
+      `${state.width} × ${state.height} px · 대한민국 · ${koreaRegionLevelLabels[state.koreaLevel]} · ` +
+      `${scopeText} · ${formatPointSize(state.mapFontSizePt)} · ${scaleText} · ${borderText} · 윤곽선 0.4pt`;
+    return;
+  }
+
   const scaleText = state.showScaleBar ? "축척 포함" : "축척 없음";
   const borderText =
     state.borderMode === "none" ? "국경선 없음" : state.borderMode === "dashed" ? "국경선 점선" : "국경선 실선";
@@ -2912,6 +4207,17 @@ function buildSvgFontStyle() {
 }
 
 function buildDownloadName() {
+  if (state.mapVersion === "korea") {
+    const currentSelection = getCurrentSelectionEntries();
+    const prefix = currentSelection.length
+      ? currentSelection
+          .slice(0, 4)
+          .map((region) => region.id)
+          .join("-")
+      : state.koreaLevel;
+    return `korea-map-${prefix || "selection"}-${state.koreaLevel}.svg`;
+  }
+
   const prefix = state.selected.length
     ? state.selected
         .slice(0, 4)
@@ -3267,7 +4573,7 @@ function getMarkerVisualRadius(marker) {
 }
 
 function handleCanvasWheel(event) {
-  if (!currentRenderContext) {
+  if (!currentRenderContext || state.mapVersion !== "world") {
     return;
   }
 
@@ -3284,12 +4590,16 @@ function handleCanvasWheel(event) {
 }
 
 function handleCanvasGestureStart(event) {
+  if (state.mapVersion !== "world") {
+    return;
+  }
+
   activeGestureScale = event.scale || 1;
   event.preventDefault();
 }
 
 function handleCanvasGestureChange(event) {
-  if (!currentRenderContext) {
+  if (!currentRenderContext || state.mapVersion !== "world") {
     return;
   }
 
@@ -3306,6 +4616,10 @@ function handleCanvasGestureChange(event) {
 }
 
 function handleCanvasGestureEnd(event) {
+  if (state.mapVersion !== "world") {
+    return;
+  }
+
   activeGestureScale = 1;
   event.preventDefault();
 }
@@ -3347,6 +4661,11 @@ function queuePreviewCommit() {
 }
 
 function commitPreviewInteraction() {
+  if (state.mapVersion !== "world") {
+    resetPreviewInteractionState();
+    return;
+  }
+
   if (!currentRenderContext || previewTransformIsIdentity()) {
     resetPreviewInteractionState();
     return;
@@ -3455,7 +4774,7 @@ function handleCanvasPointerDown(event) {
     return;
   }
 
-  if (!previewTransformIsIdentity()) {
+  if (state.mapVersion === "world" && !previewTransformIsIdentity()) {
     commitPreviewInteraction();
     return;
   }
@@ -3467,6 +4786,11 @@ function handleCanvasPointerDown(event) {
   }
 
   event.preventDefault();
+
+  if (state.mapVersion === "korea") {
+    startKoreaSelectionInteraction(shell, startPoint);
+    return;
+  }
 
   const activeMode = getActiveViewMode();
 
@@ -3481,6 +4805,42 @@ function handleCanvasPointerDown(event) {
   }
 
   startBoxInteraction(shell, startPoint, activeMode === "inset" ? "inset" : "zoom");
+}
+
+function startKoreaSelectionInteraction(shell, startPoint) {
+  let didMove = false;
+
+  const onPointerMove = (moveEvent) => {
+    const nextPoint = getCanvasPointFromEvent(moveEvent, shell);
+    if (!nextPoint) {
+      return;
+    }
+    didMove = didMove || Math.hypot(nextPoint.x - startPoint.x, nextPoint.y - startPoint.y) > 5;
+  };
+
+  const stop = (upEvent) => {
+    window.removeEventListener("pointermove", onPointerMove);
+    window.removeEventListener("pointerup", stop);
+    window.removeEventListener("pointercancel", stop);
+
+    if (didMove) {
+      return;
+    }
+
+    const point = getCanvasPointFromEvent(upEvent, shell);
+    if (!point) {
+      return;
+    }
+
+    const toggled = toggleCountryAtCanvasPoint(point);
+    if (!toggled) {
+      setStatus("권역을 클릭하면 바로 켜고 끌 수 있습니다.");
+    }
+  };
+
+  window.addEventListener("pointermove", onPointerMove);
+  window.addEventListener("pointerup", stop);
+  window.addEventListener("pointercancel", stop);
 }
 
 function startPanInteraction(startPoint) {
@@ -3710,7 +5070,7 @@ function updateMarkerDraft(draft, startPoint, endPoint) {
 
 function addInsetFromRect(rect) {
   const sample = sampleGeoCollectionFromRect(rect);
-  if (!sample || sample.focusPoints.length < 3 || sample.outline.length < 4) {
+  if (!sample || sample.focusPoints.length < 1) {
     setStatus("이 영역으로는 인셋을 만들기 어렵습니다. 조금 더 넓게 잡아 주세요.", true);
     return;
   }
@@ -3739,7 +5099,7 @@ function addInsetFromRect(rect) {
 
 function sampleGeoCollectionFromRect(rect) {
   const outlineScreenPoints = [];
-  const edgeSteps = clamp(Math.round(Math.max(rect.width, rect.height) / 18), 4, 12);
+  const edgeSteps = clamp(Math.round(Math.max(rect.width, rect.height) / 12), 2, 12);
 
   for (let step = 0; step <= edgeSteps; step += 1) {
     const ratio = step / edgeSteps;
@@ -3760,11 +5120,11 @@ function sampleGeoCollectionFromRect(rect) {
 
   const outline = dedupeCoordinates(
     outlineScreenPoints.map((point) => invertCanvasPoint(point)).filter(Boolean),
-    5,
+    6,
   );
 
   const focusPoints = [];
-  const gridSize = clamp(Math.round(Math.min(rect.width, rect.height) / 22), 2, 4);
+  const gridSize = clamp(Math.round(Math.min(rect.width, rect.height) / 14), 1, 4);
   for (let row = 0; row <= gridSize; row += 1) {
     for (let column = 0; column <= gridSize; column += 1) {
       const point = {
@@ -3778,20 +5138,28 @@ function sampleGeoCollectionFromRect(rect) {
     }
   }
 
-  if (!outline.length || !focusPoints.length) {
+  const centerCoordinate = invertCanvasPoint({
+    x: rect.x + rect.width / 2,
+    y: rect.y + rect.height / 2,
+  });
+  if (centerCoordinate) {
+    focusPoints.push(centerCoordinate);
+  }
+
+  if (!focusPoints.length) {
     return null;
   }
 
   const closedOutline = [...outline];
   const first = outline[0];
   const last = outline[outline.length - 1];
-  if (!last || first[0] !== last[0] || first[1] !== last[1]) {
+  if (first && (!last || first[0] !== last[0] || first[1] !== last[1])) {
     closedOutline.push(first);
   }
 
   return {
     outline: closedOutline,
-    focusPoints: dedupeCoordinates(focusPoints, 5),
+    focusPoints: dedupeCoordinates(focusPoints, 6),
     geoBounds: computeGeoBounds(focusPoints),
   };
 }
@@ -3802,12 +5170,17 @@ function toggleCountryAtCanvasPoint(point) {
     return false;
   }
 
-  const feature = countryFeatures.find((country) => d3.geoContains(country, coordinate));
+  const featureSet = state.mapVersion === "world" ? countryFeatures : getKoreaHitTestFeatures();
+  const feature = featureSet.find((country) => d3.geoContains(country, coordinate));
   if (!feature) {
     return false;
   }
 
-  toggleCountry(feature.id);
+  if (state.mapVersion === "world") {
+    toggleCountry(feature.id);
+  } else {
+    toggleKoreaRegion(feature.id);
+  }
   return true;
 }
 

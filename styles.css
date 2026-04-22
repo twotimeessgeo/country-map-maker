@@ -7,6 +7,14 @@
   padding-bottom: 40px;
 }
 
+body[data-map-version="world"] .korea-only {
+  display: none !important;
+}
+
+body[data-map-version="korea"] .world-only {
+  display: none !important;
+}
+
 .app-hero {
   padding: 24px 26px 22px;
 }
@@ -88,7 +96,11 @@
   grid-column: 1 / -1;
 }
 
-.app-detail-card:first-child {
+.app-detail-card--stats {
+  grid-column: 1 / -1;
+}
+
+.app-detail-card--selection {
   grid-row: 1 / span 2;
 }
 
@@ -103,6 +115,11 @@
 
 .app-toolbar {
   align-items: end;
+  flex-wrap: wrap;
+}
+
+.app-card-head--stack {
+  align-items: start;
   flex-wrap: wrap;
 }
 
@@ -200,7 +217,8 @@
 .range-row,
 .annotation-grid,
 .inline-actions,
-.chip-grid {
+.chip-grid,
+.region-chip-list {
   display: grid;
   gap: 12px;
 }
@@ -236,6 +254,26 @@
 
 .chip-grid[data-columns="2"] {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.korea-region-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.region-chip-list {
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+}
+
+.region-chip {
+  width: 100%;
+  text-align: center;
+}
+
+.tw-switch-item:disabled,
+.tw-button:disabled,
+.tw-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
 }
 
 .guide-grid {
@@ -831,6 +869,221 @@ kbd {
   background: var(--tw-panel-soft);
 }
 
+.country-stats-panel,
+.country-stats-shell,
+.country-stats-header,
+.country-stats-tabs,
+.country-stats-summary-grid,
+.country-stats-section-grid,
+.country-stats-metric-grid,
+.country-stats-source-row,
+.country-stats-bars,
+.country-stats-religion-list {
+  display: grid;
+  gap: 12px;
+}
+
+.country-stats-panel {
+  margin-top: 16px;
+}
+
+.country-stats-shell {
+  gap: 18px;
+}
+
+.country-stats-tabs {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.country-stats-tab {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: var(--tw-border);
+  background: #ffffff;
+  color: var(--tw-muted);
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.country-stats-tab.is-active {
+  background: #111111;
+  color: #ffffff;
+}
+
+.country-stats-header {
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
+  gap: 16px;
+  padding: 16px;
+  border: var(--tw-border);
+  background: var(--tw-panel-soft);
+}
+
+.country-stats-header__title {
+  margin: 0;
+  font-size: 1.34rem;
+  line-height: 1.18;
+}
+
+.country-stats-header__meta {
+  color: var(--tw-muted);
+  font-size: 0.84rem;
+  line-height: 1.72;
+}
+
+.country-stats-summary-grid,
+.country-stats-section-grid,
+.country-stats-metric-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.country-stats-summary-card,
+.country-stats-section,
+.country-stats-metric,
+.country-stats-source {
+  border: var(--tw-border);
+  background: #ffffff;
+}
+
+.country-stats-summary-card,
+.country-stats-section,
+.country-stats-source {
+  padding: 14px;
+}
+
+.country-stats-summary-card {
+  display: grid;
+  gap: 6px;
+}
+
+.country-stats-summary-card span,
+.country-stats-metric span,
+.country-stats-religion-row span,
+.country-stats-table th {
+  color: var(--tw-muted);
+}
+
+.country-stats-summary-card span,
+.country-stats-metric span {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.country-stats-summary-card strong,
+.country-stats-metric strong {
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.country-stats-summary-card small,
+.country-stats-metric small,
+.country-stats-section p {
+  color: var(--tw-muted);
+}
+
+.country-stats-section {
+  display: grid;
+  gap: 14px;
+}
+
+.country-stats-section h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.country-stats-section p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.68;
+}
+
+.country-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.country-stats-table th,
+.country-stats-table td {
+  padding: 8px 0;
+  border-top: 1px solid var(--tw-line-faint);
+  font-size: 0.86rem;
+  text-align: right;
+}
+
+.country-stats-table tr:first-child th,
+.country-stats-table tr:first-child td {
+  border-top: 0;
+}
+
+.country-stats-table th:first-child,
+.country-stats-table td:first-child {
+  text-align: left;
+}
+
+.country-stats-metric-grid {
+  gap: 10px;
+}
+
+.country-stats-metric {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+
+.country-stats-metric small,
+.country-stats-source {
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.country-stats-bars {
+  gap: 10px;
+}
+
+.country-stats-bar {
+  display: grid;
+  gap: 6px;
+}
+
+.country-stats-bar__head,
+.country-stats-religion-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.country-stats-bar__track {
+  position: relative;
+  overflow: hidden;
+  height: 8px;
+  border: 1px solid rgba(16, 16, 16, 0.12);
+  background: var(--tw-panel-soft);
+}
+
+.country-stats-bar__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: #111111;
+}
+
+.country-stats-source-row {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.country-stats-source a {
+  color: var(--tw-ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.country-stats-source a:hover {
+  text-decoration: underline;
+}
+
 code {
   font-family: "SFMono-Regular", "Cascadia Mono", "Menlo", monospace;
   font-size: 0.92em;
@@ -862,7 +1115,7 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .app-detail-card:first-child {
+  .app-detail-card--selection {
     grid-row: auto;
   }
 }
@@ -892,6 +1145,12 @@ code {
   .workspace-mode-tips {
     grid-template-columns: 1fr 1fr;
   }
+
+  .country-stats-header,
+  .country-stats-summary-grid,
+  .country-stats-section-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -900,7 +1159,8 @@ code {
   .color-grid,
   .annotation-grid,
   .chip-grid,
-  .chip-grid[data-columns="2"] {
+  .chip-grid[data-columns="2"],
+  .korea-region-actions {
     grid-template-columns: 1fr;
   }
 
@@ -910,6 +1170,12 @@ code {
   }
 
   .selected-country-item {
+    grid-template-columns: 1fr;
+  }
+
+  .country-stats-tabs,
+  .country-stats-metric-grid,
+  .country-stats-source-row {
     grid-template-columns: 1fr;
   }
 

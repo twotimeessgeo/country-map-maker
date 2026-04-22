@@ -19,7 +19,11 @@
       <header class="tw-hero app-hero">
         <div class="tw-hero-copy">
           <p class="tw-eyebrow">TWOTIMESS ATLAS BUILDER</p>
-          <nav class="tw-switch" aria-label="지도 시점 선택">
+          <nav class="tw-switch" aria-label="지도 버전 선택">
+            <button class="map-version-button tw-switch-item" type="button" data-map-version="world">세계</button>
+            <button class="map-version-button tw-switch-item" type="button" data-map-version="korea">대한민국</button>
+          </nav>
+          <nav id="projectionSwitch" class="tw-switch world-only" aria-label="지도 시점 선택">
             <button class="projection-button tw-switch-item" type="button" data-projection="rectangular">
               평면
             </button>
@@ -30,16 +34,16 @@
               남극
             </button>
           </nav>
-          <h1 class="tw-hero-title">국가 선택형 지도 메이커</h1>
+          <h1 class="tw-hero-title">국가·권역 선택형 지도 메이커</h1>
           <p class="tw-hero-text">
-            국가를 검색하거나 지도에서 바로 선택해 원하는 지역 구도를 잡고, 현재 보이는 결과를
-            그대로 SVG로 내보낼 수 있습니다.
+            세계 지도에서는 국가를 고르고, 한국 지도에서는 도/광역시와 시/군/구 권역을 켜고 끄며
+            원하는 구도를 만든 뒤 현재 보이는 결과를 그대로 SVG로 내보낼 수 있습니다.
           </p>
         </div>
         <aside class="tw-hero-note">
           <p class="tw-kicker">현재 작업</p>
-          <strong id="selectionSummary">국가 선택 없음</strong>
-          <span id="exportMeta">1200 × 1200 px · 평면 · 중심 0° · 보기 100% · 윤곽선 0.4pt</span>
+          <strong id="selectionSummary">선택 없음</strong>
+          <span id="exportMeta">310 × 310 px · 세계 · 평면 · 보기 100% · 윤곽선 0.4pt</span>
         </aside>
       </header>
 
@@ -68,14 +72,14 @@
             <div class="tw-card-grid app-control-grid">
               <article class="tw-data-card app-control-card app-control-card--wide">
                 <div class="app-card-head">
-                  <h3 class="tw-card-title">국가 선택</h3>
+                  <h3 id="selectionCardTitle" class="tw-card-title">국가 선택</h3>
                   <button id="clearSelectionButton" class="tw-button ghost-button" type="button">모두 비우기</button>
                 </div>
-                <p class="hint">
+                <p class="hint world-only">
                   영문 국가명 기준이며, 자주 쓰는 영문 별칭과 일부 한글 표기도 함께 인식합니다.
                   예: <code>France</code>, <code>South Korea</code>, <code>알제리</code>
                 </p>
-                <div class="input-row">
+                <div class="input-row world-only">
                   <label class="tw-field">
                     <span>국가명</span>
                     <input
@@ -89,6 +93,35 @@
                   <button id="addCountryButton" class="tw-button" type="button">추가</button>
                 </div>
                 <datalist id="countryOptions"></datalist>
+
+                <div class="korea-only" hidden>
+                  <p class="hint">
+                    한국 지도에서는 지도를 이리저리 움직이기보다 광역시도 또는 시/군/구 권역을 켜고
+                    끄면서 구도를 만듭니다. 시/군/구 모드에서는 먼저 상위 광역시도를 고르면 바로
+                    세부 권역을 볼 수 있습니다.
+                  </p>
+                  <div class="chip-grid" data-columns="2">
+                    <button class="tw-chip korea-level-button" type="button" data-korea-level="provinces">
+                      도/광역시
+                    </button>
+                    <button class="tw-chip korea-level-button" type="button" data-korea-level="municipalities">
+                      시/군/구
+                    </button>
+                  </div>
+                  <label class="tw-field">
+                    <span>시/군/구 범위</span>
+                    <select id="koreaParentRegionSelect"></select>
+                  </label>
+                  <div class="inline-actions korea-region-actions">
+                    <button id="activateVisibleKoreaRegionsButton" class="tw-chip" type="button">
+                      현재 권역 모두 켜기
+                    </button>
+                    <button id="clearVisibleKoreaRegionsButton" class="tw-chip" type="button">
+                      현재 권역 모두 끄기
+                    </button>
+                  </div>
+                  <div id="koreaRegionChipList" class="region-chip-list"></div>
+                </div>
               </article>
 
               <article class="tw-data-card app-control-card">
@@ -113,7 +146,7 @@
                 </div>
               </article>
 
-              <article class="tw-data-card app-control-card">
+              <article class="tw-data-card app-control-card world-only" hidden>
                 <h3 class="tw-card-title">중심과 보기 범위</h3>
                 <p class="hint">평면형은 중심 경도를, 북극/남극 시점은 회전 방향을 바꾸는 데 씁니다.</p>
                 <div class="chip-grid">
@@ -138,7 +171,7 @@
                 </label>
               </article>
 
-              <article class="tw-data-card app-control-card">
+              <article class="tw-data-card app-control-card world-only" hidden>
                 <h3 class="tw-card-title">기준선</h3>
                 <p class="hint">기준선을 켜면 위도 기준을 빠르게 비교할 수 있고, 선 표시 여부도 따로 조정할 수 있습니다.</p>
                 <div class="guide-grid">
@@ -219,7 +252,7 @@
                 </label>
                 <label class="checkbox-field">
                   <input id="unifySelectedCountryColorsToggle" type="checkbox" />
-                  <span>선택 국가 색상 통일</span>
+                  <span id="unifySelectedColorLabel">선택 국가 색상 통일</span>
                 </label>
                 <label class="tw-field">
                   <span>통일 색상</span>
@@ -282,7 +315,7 @@
             <div class="tw-chart-panel preview-card">
               <div class="preview-workspace">
                 <aside class="preview-toolbox" aria-label="빠른 도구">
-                  <section class="preview-toolbox__section preview-toolbox__section--focus">
+                  <section class="preview-toolbox__section preview-toolbox__section--focus world-only" hidden>
                     <p class="tw-kicker">Active Tool</p>
                     <strong id="activeModeTitle" class="preview-toolbox__title">영역 확대</strong>
                     <p id="activeModeDescription" class="hint preview-toolbox__description">
@@ -291,7 +324,7 @@
                     <div id="workspaceModeTips" class="workspace-mode-tips" aria-live="polite"></div>
                   </section>
 
-                  <section class="preview-toolbox__section">
+                  <section class="preview-toolbox__section world-only" hidden>
                     <p class="tw-kicker">Mode Switch</p>
                     <div class="preview-tool-grid">
                       <button class="mode-button preview-mode-button" type="button" data-mode="zoom" title="1">
@@ -325,6 +358,16 @@
                     </div>
                   </section>
 
+                  <section class="preview-toolbox__section korea-only" hidden>
+                    <p class="tw-kicker">Korea Mode</p>
+                    <strong class="preview-toolbox__title">권역 on/off 전용 보기</strong>
+                    <p class="hint preview-toolbox__description">
+                      한국 지도에서는 이동이나 영역 확대 대신 권역을 바로 켜고 끄는 흐름으로 작업합니다.
+                      시/군/구 모드에서는 먼저 광역시도를 고르거나 지도에서 한 번 클릭해 범위를 정할 수
+                      있습니다.
+                    </p>
+                  </section>
+
                   <section class="preview-toolbox__section">
                     <p class="tw-kicker">Quick Actions</p>
                     <div class="preview-quick-actions">
@@ -335,7 +378,7 @@
                     </div>
                   </section>
 
-                  <section class="preview-toolbox__section">
+                  <section class="preview-toolbox__section world-only" hidden>
                     <p class="tw-kicker">Shortcuts</p>
                     <div class="shortcut-list">
                       <div class="shortcut-item">
@@ -385,17 +428,33 @@
         </div>
 
         <div class="app-detail-grid">
-          <article class="tw-data-card app-detail-card">
+          <article class="tw-data-card app-detail-card app-detail-card--stats world-only" hidden>
+            <div class="app-card-head app-card-head--stack">
+              <div>
+                <h3 class="tw-card-title">국가 통계</h3>
+                <p class="hint">
+                  선택한 국가별로 인구·도시화·FAOSTAT·종교·에너지 구조를 한 카드에서 정리해 봅니다.
+                  여러 국가를 고르면 아래 탭에서 바로 전환할 수 있습니다.
+                </p>
+              </div>
+              <div class="tw-badge">UN · FAOSTAT · Pew · OWID</div>
+            </div>
+            <div id="countryStatsPanel" class="country-stats-panel"></div>
+          </article>
+
+          <article class="tw-data-card app-detail-card app-detail-card--selection">
             <div class="app-card-head">
               <div>
-                <h3 class="tw-card-title">선택 국가</h3>
-                <p class="hint">검색창 또는 지도 클릭으로 추가한 국가를 여기서 색상과 함께 관리합니다.</p>
+                <h3 id="selectionDetailTitle" class="tw-card-title">선택 국가</h3>
+                <p id="selectionDetailHint" class="hint">
+                  검색창 또는 지도 클릭으로 추가한 국가를 여기서 색상과 함께 관리합니다.
+                </p>
               </div>
             </div>
             <ul id="selectedCountryList" class="selected-country-list"></ul>
           </article>
 
-          <article class="tw-data-card app-detail-card">
+          <article class="tw-data-card app-detail-card world-only" hidden>
             <div class="app-toolbar">
               <div>
                 <h3 class="tw-card-title">마커</h3>
@@ -415,7 +474,7 @@
             <ul id="markerList" class="annotation-list"></ul>
           </article>
 
-          <article class="tw-data-card app-detail-card">
+          <article class="tw-data-card app-detail-card world-only" hidden>
             <div class="app-card-head">
               <div>
                 <h3 class="tw-card-title">인셋</h3>
@@ -433,6 +492,8 @@
     <script src="./vendor/topojson-client.min.js"></script>
     <script src="./data/world-atlas.js"></script>
     <script src="./data/world-atlas-variants.js"></script>
+    <script src="./data/korea-admin.js"></script>
+    <script src="./data/country-stats.js?v=20260423a"></script>
     <script src="./app.js"></script>
   </body>
 </html>
