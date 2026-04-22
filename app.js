@@ -24,8 +24,8 @@ const EARTH_RADIUS_KM = 6371.0088;
 const MAP_FONT_FAMILY = "SidaeAi_S";
 const MAP_FONT_STRETCH_X = 0.95;
 const OUTLINE_STROKE_WIDTH = "0.4pt";
-const MIN_INSET_PANEL_WIDTH = 56;
-const MIN_INSET_PANEL_HEIGHT = 56;
+const MIN_INSET_PANEL_WIDTH = 36;
+const MIN_INSET_PANEL_HEIGHT = 36;
 const MAX_INSET_PANEL_WIDTH = 310;
 const MAIN_CANVAS_WIDTH = 310;
 const MIN_CANVAS_WIDTH = 140;
@@ -2252,17 +2252,10 @@ function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById
   const sourceFrame = buildInsetSourceFrame(mainProjection, inset);
 
   if (sourceFrame) {
-    layer
-      .append("rect")
-      .attr("x", sourceFrame.x)
-      .attr("y", sourceFrame.y)
-      .attr("width", sourceFrame.width)
-      .attr("height", sourceFrame.height)
-      .attr("fill", "none")
-      .attr("stroke", state.borderColor)
-      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
-      .attr("stroke-dasharray", "4.5pt 3.2pt")
-      .attr("vector-effect", "non-scaling-stroke");
+    renderDashedFrame(layer, sourceFrame, {
+      stroke: state.borderColor,
+      dasharray: "4.5pt 3.2pt",
+    });
   }
 
   const panelGroup = layer.append("g").attr("class", "inset-panel");
@@ -2437,49 +2430,34 @@ function buildInsetSourceFrame(mainProjection, inset) {
 }
 
 function renderInsetConnectors(layer, frame, sourceFrame) {
-  const bounds = {
-    minX: sourceFrame.x,
-    minY: sourceFrame.y,
-    maxX: sourceFrame.x + sourceFrame.width,
-    maxY: sourceFrame.y + sourceFrame.height,
-  };
   const sourceCenter = {
-    x: (bounds.minX + bounds.maxX) / 2,
-    y: (bounds.minY + bounds.maxY) / 2,
+    x: sourceFrame.x + sourceFrame.width / 2,
+    y: sourceFrame.y + sourceFrame.height / 2,
   };
   const panelCenter = {
     x: frame.x + frame.width / 2,
     y: frame.y + frame.height / 2,
   };
-
+  const sourceCorners = getFrameCorners(sourceFrame);
+  const panelCorners = getFrameCorners(frame);
   const useHorizontal = Math.abs(panelCenter.x - sourceCenter.x) >= Math.abs(panelCenter.y - sourceCenter.y);
-  const panelAnchors = [];
-  const sourceAnchors = [];
+  let sourceAnchors;
+  let panelAnchors;
 
   if (useHorizontal) {
-    const panelOnRight = panelCenter.x >= sourceCenter.x;
-    const sourceX = panelOnRight ? bounds.maxX : bounds.minX;
-    const panelX = panelOnRight ? frame.x : frame.x + frame.width;
-    sourceAnchors.push(
-      { x: sourceX, y: bounds.minY },
-      { x: sourceX, y: bounds.maxY },
-    );
-    panelAnchors.push(
-      { x: panelX, y: frame.y + frame.height * 0.24 },
-      { x: panelX, y: frame.y + frame.height * 0.76 },
-    );
+    if (panelCenter.x >= sourceCenter.x) {
+      sourceAnchors = [sourceCorners.topRight, sourceCorners.bottomRight];
+      panelAnchors = [panelCorners.topLeft, panelCorners.bottomLeft];
+    } else {
+      sourceAnchors = [sourceCorners.topLeft, sourceCorners.bottomLeft];
+      panelAnchors = [panelCorners.topRight, panelCorners.bottomRight];
+    }
+  } else if (panelCenter.y >= sourceCenter.y) {
+    sourceAnchors = [sourceCorners.bottomLeft, sourceCorners.bottomRight];
+    panelAnchors = [panelCorners.topLeft, panelCorners.topRight];
   } else {
-    const panelBelow = panelCenter.y >= sourceCenter.y;
-    const sourceY = panelBelow ? bounds.maxY : bounds.minY;
-    const panelY = panelBelow ? frame.y : frame.y + frame.height;
-    sourceAnchors.push(
-      { x: bounds.minX, y: sourceY },
-      { x: bounds.maxX, y: sourceY },
-    );
-    panelAnchors.push(
-      { x: frame.x + frame.width * 0.24, y: panelY },
-      { x: frame.x + frame.width * 0.76, y: panelY },
-    );
+    sourceAnchors = [sourceCorners.topLeft, sourceCorners.topRight];
+    panelAnchors = [panelCorners.bottomLeft, panelCorners.bottomRight];
   }
 
   sourceAnchors.forEach((sourceAnchor, index) => {
@@ -2496,17 +2474,24 @@ function renderInsetConnectors(layer, frame, sourceFrame) {
 }
 
 function normalizeInsetFrame(inset) {
-  const aspectRatio = getInsetAspectRatio(inset);
-  const maxWidth = Math.min(MAX_INSET_PANEL_WIDTH, state.width);
+  const defaultSize = getDefaultInsetPanelSize(getInsetAspectRatio(inset));
   const preferredWidth =
     Number.isFinite(Number(inset.panelWidth)) && Number(inset.panelWidth) > 0
       ? Number(inset.panelWidth)
-      : Math.round(state.width * 0.28);
-  const { width, height } = fitInsetPanelSize(aspectRatio, preferredWidth, maxWidth, state.height);
+      : defaultSize.width;
+  const preferredHeight =
+    Number.isFinite(Number(inset.panelHeight)) && Number(inset.panelHeight) > 0
+      ? Number(inset.panelHeight)
+      : defaultSize.height;
+  const { width, height } = normalizeInsetPanelSize(
+    preferredWidth,
+    preferredHeight,
+    Math.min(MAX_INSET_PANEL_WIDTH, state.width),
+    state.height,
+  );
   const x = clamp(inset.panelX, 0, Math.max(0, state.width - width));
   const y = clamp(inset.panelY, 0, Math.max(0, state.height - height));
 
-  inset.aspectRatio = aspectRatio;
   inset.panelWidth = width;
   inset.panelHeight = height;
   inset.panelX = x;
@@ -2551,29 +2536,27 @@ function getInsetAspectRatio(inset) {
   return 1;
 }
 
-function fitInsetPanelSize(aspectRatio, preferredWidth, maxWidth, maxHeight) {
-  const safeAspectRatio = clamp(Number(aspectRatio) || 1, 0.35, 3.8);
-  const constrainedMaxWidth = Math.max(MIN_INSET_PANEL_WIDTH, maxWidth);
-  const constrainedMaxHeight = Math.max(MIN_INSET_PANEL_HEIGHT, maxHeight);
-  const minScale = Math.max(MIN_INSET_PANEL_WIDTH / safeAspectRatio, MIN_INSET_PANEL_HEIGHT);
-  const maxScale = Math.max(
-    minScale,
-    Math.min(constrainedMaxWidth / safeAspectRatio, constrainedMaxHeight),
-  );
-  const preferredScale = Number(preferredWidth) / safeAspectRatio;
-  const scale = clamp(preferredScale, minScale, maxScale);
+function normalizeInsetPanelSize(preferredWidth, preferredHeight, maxWidth, maxHeight) {
+  const constrainedMaxWidth = Math.max(MIN_INSET_PANEL_WIDTH, Number(maxWidth) || MIN_INSET_PANEL_WIDTH);
+  const constrainedMaxHeight = Math.max(MIN_INSET_PANEL_HEIGHT, Number(maxHeight) || MIN_INSET_PANEL_HEIGHT);
   return {
-    width: Math.round(safeAspectRatio * scale),
-    height: Math.round(scale),
+    width: clamp(Math.round(Number(preferredWidth) || MIN_INSET_PANEL_WIDTH), MIN_INSET_PANEL_WIDTH, constrainedMaxWidth),
+    height: clamp(
+      Math.round(Number(preferredHeight) || MIN_INSET_PANEL_HEIGHT),
+      MIN_INSET_PANEL_HEIGHT,
+      constrainedMaxHeight,
+    ),
   };
 }
 
 function setInsetPanelSizeFromWidth(inset, preferredWidth) {
-  const aspectRatio = getInsetAspectRatio(inset);
-  const maxWidth = Math.min(MAX_INSET_PANEL_WIDTH, Math.max(MIN_INSET_PANEL_WIDTH, state.width - inset.panelX));
-  const maxHeight = Math.max(MIN_INSET_PANEL_HEIGHT, state.height - inset.panelY);
-  const size = fitInsetPanelSize(aspectRatio, preferredWidth, maxWidth, maxHeight);
-  inset.aspectRatio = aspectRatio;
+  const defaultSize = getDefaultInsetPanelSize(getInsetAspectRatio(inset));
+  const size = normalizeInsetPanelSize(
+    preferredWidth,
+    inset.panelHeight ?? defaultSize.height,
+    Math.min(MAX_INSET_PANEL_WIDTH, Math.max(MIN_INSET_PANEL_WIDTH, state.width - inset.panelX)),
+    Math.max(MIN_INSET_PANEL_HEIGHT, state.height - inset.panelY),
+  );
   inset.panelWidth = size.width;
   inset.panelHeight = size.height;
   inset.panelX = clamp(inset.panelX, 0, Math.max(0, state.width - size.width));
@@ -2582,20 +2565,24 @@ function setInsetPanelSizeFromWidth(inset, preferredWidth) {
 }
 
 function setInsetPanelSizeFromHeight(inset, preferredHeight) {
-  return setInsetPanelSizeFromWidth(inset, Number(preferredHeight) * getInsetAspectRatio(inset));
+  const defaultSize = getDefaultInsetPanelSize(getInsetAspectRatio(inset));
+  const size = normalizeInsetPanelSize(
+    inset.panelWidth ?? defaultSize.width,
+    preferredHeight,
+    Math.min(MAX_INSET_PANEL_WIDTH, Math.max(MIN_INSET_PANEL_WIDTH, state.width - inset.panelX)),
+    Math.max(MIN_INSET_PANEL_HEIGHT, state.height - inset.panelY),
+  );
+  inset.panelWidth = size.width;
+  inset.panelHeight = size.height;
+  inset.panelX = clamp(inset.panelX, 0, Math.max(0, state.width - size.width));
+  inset.panelY = clamp(inset.panelY, 0, Math.max(0, state.height - size.height));
+  return size;
 }
 
 function buildInsetResizeFrame(inset, startFrame, deltaX, deltaY) {
-  const aspectRatio = getInsetAspectRatio(inset);
-  const widthFromHorizontalDrag = startFrame.width + deltaX;
-  const widthFromVerticalDrag = (startFrame.height + deltaY) * aspectRatio;
-  const horizontalChange = Math.abs(deltaX / Math.max(startFrame.width, 1));
-  const verticalChange = Math.abs(deltaY / Math.max(startFrame.height, 1));
-  const preferredWidth =
-    verticalChange > horizontalChange ? widthFromVerticalDrag : widthFromHorizontalDrag;
-  const { width, height } = fitInsetPanelSize(
-    aspectRatio,
-    preferredWidth,
+  const { width, height } = normalizeInsetPanelSize(
+    startFrame.width + deltaX,
+    startFrame.height + deltaY,
     Math.min(MAX_INSET_PANEL_WIDTH, state.width - startFrame.x),
     state.height - startFrame.y,
   );
@@ -2605,6 +2592,43 @@ function buildInsetResizeFrame(inset, startFrame, deltaX, deltaY) {
     width,
     height,
   };
+}
+
+function getFrameCorners(frame) {
+  return {
+    topLeft: { x: frame.x, y: frame.y },
+    topRight: { x: frame.x + frame.width, y: frame.y },
+    bottomRight: { x: frame.x + frame.width, y: frame.y + frame.height },
+    bottomLeft: { x: frame.x, y: frame.y + frame.height },
+  };
+}
+
+function renderDashedFrame(container, frame, options = {}) {
+  const group = container.append("g").attr("class", "dashed-frame");
+  const stroke = options.stroke ?? state.borderColor;
+  const strokeWidth = options.strokeWidth ?? OUTLINE_STROKE_WIDTH;
+  const dasharray = options.dasharray ?? "4.5pt 3.2pt";
+  const opacity = options.opacity ?? 1;
+  const corners = getFrameCorners(frame);
+  const edges = [
+    [corners.topLeft, corners.topRight],
+    [corners.topRight, corners.bottomRight],
+    [corners.bottomRight, corners.bottomLeft],
+    [corners.bottomLeft, corners.topLeft],
+  ];
+
+  edges.forEach(([start, end]) => {
+    group
+      .append("path")
+      .attr("d", `M ${start.x} ${start.y} L ${end.x} ${end.y}`)
+      .attr("fill", "none")
+      .attr("stroke", stroke)
+      .attr("stroke-width", strokeWidth)
+      .attr("stroke-dasharray", dasharray)
+      .attr("stroke-linecap", "butt")
+      .attr("opacity", opacity)
+      .attr("vector-effect", "non-scaling-stroke");
+  });
 }
 
 function computeBounds(points) {
@@ -3935,13 +3959,7 @@ function nextAnnotationLabel(type) {
 }
 
 function getDefaultInsetFrame(index, aspectRatio = 1) {
-  const preferredWidth = getDefaultInsetPreferredWidth(aspectRatio);
-  const { width, height } = fitInsetPanelSize(
-    aspectRatio,
-    preferredWidth,
-    Math.min(MAX_INSET_PANEL_WIDTH, state.width),
-    Math.max(MIN_INSET_PANEL_HEIGHT, state.height - 72),
-  );
+  const { width, height } = getDefaultInsetPanelSize(aspectRatio);
   const positions = [
     { x: 36, y: state.height - height - 36 },
     { x: state.width - width - 36, y: state.height - height - 36 },
@@ -3958,15 +3976,17 @@ function getDefaultInsetFrame(index, aspectRatio = 1) {
   };
 }
 
-function getDefaultInsetPreferredWidth(aspectRatio) {
+function getDefaultInsetPanelSize(aspectRatio) {
   const safeAspectRatio = clamp(Number(aspectRatio) || 1, 0.35, 3.8);
   const shorterCanvasSide = Math.max(1, Math.min(state.width, state.height));
-  const targetLongSide = clamp(Math.round(shorterCanvasSide * 0.22), 96, 220);
+  const targetLongSide = clamp(Math.round(shorterCanvasSide * 0.22), 72, 180);
   const preferredWidth = safeAspectRatio >= 1 ? targetLongSide : targetLongSide * safeAspectRatio;
-  return clamp(
-    Math.round(preferredWidth),
-    MIN_INSET_PANEL_WIDTH,
+  const preferredHeight = safeAspectRatio >= 1 ? targetLongSide / safeAspectRatio : targetLongSide;
+  return normalizeInsetPanelSize(
+    preferredWidth,
+    preferredHeight,
     Math.min(MAX_INSET_PANEL_WIDTH, state.width),
+    Math.max(MIN_INSET_PANEL_HEIGHT, state.height - 72),
   );
 }
 
