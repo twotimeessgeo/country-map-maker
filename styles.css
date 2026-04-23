@@ -313,7 +313,9 @@ body[data-map-version="korea"] .app-detail-card--selection {
 .annotation-grid,
 .inline-actions,
 .chip-grid,
-.region-chip-list {
+.region-chip-list,
+.selection-tools,
+.utility-search-row {
   display: grid;
   gap: 12px;
 }
@@ -546,6 +548,14 @@ button {
 
 .export-button {
   min-width: 150px;
+}
+
+.workspace-export-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .color-grid input[type="color"] {
@@ -1163,6 +1173,26 @@ kbd {
   padding: 14px 16px;
 }
 
+.selection-tools,
+.utility-search-row {
+  margin-top: 14px;
+}
+
+.selection-tools {
+  margin-bottom: 4px;
+}
+
+.utility-search-field {
+  gap: 8px;
+}
+
+.utility-meta {
+  margin: 0;
+  color: var(--tw-muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
 .country-stats-panel,
 .exam-graph-panel,
 .metric-explorer-panel,
@@ -1229,6 +1259,55 @@ kbd {
   gap: 14px;
 }
 
+.control-disclosure {
+  border: var(--tw-border);
+  background: var(--tw-panel-soft);
+}
+
+.control-disclosure__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.control-disclosure__summary::-webkit-details-marker {
+  display: none;
+}
+
+.control-disclosure__summary strong {
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.control-disclosure__summary span {
+  color: var(--tw-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.control-disclosure__summary::after {
+  content: "열기";
+  flex: 0 0 auto;
+  color: var(--tw-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.control-disclosure[open] .control-disclosure__summary::after {
+  content: "접기";
+}
+
+.control-disclosure__content {
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--tw-line-faint);
+}
+
 .exam-graph-controls {
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
@@ -1266,7 +1345,7 @@ kbd {
 }
 
 .exam-graph-grid {
-  grid-template-columns: minmax(0, 1.18fr) minmax(300px, 0.82fr);
+  grid-template-columns: minmax(0, 1.28fr) minmax(300px, 0.72fr);
   align-items: start;
 }
 
@@ -1686,9 +1765,36 @@ kbd {
   gap: 12px;
 }
 
+.exam-graph-preview-gallery {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(var(--exam-graph-preview-columns, 1), minmax(0, 1fr));
+  min-width: 0;
+}
+
+.exam-graph-preview-card {
+  min-width: 0;
+}
+
+.exam-graph-preview-card__copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.exam-graph-preview-card__eyebrow {
+  color: var(--tw-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
 .exam-graph-stage {
+  padding: 10px;
   border: 1px solid var(--tw-line-faint);
-  background: var(--tw-panel-soft);
+  background:
+    linear-gradient(180deg, #fafafa 0%, #f1f1f1 100%);
   overflow: auto;
 }
 
@@ -1697,6 +1803,7 @@ kbd {
   width: 100%;
   height: auto;
   background: #ffffff;
+  box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.06);
 }
 
 .exam-graph-side-column {
@@ -1786,6 +1893,48 @@ kbd {
   font-size: 0.78rem;
   line-height: 1.6;
   color: var(--tw-muted);
+}
+
+.metric-explorer-table__matrix-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--tw-line-faint);
+  background: #ffffff;
+}
+
+.metric-explorer-table__matrix {
+  width: 100%;
+  min-width: 420px;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.metric-explorer-table__matrix thead {
+  background: var(--tw-panel-soft);
+}
+
+.metric-explorer-table__cell {
+  padding: 10px 12px;
+  border-top: 1px solid var(--tw-line-faint);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.metric-explorer-table__matrix thead .metric-explorer-table__cell {
+  border-top: 0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--tw-muted);
+}
+
+.metric-explorer-table__matrix tbody .metric-explorer-table__cell.is-primary {
+  font-weight: 700;
+}
+
+.metric-explorer-table__cell.is-align-end {
+  text-align: right;
 }
 
 .country-stats-scatter-chart {
@@ -1927,6 +2076,10 @@ code {
   .country-stats-chart-grid {
     grid-template-columns: 1fr;
   }
+
+  .exam-graph-preview-gallery {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 760px) {
@@ -1937,7 +2090,9 @@ code {
   .chip-grid,
   .chip-grid[data-columns="2"],
   .korea-region-actions,
-  .korea-route-grid {
+  .korea-route-grid,
+  .selection-tools,
+  .utility-search-row {
     grid-template-columns: 1fr;
   }
 

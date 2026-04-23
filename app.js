@@ -23,10 +23,12 @@ const markerStyleOptions = [
 const EARTH_RADIUS_KM = 6371.0088;
 const MAP_FONT_FAMILY = "SidaeAi_S";
 const MAP_FONT_STRETCH_X = 0.95;
-const OUTLINE_STROKE_WIDTH = "0.4pt";
-const KOREA_CITY_BOUNDARY_STROKE_WIDTH = "0.24pt";
-const KOREA_CITY_CONTEXT_STROKE_WIDTH = "0.6pt";
-const KOREA_METRO_DISTRICT_BOUNDARY_STROKE_WIDTH = "0.72pt";
+const MAP_FONT_STYLE_ELEMENT_ID = "map-live-font-style";
+const MAP_SVG_FONT_STYLE_SELECTOR = "style[data-map-font-style='embedded']";
+const OUTLINE_STROKE_WIDTH = "0.3pt";
+const KOREA_CITY_BOUNDARY_STROKE_WIDTH = "0.18pt";
+const KOREA_CITY_CONTEXT_STROKE_WIDTH = "0.45pt";
+const KOREA_METRO_DISTRICT_BOUNDARY_STROKE_WIDTH = "0.54pt";
 const MIN_INSET_PANEL_WIDTH = 36;
 const MIN_INSET_PANEL_HEIGHT = 36;
 const MAX_INSET_PANEL_WIDTH = 310;
@@ -40,6 +42,8 @@ const INSET_RENDER_CLIP_PADDING = 18;
 const MIN_INSET_ZOOM_SCALE = 0.2;
 const MAX_INSET_ZOOM_SCALE = 2.4;
 const MAX_STABLE_SPHERICAL_FILL_AREA = 2 * Math.PI;
+const PNG_EXPORT_DPI = 500;
+const CSS_PIXEL_DPI = 96;
 
 const projectionModeLabels = {
   rectangular: "평면",
@@ -357,6 +361,15 @@ const koreaGeoStatsDisplayModeDefinitions = [
   { key: "relative", label: "상댓값 100" },
   { key: "scatter", label: "지표 관계" },
 ];
+const koreaGeoStatsTrendIntervalDefinitions = [
+  { key: "1", label: "1년 단위" },
+  { key: "5", label: "5년 단위" },
+  { key: "10", label: "10년 단위" },
+];
+const koreaGeoStatsTrendValueModeDefinitions = [
+  { key: "index", label: "기준 시점 = 100" },
+  { key: "actual", label: "실제 값" },
+];
 const koreaGeoStatsRandomMetricBoosts = {
   "population-growth-rate": 16,
   "aging-index": 18,
@@ -515,6 +528,17 @@ const examGraphValueModeDefinitions = [
   { key: "share", label: "비율" },
   { key: "relative", label: "상댓값100" },
 ];
+const examGraphOrientationDefinitions = [
+  { key: "landscape", label: "가로형" },
+  { key: "portrait", label: "세로형" },
+];
+const examGraphPreviewCountDefinitions = [
+  { key: "1", label: "1개" },
+  { key: "2", label: "2개" },
+  { key: "3", label: "3개" },
+];
+const EXAM_GRAPH_FONT_BASE_PT = 8;
+const EXAM_GRAPH_FONT_STRETCH_PERCENT = 95;
 const examGraphPresetDefinitions = [
   {
     key: "stacked100",
@@ -912,6 +936,74 @@ const examGraphRandomExcludedIso3 = new Set([
   "VGB",
   "VIR",
   "WLF",
+  "PNG",
+]);
+const examGraphTextbookPriorityIso3 = new Set([
+  "USA",
+  "CHN",
+  "IND",
+  "JPN",
+  "KOR",
+  "PRK",
+  "RUS",
+  "GBR",
+  "DEU",
+  "FRA",
+  "ITA",
+  "ESP",
+  "NLD",
+  "SWE",
+  "NOR",
+  "POL",
+  "UKR",
+  "TUR",
+  "SAU",
+  "ARE",
+  "QAT",
+  "IRN",
+  "IRQ",
+  "ISR",
+  "EGY",
+  "NGA",
+  "ETH",
+  "KEN",
+  "UGA",
+  "ZAF",
+  "COD",
+  "SDN",
+  "SSD",
+  "AFG",
+  "SYR",
+  "MMR",
+  "PAK",
+  "BGD",
+  "IDN",
+  "VNM",
+  "THA",
+  "PHL",
+  "SGP",
+  "AUS",
+  "NZL",
+  "CAN",
+  "MEX",
+  "BRA",
+  "ARG",
+  "CHL",
+  "PER",
+  "COL",
+  "VEN",
+  "BOL",
+  "ECU",
+  "NER",
+  "RWA",
+  "BDI",
+  "MAR",
+  "DZA",
+  "KWT",
+  "ISL",
+  "DNK",
+  "FJI",
+  "MYS",
 ]);
 const koreaDatasets = {
   provinces: buildKoreaDataset(window.KOREA_ADMIN_DATA.provinces, "provinces"),
@@ -993,6 +1085,7 @@ function buildAtlasDataset(variantTopology, datasetKey) {
   const countriesObject = variantTopology.objects.countries;
   const landFeature = topojson.feature(variantTopology, variantTopology.objects.land);
   const borderMesh = topojson.mesh(variantTopology, countriesObject, (a, b) => a !== b);
+  const coastlineMesh = stitchGeometryIfPossible(topojson.mesh(variantTopology, variantTopology.objects.land));
   const allCountryFeatures = topojson
     .feature(variantTopology, countriesObject)
     .features
@@ -1022,6 +1115,7 @@ function buildAtlasDataset(variantTopology, datasetKey) {
     countriesObject,
     landFeature,
     borderMesh,
+    coastlineMesh,
     countryFeatures: variantCountryFeatures,
     countryById: new Map(variantCountryFeatures.map((feature) => [feature.id, feature])),
     unstableFillCountryIds,
@@ -1033,6 +1127,18 @@ function buildLakeDataset(geometryCollection, datasetKey) {
     datasetKey,
     geometry: geometryCollection,
   };
+}
+
+function stitchGeometryIfPossible(geometry) {
+  if (!geometry || typeof d3.geoStitch !== "function") {
+    return geometry;
+  }
+
+  try {
+    return d3.geoStitch(geometry);
+  } catch (error) {
+    return geometry;
+  }
 }
 
 function buildKoreaDataset(topology, level) {
@@ -1109,6 +1215,23 @@ function getAtlasDataset(zoomLevel = state.viewZoom, preferFine = false) {
   return atlasDatasets[getAtlasLevelForZoom(zoomLevel, preferFine)] ?? baseAtlas;
 }
 
+function getLakeDatasetForAtlasDataset(atlasDataset, zoomLevel = state.viewZoom) {
+  const datasetKey = atlasDataset?.datasetKey;
+  const fineLakeThreshold = state.coastlineDetail === "max" ? 9.6 : 10.8;
+  if (datasetKey === "10m") {
+    if (zoomLevel >= fineLakeThreshold && atlasLakeDatasets["10m"]) {
+      return atlasLakeDatasets["10m"];
+    }
+    return atlasLakeDatasets["50m"] ?? atlasLakeDatasets["110m"] ?? atlasLakeDatasets["10m"] ?? baseLakeDataset;
+  }
+
+  if (datasetKey === "50m") {
+    return atlasLakeDatasets["110m"] ?? atlasLakeDatasets["50m"] ?? atlasLakeDatasets["10m"] ?? baseLakeDataset;
+  }
+
+  return atlasLakeDatasets["110m"] ?? atlasLakeDatasets["50m"] ?? atlasLakeDatasets["10m"] ?? baseLakeDataset;
+}
+
 const atlasPalette = ["#9c9c9c", "#b9b9b9", "#6a6a6a", "#858585", "#cacaca", "#777777"];
 
 const state = {
@@ -1118,7 +1241,7 @@ const state = {
   paddingPercent: 10,
   centerLongitude: 0,
   projectionMode: "rectangular",
-  viewMode: "zoom",
+  viewMode: "pan",
   viewZoom: 1,
   viewOffsetX: 0,
   viewOffsetY: 0,
@@ -1146,6 +1269,7 @@ const state = {
   metricExplorerScatterXKey: "population-total",
   metricExplorerScatterYKey: "exports-share",
   metricExplorerScatterSizeKey: "energy-consumption-total",
+  metricExplorerOptionsExpanded: false,
   koreaGeoStatsCategoryKey: "demography",
   koreaGeoStatsDisplayMode: "overview",
   koreaGeoStatsMetricKey: "population-estimate",
@@ -1153,6 +1277,10 @@ const state = {
   koreaGeoStatsScatterXKey: "population-estimate",
   koreaGeoStatsScatterYKey: "grdp",
   koreaGeoStatsScatterSizeKey: "manufacturing-employees",
+  koreaGeoStatsTrendInterval: 5,
+  koreaGeoStatsTrendValueMode: "index",
+  koreaGeoStatsTrendBasePeriodKey: "",
+  koreaGeoStatsActionsExpanded: false,
   examGraphPresetKey: "stacked100",
   examGraphMetricKey: "population-total",
   examGraphPairKey: "urban-rural-total",
@@ -1166,11 +1294,16 @@ const state = {
   examGraphYearStart: 1970,
   examGraphYearEnd: 2023,
   examGraphAliasMode: true,
+  examGraphOrientation: "landscape",
+  examGraphPreviewCount: 1,
+  examGraphFontSizePt: 8,
   examGraphScatterXKey: "population-urban-share",
   examGraphScatterYKey: "age-65plus-share",
   examGraphScatterSizeKey: "population-total",
   examGraphFocusCountryIds: [],
   examGraphFocusLabel: "",
+  examGraphDesignExpanded: false,
+  examGraphActionsExpanded: false,
   guides: {
     equator: false,
     lat30: false,
@@ -1214,6 +1347,10 @@ const elements = {
   selectionCardTitle: document.querySelector("#selectionCardTitle"),
   selectionDetailTitle: document.querySelector("#selectionDetailTitle"),
   selectionDetailHint: document.querySelector("#selectionDetailHint"),
+  selectionFilterLabel: document.querySelector("#selectionFilterLabel"),
+  selectionFilterInput: document.querySelector("#selectionFilterInput"),
+  selectionFilterMeta: document.querySelector("#selectionFilterMeta"),
+  selectionCompareActions: document.querySelector("#selectionCompareActions"),
   detailSectionTitle: document.querySelector("#detailSectionTitle"),
   detailSectionBadge: document.querySelector("#detailSectionBadge"),
   selectedCountryList: document.querySelector("#selectedCountryList"),
@@ -1256,6 +1393,7 @@ const elements = {
   mapFontSizeValue: document.querySelector("#mapFontSizeValue"),
   selectedBordersOnlyToggle: document.querySelector("#selectedBordersOnlyToggle"),
   downloadSvgButton: document.querySelector("#downloadSvgButton"),
+  downloadPngButton: document.querySelector("#downloadPngButton"),
   exportMeta: document.querySelector("#exportMeta"),
   previewStage: document.querySelector("#previewStage"),
   previewHint: document.querySelector("#previewHint"),
@@ -1277,6 +1415,8 @@ const elements = {
   toggleKoreaCityScopeButton: document.querySelector("#toggleKoreaCityScopeButton"),
   koreaRegionBlockBody: document.querySelector("#koreaRegionBlockBody"),
   koreaRegionChipList: document.querySelector("#koreaRegionChipList"),
+  koreaRegionFilterInput: document.querySelector("#koreaRegionFilterInput"),
+  koreaRegionFilterMeta: document.querySelector("#koreaRegionFilterMeta"),
   toggleKoreaRegionListButton: document.querySelector("#toggleKoreaRegionListButton"),
   activateVisibleKoreaRegionsButton: document.querySelector("#activateVisibleKoreaRegionsButton"),
   clearVisibleKoreaRegionsButton: document.querySelector("#clearVisibleKoreaRegionsButton"),
@@ -1294,7 +1434,7 @@ const elements = {
 let currentSvgNode = null;
 let currentPreviewScale = 1;
 let currentRenderContext = null;
-let embeddedMapFontDataUrl = null;
+let embeddedMapFontDataUrl = window.EMBEDDED_MAP_FONT_DATA_URL ?? null;
 let activeGestureScale = 1;
 let currentCanvasSurface = null;
 const previewInteraction = {
@@ -1325,6 +1465,7 @@ normalizeKoreaState();
 buildCountryDatalist();
 buildKoreaParentRegionOptions();
 attachEventListeners();
+ensureDocumentMapFontStyle();
 syncControls();
 setStatus(getDefaultStatusMessage());
 renderSelectionViews();
@@ -1434,6 +1575,12 @@ function attachEventListeners() {
 
   elements.toggleKoreaRegionListButton?.addEventListener("click", () => {
     toggleKoreaRegionListCollapsed();
+  });
+  elements.selectionFilterInput?.addEventListener("input", () => {
+    renderSelectedCountries();
+  });
+  elements.koreaRegionFilterInput?.addEventListener("input", () => {
+    renderKoreaRegionChips();
   });
 
   elements.activateVisibleKoreaRegionsButton.addEventListener("click", () => {
@@ -1625,7 +1772,12 @@ function attachEventListeners() {
     setStatus("마커와 인셋을 모두 지웠습니다.");
   });
 
-  elements.downloadSvgButton.addEventListener("click", exportCurrentSvg);
+  elements.downloadSvgButton.addEventListener("click", () => {
+    void exportCurrentSvg();
+  });
+  elements.downloadPngButton?.addEventListener("click", () => {
+    void exportCurrentPng();
+  });
 
   elements.presetButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -2101,6 +2253,9 @@ function syncKoreaGroupingActionButtons() {
   const checkedIds = getCurrentKoreaGroupingDraftIds();
   const shouldDisable = state.mapVersion !== "korea";
   const hasCompareView = getCurrentKoreaComparedIds().length >= 2;
+  const hasSelection = getCurrentSelectionEntries().length > 0;
+
+  setNodeVisibility(elements.selectionCompareActions, state.mapVersion === "korea" && hasSelection);
 
   elements.groupSelectedKoreaRegionsButton.disabled = shouldDisable || checkedIds.length < 2;
   elements.ungroupSelectedKoreaRegionsButton.disabled = shouldDisable || !hasCompareView;
@@ -2288,6 +2443,7 @@ function setMapVersion(mapVersion, { silent = false } = {}) {
   state.mapVersion = mapVersion;
   interactionState.temporaryViewMode = null;
   keyboardState.temporaryPanSourceMode = null;
+  resetContextualSearchInputs({ selection: true, koreaRegion: true });
   if (mapVersion !== "korea") {
     clearKoreaGroupingDraft();
   }
@@ -2313,6 +2469,7 @@ function setKoreaLevel(level, { silent = false } = {}) {
   beginHistoryStep("한국 권역 레벨 변경");
   state.koreaLevel = level;
   state.koreaParentCode = koreaLevelRequiresParent(level) ? inferPreferredKoreaParentCode(level) : "";
+  resetContextualSearchInputs({ selection: true, koreaRegion: true });
   clearKoreaGroupingDraft();
   syncControls();
   renderSelectionViews();
@@ -2332,6 +2489,7 @@ function setKoreaParentCode(code, { silent = false } = {}) {
 
   beginHistoryStep("한국 상위 권역 변경");
   state.koreaParentCode = nextCode;
+  resetContextualSearchInputs({ koreaRegion: true });
   clearKoreaGroupingDraft();
   syncKoreaControls();
   renderSelectionViews();
@@ -2359,6 +2517,12 @@ function syncMapVersionControls() {
   elements.selectionDetailHint.textContent = isWorldMode
     ? "비교와 그래프에 쓸 국가를 여기서 색상과 함께 관리합니다."
     : "비교와 그래프에 쓸 권역을 여기서 색상과 비교 보기 상태와 함께 관리합니다.";
+  if (elements.selectionFilterLabel) {
+    elements.selectionFilterLabel.textContent = isWorldMode ? "선택 국가 찾기" : "선택 권역 찾기";
+  }
+  if (elements.selectionFilterInput) {
+    elements.selectionFilterInput.placeholder = isWorldMode ? "예: Brazil, AUS" : "예: 경기, 전주, 강남구";
+  }
   elements.detailSectionTitle.textContent = isWorldMode ? "인문지리 비교 자료실" : "한국지리 비교 자료실";
   elements.detailSectionBadge.textContent = isWorldMode ? "구성비 · 변화 · 국가 프로필" : "권역 비교 · 구조 · 변화";
   elements.unifySelectedColorLabel.textContent = isWorldMode ? "선택 국가 색상 통일" : "선택 권역 색상 통일";
@@ -2776,6 +2940,54 @@ function getCurrentSelectionEmptyMessage() {
   return "아직 선택된 권역이 없습니다. 권역 칩이나 미리보기 클릭으로 추가해 보세요.";
 }
 
+function normalizeFilterText(value = "") {
+  return String(value).trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function getSelectionFilterQuery() {
+  return normalizeFilterText(elements.selectionFilterInput?.value);
+}
+
+function getKoreaRegionFilterQuery() {
+  return normalizeFilterText(elements.koreaRegionFilterInput?.value);
+}
+
+function buildSelectionFilterHaystack(selection) {
+  const parts = [selection?.id, selection?.name, formatSelectionDisplayName(selection)];
+  if (state.mapVersion === "korea" && selection?.parentCode) {
+    parts.push(getKoreaProvinceName(selection.parentCode));
+  }
+  return normalizeFilterText(parts.filter(Boolean).join(" "));
+}
+
+function buildKoreaFeatureFilterHaystack(feature) {
+  const parts = [feature?.id, feature?.properties?.name];
+  if (feature?.properties?.parentCode) {
+    parts.push(getKoreaProvinceName(feature.properties.parentCode));
+  }
+  return normalizeFilterText(parts.filter(Boolean).join(" "));
+}
+
+function formatFilteredCountText(filteredCount, totalCount, emptyLabel = "없음") {
+  if (!(totalCount > 0)) {
+    return emptyLabel;
+  }
+  if (filteredCount === totalCount) {
+    return `전체 ${totalCount}개`;
+  }
+  return `${filteredCount} / ${totalCount}개 표시`;
+}
+
+function resetContextualSearchInputs({ selection = false, koreaRegion = false } = {}) {
+  if (selection && elements.selectionFilterInput) {
+    elements.selectionFilterInput.value = "";
+  }
+
+  if (koreaRegion && elements.koreaRegionFilterInput) {
+    elements.koreaRegionFilterInput.value = "";
+  }
+}
+
 function createKoreaSelectionEntry(feature, color = nextPaletteColor(getCurrentSelectionEntries().length)) {
   return {
     id: feature.id,
@@ -2850,6 +3062,16 @@ function getVisibleKoreaSelectableFeatures() {
   return koreaMetroDistrictsByParentCode.get(state.koreaParentCode) ?? [];
 }
 
+function getFilteredVisibleKoreaSelectableFeatures() {
+  const visibleFeatures = getVisibleKoreaSelectableFeatures();
+  const filterQuery = getKoreaRegionFilterQuery();
+  if (!filterQuery) {
+    return visibleFeatures;
+  }
+
+  return visibleFeatures.filter((feature) => buildKoreaFeatureFilterHaystack(feature).includes(filterQuery));
+}
+
 function getKoreaHitTestFeatures() {
   if (isKoreaCompareModeActive()) {
     return getCurrentKoreaDataset().features;
@@ -2878,7 +3100,17 @@ function renderKoreaRegionChips() {
   }
 
   const visibleFeatures = getVisibleKoreaSelectableFeatures();
+  const filteredFeatures = getFilteredVisibleKoreaSelectableFeatures();
   const selectedIds = new Set(getCurrentSelectionEntries().map((selection) => selection.id));
+  const filterQuery = getKoreaRegionFilterQuery();
+
+  if (elements.koreaRegionFilterMeta) {
+    elements.koreaRegionFilterMeta.textContent = formatFilteredCountText(
+      filteredFeatures.length,
+      visibleFeatures.length,
+      "표시할 권역 없음",
+    );
+  }
 
   if (!visibleFeatures.length) {
     const emptyText = getCurrentSelectionEmptyMessage();
@@ -2890,7 +3122,16 @@ function renderKoreaRegionChips() {
 
   const fragment = document.createDocumentFragment();
 
-  sortKoreaFeaturesByName(visibleFeatures).forEach((feature) => {
+  if (!filteredFeatures.length) {
+    elements.koreaRegionChipList.appendChild(
+      createEmptyState(filterQuery ? "검색과 일치하는 권역이 없습니다." : getCurrentSelectionEmptyMessage()),
+    );
+    elements.activateVisibleKoreaRegionsButton.disabled = true;
+    elements.clearVisibleKoreaRegionsButton.disabled = true;
+    return;
+  }
+
+  sortKoreaFeaturesByName(filteredFeatures).forEach((feature) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "tw-chip region-chip";
@@ -2908,7 +3149,8 @@ function renderKoreaRegionChips() {
 }
 
 function selectAllVisibleKoreaRegions() {
-  const visibleFeatures = getVisibleKoreaSelectableFeatures();
+  const visibleFeatures = getFilteredVisibleKoreaSelectableFeatures();
+  const isFiltered = Boolean(getKoreaRegionFilterQuery());
   if (!visibleFeatures.length) {
     setStatus("현재 켤 수 있는 권역이 없습니다.");
     return;
@@ -2940,11 +3182,12 @@ function selectAllVisibleKoreaRegions() {
   renderSelectionViews();
   syncKoreaControls();
   renderMap();
-  setStatus(`현재 보이는 ${visibleFeatures.length}개 권역을 켰습니다.`);
+  setStatus(`${isFiltered ? "검색 결과" : "현재 보이는"} ${visibleFeatures.length}개 권역을 켰습니다.`);
 }
 
 function clearVisibleKoreaRegions() {
-  const visibleFeatures = getVisibleKoreaSelectableFeatures();
+  const visibleFeatures = getFilteredVisibleKoreaSelectableFeatures();
+  const isFiltered = Boolean(getKoreaRegionFilterQuery());
   if (!visibleFeatures.length) {
     setStatus("현재 끌 수 있는 권역이 없습니다.");
     return;
@@ -2964,7 +3207,7 @@ function clearVisibleKoreaRegions() {
   renderSelectionViews();
   syncKoreaControls();
   renderMap();
-  setStatus("현재 보이는 권역을 모두 껐습니다.");
+  setStatus(`${isFiltered ? "검색 결과" : "현재 보이는"} 권역을 모두 껐습니다.`);
 }
 
 function groupCheckedKoreaRegions() {
@@ -3249,9 +3492,21 @@ function renderSelectedCountries() {
   elements.selectedCountryList.replaceChildren();
 
   const currentSelection = getCurrentSelectionEntries();
+  const filterQuery = getSelectionFilterQuery();
+  const filteredSelection = filterQuery
+    ? currentSelection.filter((selection) => buildSelectionFilterHaystack(selection).includes(filterQuery))
+    : currentSelection;
   const comparedIdSet = getCurrentKoreaComparedIdSet();
   if (state.mapVersion === "world") {
     syncActiveStatsCountry();
+  }
+
+  if (elements.selectionFilterMeta) {
+    elements.selectionFilterMeta.textContent = formatFilteredCountText(
+      filteredSelection.length,
+      currentSelection.length,
+      "선택 없음",
+    );
   }
 
   if (!currentSelection.length) {
@@ -3260,7 +3515,13 @@ function renderSelectedCountries() {
     return;
   }
 
-  currentSelection.forEach((country) => {
+  if (!filteredSelection.length) {
+    elements.selectedCountryList.appendChild(createEmptyState("검색과 일치하는 선택 항목이 없습니다."));
+    syncKoreaGroupingActionButtons();
+    return;
+  }
+
+  filteredSelection.forEach((country) => {
     const displayedColor = getSelectedCountryColor(country);
     const listItem = document.createElement("li");
     listItem.className = "selected-country-item";
@@ -3609,6 +3870,15 @@ function getKoreaGeoStatsTopN(levelKey = getKoreaGeoStatsLevelKey()) {
   return clamp(Math.round(Number(state.koreaGeoStatsTopN) || 10), 1, getKoreaGeoStatsMaxCount(levelKey));
 }
 
+function getKoreaGeoStatsTrendInterval() {
+  const interval = Math.round(Number(state.koreaGeoStatsTrendInterval) || 5);
+  return [1, 5, 10].includes(interval) ? interval : 5;
+}
+
+function getKoreaGeoStatsTrendValueMode() {
+  return state.koreaGeoStatsTrendValueMode === "actual" ? "actual" : "index";
+}
+
 function getKoreaGeoStatsDefinition(definitions = getKoreaGeoStatsDefinitions()) {
   return definitions.find((definition) => definition.key === state.koreaGeoStatsMetricKey) ?? definitions[0];
 }
@@ -3649,6 +3919,16 @@ function ensureKoreaGeoStatsState(definitions = getKoreaGeoStatsDefinitions()) {
       state.koreaGeoStatsDisplayMode = "overview";
     }
   }
+
+  state.koreaGeoStatsTrendInterval = getKoreaGeoStatsTrendInterval();
+  if (!koreaGeoStatsTrendValueModeDefinitions.some((definition) => definition.key === state.koreaGeoStatsTrendValueMode)) {
+    state.koreaGeoStatsTrendValueMode = "index";
+  }
+  if (getKoreaGeoStatsTrendValueMode() === "index" && !activeDefinition?.allowRelative) {
+    state.koreaGeoStatsTrendValueMode = "actual";
+  }
+  state.koreaGeoStatsTrendBasePeriodKey =
+    typeof state.koreaGeoStatsTrendBasePeriodKey === "string" ? state.koreaGeoStatsTrendBasePeriodKey : "";
 
   const scatterFallbacks = categoryDefinitions.map((definition) => definition.key);
   if (!scatterFallbacks.includes(state.koreaGeoStatsScatterXKey)) {
@@ -3782,8 +4062,94 @@ function getKoreaGeoStatsLatestEntries(definition = getKoreaGeoStatsDefinition()
     .sort((a, b) => Number(b.value) - Number(a.value) || compareMetricLabels(a.label, b.label));
 }
 
+function getKoreaGeoStatsDefinitionMaxSeriesLength(definition) {
+  return Object.values(definition?.seriesByRegion ?? {}).reduce((maximumLength, series) => {
+    const nextLength = Array.isArray(series) ? series.length : 0;
+    return Math.max(maximumLength, nextLength);
+  }, 0);
+}
+
+function resolveKoreaGeoStatsTrendDefinition(
+  definition,
+  levelKey = getKoreaGeoStatsLevelKey(),
+  metricsByKey = getKoreaGeoStatsMetrics(levelKey),
+) {
+  if (!definition) {
+    return definition;
+  }
+
+  if (levelKey === "cities" && definition.key === "population-estimate") {
+    const residentDefinition = metricsByKey["resident-population"];
+    if (
+      residentDefinition &&
+      getKoreaGeoStatsDefinitionMaxSeriesLength(residentDefinition) >
+        getKoreaGeoStatsDefinitionMaxSeriesLength(definition)
+    ) {
+      return residentDefinition;
+    }
+  }
+
+  return definition;
+}
+
+function getKoreaGeoStatsPeriodMeta(periodKey) {
+  const digits = String(periodKey ?? "").replace(/\D/g, "");
+  const sortValue = Number.parseInt(digits || "0", 10) || 0;
+  const year = digits.length >= 4 ? Number.parseInt(digits.slice(0, 4), 10) || 0 : sortValue;
+  const subKey = digits.length > 4 ? digits.slice(4) : "";
+  const subValue = subKey ? Number.parseInt(subKey, 10) || 0 : 0;
+  return { digits, sortValue, year, subKey, subValue };
+}
+
 function parseKoreaGeoStatsPeriodKey(periodKey) {
-  return Number.parseInt(String(periodKey ?? "").replace(/\D/g, ""), 10) || 0;
+  return getKoreaGeoStatsPeriodMeta(periodKey).sortValue;
+}
+
+function getKoreaGeoStatsPeriodSubDistance(meta, referenceSubKey = "") {
+  if (!meta?.subKey || !referenceSubKey) {
+    return 0;
+  }
+  const referenceValue = Number.parseInt(referenceSubKey, 10);
+  if (!Number.isFinite(referenceValue)) {
+    return meta.subKey === referenceSubKey ? 0 : 1;
+  }
+  return Math.abs((meta.subValue || 0) - referenceValue);
+}
+
+function getKoreaGeoStatsRepresentativePeriodKeys(periodKeys = []) {
+  const sortedKeys = [...new Set(periodKeys)].sort((a, b) => parseKoreaGeoStatsPeriodKey(a) - parseKoreaGeoStatsPeriodKey(b));
+  const metas = sortedKeys.map((key) => ({ key, meta: getKoreaGeoStatsPeriodMeta(key) }));
+  if (!metas.some(({ meta }) => meta.subKey)) {
+    return sortedKeys;
+  }
+
+  const subKeyCounts = new Map();
+  metas.forEach(({ meta }) => {
+    if (!meta.subKey) {
+      return;
+    }
+    subKeyCounts.set(meta.subKey, (subKeyCounts.get(meta.subKey) ?? 0) + 1);
+  });
+  const preferredSubKey =
+    [...subKeyCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0]?.[0] ?? "";
+
+  const representativesByYear = new Map();
+  metas.forEach(({ key, meta }) => {
+    const bucketKey = String(meta.year || key);
+    const candidateDistance = getKoreaGeoStatsPeriodSubDistance(meta, preferredSubKey);
+    const current = representativesByYear.get(bucketKey);
+    if (
+      !current ||
+      candidateDistance < current.distance ||
+      (candidateDistance === current.distance && meta.sortValue < current.meta.sortValue)
+    ) {
+      representativesByYear.set(bucketKey, { key, meta, distance: candidateDistance });
+    }
+  });
+
+  return [...representativesByYear.values()]
+    .sort((a, b) => a.meta.sortValue - b.meta.sortValue)
+    .map((entry) => entry.key);
 }
 
 function getKoreaGeoStatsTrendSeries(
@@ -3818,6 +4184,158 @@ function getKoreaGeoStatsTrendSeries(
         .sort((a, b) => parseKoreaGeoStatsPeriodKey(a.periodKey) - parseKoreaGeoStatsPeriodKey(b.periodKey)),
     }))
     .filter((entry) => entry.points.length >= 2);
+}
+
+function getKoreaGeoStatsTrendPeriodOptions(series = []) {
+  const validSeries = (series ?? []).filter((entry) => Array.isArray(entry?.points) && entry.points.length);
+  if (!validSeries.length) {
+    return [];
+  }
+
+  const periodLabelByKey = new Map();
+  let commonPeriodKeys = null;
+  validSeries.forEach((entry) => {
+    const currentKeys = new Set();
+    (entry.points ?? []).forEach((point) => {
+      if (!point?.periodKey) {
+        return;
+      }
+      currentKeys.add(point.periodKey);
+      if (!periodLabelByKey.has(point.periodKey)) {
+        periodLabelByKey.set(point.periodKey, point.periodLabel ?? point.periodKey);
+      }
+    });
+    commonPeriodKeys = commonPeriodKeys
+      ? new Set([...commonPeriodKeys].filter((key) => currentKeys.has(key)))
+      : currentKeys;
+  });
+  return getKoreaGeoStatsRepresentativePeriodKeys(commonPeriodKeys?.size ? [...commonPeriodKeys] : [...periodLabelByKey.keys()])
+    .sort((a, b) => parseKoreaGeoStatsPeriodKey(a) - parseKoreaGeoStatsPeriodKey(b))
+    .map((key) => ({ key, label: periodLabelByKey.get(key) ?? key }));
+}
+
+function resolveKoreaGeoStatsTrendBasePeriodKey(series = []) {
+  const periodOptions = getKoreaGeoStatsTrendPeriodOptions(series);
+  if (periodOptions.some((option) => option.key === state.koreaGeoStatsTrendBasePeriodKey)) {
+    return state.koreaGeoStatsTrendBasePeriodKey;
+  }
+  return periodOptions[0]?.key ?? "";
+}
+
+function sampleKoreaGeoStatsTrendPoints(points = [], interval = getKoreaGeoStatsTrendInterval(), anchorPeriodKey = "") {
+  const sortedPoints = [...(points ?? [])].sort(
+    (a, b) => parseKoreaGeoStatsPeriodKey(a.periodKey) - parseKoreaGeoStatsPeriodKey(b.periodKey),
+  );
+  if (interval <= 1 || sortedPoints.length <= 2) {
+    return sortedPoints;
+  }
+
+  const anchorPoint = sortedPoints.find((point) => point.periodKey === anchorPeriodKey) ?? sortedPoints[0] ?? null;
+  const anchorMeta = getKoreaGeoStatsPeriodMeta(anchorPoint?.periodKey);
+  if (!anchorPoint || !anchorMeta.year) {
+    return sortedPoints;
+  }
+
+  const sampledByYear = new Map();
+
+  sortedPoints.forEach((point) => {
+    const pointMeta = getKoreaGeoStatsPeriodMeta(point.periodKey);
+    if (!pointMeta.year) {
+      return;
+    }
+    if (Math.abs(pointMeta.year - anchorMeta.year) % interval !== 0) {
+      return;
+    }
+    const bucketKey = String(pointMeta.year);
+    const candidateDistance = getKoreaGeoStatsPeriodSubDistance(pointMeta, anchorMeta.subKey);
+    const current = sampledByYear.get(bucketKey);
+    if (
+      !current ||
+      candidateDistance < current.distance ||
+      (candidateDistance === current.distance && pointMeta.sortValue < current.meta.sortValue)
+    ) {
+      sampledByYear.set(bucketKey, { point, meta: pointMeta, distance: candidateDistance });
+    }
+  });
+
+  const sampledByKey = new Map(
+    [...sampledByYear.values()].map((entry) => [entry.point.periodKey, entry.point]),
+  );
+  [sortedPoints[0], sortedPoints[sortedPoints.length - 1], anchorPoint]
+    .filter(Boolean)
+    .forEach((point) => {
+      sampledByKey.set(point.periodKey, point);
+    });
+
+  return [...sampledByKey.values()].sort(
+    (a, b) => parseKoreaGeoStatsPeriodKey(a.periodKey) - parseKoreaGeoStatsPeriodKey(b.periodKey),
+  );
+}
+
+function buildKoreaGeoStatsTrendPresentation(
+  definition,
+  latestEntries = getKoreaGeoStatsLatestEntries(definition),
+  levelKey = getKoreaGeoStatsLevelKey(),
+) {
+  const displayDefinition = definition;
+  const seriesDefinition = resolveKoreaGeoStatsTrendDefinition(displayDefinition, levelKey);
+  const rawSeries = getKoreaGeoStatsTrendSeries(seriesDefinition, latestEntries, levelKey);
+  const periodOptions = getKoreaGeoStatsTrendPeriodOptions(rawSeries);
+  const basePeriodKey = resolveKoreaGeoStatsTrendBasePeriodKey(rawSeries);
+  const interval = getKoreaGeoStatsTrendInterval();
+  const valueMode = getKoreaGeoStatsTrendValueMode();
+  const sampledSeries = rawSeries
+    .map((entry) => ({
+      ...entry,
+      points: sampleKoreaGeoStatsTrendPoints(entry.points, interval, basePeriodKey),
+    }))
+    .filter((entry) => entry.points.length >= 2);
+  const basePeriodLabel = periodOptions.find((option) => option.key === basePeriodKey)?.label ?? basePeriodKey;
+  const canUseIndex = Boolean(seriesDefinition?.allowRelative);
+  const usesIndex = valueMode === "index" && canUseIndex && Boolean(basePeriodKey);
+
+  const series = usesIndex
+    ? sampledSeries
+        .map((entry) => {
+          const basePoint = (entry.points ?? []).find((point) => point.periodKey === basePeriodKey);
+          const baseValue = Number(basePoint?.value);
+          if (!(baseValue > 0)) {
+            return null;
+          }
+          return {
+            ...entry,
+            points: entry.points.map((point) => ({
+              ...point,
+              value: (Number(point.value) / baseValue) * 100,
+            })),
+          };
+        })
+        .filter(Boolean)
+    : sampledSeries;
+  const usesAlternateSeriesDefinition = Boolean(
+    seriesDefinition?.key && displayDefinition?.key && seriesDefinition.key !== displayDefinition.key,
+  );
+
+  return {
+    series,
+    rawSeries,
+    periodOptions,
+    basePeriodKey,
+    basePeriodLabel,
+    interval,
+    usesIndex,
+    canUseIndex,
+    seriesDefinition,
+    usesAlternateSeriesDefinition,
+    sourceNote: usesAlternateSeriesDefinition
+      ? `시·군 장기 시계열은 ${seriesDefinition.label} 기준으로 보정했습니다.`
+      : "",
+    valueFormatter: usesIndex
+      ? (value) => formatRelativeIndex(value)
+      : (value) => formatKoreaGeoStatsCompactValue(seriesDefinition, value),
+    summaryLabel: usesIndex ? `${basePeriodLabel || "기준 시점"} = 100` : "실제 값",
+    detailLabel: `${interval}년 단위`,
+  };
 }
 
 function getKoreaGeoStatsDominantPeriodLabel(entries = []) {
@@ -4597,13 +5115,17 @@ function applyKoreaGeoStatsRandomScenario() {
 function getKoreaGeoStatsGuideText(levelKey = getKoreaGeoStatsLevelKey()) {
   const regionNoun = getKoreaGeoStatsRegionNoun(levelKey);
   const compactRegionNoun = getKoreaGeoStatsRegionNoun(levelKey, true);
+  const trendHint =
+    state.koreaGeoStatsDisplayMode === "trend" || state.koreaGeoStatsDisplayMode === "overview"
+      ? ` 시계열은 ${getKoreaGeoStatsTrendInterval()}년 단위로 줄이고, 필요하면 기준 시점을 100으로 맞춰 읽을 수 있습니다.`
+      : "";
   if (getKoreaGeoStatsScopeMode(levelKey) === "selected") {
-    return `선택한 ${regionNoun}만 같은 축으로 비교합니다. 필요하면 랜덤 버튼으로 추천 ${compactRegionNoun} 조합이나 지표를 바로 바꿔 볼 수 있습니다.`;
+    return `선택한 ${regionNoun}만 같은 축으로 비교합니다. 필요하면 랜덤 버튼으로 추천 ${compactRegionNoun} 조합이나 지표를 바로 바꿔 볼 수 있습니다.${trendHint}`;
   }
   if (levelKey === "cities" && state.koreaCityScopeCodes.length) {
-    return `${getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 })} 범위 ${regionNoun}을 같은 축으로 묶어 비교합니다. 세트 랜덤은 이 범위 안에서 출제용 조합을 다시 골라 줍니다.`;
+    return `${getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 })} 범위 ${regionNoun}을 같은 축으로 묶어 비교합니다. 세트 랜덤은 이 범위 안에서 출제용 조합을 다시 골라 줍니다.${trendHint}`;
   }
-  return `선택이 없으면 전국 ${getKoreaGeoStatsRegionOrder(levelKey).length}개 ${compactRegionNoun}를 같은 축으로 펼쳐 시험형 비교 자료처럼 정리합니다. 랜덤 버튼은 출제 포인트가 살아 있는 지역·지표 조합을 추천합니다.`;
+  return `선택이 없으면 전국 ${getKoreaGeoStatsRegionOrder(levelKey).length}개 ${compactRegionNoun}를 같은 축으로 펼쳐 시험형 비교 자료처럼 정리합니다. 랜덤 버튼은 출제 포인트가 살아 있는 지역·지표 조합을 추천합니다.${trendHint}`;
 }
 
 function buildTimelineLineChartCard({ title, description, series, valueFormatter }) {
@@ -4822,6 +5344,268 @@ function buildKoreaGeoStatsAgeStructureCard(
   });
 }
 
+function getKoreaGeoStatsScopeCompositionData(
+  definition,
+  latestEntries = getKoreaGeoStatsLatestEntries(definition),
+  { levelKey = getKoreaGeoStatsLevelKey(), maxSegments = getKoreaGeoStatsTopN(levelKey) } = {},
+) {
+  const validEntries = (latestEntries ?? []).filter((entry) => Number(entry?.value) > 0);
+  const total = validEntries.reduce((sum, entry) => sum + Number(entry.value || 0), 0);
+  if (!(total > 0) || !validEntries.length) {
+    return null;
+  }
+
+  const visibleCount = clamp(Math.round(Number(maxSegments) || 6), 2, validEntries.length);
+  const visibleEntries = validEntries.slice(0, visibleCount);
+  const otherEntries = validEntries.slice(visibleEntries.length);
+  const dominantPeriodLabel = getKoreaGeoStatsDominantPeriodLabel(validEntries);
+  const rows = visibleEntries.map((entry, index) => ({
+    rankLabel: `${index + 1}위`,
+    label: entry.label,
+    value: Number(entry.value),
+    valueLabel: formatKoreaGeoStatsValue(definition, entry.value),
+    share: (Number(entry.value) / total) * 100,
+    periodLabel: entry.periodLabel ?? dominantPeriodLabel,
+  }));
+  const otherValue = otherEntries.reduce((sum, entry) => sum + Number(entry.value || 0), 0);
+  if (otherValue > 0) {
+    rows.push({
+      rankLabel: "기타",
+      label: `기타 ${otherEntries.length}곳`,
+      value: otherValue,
+      valueLabel: formatKoreaGeoStatsValue(definition, otherValue),
+      share: (otherValue / total) * 100,
+      periodLabel: dominantPeriodLabel,
+    });
+  }
+
+  return {
+    total,
+    dominantPeriodLabel,
+    totalLabel: `${dominantPeriodLabel} 기준 · 총 ${formatKoreaGeoStatsValue(definition, total)}`,
+    rows,
+    segments: rows.map((row) => ({
+      label: row.label,
+      share: row.share,
+      amountLabel: row.valueLabel,
+    })),
+  };
+}
+
+function buildKoreaGeoStatsScopeCompositionCard(
+  definition,
+  latestEntries = getKoreaGeoStatsLatestEntries(definition),
+  { title, description, levelKey = getKoreaGeoStatsLevelKey(), maxSegments = getKoreaGeoStatsTopN(levelKey) } = {},
+) {
+  const compositionData = getKoreaGeoStatsScopeCompositionData(definition, latestEntries, { levelKey, maxSegments });
+  if (!compositionData) {
+    return createCountryStatsUnavailable("구성비를 계산할 수 없습니다.");
+  }
+
+  return buildShareCompositionCard({
+    title,
+    description,
+    totalLabel: compositionData.totalLabel,
+    segments: compositionData.segments,
+  });
+}
+
+function buildKoreaGeoStatsScopeCompositionDataTable(
+  definition,
+  latestEntries = getKoreaGeoStatsLatestEntries(definition),
+  { title, description, levelKey = getKoreaGeoStatsLevelKey(), maxSegments = getKoreaGeoStatsTopN(levelKey) } = {},
+) {
+  const compositionData = getKoreaGeoStatsScopeCompositionData(definition, latestEntries, { levelKey, maxSegments });
+  return buildMetricExplorerMatrixTable({
+    title,
+    description: compositionData ? `${description} ${compositionData.totalLabel}` : description,
+    columns: [
+      { key: "rankLabel", label: "구분" },
+      { key: "label", label: getKoreaGeoStatsRegionNoun(levelKey) },
+      { key: "valueLabel", label: "실제 값", align: "end" },
+      { key: "shareLabel", label: "구성비", align: "end" },
+    ],
+    rows: (compositionData?.rows ?? []).map((row) => ({
+      ...row,
+      shareLabel: formatPercent(row.share),
+    })),
+    emptyText: "표시할 구성비 원자료가 없습니다.",
+  });
+}
+
+function buildKoreaGeoStatsStackedComparisonCard({ title, description, totalLabel, rows = [], legendSegments = [] }) {
+  const card = buildChartCardShell(title, description);
+  const validRows = (rows ?? []).filter((row) => Array.isArray(row?.segments) && row.segments.length);
+  if (!validRows.length) {
+    card.appendChild(createCountryStatsUnavailable("표시할 구조 비교 자료가 없습니다."));
+    return card;
+  }
+
+  if (totalLabel) {
+    const totalNode = document.createElement("small");
+    totalNode.className = "country-stats-chart-card__total";
+    totalNode.textContent = totalLabel;
+    card.appendChild(totalNode);
+  }
+
+  if (legendSegments.length) {
+    const legend = document.createElement("div");
+    legend.className = "country-stats-line-legend";
+    legendSegments.forEach((segment, segmentIndex) => {
+      const item = document.createElement("div");
+      item.className = "country-stats-line-legend__item";
+      const swatch = document.createElement("span");
+      swatch.className = "country-stats-line-legend__swatch";
+      applyCountryStatsPatternStyle(swatch, getCountryStatsVisual(segmentIndex));
+      const labelNode = document.createElement("span");
+      labelNode.textContent = segment.label;
+      item.append(swatch, labelNode);
+      legend.appendChild(item);
+    });
+    card.appendChild(legend);
+  }
+
+  const list = document.createElement("div");
+  list.className = "country-stats-bars";
+  validRows.forEach((row) => {
+    const wrapper = document.createElement("div");
+    wrapper.className = "country-stats-bar";
+
+    const head = document.createElement("div");
+    head.className = "country-stats-bar__head";
+    const labelNode = document.createElement("span");
+    labelNode.textContent = row.label;
+    head.appendChild(labelNode);
+    if (row.valueLabel) {
+      const valueNode = document.createElement("strong");
+      valueNode.textContent = row.valueLabel;
+      head.appendChild(valueNode);
+    }
+    wrapper.appendChild(head);
+
+    const stack = document.createElement("div");
+    stack.className = "country-stats-stacked-bar";
+    row.segments.forEach((segment, segmentIndex) => {
+      const block = document.createElement("div");
+      block.className = "country-stats-stacked-bar__segment";
+      block.style.width = `${clamp(Number(segment.share) || 0, 0, 100)}%`;
+      block.title = `${segment.label} ${formatPercent(segment.share)}`;
+      applyCountryStatsPatternStyle(block, getCountryStatsVisual(segmentIndex));
+      stack.appendChild(block);
+    });
+    wrapper.appendChild(stack);
+
+    if (row.detail) {
+      const detailNode = document.createElement("small");
+      detailNode.className = "country-stats-bar__detail";
+      detailNode.textContent = row.detail;
+      wrapper.appendChild(detailNode);
+    }
+
+    list.appendChild(wrapper);
+  });
+  card.appendChild(list);
+
+  return card;
+}
+
+function getKoreaGeoStatsProvinceAgeStructureCompareData(
+  metricsByKey = getKoreaGeoStatsMetrics("provinces"),
+  populationEntries = [],
+) {
+  const levelKey = "provinces";
+  const populationDefinition = metricsByKey["resident-population"] ?? metricsByKey["population-estimate"];
+  const comparisonEntries = (populationEntries ?? []).filter(Boolean);
+  const rows = comparisonEntries
+    .map((entry) => {
+      const youthRow = metricsByKey["youth-population-share"]?.latestByRegion?.[entry.id];
+      const workingRow = metricsByKey["working-age-population-share"]?.latestByRegion?.[entry.id];
+      const elderlyRow = metricsByKey["elderly-share"]?.latestByRegion?.[entry.id];
+      if (!youthRow || !workingRow || !elderlyRow) {
+        return null;
+      }
+      const youth = Number(youthRow.value);
+      const working = Number(workingRow.value);
+      const elderly = Number(elderlyRow.value);
+      return {
+        label: formatKoreaGeoStatsRegionLabel(entry.id, levelKey),
+        valueLabel: populationDefinition ? formatKoreaGeoStatsCompactValue(populationDefinition, entry.value) : "",
+        detail: `유소년 ${formatPercent(youth)} · 생산연령 ${formatPercent(working)} · 고령 ${formatPercent(elderly)}`,
+        periodLabel: elderlyRow.periodLabel ?? workingRow.periodLabel ?? youthRow.periodLabel ?? "",
+        youth,
+        working,
+        elderly,
+        segments: [
+          { label: "유소년층", share: youth },
+          { label: "생산연령층", share: working },
+          { label: "고령층", share: elderly },
+        ],
+      };
+    })
+    .filter(Boolean);
+
+  if (!rows.length) {
+    return null;
+  }
+
+  return {
+    populationDefinition,
+    rows,
+    totalLabel: `${getKoreaGeoStatsDominantPeriodLabel(rows)} 기준 · 같은 100% 축`,
+  };
+}
+
+function buildKoreaGeoStatsProvinceAgeStructureCompareCard(
+  metricsByKey = getKoreaGeoStatsMetrics("provinces"),
+  populationEntries = [],
+) {
+  const levelKey = "provinces";
+  const comparisonData = getKoreaGeoStatsProvinceAgeStructureCompareData(metricsByKey, populationEntries);
+  if (!comparisonData) {
+    return createCountryStatsUnavailable("도별 인구 구조 비교를 계산할 수 없습니다.");
+  }
+
+  const { rows, totalLabel } = comparisonData;
+  const selectedCount = getKoreaGeoStatsSelectedRegions(levelKey).length;
+  return buildKoreaGeoStatsStackedComparisonCard({
+    title: selectedCount > 1 ? "선택 시도 인구 구조 비교" : "도별 인구 구조 비교",
+    description:
+      selectedCount > 1
+        ? "선택한 시도를 같은 100% 축에 놓고 유소년층·생산연령층·고령층 구성비를 비교합니다."
+        : "인구 규모가 큰 시도부터 연령층 구성비를 같은 100% 축에 놓아 시험형 구조 비교처럼 읽습니다.",
+    totalLabel,
+    rows,
+    legendSegments: rows[0]?.segments ?? [],
+  });
+}
+
+function buildKoreaGeoStatsProvinceAgeStructureCompareDataTable(
+  metricsByKey = getKoreaGeoStatsMetrics("provinces"),
+  populationEntries = [],
+) {
+  const comparisonData = getKoreaGeoStatsProvinceAgeStructureCompareData(metricsByKey, populationEntries);
+  return buildMetricExplorerMatrixTable({
+    title: "연령 구조 비교 원자료 표",
+    description: comparisonData
+      ? `그래프에 사용한 시도별 인구 규모와 연령층 비중을 그대로 적었습니다. ${comparisonData.totalLabel}`
+      : "그래프에 사용한 시도별 인구 규모와 연령층 비중을 그대로 적었습니다.",
+    columns: [
+      { key: "label", label: "시도" },
+      { key: "valueLabel", label: "인구", align: "end" },
+      { key: "youthLabel", label: "유소년층", align: "end" },
+      { key: "workingLabel", label: "생산연령층", align: "end" },
+      { key: "elderlyLabel", label: "고령층", align: "end" },
+    ],
+    rows: (comparisonData?.rows ?? []).map((row) => ({
+      ...row,
+      youthLabel: formatPercent(row.youth),
+      workingLabel: formatPercent(row.working),
+      elderlyLabel: formatPercent(row.elderly),
+    })),
+    emptyText: "표시할 인구 구조 원자료가 없습니다.",
+  });
+}
+
 function buildKoreaGeoStatsCommuteStructureCard(
   regionCode,
   metricsByKey = getKoreaGeoStatsMetrics(),
@@ -4891,7 +5675,7 @@ function buildKoreaGeoStatsEmploymentStructureCard(
   });
 }
 
-function buildKoreaGeoStatsSourceRow(definition) {
+function buildKoreaGeoStatsSourceRow(definition, supplementaryNote = "") {
   const row = document.createElement("div");
   row.className = "country-stats-source-row";
 
@@ -4915,6 +5699,13 @@ function buildKoreaGeoStatsSourceRow(definition) {
     link.rel = "noreferrer";
     link.textContent = "공식 통계표 보기";
     sourceCard.appendChild(link);
+  }
+
+  if (supplementaryNote) {
+    sourceCard.appendChild(document.createElement("br"));
+    const note = document.createElement("span");
+    note.textContent = supplementaryNote;
+    sourceCard.appendChild(note);
   }
 
   row.appendChild(sourceCard);
@@ -4969,8 +5760,12 @@ function renderKoreaGeoStatsPanel() {
     definitions.find((definition) => definition.key === state.koreaGeoStatsScatterYKey) ?? categoryDefinitions[0];
   const scatterSizeDefinition =
     definitions.find((definition) => definition.key === state.koreaGeoStatsScatterSizeKey) ?? categoryDefinitions[0];
+  const trendPresentation = buildKoreaGeoStatsTrendPresentation(activeDefinition, latestEntries, levelKey);
+  if (state.koreaGeoStatsTrendBasePeriodKey !== trendPresentation.basePeriodKey) {
+    state.koreaGeoStatsTrendBasePeriodKey = trendPresentation.basePeriodKey;
+  }
 
-  shell.appendChild(buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition));
+  shell.appendChild(buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition, trendPresentation));
 
   const summary = document.createElement("div");
   summary.className = "metric-explorer-summary";
@@ -4993,6 +5788,20 @@ function renderKoreaGeoStatsPanel() {
       activeDefinition.sourceText || koreaGeoStatsMeta.note || "공식 통계표 링크 제공",
     ),
   );
+  if (state.koreaGeoStatsDisplayMode === "trend" || state.koreaGeoStatsDisplayMode === "overview") {
+    summary.append(
+      createMetricExplorerSummaryCard("시계열", trendPresentation.summaryLabel, trendPresentation.detailLabel),
+    );
+    if (trendPresentation.usesAlternateSeriesDefinition) {
+      summary.append(
+        createMetricExplorerSummaryCard(
+          "시계열 원자료",
+          trendPresentation.seriesDefinition?.label ?? activeDefinition.label,
+          trendPresentation.sourceNote,
+        ),
+      );
+    }
+  }
   shell.appendChild(summary);
 
   if (!latestEntries.length) {
@@ -5006,17 +5815,19 @@ function renderKoreaGeoStatsPanel() {
   const anchorRegionCode = getKoreaGeoStatsSelectedRegions(levelKey)[0]?.id ?? latestEntries[0]?.id ?? null;
 
   if (state.koreaGeoStatsDisplayMode === "scatter") {
+    const scatterEntries = getKoreaGeoStatsScatterEntries(scatterXDefinition, scatterYDefinition, scatterSizeDefinition, levelKey);
     chartGrid.append(
       buildScatterChartCard({
         title: scopeMode === "selected" ? `선택 ${regionNoun} 지표 관계` : `전국 ${regionNoun} 지표 관계`,
         description: `${scatterXDefinition.label} · ${scatterYDefinition.label} · 크기 ${scatterSizeDefinition.label}`,
-        entries: getKoreaGeoStatsScatterEntries(scatterXDefinition, scatterYDefinition, scatterSizeDefinition, levelKey),
+        entries: scatterEntries,
         xLabel: scatterXDefinition.label,
         yLabel: scatterYDefinition.label,
         xFormatter: (value) => formatKoreaGeoStatsCompactValue(scatterXDefinition, value),
         yFormatter: (value) => formatKoreaGeoStatsCompactValue(scatterYDefinition, value),
         sizeFormatter: (value) => formatKoreaGeoStatsValue(scatterSizeDefinition, value),
       }),
+      buildKoreaGeoStatsScatterRawDataTable(scatterEntries, scatterXDefinition, scatterYDefinition, scatterSizeDefinition),
       buildMetricExplorerTable({
         title: "최신 비교표",
         description: `현재 활성 지표 기준으로 함께 비교할 수 있는 ${regionNoun} 공식값입니다.`,
@@ -5025,16 +5836,18 @@ function renderKoreaGeoStatsPanel() {
       }),
     );
   } else if (state.koreaGeoStatsDisplayMode === "trend") {
+    const trendSourceNote = trendPresentation.sourceNote ? ` ${trendPresentation.sourceNote}` : "";
     chartGrid.append(
       buildTimelineLineChartCard({
         title: scopeMode === "selected" ? `선택 ${regionNoun} 시점 변화` : `상위 ${regionNoun} 시점 변화`,
         description:
           scopeMode === "selected"
-            ? `선택한 ${regionNoun}을 같은 축으로 놓고 증가·감소 패턴을 읽습니다.`
-            : `선택이 없을 때는 최신 공식값 상위 ${regionNoun} 권역을 같은 축으로 펼칩니다.`,
-        series: getKoreaGeoStatsTrendSeries(activeDefinition, latestEntries, levelKey),
-        valueFormatter: (value) => formatKoreaGeoStatsCompactValue(activeDefinition, value),
+            ? `선택한 ${regionNoun}을 ${trendPresentation.detailLabel}로 줄여 같은 축에 놓고 ${trendPresentation.summaryLabel} 기준으로 읽습니다.${trendSourceNote}`
+            : `선택이 없을 때는 최신 공식값 상위 ${regionNoun} 권역을 ${trendPresentation.detailLabel}로 정리해 ${trendPresentation.summaryLabel} 기준으로 비교합니다.${trendSourceNote}`,
+        series: trendPresentation.series,
+        valueFormatter: trendPresentation.valueFormatter,
       }),
+      buildKoreaGeoStatsTrendRawDataTable(trendPresentation),
       buildMetricExplorerTable({
         title: "최신 비교표",
         description: "최신 공식값과 기준 시점을 그래프 옆에서 함께 확인합니다.",
@@ -5085,16 +5898,18 @@ function renderKoreaGeoStatsPanel() {
       );
     }
   } else {
+    const trendSourceNote = trendPresentation.sourceNote ? ` ${trendPresentation.sourceNote}` : "";
     chartGrid.append(
       buildTimelineLineChartCard({
         title: scopeMode === "selected" ? `선택 ${regionNoun} 시점 변화` : `상위 ${regionNoun} 시점 변화`,
         description:
           scopeMode === "selected"
-            ? `선택한 ${regionNoun}을 같은 축으로 놓고 기본 변화 패턴을 읽습니다.`
-            : `선택이 없을 때는 최신 공식값 상위 ${regionNoun} 권역을 같은 축으로 보여줍니다.`,
-        series: getKoreaGeoStatsTrendSeries(activeDefinition, latestEntries, levelKey),
-        valueFormatter: (value) => formatKoreaGeoStatsCompactValue(activeDefinition, value),
+            ? `선택한 ${regionNoun}을 ${trendPresentation.detailLabel}로 줄여 ${trendPresentation.summaryLabel} 기준의 기본 변화 패턴을 읽습니다.${trendSourceNote}`
+            : `선택이 없을 때는 최신 공식값 상위 ${regionNoun} 권역을 ${trendPresentation.detailLabel} 기준으로 펼쳐 봅니다.${trendSourceNote}`,
+        series: trendPresentation.series,
+        valueFormatter: trendPresentation.valueFormatter,
       }),
+      buildKoreaGeoStatsTrendRawDataTable(trendPresentation),
       (scopeMode === "selected" && getKoreaGeoStatsSelectedRegions(levelKey).length === 1
         ? buildKoreaGeoStatsRegionMetricList(anchorRegionCode, categoryDefinitions, categoryMeta.label, levelKey)
         : buildMetricExplorerTable({
@@ -5107,12 +5922,57 @@ function renderKoreaGeoStatsPanel() {
 
     if (
       categoryMeta.key === "demography" &&
-      anchorRegionCode &&
       metricsByKey["youth-population-share"] &&
       metricsByKey["working-age-population-share"] &&
       metricsByKey["elderly-share"]
     ) {
-      chartGrid.append(buildKoreaGeoStatsAgeStructureCard(anchorRegionCode, metricsByKey, levelKey));
+      if (levelKey === "provinces") {
+        const selectedCount = getKoreaGeoStatsSelectedRegions(levelKey).length;
+        const populationDefinition = metricsByKey["resident-population"] ?? metricsByKey["population-estimate"];
+        const provincePopulationEntries = populationDefinition
+          ? selectedCount > 1
+            ? getKoreaGeoStatsLatestEntries(populationDefinition, levelKey)
+            : getKoreaGeoStatsLatestEntriesForRegionIds(
+                populationDefinition,
+                getKoreaGeoStatsRegionOrder(levelKey),
+                levelKey,
+              )
+          : [];
+        const provinceComparisonEntries =
+          selectedCount > 1
+            ? provincePopulationEntries
+            : provincePopulationEntries.slice(0, clamp(Math.round(Number(topN) || 8), 4, provincePopulationEntries.length || 4));
+        if (populationDefinition && provincePopulationEntries.length) {
+          chartGrid.append(
+            buildKoreaGeoStatsScopeCompositionCard(populationDefinition, provincePopulationEntries, {
+              title: selectedCount > 1 ? "선택 시도 인구 구조" : "도별 인구 구조",
+              description:
+                selectedCount > 1
+                  ? "선택한 시도의 주민등록인구를 합쳐 100으로 두고 비중을 읽습니다."
+                  : "전국 주민등록인구를 시도 비중으로 다시 묶어 출제형 구조 그래프처럼 정리했습니다.",
+              levelKey,
+              maxSegments: selectedCount > 1 ? provincePopulationEntries.length : Math.min(topN, 8),
+            }),
+            buildKoreaGeoStatsScopeCompositionDataTable(populationDefinition, provincePopulationEntries, {
+              title: "인구 구조 원자료 표",
+              description: "구조 그래프에 쓴 시도별 실제 인구와 비중을 함께 적었습니다.",
+              levelKey,
+              maxSegments: selectedCount > 1 ? provincePopulationEntries.length : Math.min(topN, 8),
+            }),
+          );
+        }
+        if (selectedCount === 1 && anchorRegionCode) {
+          chartGrid.append(buildKoreaGeoStatsAgeStructureCard(anchorRegionCode, metricsByKey, levelKey));
+        }
+        if (provinceComparisonEntries.length >= 2) {
+          chartGrid.append(
+            buildKoreaGeoStatsProvinceAgeStructureCompareCard(metricsByKey, provinceComparisonEntries),
+            buildKoreaGeoStatsProvinceAgeStructureCompareDataTable(metricsByKey, provinceComparisonEntries),
+          );
+        }
+      } else if (anchorRegionCode) {
+        chartGrid.append(buildKoreaGeoStatsAgeStructureCard(anchorRegionCode, metricsByKey, levelKey));
+      }
     }
 
     if (
@@ -5133,18 +5993,75 @@ function renderKoreaGeoStatsPanel() {
     ) {
       chartGrid.append(buildKoreaGeoStatsEmploymentStructureCard(anchorRegionCode, metricsByKey, levelKey));
     }
+
+    if (categoryMeta.key === "energy" && levelKey === "provinces") {
+      const selectedCount = getKoreaGeoStatsSelectedRegions(levelKey).length;
+      const allProvinceIds = getKoreaGeoStatsRegionOrder(levelKey);
+      const energyDefinitions = [
+        {
+          definition: metricsByKey["final-energy-consumption"],
+          title: selectedCount > 1 ? "선택 시도 최종에너지소비량 구조" : "도별 최종에너지소비량 구조",
+          description:
+            selectedCount > 1
+              ? "선택한 시도의 최종에너지소비량을 합쳐 100으로 두고 비중을 읽습니다."
+              : "전국 최종에너지소비량을 시도 비중으로 다시 묶어 구조 그래프로 확인합니다.",
+        },
+        {
+          definition: metricsByKey["electricity-sales"],
+          title: selectedCount > 1 ? "선택 시도 전력판매량 구조" : "도별 전력판매량 구조",
+          description:
+            selectedCount > 1
+              ? "선택한 시도의 전력판매량을 합쳐 100으로 두고 비중을 비교합니다."
+              : "전국 전력판매량이 어느 시도에 많이 집중되는지 구조 그래프로 보여 줍니다.",
+        },
+      ];
+      energyDefinitions.forEach((config) => {
+        if (!config.definition) {
+          return;
+        }
+        const compositionEntries =
+          selectedCount > 1
+            ? getKoreaGeoStatsLatestEntries(config.definition, levelKey)
+            : getKoreaGeoStatsLatestEntriesForRegionIds(config.definition, allProvinceIds, levelKey);
+        if (!compositionEntries.length) {
+          return;
+        }
+        chartGrid.append(
+          buildKoreaGeoStatsScopeCompositionCard(config.definition, compositionEntries, {
+            title: config.title,
+            description: config.description,
+            levelKey,
+            maxSegments: selectedCount > 1 ? compositionEntries.length : Math.min(topN, 8),
+          }),
+          buildKoreaGeoStatsScopeCompositionDataTable(config.definition, compositionEntries, {
+            title: `${config.definition.label} 원자료 표`,
+            description: "구조 그래프에 쓴 시도별 실제 값과 비중을 함께 적었습니다.",
+            levelKey,
+            maxSegments: selectedCount > 1 ? compositionEntries.length : Math.min(topN, 8),
+          }),
+        );
+      });
+    }
   }
 
   shell.appendChild(chartGrid);
-  shell.appendChild(buildKoreaGeoStatsSourceRow(activeDefinition));
+  const chartDefinition =
+    (state.koreaGeoStatsDisplayMode === "trend" || state.koreaGeoStatsDisplayMode === "overview") &&
+    trendPresentation?.seriesDefinition
+      ? trendPresentation.seriesDefinition
+      : activeDefinition;
+  const sourceNote =
+    chartDefinition?.key !== activeDefinition?.key
+      ? `최신 비교표와 선택 지표는 ${activeDefinition.label}, 장기 시계열 그래프는 ${chartDefinition.label}을 사용했습니다.`
+      : "";
+  shell.appendChild(buildKoreaGeoStatsSourceRow(chartDefinition, sourceNote));
   elements.koreaGeoStatsPanel.appendChild(shell);
 }
 
-function buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition) {
+function buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition, trendPresentation = null) {
   const wrapper = document.createElement("div");
   wrapper.className = "metric-explorer-control-shell";
   const levelKey = getKoreaGeoStatsLevelKey();
-  const regionNoun = getKoreaGeoStatsRegionNoun(levelKey);
   const compactRegionNoun = getKoreaGeoStatsRegionNoun(levelKey, true);
 
   const actionRow = document.createElement("div");
@@ -5179,7 +6096,17 @@ function buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefi
     button.addEventListener("click", config.handler);
     actionRow.appendChild(button);
   });
-  wrapper.appendChild(actionRow);
+  wrapper.appendChild(
+    buildControlDisclosure({
+      title: "빠른 추천과 범위 조정",
+      detail: "현재 범위 복귀, 지역 추천, 통계 추천",
+      contentNode: actionRow,
+      open: state.koreaGeoStatsActionsExpanded,
+      onToggle: (nextOpen) => {
+        state.koreaGeoStatsActionsExpanded = nextOpen;
+      },
+    }),
+  );
 
   const guide = document.createElement("p");
   guide.className = "metric-explorer-guide";
@@ -5271,6 +6198,74 @@ function buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefi
   });
   topNLabel.appendChild(topNInput);
   controls.appendChild(topNLabel);
+
+  if ((state.koreaGeoStatsDisplayMode === "trend" || state.koreaGeoStatsDisplayMode === "overview") && trendPresentation) {
+    const valueModeLabel = document.createElement("div");
+    valueModeLabel.className = "metric-explorer-control";
+    const valueModeText = document.createElement("label");
+    valueModeText.setAttribute("for", "koreaGeoStatsTrendValueModeSelect");
+    valueModeText.textContent = "시계열 기준";
+    const valueModeSelect = document.createElement("select");
+    valueModeSelect.id = "koreaGeoStatsTrendValueModeSelect";
+    koreaGeoStatsTrendValueModeDefinitions
+      .filter((definition) => definition.key !== "index" || trendPresentation.canUseIndex)
+      .forEach((definition) => {
+        const option = document.createElement("option");
+        option.value = definition.key;
+        option.textContent = definition.label;
+        option.selected = definition.key === getKoreaGeoStatsTrendValueMode();
+        valueModeSelect.appendChild(option);
+      });
+    valueModeSelect.addEventListener("change", () => {
+      state.koreaGeoStatsTrendValueMode = valueModeSelect.value;
+      renderSelectionViews();
+    });
+    valueModeLabel.append(valueModeText, valueModeSelect);
+    controls.appendChild(valueModeLabel);
+
+    const intervalField = document.createElement("div");
+    intervalField.className = "metric-explorer-control";
+    const intervalLabel = document.createElement("label");
+    intervalLabel.setAttribute("for", "koreaGeoStatsTrendIntervalSelect");
+    intervalLabel.textContent = "시점 간격";
+    const intervalSelect = document.createElement("select");
+    intervalSelect.id = "koreaGeoStatsTrendIntervalSelect";
+    koreaGeoStatsTrendIntervalDefinitions.forEach((definition) => {
+      const option = document.createElement("option");
+      option.value = definition.key;
+      option.textContent = definition.label;
+      option.selected = Number(definition.key) === getKoreaGeoStatsTrendInterval();
+      intervalSelect.appendChild(option);
+    });
+    intervalSelect.addEventListener("change", () => {
+      state.koreaGeoStatsTrendInterval = Number(intervalSelect.value);
+      renderSelectionViews();
+    });
+    intervalField.append(intervalLabel, intervalSelect);
+    controls.appendChild(intervalField);
+
+    const basePeriodField = document.createElement("div");
+    basePeriodField.className = "metric-explorer-control";
+    const basePeriodLabel = document.createElement("label");
+    basePeriodLabel.setAttribute("for", "koreaGeoStatsTrendBasePeriodSelect");
+    basePeriodLabel.textContent = "기준 시점";
+    const basePeriodSelect = document.createElement("select");
+    basePeriodSelect.id = "koreaGeoStatsTrendBasePeriodSelect";
+    trendPresentation.periodOptions.forEach((optionConfig) => {
+      const option = document.createElement("option");
+      option.value = optionConfig.key;
+      option.textContent = optionConfig.label;
+      option.selected = optionConfig.key === trendPresentation.basePeriodKey;
+      basePeriodSelect.appendChild(option);
+    });
+    basePeriodSelect.disabled = trendPresentation.periodOptions.length <= 1;
+    basePeriodSelect.addEventListener("change", () => {
+      state.koreaGeoStatsTrendBasePeriodKey = basePeriodSelect.value;
+      renderSelectionViews();
+    });
+    basePeriodField.append(basePeriodLabel, basePeriodSelect);
+    controls.appendChild(basePeriodField);
+  }
 
   if (state.koreaGeoStatsDisplayMode === "scatter") {
     const scatterConfigs = [
@@ -5503,7 +6498,22 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
     controls.append(scatterXField, scatterYField, scatterSizeField);
   }
 
-  wrapper.appendChild(controls);
+  wrapper.appendChild(
+    buildControlDisclosure({
+      title: "비교 범위와 표시 옵션",
+      detail:
+        state.metricExplorerDisplayMode === "scatter"
+          ? `${state.metricExplorerGrouping === "continents" ? "대륙" : "국가"} · 상위 ${getMetricExplorerTopN()}개 · 산포도 축`
+          : `${state.metricExplorerGrouping === "continents" ? "대륙" : "국가"} · 상위 ${getMetricExplorerTopN()}개${
+              state.metricExplorerMapHighlightEnabled ? " · 지도 강조" : ""
+            }`,
+      contentNode: controls,
+      open: state.metricExplorerOptionsExpanded,
+      onToggle: (nextOpen) => {
+        state.metricExplorerOptionsExpanded = nextOpen;
+      },
+    }),
+  );
   return wrapper;
 }
 
@@ -5516,6 +6526,31 @@ function buildMetricExplorerOptions(definitions, selectNode, activeKey) {
     option.selected = definition.key === activeKey;
     selectNode.appendChild(option);
   });
+}
+
+function buildControlDisclosure({ title, detail, contentNode, open = false, onToggle = null }) {
+  const details = document.createElement("details");
+  details.className = "control-disclosure";
+  details.open = Boolean(open);
+
+  const summary = document.createElement("summary");
+  summary.className = "control-disclosure__summary";
+  const titleNode = document.createElement("strong");
+  titleNode.textContent = title;
+  const detailNode = document.createElement("span");
+  detailNode.textContent = detail;
+  summary.append(titleNode, detailNode);
+
+  contentNode.classList.add("control-disclosure__content");
+  details.append(summary, contentNode);
+
+  if (typeof onToggle === "function") {
+    details.addEventListener("toggle", () => {
+      onToggle(details.open);
+    });
+  }
+
+  return details;
 }
 
 function createMetricExplorerSummaryCard(label, value, detail) {
@@ -5585,6 +6620,153 @@ function buildMetricExplorerTable({ title, description, entries, valueFormatter 
 
   card.appendChild(rowsNode);
   return card;
+}
+
+function buildMetricExplorerMatrixTable({
+  title,
+  description,
+  columns = [],
+  rows = [],
+  emptyText = "표시할 원자료 표가 없습니다.",
+}) {
+  const card = document.createElement("div");
+  card.className = "metric-explorer-table metric-explorer-table--matrix";
+
+  const titleNode = document.createElement("h5");
+  titleNode.className = "metric-explorer-table__title";
+  titleNode.textContent = title;
+  card.appendChild(titleNode);
+
+  if (description) {
+    const descriptionNode = document.createElement("p");
+    descriptionNode.className = "metric-explorer-table__meta";
+    descriptionNode.textContent = description;
+    card.appendChild(descriptionNode);
+  }
+
+  if (!(columns ?? []).length || !(rows ?? []).length) {
+    card.appendChild(createCountryStatsUnavailable(emptyText));
+    return card;
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = "metric-explorer-table__matrix-wrap";
+  const table = document.createElement("table");
+  table.className = "metric-explorer-table__matrix";
+
+  const head = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  columns.forEach((column, index) => {
+    const cell = document.createElement("th");
+    cell.scope = "col";
+    cell.className = "metric-explorer-table__cell";
+    if (index === 0) {
+      cell.classList.add("is-primary");
+    }
+    if (column.align === "end") {
+      cell.classList.add("is-align-end");
+    }
+    cell.textContent = column.label;
+    headRow.appendChild(cell);
+  });
+  head.appendChild(headRow);
+  table.appendChild(head);
+
+  const body = document.createElement("tbody");
+  rows.forEach((rowData) => {
+    const row = document.createElement("tr");
+    columns.forEach((column, index) => {
+      const cell = document.createElement(index === 0 ? "th" : "td");
+      if (index === 0) {
+        cell.scope = "row";
+      }
+      cell.className = "metric-explorer-table__cell";
+      if (index === 0) {
+        cell.classList.add("is-primary");
+      }
+      if (column.align === "end") {
+        cell.classList.add("is-align-end");
+      }
+      cell.textContent = rowData?.[column.key] ?? "—";
+      row.appendChild(cell);
+    });
+    body.appendChild(row);
+  });
+  table.appendChild(body);
+  wrap.appendChild(table);
+  card.appendChild(wrap);
+
+  return card;
+}
+
+function buildKoreaGeoStatsTrendRawDataTable(trendPresentation) {
+  const displayedSeriesLabels = new Set((trendPresentation?.series ?? []).map((entry) => entry.label));
+  const sampledRawSeries = (trendPresentation?.rawSeries ?? [])
+    .filter((entry) => !displayedSeriesLabels.size || displayedSeriesLabels.has(entry.label))
+    .map((entry) => ({
+      ...entry,
+      points: sampleKoreaGeoStatsTrendPoints(entry.points, trendPresentation.interval, trendPresentation.basePeriodKey),
+    }))
+    .filter((entry) => entry.points.length >= 2);
+  const periodKeys = [...new Set(sampledRawSeries.flatMap((entry) => entry.points.map((point) => point.periodKey)))].sort(
+    (a, b) => parseKoreaGeoStatsPeriodKey(a) - parseKoreaGeoStatsPeriodKey(b),
+  );
+  const periodLabelByKey = new Map(
+    sampledRawSeries.flatMap((entry) => entry.points.map((point) => [point.periodKey, point.periodLabel ?? point.periodKey])),
+  );
+  const columns = [
+    { key: "periodLabel", label: "시점" },
+    ...sampledRawSeries.map((entry, index) => ({
+      key: `series-${index}`,
+      label: entry.label,
+      align: "end",
+    })),
+  ];
+  const rows = periodKeys.map((periodKey) => {
+    const row = {
+      periodLabel: periodLabelByKey.get(periodKey) ?? periodKey,
+    };
+    sampledRawSeries.forEach((entry, index) => {
+      const point = entry.points.find((candidate) => candidate.periodKey === periodKey);
+      row[`series-${index}`] = point
+        ? formatKoreaGeoStatsValue(trendPresentation.seriesDefinition, point.value)
+        : "—";
+    });
+    return row;
+  });
+
+  return buildMetricExplorerMatrixTable({
+    title: "원 데이터 표",
+    description:
+      trendPresentation?.usesIndex
+        ? `그래프는 ${trendPresentation.basePeriodLabel || "기준 시점"} = 100으로 그렸고, 아래 표는 같은 시점의 실제 공식값입니다.`
+        : "그래프에 실제로 사용한 시점만 공식값으로 다시 펼쳤습니다.",
+    columns,
+    rows,
+    emptyText: "표시할 시계열 원자료가 없습니다.",
+  });
+}
+
+function buildKoreaGeoStatsScatterRawDataTable(entries, xDefinition, yDefinition, sizeDefinition) {
+  return buildMetricExplorerMatrixTable({
+    title: "산포도 원자료 표",
+    description: `산포도에 찍힌 권역의 X·Y축 값과 버블 크기 기준값을 함께 정리했습니다.`,
+    columns: [
+      { key: "label", label: "권역" },
+      { key: "xLabel", label: xDefinition?.label ?? "X축", align: "end" },
+      { key: "yLabel", label: yDefinition?.label ?? "Y축", align: "end" },
+      { key: "sizeLabel", label: sizeDefinition?.label ?? "버블 크기", align: "end" },
+      { key: "detail", label: "시점" },
+    ],
+    rows: (entries ?? []).map((entry) => ({
+      label: entry.label,
+      xLabel: formatKoreaGeoStatsValue(xDefinition, entry.xValue),
+      yLabel: formatKoreaGeoStatsValue(yDefinition, entry.yValue),
+      sizeLabel: formatKoreaGeoStatsValue(sizeDefinition, entry.sizeDisplayValue),
+      detail: entry.detail ?? "최신 시점",
+    })),
+    emptyText: "표시할 산포도 원자료가 없습니다.",
+  });
 }
 
 function buildRelativeRankingCard(results, activeDefinition, topN) {
@@ -8444,6 +9626,10 @@ function getExamGraphValueModeDefinition() {
   return examGraphValueModeDefinitions.find((definition) => definition.key === state.examGraphValueMode) ?? examGraphValueModeDefinitions[0];
 }
 
+function getExamGraphValueModeLabel(valueModeKey) {
+  return examGraphValueModeDefinitions.find((definition) => definition.key === valueModeKey)?.label ?? "기본";
+}
+
 function getExamGraphMetricDefinition() {
   return getMetricExplorerDefinitionByKey(getMetricExplorerDefinitions(), state.examGraphMetricKey);
 }
@@ -8539,6 +9725,18 @@ function isExamGraphRandomCountryAllowed(entryOrStats) {
   return iso3 ? !examGraphRandomExcludedIso3.has(iso3) : true;
 }
 
+function getExamGraphRandomCountryPriority(entryOrStats) {
+  const stats = entryOrStats?.stats ?? entryOrStats;
+  const iso3 = String(stats?.iso3 ?? "").trim().toUpperCase();
+  if (!iso3) {
+    return 0;
+  }
+  if (examGraphTextbookPriorityIso3.has(iso3)) {
+    return 2;
+  }
+  return 0;
+}
+
 function shouldExamGraphMergeAmericas(grouping = state.examGraphGrouping, presetKey = state.examGraphPresetKey) {
   return Boolean(state.examGraphMergeAmericas) && (grouping === "continents" || presetKey === "top3share");
 }
@@ -8583,6 +9781,40 @@ function getExamGraphAllCountryRows() {
 
 function getExamGraphTopN() {
   return clamp(Math.round(Number(state.examGraphTopN) || 4), 2, 12);
+}
+
+function roundToStep(value, step = 1) {
+  return Math.round(Number(value) / step) * step;
+}
+
+function getExamGraphOrientation() {
+  return examGraphOrientationDefinitions.some((definition) => definition.key === state.examGraphOrientation)
+    ? state.examGraphOrientation
+    : "landscape";
+}
+
+function getExamGraphOrientationLabel(orientation = state.examGraphOrientation) {
+  return examGraphOrientationDefinitions.find((definition) => definition.key === orientation)?.label ?? "가로형";
+}
+
+function getExamGraphPreviewCount() {
+  return clamp(Math.round(Number(state.examGraphPreviewCount) || 1), 1, 3);
+}
+
+function getExamGraphFontSizePt() {
+  return clamp(roundToStep(Number(state.examGraphFontSizePt) || EXAM_GRAPH_FONT_BASE_PT, 0.5), 7, 9);
+}
+
+function formatExamGraphPtLabel(value = getExamGraphFontSizePt()) {
+  return `${Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1)}pt`;
+}
+
+function getExamGraphTextScale() {
+  return getExamGraphFontSizePt() / EXAM_GRAPH_FONT_BASE_PT;
+}
+
+function scaleExamGraphFontSize(fontSize) {
+  return Number((Number(fontSize) * getExamGraphTextScale()).toFixed(2));
 }
 
 function getExamGraphPopulationRow(stats, year) {
@@ -8638,6 +9870,11 @@ function ensureExamGraphState() {
 
   state.examGraphTopN = getExamGraphTopN();
   state.examGraphAliasMode = Boolean(state.examGraphAliasMode);
+  if (!examGraphOrientationDefinitions.some((definition) => definition.key === state.examGraphOrientation)) {
+    state.examGraphOrientation = "landscape";
+  }
+  state.examGraphPreviewCount = getExamGraphPreviewCount();
+  state.examGraphFontSizePt = getExamGraphFontSizePt();
 
   const allowedValueModes = getExamGraphAllowedValueModes(state.examGraphPresetKey);
   if (!allowedValueModes.includes(state.examGraphValueMode)) {
@@ -8706,12 +9943,17 @@ function renderExamGraphPanel() {
     createMetricExplorerSummaryCard("표시 방식", model.displayModeLabel ?? "기본", model.displayModeDetail ?? model.metricDetail),
     createMetricExplorerSummaryCard("라벨", state.examGraphAliasMode ? "가명 표기" : "실명 표기", model.rowCountText),
     createMetricExplorerSummaryCard("데이터", model.metricLabel, model.metricDetail),
+    createMetricExplorerSummaryCard(
+      "디자인",
+      `${getExamGraphOrientationLabel()} · ${formatExamGraphPtLabel()}`,
+      `SidaeAi_S · 장평 ${EXAM_GRAPH_FONT_STRETCH_PERCENT}% · ${getExamGraphPreviewCount()}개 나란히`,
+    ),
   );
   shell.appendChild(summary);
 
   const grid = document.createElement("div");
   grid.className = "exam-graph-grid";
-  grid.appendChild(buildExamGraphPreviewCard(model));
+  grid.appendChild(buildExamGraphPreviewGallery(model));
 
   const sideColumn = document.createElement("div");
   sideColumn.className = "exam-graph-side-column";
@@ -8788,15 +10030,27 @@ function buildExamGraphControls() {
     button.addEventListener("click", config.handler);
     actionRow.appendChild(button);
   });
-  wrapper.appendChild(actionRow);
+  wrapper.appendChild(
+    buildControlDisclosure({
+      title: "빠른 추천과 대상 변경",
+      detail: "지도 선택 복귀, 국가 추천, 세트 추천",
+      contentNode: actionRow,
+      open: state.examGraphActionsExpanded,
+      onToggle: (nextOpen) => {
+        state.examGraphActionsExpanded = nextOpen;
+      },
+    }),
+  );
 
   const guide = document.createElement("p");
   guide.className = "exam-graph-guide";
   guide.textContent = getExamGraphGuideText();
   wrapper.appendChild(guide);
 
-  const controls = document.createElement("div");
-  controls.className = "exam-graph-controls";
+  const coreControls = document.createElement("div");
+  coreControls.className = "exam-graph-controls";
+  const designControls = document.createElement("div");
+  designControls.className = "exam-graph-controls";
   const valueModeOptions = getExamGraphValueModeOptionsForCurrentPreset();
 
   const aliasField = buildExamGraphToggleField("가명 처리", state.examGraphAliasMode, (checked) => {
@@ -8810,6 +10064,38 @@ function buildExamGraphControls() {
       state.examGraphTopN = value;
     });
   });
+  const orientationField = buildExamGraphSelectField(
+    "그래프 방향",
+    examGraphOrientationDefinitions,
+    state.examGraphOrientation,
+    (value) => {
+      updateExamGraphState("출제형 그래프 변경", () => {
+        state.examGraphOrientation = value;
+      });
+    },
+  );
+  const previewCountField = buildExamGraphSelectField(
+    "나란히 보기",
+    examGraphPreviewCountDefinitions,
+    String(getExamGraphPreviewCount()),
+    (value) => {
+      updateExamGraphState("출제형 그래프 변경", () => {
+        state.examGraphPreviewCount = Number(value);
+      });
+    },
+  );
+  const fontSizeField = buildExamGraphNumberField(
+    "글자 크기(pt)",
+    getExamGraphFontSizePt(),
+    7,
+    9,
+    (value) => {
+      updateExamGraphState("출제형 그래프 변경", () => {
+        state.examGraphFontSizePt = value;
+      });
+    },
+    { step: 0.5 },
+  );
 
   const groupingField = buildExamGraphSelectField(
     "비교 단위",
@@ -8838,9 +10124,15 @@ function buildExamGraphControls() {
           });
         })
       : null;
+  const shouldShowMergeAmericas = state.examGraphGrouping === "continents" || state.examGraphPresetKey === "top3share";
+
+  if (shouldShowMergeAmericas) {
+    designControls.appendChild(mergeAmericasField);
+  }
+  designControls.append(orientationField, previewCountField, fontSizeField, aliasField);
 
   if (state.examGraphPresetKey === "stacked100") {
-    controls.append(
+    coreControls.append(
       buildExamGraphSelectField(
         "구성 지표",
         examGraphCompositionDefinitions,
@@ -8852,39 +10144,33 @@ function buildExamGraphControls() {
         },
       ),
       groupingField,
-      ...(state.examGraphGrouping === "continents" ? [mergeAmericasField] : []),
       ...(valueModeField ? [valueModeField] : []),
       topNField,
-      aliasField,
     );
   } else if (state.examGraphPresetKey === "rankBars") {
-    controls.append(
+    coreControls.append(
       buildExamGraphSelectField("기준 지표", getMetricExplorerDefinitions(), state.examGraphMetricKey, (value) => {
         updateExamGraphState("출제형 그래프 변경", () => {
           state.examGraphMetricKey = value;
         });
       }),
       groupingField,
-      ...(state.examGraphGrouping === "continents" ? [mergeAmericasField] : []),
       ...(valueModeField ? [valueModeField] : []),
       topNField,
-      aliasField,
     );
   } else if (state.examGraphPresetKey === "pairedBars") {
-    controls.append(
+    coreControls.append(
       buildExamGraphSelectField("지표 쌍", examGraphPairMetricDefinitions, state.examGraphPairKey, (value) => {
         updateExamGraphState("출제형 그래프 변경", () => {
           state.examGraphPairKey = value;
         });
       }),
       groupingField,
-      ...(state.examGraphGrouping === "continents" ? [mergeAmericasField] : []),
       ...(valueModeField ? [valueModeField] : []),
       topNField,
-      aliasField,
     );
   } else if (state.examGraphPresetKey === "timeCompare") {
-    controls.append(
+    coreControls.append(
       buildExamGraphSelectField(
         "비교 지표",
         examGraphTimeMetricDefinitions,
@@ -8896,7 +10182,6 @@ function buildExamGraphControls() {
         },
       ),
       groupingField,
-      ...(state.examGraphGrouping === "continents" ? [mergeAmericasField] : []),
       ...(valueModeField ? [valueModeField] : []),
       buildExamGraphSelectField(
         "기준 시점",
@@ -8919,10 +10204,9 @@ function buildExamGraphControls() {
         },
       ),
       topNField,
-      aliasField,
     );
   } else if (state.examGraphPresetKey === "trendLine") {
-    controls.append(
+    coreControls.append(
       buildExamGraphSelectField(
         "시계열 지표",
         examGraphTimeMetricDefinitions,
@@ -8934,7 +10218,6 @@ function buildExamGraphControls() {
         },
       ),
       groupingField,
-      ...(state.examGraphGrouping === "continents" ? [mergeAmericasField] : []),
       ...(valueModeField ? [valueModeField] : []),
       buildExamGraphSelectField(
         "시작 시점",
@@ -8957,13 +10240,11 @@ function buildExamGraphControls() {
         },
       ),
       topNField,
-      aliasField,
     );
   } else if (state.examGraphPresetKey === "scatter") {
     const metricDefinitions = getMetricExplorerDefinitions();
-    controls.append(
+    coreControls.append(
       groupingField,
-      ...(state.examGraphGrouping === "continents" ? [mergeAmericasField] : []),
       buildExamGraphSelectField("산포도 X축", metricDefinitions, state.examGraphScatterXKey, (value) => {
         updateExamGraphState("출제형 그래프 변경", () => {
           state.examGraphScatterXKey = value;
@@ -8980,10 +10261,9 @@ function buildExamGraphControls() {
         });
       }),
       topNField,
-      aliasField,
     );
   } else {
-    controls.append(
+    coreControls.append(
       buildExamGraphSelectField(
         "기준 지표",
         examGraphTopShareMetricDefinitions,
@@ -8994,25 +10274,34 @@ function buildExamGraphControls() {
           });
         },
       ),
-      mergeAmericasField,
       ...(valueModeField ? [valueModeField] : []),
-      aliasField,
     );
   }
 
-  wrapper.appendChild(controls);
+  wrapper.appendChild(coreControls);
+  wrapper.appendChild(
+    buildControlDisclosure({
+      title: "디자인과 출력 형태",
+      detail: `${getExamGraphOrientationLabel()} · ${getExamGraphPreviewCount()}개 나란히 · ${formatExamGraphPtLabel()}`,
+      contentNode: designControls,
+      open: state.examGraphDesignExpanded,
+      onToggle: (nextOpen) => {
+        state.examGraphDesignExpanded = nextOpen;
+      },
+    }),
+  );
   return wrapper;
 }
 
 function getExamGraphGuideText() {
   const scopeMode = getExamGraphScopeMode();
   if (scopeMode === "focus") {
-    return `${getExamGraphScopeSourceText()} 기준 추천 대상을 우선 사용합니다. '지도 선택 사용'을 누르면 다시 지도 선택 또는 자동 상위 추출 기준으로 돌아갑니다.`;
+    return `${getExamGraphScopeSourceText()} 기준 추천 대상을 우선 사용합니다. 랜덤 추천은 수능특강에 실제로 자주 등장하는 국가를 먼저 고릅니다. '지도 선택 사용'을 누르면 다시 지도 선택 또는 자동 상위 추출 기준으로 돌아갑니다.`;
   }
   if (scopeMode === "selected") {
-    return "지도에서 고른 국가를 우선 사용합니다. 필요하면 랜덤 버튼으로 출제용 추천 국가나 통계를 바로 섞을 수 있습니다.";
+    return "지도에서 고른 국가를 우선 사용합니다. 필요하면 랜덤 버튼으로 수능특강 등장국 위주의 추천 국가나 통계를 바로 섞을 수 있습니다.";
   }
-  return "선택 국가가 없으면 전체 자료에서 상위권 국가나 대륙을 자동으로 골라 시험지형 그래프를 만듭니다. 랜덤 버튼은 출제에 잘 맞는 통계·국가 조합을 추천합니다.";
+  return "선택 국가가 없으면 전체 자료에서 수능특강 등장국을 우선으로 골라 시험지형 그래프를 만듭니다. 랜덤 버튼은 출제에 잘 맞는 통계·국가 조합을 추천합니다.";
 }
 
 function getExamGraphValueModeOptionsForCurrentPreset() {
@@ -9060,7 +10349,7 @@ function buildExamGraphSelectField(labelText, options, activeValue, onChange) {
   return field;
 }
 
-function buildExamGraphNumberField(labelText, value, min, max, onChange) {
+function buildExamGraphNumberField(labelText, value, min, max, onChange, { step = 1 } = {}) {
   const field = document.createElement("div");
   field.className = "exam-graph-control";
   const label = document.createElement("label");
@@ -9069,10 +10358,10 @@ function buildExamGraphNumberField(labelText, value, min, max, onChange) {
   input.type = "number";
   input.min = String(min);
   input.max = String(max);
-  input.step = "1";
+  input.step = String(step);
   input.value = String(value);
   input.addEventListener("input", () => {
-    onChange(clamp(Math.round(Number(input.value) || value), min, max));
+    onChange(clamp(roundToStep(Number(input.value) || value, step), min, max));
   });
   field.append(label, input);
   return field;
@@ -9102,6 +10391,9 @@ function captureExamGraphStateSnapshot() {
     examGraphGrouping: state.examGraphGrouping,
     examGraphTopN: state.examGraphTopN,
     examGraphAliasMode: state.examGraphAliasMode,
+    examGraphOrientation: state.examGraphOrientation,
+    examGraphPreviewCount: state.examGraphPreviewCount,
+    examGraphFontSizePt: state.examGraphFontSizePt,
     examGraphYearStart: state.examGraphYearStart,
     examGraphYearEnd: state.examGraphYearEnd,
     examGraphScatterXKey: state.examGraphScatterXKey,
@@ -9125,6 +10417,9 @@ function restoreExamGraphStateSnapshot(snapshot) {
     examGraphGrouping: snapshot.examGraphGrouping,
     examGraphTopN: snapshot.examGraphTopN,
     examGraphAliasMode: snapshot.examGraphAliasMode,
+    examGraphOrientation: snapshot.examGraphOrientation,
+    examGraphPreviewCount: snapshot.examGraphPreviewCount,
+    examGraphFontSizePt: snapshot.examGraphFontSizePt,
     examGraphYearStart: snapshot.examGraphYearStart,
     examGraphYearEnd: snapshot.examGraphYearEnd,
     examGraphScatterXKey: snapshot.examGraphScatterXKey,
@@ -9327,6 +10622,7 @@ function selectExamGraphRecommendedCountries(candidates, desiredCount = getExamG
     seenIds.add(candidate.id);
     uniqueCandidates.push({
       ...candidate,
+      priority: getExamGraphRandomCountryPriority(stats),
       continent: getExamGraphContinentGroupName(candidate.continent, { grouping: state.examGraphGrouping, presetKey: state.examGraphPresetKey }),
     });
   });
@@ -9335,8 +10631,12 @@ function selectExamGraphRecommendedCountries(candidates, desiredCount = getExamG
     return [];
   }
 
+  const preferredCandidates = uniqueCandidates.filter((candidate) => candidate.priority > 0);
+  const candidateBase = preferredCandidates.length >= desiredCount ? preferredCandidates : uniqueCandidates;
   const pool = shuffleExamGraphItems(
-    [...uniqueCandidates].sort((a, b) => Number(b.score) - Number(a.score)).slice(0, Math.max(desiredCount * 4, 14)),
+    [...candidateBase]
+      .sort((a, b) => Number(b.priority || 0) - Number(a.priority || 0) || Number(b.score) - Number(a.score))
+      .slice(0, Math.max(desiredCount * 5, 18)),
   );
   const selected = [];
   const usedIds = new Set();
@@ -9371,7 +10671,7 @@ function buildExamGraphRecommendation(baseLabel, candidates) {
   const picked = selectExamGraphRecommendedCountries(candidates);
   return {
     ids: picked.map((candidate) => candidate.id),
-    label: picked.length ? `${baseLabel} 추천 ${picked.length}개국` : "",
+    label: picked.length ? `${baseLabel} · 수능특강 등장국 우선 ${picked.length}개국` : "",
   };
 }
 
@@ -9829,25 +11129,30 @@ function applyExamGraphRandomScenario({ graphOnly = false } = {}) {
 
 function buildExamGraphModel() {
   const preset = getExamGraphPresetDefinition();
+  let model = null;
   if (preset.key === "stacked100") {
-    return buildExamStackedGraphModel();
+    model = buildExamStackedGraphModel();
+  } else if (preset.key === "rankBars") {
+    model = buildExamRankBarGraphModel();
+  } else if (preset.key === "pairedBars") {
+    model = buildExamPairedBarGraphModel();
+  } else if (preset.key === "timeCompare") {
+    model = buildExamTimeCompareModel();
+  } else if (preset.key === "trendLine") {
+    model = buildExamTrendLineGraphModel();
+  } else if (preset.key === "scatter") {
+    model = buildExamScatterGraphModel();
+  } else {
+    model = buildExamTopShareGraphModel();
   }
-  if (preset.key === "rankBars") {
-    return buildExamRankBarGraphModel();
+  if (!model) {
+    return null;
   }
-  if (preset.key === "pairedBars") {
-    return buildExamPairedBarGraphModel();
-  }
-  if (preset.key === "timeCompare") {
-    return buildExamTimeCompareModel();
-  }
-  if (preset.key === "trendLine") {
-    return buildExamTrendLineGraphModel();
-  }
-  if (preset.key === "scatter") {
-    return buildExamScatterGraphModel();
-  }
-  return buildExamTopShareGraphModel();
+  model.orientation = getExamGraphOrientation();
+  model.orientationLabel = getExamGraphOrientationLabel(model.orientation);
+  model.fontSizePt = getExamGraphFontSizePt();
+  model.fontStretchPercent = EXAM_GRAPH_FONT_STRETCH_PERCENT;
+  return model;
 }
 
 function buildExamStackedGraphModel() {
@@ -11064,19 +12369,325 @@ function buildExamLegendItemsFromRows(rows) {
   }));
 }
 
-function buildExamGraphPreviewCard(model) {
+function buildExamGraphVariantModel(overrides) {
+  const snapshot = captureExamGraphStateSnapshot();
+  Object.assign(state, overrides);
+  ensureExamGraphState();
+  const variant = buildExamGraphModel();
+  restoreExamGraphStateSnapshot(snapshot);
+  ensureExamGraphState();
+  return variant;
+}
+
+function buildExamGraphPreviewExportName(filename, suffix) {
+  if (!suffix) {
+    return filename;
+  }
+  return filename.replace(/\.svg$/i, `-${suffix}.svg`);
+}
+
+function getExamGraphDefinitionCycleDistance(index, currentIndex, length) {
+  if (length <= 0 || currentIndex < 0) {
+    return index;
+  }
+  return (index - currentIndex + length) % length;
+}
+
+function getOrderedExamGraphAlternateDefinitions(definitions, currentKey, scoreDefinition) {
+  const currentIndex = definitions.findIndex((definition) => definition.key === currentKey);
+  return definitions
+    .map((definition, index) => ({
+      definition,
+      distance: getExamGraphDefinitionCycleDistance(index, currentIndex, definitions.length),
+      score: Number(scoreDefinition?.(definition) ?? 0),
+    }))
+    .filter((entry) => entry.definition.key !== currentKey)
+    .sort((left, right) => {
+      if (left.score !== right.score) {
+        return right.score - left.score;
+      }
+      return left.distance - right.distance;
+    })
+    .map((entry) => entry.definition);
+}
+
+function getExamGraphCompositionCategoryKey(definitionOrKey) {
+  const key = typeof definitionOrKey === "string" ? definitionOrKey : definitionOrKey?.key ?? "";
+  if (key === "urban-rural" || key === "age-structure") {
+    return "demography";
+  }
+  if (key === "industry-structure") {
+    return "economy";
+  }
+  if (key === "religion-major") {
+    return "religion";
+  }
+  if (key === "energy-summary" || key === "electricity-breakdown" || key === "fossil-production") {
+    return "energy";
+  }
+  if (key === "crops-production" || key === "livestock-stocks" || key === "livestock-meat") {
+    return "agriculture";
+  }
+  return "demography";
+}
+
+function getExamGraphPairCategoryKey(definitionOrKey) {
+  const definition =
+    typeof definitionOrKey === "string"
+      ? examGraphPairMetricDefinitions.find((entry) => entry.key === definitionOrKey)
+      : definitionOrKey;
+  return getMetricExplorerDefinitionCategoryKey(definition?.metricKeys?.[0] ?? "");
+}
+
+function buildExamGraphScatterPreviewCandidateDefinitions() {
+  const metricDefinitions = getMetricExplorerDefinitions();
+  const xDefinition = getMetricExplorerDefinitionByKey(metricDefinitions, state.examGraphScatterXKey);
+  const yDefinition = getMetricExplorerDefinitionByKey(metricDefinitions, state.examGraphScatterYKey);
+  const sizeDefinition = getMetricExplorerDefinitionByKey(metricDefinitions, state.examGraphScatterSizeKey);
+  const primaryCategoryKey = getMetricExplorerDefinitionCategoryKey(yDefinition ?? xDefinition ?? sizeDefinition);
+  const yCandidates = getOrderedExamGraphAlternateDefinitions(metricDefinitions, yDefinition?.key, (definition) => {
+    let score = 0;
+    if (getMetricExplorerDefinitionCategoryKey(definition) === primaryCategoryKey) {
+      score += 2;
+    }
+    if (getMetricExplorerDefinitionBaseMode(definition) === getMetricExplorerDefinitionBaseMode(yDefinition)) {
+      score += 1;
+    }
+    return score;
+  }).filter((definition) => ![xDefinition?.key, sizeDefinition?.key].includes(definition.key));
+  const xCandidates = getOrderedExamGraphAlternateDefinitions(metricDefinitions, xDefinition?.key, (definition) => {
+    let score = 0;
+    if (getMetricExplorerDefinitionCategoryKey(definition) === primaryCategoryKey) {
+      score += 2;
+    }
+    if (getMetricExplorerDefinitionBaseMode(definition) === getMetricExplorerDefinitionBaseMode(xDefinition)) {
+      score += 1;
+    }
+    return score;
+  }).filter((definition) => ![yDefinition?.key, sizeDefinition?.key].includes(definition.key));
+  const sizeCandidates = getOrderedExamGraphAlternateDefinitions(metricDefinitions, sizeDefinition?.key, (definition) => {
+    let score = 0;
+    if (getMetricExplorerDefinitionCategoryKey(definition) === primaryCategoryKey) {
+      score += 2;
+    }
+    if (getMetricExplorerDefinitionBaseMode(definition) === getMetricExplorerDefinitionBaseMode(sizeDefinition)) {
+      score += 1;
+    }
+    return score;
+  }).filter((definition) => ![xDefinition?.key, yDefinition?.key].includes(definition.key));
+
+  const definitions = [];
+  if (yCandidates[0]) {
+    definitions.push({
+      key: `scatter-y-${yCandidates[0].key}`,
+      badge: `Y축 ${yCandidates[0].label}`,
+      description: `X축 ${xDefinition?.label ?? "-"} · Y축 ${yCandidates[0].label} · 버블 ${sizeDefinition?.label ?? "-"}`,
+      suffix: `scatter-y-${yCandidates[0].key}`,
+      overrides: { examGraphScatterYKey: yCandidates[0].key },
+    });
+  }
+  if (xCandidates[0]) {
+    definitions.push({
+      key: `scatter-x-${xCandidates[0].key}`,
+      badge: `X축 ${xCandidates[0].label}`,
+      description: `X축 ${xCandidates[0].label} · Y축 ${yDefinition?.label ?? "-"} · 버블 ${sizeDefinition?.label ?? "-"}`,
+      suffix: `scatter-x-${xCandidates[0].key}`,
+      overrides: { examGraphScatterXKey: xCandidates[0].key },
+    });
+  }
+  if (sizeCandidates[0]) {
+    definitions.push({
+      key: `scatter-size-${sizeCandidates[0].key}`,
+      badge: `버블 ${sizeCandidates[0].label}`,
+      description: `X축 ${xDefinition?.label ?? "-"} · Y축 ${yDefinition?.label ?? "-"} · 버블 ${sizeCandidates[0].label}`,
+      suffix: `scatter-size-${sizeCandidates[0].key}`,
+      overrides: { examGraphScatterSizeKey: sizeCandidates[0].key },
+    });
+  }
+  return definitions;
+}
+
+function getExamGraphPreviewCandidateDefinitions() {
+  const presetKey = state.examGraphPresetKey;
+
+  if (presetKey === "stacked100") {
+    const currentDefinition = getExamGraphCompositionDefinition();
+    const currentCategoryKey = getExamGraphCompositionCategoryKey(currentDefinition);
+    return getOrderedExamGraphAlternateDefinitions(
+      examGraphCompositionDefinitions,
+      currentDefinition.key,
+      (definition) => Number(getExamGraphCompositionCategoryKey(definition) === currentCategoryKey),
+    ).map((definition) => ({
+      key: `composition-${definition.key}`,
+      badge: definition.label,
+      description: definition.description,
+      suffix: definition.key,
+      overrides: { examGraphCompositionKey: definition.key },
+    }));
+  }
+
+  if (presetKey === "rankBars") {
+    const currentDefinition = getExamGraphMetricDefinition();
+    const currentCategoryKey = getMetricExplorerDefinitionCategoryKey(currentDefinition);
+    const currentBaseMode = getMetricExplorerDefinitionBaseMode(currentDefinition);
+    return getOrderedExamGraphAlternateDefinitions(getMetricExplorerDefinitions(), currentDefinition.key, (definition) => {
+      let score = 0;
+      if (getMetricExplorerDefinitionCategoryKey(definition) === currentCategoryKey) {
+        score += 2;
+      }
+      if (getMetricExplorerDefinitionBaseMode(definition) === currentBaseMode) {
+        score += 1;
+      }
+      return score;
+    }).map((definition) => ({
+      key: `metric-${definition.key}`,
+      badge: definition.label,
+      description: definition.category,
+      suffix: definition.key,
+      overrides: { examGraphMetricKey: definition.key },
+    }));
+  }
+
+  if (presetKey === "pairedBars") {
+    const currentDefinition = getExamGraphPairDefinition();
+    const currentCategoryKey = getExamGraphPairCategoryKey(currentDefinition);
+    return getOrderedExamGraphAlternateDefinitions(
+      examGraphPairMetricDefinitions,
+      currentDefinition.key,
+      (definition) => Number(getExamGraphPairCategoryKey(definition) === currentCategoryKey),
+    ).map((definition) => ({
+      key: `pair-${definition.key}`,
+      badge: definition.label,
+      description: definition.description,
+      suffix: definition.key,
+      overrides: { examGraphPairKey: definition.key },
+    }));
+  }
+
+  if (presetKey === "timeCompare" || presetKey === "trendLine") {
+    const currentDefinition = getExamGraphTimeMetricDefinition();
+    const currentCategoryKey = getMetricExplorerDefinitionCategoryKey(currentDefinition.key);
+    const currentBaseMode = getMetricExplorerDefinitionBaseMode(currentDefinition.key);
+    return getOrderedExamGraphAlternateDefinitions(examGraphTimeMetricDefinitions, currentDefinition.key, (definition) => {
+      let score = 0;
+      if (getMetricExplorerDefinitionCategoryKey(definition.key) === currentCategoryKey) {
+        score += 2;
+      }
+      if (getMetricExplorerDefinitionBaseMode(definition.key) === currentBaseMode) {
+        score += 1;
+      }
+      return score;
+    }).map((definition) => ({
+      key: `time-${definition.key}`,
+      badge: definition.label,
+      description:
+        presetKey === "trendLine"
+          ? `${state.examGraphYearStart}년~${state.examGraphYearEnd}년 시계열`
+          : `${state.examGraphYearStart}년 ↔ ${state.examGraphYearEnd}년 비교`,
+      suffix: definition.key,
+      overrides: { examGraphTimeMetricKey: definition.key },
+    }));
+  }
+
+  if (presetKey === "scatter") {
+    return buildExamGraphScatterPreviewCandidateDefinitions();
+  }
+
+  const currentDefinition = getExamGraphTopShareMetricDefinition();
+  const currentCategoryKey = getMetricExplorerDefinitionCategoryKey(currentDefinition.key);
+  const currentBaseMode = getMetricExplorerDefinitionBaseMode(currentDefinition.key);
+  return getOrderedExamGraphAlternateDefinitions(examGraphTopShareMetricDefinitions, currentDefinition.key, (definition) => {
+    let score = 0;
+    if (getMetricExplorerDefinitionCategoryKey(definition.key) === currentCategoryKey) {
+      score += 2;
+    }
+    if (getMetricExplorerDefinitionBaseMode(definition.key) === currentBaseMode) {
+      score += 1;
+    }
+    return score;
+  }).map((definition) => ({
+    key: `topshare-${definition.key}`,
+    badge: definition.label,
+    description: "대륙별 상위 3개국과 기타 비중",
+    suffix: definition.key,
+    overrides: { examGraphTopShareMetricKey: definition.key },
+  }));
+}
+
+function buildExamGraphPreviewEntries(model) {
+  const entries = [
+    {
+      key: "current",
+      badge: "현재 통계",
+      description: `${getExamGraphOrientationLabel(model.orientation)} · ${formatExamGraphPtLabel(model.fontSizePt)} · ${model.displayModeLabel ?? "기본"}`,
+      exportName: buildExamGraphPreviewExportName(model.exportName, `${model.orientation}-${String(model.fontSizePt).replace(".", "_")}pt`),
+      model,
+    },
+  ];
+  const targetCount = getExamGraphPreviewCount();
+  if (targetCount === 1) {
+    return entries;
+  }
+
+  const candidateDefinitions = getExamGraphPreviewCandidateDefinitions();
+  const signatures = new Set([JSON.stringify([model.presetKey, model.metricKey, model.exportName])]);
+  candidateDefinitions.forEach((candidate) => {
+    if (entries.length >= targetCount) {
+      return;
+    }
+    const variant = buildExamGraphVariantModel(candidate.overrides);
+    if (!variant) {
+      return;
+    }
+    const signature = JSON.stringify([variant.presetKey, variant.metricKey, variant.exportName]);
+    if (signatures.has(signature)) {
+      return;
+    }
+    signatures.add(signature);
+    entries.push({
+      key: candidate.key,
+      badge: candidate.badge,
+      description: candidate.description,
+      exportName: buildExamGraphPreviewExportName(variant.exportName, candidate.suffix),
+      model: variant,
+    });
+  });
+
+  return entries;
+}
+
+function buildExamGraphPreviewGallery(model) {
+  const gallery = document.createElement("div");
+  gallery.className = "exam-graph-preview-gallery";
+  gallery.style.setProperty("--exam-graph-preview-columns", String(getExamGraphPreviewCount()));
+  buildExamGraphPreviewEntries(model).forEach((entry) => {
+    gallery.appendChild(buildExamGraphPreviewCard(entry));
+  });
+  return gallery;
+}
+
+function buildExamGraphPreviewCard(preview) {
+  const model = preview.model;
+  ensureSvgFontStyle(model.svgNode);
   const card = document.createElement("div");
   card.className = "exam-graph-preview-card country-stats-chart-card";
 
   const head = document.createElement("div");
   head.className = "exam-graph-preview-card__head";
   const copy = document.createElement("div");
+  copy.className = "exam-graph-preview-card__copy";
+  if (preview.badge) {
+    const badge = document.createElement("span");
+    badge.className = "exam-graph-preview-card__eyebrow";
+    badge.textContent = preview.badge;
+    copy.appendChild(badge);
+  }
   const title = document.createElement("h5");
   title.className = "country-stats-chart-card__title";
   title.textContent = model.title;
   const description = document.createElement("p");
   description.className = "country-stats-chart-card__meta";
-  description.textContent = model.description;
+  description.textContent = preview.description ?? model.description;
   copy.append(title, description);
 
   const exportButton = document.createElement("button");
@@ -11084,7 +12695,7 @@ function buildExamGraphPreviewCard(model) {
   exportButton.className = "tw-button ghost-button ghost-button--compact";
   exportButton.textContent = "SVG 내보내기";
   exportButton.addEventListener("click", () => {
-    downloadStandaloneSvgNode(model.svgNode, model.exportName);
+    downloadStandaloneSvgNode(model.svgNode, preview.exportName ?? model.exportName);
     setStatus("출제형 그래프 SVG를 내보냈습니다.");
   });
 
@@ -11093,6 +12704,7 @@ function buildExamGraphPreviewCard(model) {
 
   const stage = document.createElement("div");
   stage.className = "exam-graph-stage";
+  stage.dataset.orientation = model.orientation ?? "landscape";
   stage.appendChild(model.svgNode);
   card.appendChild(stage);
 
@@ -11438,10 +13050,7 @@ function buildExamGraphFileName(parts) {
 
 function downloadStandaloneSvgNode(svgNode, filename) {
   const exportNode = svgNode.cloneNode(true);
-  const defs = ensureDefsElement(exportNode);
-  const styleElement = createSvgElement("style");
-  styleElement.textContent = buildSvgFontStyle();
-  defs.insertBefore(styleElement, defs.firstChild);
+  ensureSvgFontStyle(exportNode);
 
   const serializer = new XMLSerializer();
   const serialized = serializer.serializeToString(exportNode);
@@ -11560,6 +13169,36 @@ function appendExamGraphXAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, t
   return valueToX;
 }
 
+function appendExamGraphYAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, ticks, minimum, maximum, valueFormatter, axisFormatter = null }) {
+  const valueToY = (value) => plotTop + (1 - (Number(value) - minimum) / (maximum - minimum)) * plotHeight;
+  const formatTick = axisFormatter ?? ((tick) => valueFormatter(tick));
+  ticks.forEach((tick) => {
+    const y = valueToY(tick);
+    const isEdge = Math.abs(tick - minimum) < 0.000001 || Math.abs(tick - maximum) < 0.000001;
+    const isZero = Math.abs(tick) < 0.000001;
+    const line = createSvgElement("line");
+    line.setAttribute("x1", String(plotLeft));
+    line.setAttribute("x2", String(plotLeft + plotWidth));
+    line.setAttribute("y1", String(y));
+    line.setAttribute("y2", String(y));
+    line.setAttribute("stroke", "#111111");
+    line.setAttribute("stroke-width", isEdge || isZero ? "1.4" : "1");
+    if (!isEdge && !isZero) {
+      line.setAttribute("stroke-dasharray", "7 7");
+    }
+    svg.appendChild(line);
+
+    const label = createSvgElement("text");
+    label.setAttribute("x", String(plotLeft - 10));
+    label.setAttribute("y", String(y + 4));
+    label.setAttribute("text-anchor", "end");
+    applyExamGraphTextStyle(label, { fontSize: 10.5, fontWeight: 700 });
+    label.textContent = formatTick(tick);
+    svg.appendChild(label);
+  });
+  return valueToY;
+}
+
 function appendExamGraphLineLegend(svg, rows, centerX, y) {
   const itemWidths = rows.map((row) => 42 + String(row.displayLabel).length * 12);
   const totalWidth = itemWidths.reduce((sum, width) => sum + width, 0) + Math.max(0, rows.length - 1) * 12 + 20;
@@ -11602,6 +13241,10 @@ function appendExamGraphLineLegend(svg, rows, centerX, y) {
 }
 
 function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, footnote, mode = "share", valueFormatter = (value) => formatPercent(value) }) {
+  if (getExamGraphOrientation() === "portrait") {
+    return buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendItems, footnote, mode, valueFormatter });
+  }
+
   const width = 880;
   const plotLeft = 158;
   const plotTop = 74;
@@ -11689,7 +13332,98 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
   return svg;
 }
 
+function buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendItems, footnote, mode = "share", valueFormatter = (value) => formatPercent(value) }) {
+  const width = 720;
+  const height = 900;
+  const plot = { left: 80, right: 44, top: 86, bottom: footnote ? 214 : 184 };
+  const plotWidth = width - plot.left - plot.right;
+  const plotHeight = height - plot.top - plot.bottom;
+  const step = plotWidth / rows.length;
+  const columnWidth = Math.min(48, step * 0.68);
+  const amountDomain = getExamGraphAxisDomain(rows.map((row) => Number(row.total) || 0), { forceZeroStart: true, paddingRatio: 0.04 });
+  const domainMinimum = mode === "amount" ? amountDomain.minimum : 0;
+  const domainMaximum = mode === "amount" ? amountDomain.maximum : 100;
+  const ticks = mode === "amount" ? getExamGraphAxisTicks(domainMinimum, domainMaximum, 5) : [0, 20, 40, 60, 80, 100];
+  const svg = createSvgElement("svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", title);
+  svg.setAttribute("class", "exam-graph-svg");
+  appendExamGraphPatternDefs(svg);
+  appendExamGraphTitle(svg, title, subtitle, width);
+
+  const frame = createSvgElement("rect");
+  frame.setAttribute("x", String(plot.left));
+  frame.setAttribute("y", String(plot.top));
+  frame.setAttribute("width", String(plotWidth));
+  frame.setAttribute("height", String(plotHeight));
+  frame.setAttribute("fill", "#ffffff");
+  frame.setAttribute("stroke", "#111111");
+  frame.setAttribute("stroke-width", "1.4");
+  svg.appendChild(frame);
+
+  const valueToY = appendExamGraphYAxis(svg, {
+    plotLeft: plot.left,
+    plotTop: plot.top,
+    plotWidth,
+    plotHeight,
+    ticks,
+    minimum: domainMinimum,
+    maximum: domainMaximum,
+    valueFormatter: mode === "amount" ? valueFormatter : (tick) => (tick === 100 ? "100(%)" : String(tick)),
+    axisFormatter: mode === "amount" ? (tick) => formatExamGraphAxisTick(tick, domainMaximum) : null,
+  });
+  const baselineY = valueToY(domainMinimum);
+
+  rows.forEach((row, rowIndex) => {
+    const x = plot.left + step * rowIndex + (step - columnWidth) / 2;
+    let cumulativeValue = 0;
+    let cursorY = baselineY;
+    row.segments.forEach((segment, segmentIndex) => {
+      const segmentValue = mode === "amount" ? Number(segment.value) || 0 : clamp(Number(segment.share) || 0, 0, 100);
+      cumulativeValue += segmentValue;
+      const nextY = valueToY(cumulativeValue);
+      const rect = createSvgElement("rect");
+      rect.setAttribute("x", String(x));
+      rect.setAttribute("y", String(nextY));
+      rect.setAttribute("width", String(columnWidth));
+      rect.setAttribute("height", String(Math.max(1, cursorY - nextY)));
+      rect.setAttribute("fill", getExamGraphFill(segmentIndex));
+      rect.setAttribute("stroke", "#111111");
+      rect.setAttribute("stroke-width", "1");
+      svg.appendChild(rect);
+      cursorY = nextY;
+    });
+
+    const label = createSvgElement("text");
+    label.setAttribute("x", String(x + columnWidth / 2));
+    label.setAttribute("y", String(plot.top + plotHeight + 26));
+    label.setAttribute("text-anchor", "end");
+    label.setAttribute("transform", `rotate(-55 ${x + columnWidth / 2} ${plot.top + plotHeight + 26})`);
+    applyExamGraphTextStyle(label, { fontSize: 12, fontWeight: 700 });
+    label.textContent = row.displayLabel;
+    svg.appendChild(label);
+  });
+
+  appendExamGraphLegend(svg, legendItems, width / 2, height - (footnote ? 78 : 48));
+
+  if (footnote) {
+    const note = createSvgElement("text");
+    note.setAttribute("x", String(plot.left));
+    note.setAttribute("y", String(height - 18));
+    applyExamGraphTextStyle(note, { fontSize: 11, fontWeight: 500 });
+    note.textContent = footnote;
+    svg.appendChild(note);
+  }
+
+  return svg;
+}
+
 function buildExamSingleBarSvg({ title, subtitle, rows, valueFormatter, axisFormatter = null }) {
+  if (getExamGraphOrientation() === "portrait") {
+    return buildExamSingleBarSvgPortrait({ title, subtitle, rows, valueFormatter, axisFormatter });
+  }
+
   const width = 880;
   const plotLeft = 170;
   const plotTop = 74;
@@ -11762,7 +13496,80 @@ function buildExamSingleBarSvg({ title, subtitle, rows, valueFormatter, axisForm
   return svg;
 }
 
+function buildExamSingleBarSvgPortrait({ title, subtitle, rows, valueFormatter, axisFormatter = null }) {
+  const width = 720;
+  const height = 860;
+  const plot = { left: 84, right: 42, top: 88, bottom: 188 };
+  const plotWidth = width - plot.left - plot.right;
+  const plotHeight = height - plot.top - plot.bottom;
+  const values = rows.map((row) => Number(row.displayValue ?? row.value));
+  const { minimum, maximum } = getExamGraphAxisDomain(values, { paddingRatio: 0.04 });
+  const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const step = plotWidth / rows.length;
+  const columnWidth = Math.min(42, step * 0.7);
+  const svg = createSvgElement("svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", title);
+  svg.setAttribute("class", "exam-graph-svg");
+  appendExamGraphPatternDefs(svg);
+  appendExamGraphTitle(svg, title, subtitle, width);
+
+  const frame = createSvgElement("rect");
+  frame.setAttribute("x", String(plot.left));
+  frame.setAttribute("y", String(plot.top));
+  frame.setAttribute("width", String(plotWidth));
+  frame.setAttribute("height", String(plotHeight));
+  frame.setAttribute("fill", "#ffffff");
+  frame.setAttribute("stroke", "#111111");
+  frame.setAttribute("stroke-width", "1.4");
+  svg.appendChild(frame);
+
+  const valueToY = appendExamGraphYAxis(svg, {
+    plotLeft: plot.left,
+    plotTop: plot.top,
+    plotWidth,
+    plotHeight,
+    ticks,
+    minimum,
+    maximum,
+    valueFormatter,
+    axisFormatter: axisFormatter ?? ((tick) => formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)))),
+  });
+  const zeroY = valueToY(0);
+
+  rows.forEach((row, rowIndex) => {
+    const value = Number(row.displayValue ?? row.value) || 0;
+    const x = plot.left + step * rowIndex + (step - columnWidth) / 2;
+    const y = Math.min(zeroY, valueToY(value));
+    const rect = createSvgElement("rect");
+    rect.setAttribute("x", String(x));
+    rect.setAttribute("y", String(y));
+    rect.setAttribute("width", String(columnWidth));
+    rect.setAttribute("height", String(Math.max(1, Math.abs(valueToY(value) - zeroY))));
+    rect.setAttribute("fill", getExamGraphFill(rowIndex));
+    rect.setAttribute("stroke", "#111111");
+    rect.setAttribute("stroke-width", "1");
+    svg.appendChild(rect);
+
+    const label = createSvgElement("text");
+    label.setAttribute("x", String(x + columnWidth / 2));
+    label.setAttribute("y", String(plot.top + plotHeight + 24));
+    label.setAttribute("text-anchor", "end");
+    label.setAttribute("transform", `rotate(-55 ${x + columnWidth / 2} ${plot.top + plotHeight + 24})`);
+    applyExamGraphTextStyle(label, { fontSize: 12.5, fontWeight: 700 });
+    label.textContent = row.displayLabel;
+    svg.appendChild(label);
+  });
+
+  return svg;
+}
+
 function buildExamPairedBarSvg({ title, subtitle, rows, legendItems, valueFormatter, axisFormatter = null }) {
+  if (getExamGraphOrientation() === "portrait") {
+    return buildExamPairedBarSvgPortrait({ title, subtitle, rows, legendItems, valueFormatter, axisFormatter });
+  }
+
   const width = 900;
   const plotLeft = 178;
   const plotTop = 78;
@@ -11840,7 +13647,88 @@ function buildExamPairedBarSvg({ title, subtitle, rows, legendItems, valueFormat
   return svg;
 }
 
+function buildExamPairedBarSvgPortrait({ title, subtitle, rows, legendItems, valueFormatter, axisFormatter = null }) {
+  const width = 740;
+  const height = 900;
+  const plot = { left: 84, right: 42, top: 88, bottom: 196 };
+  const plotWidth = width - plot.left - plot.right;
+  const plotHeight = height - plot.top - plot.bottom;
+  const values = rows.flatMap((row) => [Number(row.displayFirstValue), Number(row.displaySecondValue)]);
+  const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
+  const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const step = plotWidth / rows.length;
+  const groupWidth = Math.min(54, step * 0.78);
+  const barGap = Math.min(8, groupWidth * 0.12);
+  const barWidth = Math.max(10, (groupWidth - barGap) / 2);
+
+  const svg = createSvgElement("svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", title);
+  svg.setAttribute("class", "exam-graph-svg");
+  appendExamGraphPatternDefs(svg);
+  appendExamGraphTitle(svg, title, subtitle, width);
+
+  const frame = createSvgElement("rect");
+  frame.setAttribute("x", String(plot.left));
+  frame.setAttribute("y", String(plot.top));
+  frame.setAttribute("width", String(plotWidth));
+  frame.setAttribute("height", String(plotHeight));
+  frame.setAttribute("fill", "#ffffff");
+  frame.setAttribute("stroke", "#111111");
+  frame.setAttribute("stroke-width", "1.4");
+  svg.appendChild(frame);
+
+  const valueToY = appendExamGraphYAxis(svg, {
+    plotLeft: plot.left,
+    plotTop: plot.top,
+    plotWidth,
+    plotHeight,
+    ticks,
+    minimum,
+    maximum,
+    valueFormatter,
+    axisFormatter: axisFormatter ?? ((tick) => formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)))),
+  });
+  const zeroY = valueToY(0);
+
+  rows.forEach((row, rowIndex) => {
+    const x = plot.left + step * rowIndex + (step - groupWidth) / 2;
+    [
+      { value: row.displayFirstValue, fill: legendItems[0]?.fill ?? getExamGraphFill(0), xOffset: 0 },
+      { value: row.displaySecondValue, fill: legendItems[1]?.fill ?? getExamGraphFill(1), xOffset: barWidth + barGap },
+    ].forEach((bar) => {
+      const y = Math.min(zeroY, valueToY(bar.value));
+      const rect = createSvgElement("rect");
+      rect.setAttribute("x", String(x + bar.xOffset));
+      rect.setAttribute("y", String(y));
+      rect.setAttribute("width", String(barWidth));
+      rect.setAttribute("height", String(Math.max(1, Math.abs(valueToY(bar.value) - zeroY))));
+      rect.setAttribute("fill", bar.fill);
+      rect.setAttribute("stroke", "#111111");
+      rect.setAttribute("stroke-width", "1");
+      svg.appendChild(rect);
+    });
+
+    const label = createSvgElement("text");
+    label.setAttribute("x", String(x + groupWidth / 2));
+    label.setAttribute("y", String(plot.top + plotHeight + 24));
+    label.setAttribute("text-anchor", "end");
+    label.setAttribute("transform", `rotate(-55 ${x + groupWidth / 2} ${plot.top + plotHeight + 24})`);
+    applyExamGraphTextStyle(label, { fontSize: 12, fontWeight: 700 });
+    label.textContent = row.displayLabel;
+    svg.appendChild(label);
+  });
+
+  appendExamGraphLegend(svg, legendItems, width / 2, height - 32);
+  return svg;
+}
+
 function buildExamTimeCompareSvg({ title, subtitle, rows, startYear, endYear, valueFormatter, axisFormatter = null }) {
+  if (getExamGraphOrientation() === "portrait") {
+    return buildExamTimeCompareSvgPortrait({ title, subtitle, rows, startYear, endYear, valueFormatter, axisFormatter });
+  }
+
   const width = 900;
   const plotLeft = 178;
   const plotTop = 78;
@@ -11924,10 +13812,96 @@ function buildExamTimeCompareSvg({ title, subtitle, rows, startYear, endYear, va
   return svg;
 }
 
+function buildExamTimeCompareSvgPortrait({ title, subtitle, rows, startYear, endYear, valueFormatter, axisFormatter = null }) {
+  const width = 740;
+  const height = 900;
+  const plot = { left: 84, right: 42, top: 88, bottom: 196 };
+  const plotWidth = width - plot.left - plot.right;
+  const plotHeight = height - plot.top - plot.bottom;
+  const values = rows.flatMap((row) => [Number(row.displayStartValue ?? row.startValue), Number(row.displayEndValue ?? row.endValue)]);
+  const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
+  const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const step = plotWidth / rows.length;
+  const groupWidth = Math.min(54, step * 0.78);
+  const barGap = Math.min(8, groupWidth * 0.12);
+  const barWidth = Math.max(10, (groupWidth - barGap) / 2);
+  const svg = createSvgElement("svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", title);
+  svg.setAttribute("class", "exam-graph-svg");
+  appendExamGraphPatternDefs(svg);
+  appendExamGraphTitle(svg, title, subtitle, width);
+
+  const frame = createSvgElement("rect");
+  frame.setAttribute("x", String(plot.left));
+  frame.setAttribute("y", String(plot.top));
+  frame.setAttribute("width", String(plotWidth));
+  frame.setAttribute("height", String(plotHeight));
+  frame.setAttribute("fill", "#ffffff");
+  frame.setAttribute("stroke", "#111111");
+  frame.setAttribute("stroke-width", "1.4");
+  svg.appendChild(frame);
+
+  const valueToY = appendExamGraphYAxis(svg, {
+    plotLeft: plot.left,
+    plotTop: plot.top,
+    plotWidth,
+    plotHeight,
+    ticks,
+    minimum,
+    maximum,
+    valueFormatter,
+    axisFormatter: axisFormatter ?? ((tick) => formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)))),
+  });
+  const zeroY = valueToY(0);
+
+  rows.forEach((row, rowIndex) => {
+    const x = plot.left + step * rowIndex + (step - groupWidth) / 2;
+    [
+      { value: row.displayStartValue ?? row.startValue, fill: getExamGraphFill(1), xOffset: 0 },
+      { value: row.displayEndValue ?? row.endValue, fill: getExamGraphFill(0), xOffset: barWidth + barGap },
+    ].forEach((bar) => {
+      const y = Math.min(zeroY, valueToY(bar.value));
+      const rect = createSvgElement("rect");
+      rect.setAttribute("x", String(x + bar.xOffset));
+      rect.setAttribute("y", String(y));
+      rect.setAttribute("width", String(barWidth));
+      rect.setAttribute("height", String(Math.max(1, Math.abs(valueToY(bar.value) - zeroY))));
+      rect.setAttribute("fill", bar.fill);
+      rect.setAttribute("stroke", "#111111");
+      rect.setAttribute("stroke-width", "1");
+      svg.appendChild(rect);
+    });
+
+    const label = createSvgElement("text");
+    label.setAttribute("x", String(x + groupWidth / 2));
+    label.setAttribute("y", String(plot.top + plotHeight + 24));
+    label.setAttribute("text-anchor", "end");
+    label.setAttribute("transform", `rotate(-55 ${x + groupWidth / 2} ${plot.top + plotHeight + 24})`);
+    applyExamGraphTextStyle(label, { fontSize: 12, fontWeight: 700 });
+    label.textContent = row.displayLabel;
+    svg.appendChild(label);
+  });
+
+  appendExamGraphLegend(
+    svg,
+    [
+      { label: `${startYear}년`, fill: getExamGraphFill(1) },
+      { label: `${endYear}년`, fill: getExamGraphFill(0) },
+    ],
+    width / 2,
+    height - 32,
+  );
+
+  return svg;
+}
+
 function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, axisFormatter = null }) {
-  const width = 900;
-  const height = 620;
-  const plot = { left: 84, right: 42, top: 88, bottom: 102 };
+  const isPortrait = getExamGraphOrientation() === "portrait";
+  const width = isPortrait ? 720 : 900;
+  const height = isPortrait ? 820 : 620;
+  const plot = isPortrait ? { left: 84, right: 42, top: 88, bottom: 126 } : { left: 84, right: 42, top: 88, bottom: 102 };
   const plotWidth = width - plot.left - plot.right;
   const plotHeight = height - plot.top - plot.bottom;
   const values = rows.flatMap((row) => row.points.map((point) => Number(point.displayValue ?? point.value)));
@@ -12030,14 +14004,15 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
     });
   });
 
-  appendExamGraphLineLegend(svg, rows, width / 2, height - 18);
+  appendExamGraphLineLegend(svg, rows, width / 2, height - 24);
   return svg;
 }
 
 function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter, yFormatter, sizeFormatter }) {
-  const width = 860;
-  const height = 620;
-  const plot = { left: 92, right: 42, top: 88, bottom: 88 };
+  const isPortrait = getExamGraphOrientation() === "portrait";
+  const width = isPortrait ? 720 : 860;
+  const height = isPortrait ? 820 : 620;
+  const plot = isPortrait ? { left: 92, right: 42, top: 88, bottom: 116 } : { left: 92, right: 42, top: 88, bottom: 88 };
   const plotWidth = width - plot.left - plot.right;
   const plotHeight = height - plot.top - plot.bottom;
   const svg = createSvgElement("svg");
@@ -12299,10 +14274,12 @@ function appendExamGraphLegend(svg, items, centerX, y) {
 
 function applyExamGraphTextStyle(node, { fontSize = 12, fontWeight = 700, fill = "#111111" } = {}) {
   node.setAttribute("fill", fill);
-  node.setAttribute("font-size", `${fontSize}px`);
+  node.setAttribute("font-size", `${scaleExamGraphFontSize(fontSize)}px`);
   node.setAttribute("font-weight", String(fontWeight));
   node.setAttribute("font-family", MAP_FONT_FAMILY);
-  node.setAttribute("letter-spacing", "-0.02em");
+  node.setAttribute("font-stretch", `${EXAM_GRAPH_FONT_STRETCH_PERCENT}%`);
+  node.setAttribute("letter-spacing", "-0.03em");
+  node.setAttribute("text-rendering", "geometricPrecision");
 }
 
 function renderAnnotations() {
@@ -12639,6 +14616,25 @@ function renderMap() {
     return;
   }
 
+  const renderModel = buildWorldMapSvg();
+  currentSvgNode = renderModel.svgNode;
+  currentRenderContext = {
+    projection: renderModel.projection,
+    path: renderModel.path,
+    baseScale: renderModel.baseScale,
+    baseTranslate: renderModel.baseTranslate,
+    padding: renderModel.padding,
+  };
+
+  resetPreviewInteractionState();
+  mountPreviewCanvas();
+  updatePreviewHint();
+  updateSelectionSummary();
+  updateExportMeta();
+  updateWorkspaceStats();
+}
+
+function buildWorldMapSvg(options = {}) {
   normalizeCanvasStateDimensions();
   const focusGeometry = buildFocusGeometry();
   const padding = Math.max(
@@ -12672,11 +14668,17 @@ function renderMap() {
 
   const defs = svg.append("defs");
   const root = svg.append("g").attr("class", "root-layer");
+  const canvasClipId = options.exportMode ? "map-canvas-export-clip" : "map-canvas-clip";
 
   if (state.projectionMode === "rectangular") {
-    defs
+    const clipPath = defs
       .append("clipPath")
-      .attr("id", "map-canvas-clip")
+      .attr("id", canvasClipId)
+      .attr("clipPathUnits", "userSpaceOnUse");
+    if (options.exportMode) {
+      clipPath.attr("data-export-clip", "keep");
+    }
+    clipPath
       .append("rect")
       .attr("x", 0)
       .attr("y", 0)
@@ -12696,7 +14698,7 @@ function renderMap() {
   const countriesGroup = root.append("g").attr("class", "countries-layer");
 
   if (state.projectionMode === "rectangular") {
-    countriesGroup.attr("clip-path", "url(#map-canvas-clip)");
+    countriesGroup.attr("clip-path", `url(#${canvasClipId})`);
   }
 
   if (shouldRenderProjectionOutline()) {
@@ -12706,19 +14708,21 @@ function renderMap() {
       .attr("d", path)
       .attr("fill", "none")
       .attr("stroke", state.borderColor)
-      .attr("stroke-width", "0.4pt")
+      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
       .attr("opacity", 0.8)
       .attr("vector-effect", "non-scaling-stroke");
   }
 
   renderAtlasLayer(countriesGroup, projection, atlasDataset, selectedColorById, borderGeometry, {
+    exportMode: Boolean(options.exportMode),
     clipRect: {
       x: 0,
       y: 0,
       width: state.width,
       height: state.height,
     },
-    clipPadding: MAP_RENDER_CLIP_PADDING,
+    clipPadding: options.exportMode ? 0 : MAP_RENDER_CLIP_PADDING,
+    copyOffsets: options.exportMode ? getVisibleProjectionCopyOffsets(projection, 0) : null,
   });
 
   if (guideGraphics.length) {
@@ -12733,7 +14737,7 @@ function renderMap() {
   }
 
   renderMarkerLayer(root, projection);
-  renderInsetLayer(root, defs, projection, selectedColorById);
+  renderInsetLayer(root, defs, projection, selectedColorById, options);
 
   if (state.showScaleBar) {
     renderScaleBar(root, projection, padding);
@@ -12748,25 +14752,23 @@ function renderMap() {
       .attr("height", Math.max(0, state.height - 0.4))
       .attr("fill", "none")
       .attr("stroke", state.borderColor)
-      .attr("stroke-width", "0.4pt")
+      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
       .attr("vector-effect", "non-scaling-stroke");
   }
 
-  currentSvgNode = svg.node();
-  currentRenderContext = {
+  const svgNode = svg.node();
+  ensureSvgFontStyle(svgNode);
+  if (options.exportMode) {
+    finalizeVectorExportNode(svgNode);
+  }
+  return {
+    svgNode,
     projection,
     path,
     baseScale: projectionMeta.baseScale,
     baseTranslate: projectionMeta.baseTranslate,
     padding,
   };
-
-  resetPreviewInteractionState();
-  mountPreviewCanvas();
-  updatePreviewHint();
-  updateSelectionSummary();
-  updateExportMeta();
-  updateWorkspaceStats();
 }
 
 function renderKoreaMap() {
@@ -12952,6 +14954,7 @@ function renderKoreaMap() {
   }
 
   currentSvgNode = svg.node();
+  ensureSvgFontStyle(currentSvgNode);
   currentRenderContext = {
     projection,
     path,
@@ -13417,8 +15420,13 @@ function buildBorderGeometry(atlasDataset, selectedIds) {
 }
 
 function renderAtlasLayer(container, projection, atlasDataset, selectedColorById, borderGeometry, options = {}) {
-  const copyOffsets = options.wrap === false ? [0] : getProjectionCopyOffsets(projection);
-  const lakeDataset = atlasLakeDatasets[atlasDataset.datasetKey] ?? baseLakeDataset;
+  const copyOffsets =
+    options.wrap === false
+      ? [0]
+      : Array.isArray(options.copyOffsets) && options.copyOffsets.length
+        ? options.copyOffsets
+        : getProjectionCopyOffsets(projection);
+  const lakeDataset = getLakeDatasetForAtlasDataset(atlasDataset, state.viewZoom);
   const renderDetailedCountryFills = atlasDataset.datasetKey === "10m";
   const fallbackCountryDataset =
     renderDetailedCountryFills ? atlasDatasets["50m"] ?? atlasDatasets["110m"] ?? atlasDataset : null;
@@ -13493,43 +15501,113 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
         .attr("fill", state.oceanColor)
         .attr("stroke", "none");
 
+      appendLineGeometryPaths(copyGroup, getLineGeometryFragments(lakeDataset.geometry), path, {
+        className: "map-lake-lines",
+        stroke: state.borderColor,
+        strokeWidth: OUTLINE_STROKE_WIDTH,
+        strokeLinejoin: "round",
+      });
+    }
+
+    if (borderGeometry) {
+      appendLineGeometryPaths(
+        copyGroup,
+        options.exportMode ? getLineGeometryFragments(borderGeometry) : [borderGeometry],
+        path,
+        {
+          className: "map-border-lines",
+          stroke: state.borderColor,
+          strokeWidth: OUTLINE_STROKE_WIDTH,
+          strokeDasharray: getBorderStrokeDasharray(),
+          strokeLinecap: "round",
+          strokeLinejoin: "round",
+        },
+      );
+    }
+
+    const renderCoastlineFromLandOutline = Boolean(atlasDataset.landFeature) && (
+      options.exportMode || atlasDataset.datasetKey === "10m"
+    );
+
+    if (renderCoastlineFromLandOutline) {
       copyGroup
         .append("path")
-        .datum(lakeDataset.geometry)
-        .attr("class", "map-lake-lines")
+        .datum(atlasDataset.landFeature)
+        .attr("class", "map-coast-lines")
         .attr("d", path)
         .attr("fill", "none")
         .attr("stroke", state.borderColor)
         .attr("stroke-width", OUTLINE_STROKE_WIDTH)
         .attr("stroke-linejoin", "round")
         .attr("vector-effect", "non-scaling-stroke");
-    }
+    } else {
+      const coastlineGeometry = atlasDataset.coastlineMesh ?? atlasDataset.landFeature;
+      const coastlineLineFragments = getLineGeometryFragments(coastlineGeometry);
+      const coastlineRenderGeometries = coastlineLineFragments.length ? coastlineLineFragments : [coastlineGeometry];
 
-    if (borderGeometry) {
-      copyGroup
-        .append("path")
-        .datum(borderGeometry)
-        .attr("class", "map-border-lines")
-        .attr("d", path)
-        .attr("fill", "none")
-        .attr("stroke", state.borderColor)
-        .attr("stroke-width", "0.4pt")
-        .attr("stroke-dasharray", getBorderStrokeDasharray())
-        .attr("stroke-linecap", "round")
-        .attr("stroke-linejoin", "round")
-        .attr("vector-effect", "non-scaling-stroke");
+      appendLineGeometryPaths(copyGroup, coastlineRenderGeometries, path, {
+        className: "map-coast-lines",
+        stroke: state.borderColor,
+        strokeWidth: OUTLINE_STROKE_WIDTH,
+        strokeLinejoin: "round",
+      });
     }
-
-    copyGroup
-      .append("path")
-      .datum(atlasDataset.landFeature)
-      .attr("d", path)
-      .attr("fill", "none")
-      .attr("stroke", state.borderColor)
-      .attr("stroke-width", "0.4pt")
-      .attr("stroke-linejoin", "round")
-      .attr("vector-effect", "non-scaling-stroke");
   });
+}
+
+function appendLineGeometryPaths(group, geometries, path, options = {}) {
+  const validGeometries = (geometries || []).filter(Boolean);
+  if (!validGeometries.length) {
+    return;
+  }
+
+  group
+    .selectAll(`.${options.className || "map-line"}`)
+    .data(validGeometries)
+    .join("path")
+    .attr("class", options.className || "map-line")
+    .attr("d", path)
+    .attr("fill", "none")
+    .attr("stroke", options.stroke ?? state.borderColor)
+    .attr("stroke-width", options.strokeWidth ?? OUTLINE_STROKE_WIDTH)
+    .attr("stroke-dasharray", options.strokeDasharray ?? null)
+    .attr("stroke-linecap", options.strokeLinecap ?? null)
+    .attr("stroke-linejoin", options.strokeLinejoin ?? null)
+    .attr("vector-effect", "non-scaling-stroke");
+}
+
+function getLineGeometryFragments(geometry) {
+  if (!geometry) {
+    return [];
+  }
+
+  if (geometry.type === "Feature") {
+    return getLineGeometryFragments(geometry.geometry);
+  }
+
+  if (geometry.type === "LineString") {
+    return [geometry];
+  }
+
+  if (geometry.type === "MultiLineString") {
+    return geometry.coordinates.map((coordinates) => ({ type: "LineString", coordinates }));
+  }
+
+  if (geometry.type === "Polygon") {
+    return geometry.coordinates.map((coordinates) => ({ type: "LineString", coordinates }));
+  }
+
+  if (geometry.type === "MultiPolygon") {
+    return geometry.coordinates.flatMap((polygon) =>
+      polygon.map((coordinates) => ({ type: "LineString", coordinates })),
+    );
+  }
+
+  if (geometry.type === "GeometryCollection") {
+    return geometry.geometries.flatMap((entry) => getLineGeometryFragments(entry));
+  }
+
+  return [];
 }
 
 function getBorderStrokeDasharray() {
@@ -13598,6 +15676,144 @@ function getProjectionCopyOffsets(projection) {
     state.coastlineDetail === "performance" ? 0 : state.coastlineDetail === "max" ? 2 : 1;
   const repeatCount = clamp(Math.ceil(viewportReach / wrapWidth) + extraCopies, 1, 4);
   return d3.range(-repeatCount, repeatCount + 1).map((step) => wrapWidth * step);
+}
+
+function getVisibleProjectionCopyOffsets(projection, padding = 0) {
+  if (state.projectionMode !== "rectangular") {
+    return [0];
+  }
+
+  const wrapWidth = getProjectionWrapWidth(projection);
+  const translateX = projection.translate?.()[0];
+  if (!Number.isFinite(wrapWidth) || wrapWidth < 1 || !Number.isFinite(translateX)) {
+    return [0];
+  }
+
+  const viewportLeft = -Math.max(0, Number(padding) || 0);
+  const viewportRight = state.width + Math.max(0, Number(padding) || 0);
+  const halfWrap = wrapWidth / 2;
+  const baseLeft = translateX - halfWrap;
+  const baseRight = translateX + halfWrap;
+  const minStep = Math.ceil((viewportLeft - baseRight) / wrapWidth);
+  const maxStep = Math.floor((viewportRight - baseLeft) / wrapWidth);
+
+  if (!Number.isFinite(minStep) || !Number.isFinite(maxStep) || minStep > maxStep) {
+    return [0];
+  }
+
+  return d3.range(minStep, maxStep + 1).map((step) => wrapWidth * step);
+}
+
+function finalizeVectorExportNode(svgNode) {
+  if (!(svgNode instanceof SVGSVGElement) || !document.body) {
+    return;
+  }
+
+  const mount = document.createElement("div");
+  mount.style.position = "fixed";
+  mount.style.left = "-100000px";
+  mount.style.top = "-100000px";
+  mount.style.visibility = "hidden";
+  mount.style.pointerEvents = "none";
+  mount.appendChild(svgNode);
+  document.body.appendChild(mount);
+
+  try {
+    stripExportClipArtifacts(svgNode);
+    pruneOffscreenExportElements(svgNode);
+  } finally {
+    mount.remove();
+  }
+}
+
+function stripExportClipArtifacts(svgNode) {
+  const preservedClipIds = collectPreservedExportClipIds(svgNode);
+
+  svgNode.querySelectorAll("[clip-path]").forEach((node) => {
+    const clipId = extractClipPathIdentifier(node.getAttribute("clip-path"));
+    if (clipId && preservedClipIds.has(clipId)) {
+      return;
+    }
+    node.removeAttribute("clip-path");
+  });
+
+  svgNode.querySelectorAll("clipPath").forEach((node) => {
+    if (node.getAttribute("data-export-clip") === "keep") {
+      return;
+    }
+    node.remove();
+  });
+}
+
+function collectPreservedExportClipIds(svgNode) {
+  return new Set(
+    [...svgNode.querySelectorAll('clipPath[data-export-clip="keep"]')]
+      .map((node) => node.id)
+      .filter(Boolean),
+  );
+}
+
+function extractClipPathIdentifier(value) {
+  const match = String(value ?? "").match(/url\(\s*["']?#([^"')\s]+)["']?\s*\)/i);
+  return match?.[1] ?? "";
+}
+
+function pruneOffscreenExportElements(svgNode) {
+  const viewport = { x: 0, y: 0, width: state.width, height: state.height };
+  const preservedClipIds = collectPreservedExportClipIds(svgNode);
+  const removableSelectors = [
+    ".map-copy",
+    ".map-country-fill",
+    ".map-land",
+    ".map-country",
+    ".map-lakes",
+    ".map-lake-lines",
+    ".map-border-lines",
+    ".map-coast-lines",
+  ];
+
+  svgNode.querySelectorAll(removableSelectors.join(",")).forEach((node) => {
+    if (!(node instanceof SVGGraphicsElement)) {
+      return;
+    }
+
+    const clippedAncestor = node.closest("[clip-path]");
+    if (clippedAncestor) {
+      const clipId = extractClipPathIdentifier(clippedAncestor.getAttribute("clip-path"));
+      if (clipId && preservedClipIds.has(clipId)) {
+        return;
+      }
+    }
+
+    let bounds = null;
+    try {
+      bounds = node.getBBox();
+    } catch (_error) {
+      bounds = null;
+    }
+
+    if (!bounds || !Number.isFinite(bounds.width) || !Number.isFinite(bounds.height)) {
+      return;
+    }
+
+    if (bounds.width <= 0 || bounds.height <= 0) {
+      node.remove();
+      return;
+    }
+
+    if (!rectsIntersect(bounds, viewport)) {
+      node.remove();
+    }
+  });
+}
+
+function rectsIntersect(a, b) {
+  return (
+    a.x + a.width >= b.x &&
+    b.x + b.width >= a.x &&
+    a.y + a.height >= b.y &&
+    b.y + b.height >= a.y
+  );
 }
 
 function getProjectionWrapWidth(projection) {
@@ -13773,7 +15989,7 @@ function renderGuideLayer(root, guideGraphics, options = {}) {
         .attr("d", guide.pathData)
         .attr("fill", "none")
         .attr("stroke", guide.color)
-        .attr("stroke-width", "0.4pt")
+        .attr("stroke-width", OUTLINE_STROKE_WIDTH)
         .attr("stroke-linecap", "round")
         .attr("opacity", lineOpacity)
         .attr("vector-effect", "non-scaling-stroke");
@@ -13792,7 +16008,7 @@ function renderGuideAnchor(group, anchor, color, opacity = 1) {
     .append("path")
     .attr("fill", "none")
     .attr("stroke", color)
-    .attr("stroke-width", "0.4pt")
+    .attr("stroke-width", OUTLINE_STROKE_WIDTH)
     .attr("opacity", opacity);
 
   if (anchor.side === "left") {
@@ -13947,7 +16163,7 @@ function projectLeaderAnchor(origin, labelPoint, marker) {
   };
 }
 
-function renderInsetLayer(root, defs, mainProjection, selectedColorById) {
+function renderInsetLayer(root, defs, mainProjection, selectedColorById, options = {}) {
   if (!state.insets.length) {
     return;
   }
@@ -13955,11 +16171,11 @@ function renderInsetLayer(root, defs, mainProjection, selectedColorById) {
   const layer = root.append("g").attr("class", "insets-layer");
 
   state.insets.forEach((inset, index) => {
-    renderSingleInset(layer, defs, mainProjection, inset, selectedColorById, index);
+    renderSingleInset(layer, defs, mainProjection, inset, selectedColorById, index, options);
   });
 }
 
-function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById, index) {
+function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById, index, options = {}) {
   const frame = normalizeInsetFrame(inset);
   const sourceFrame = buildInsetSourceFrame(mainProjection, inset, frame);
 
@@ -13973,9 +16189,14 @@ function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById
   const panelGroup = layer.append("g").attr("class", "inset-panel");
   const clipId = `inset-clip-${sanitizeIdentifier(inset.id)}-${index}`;
 
-  defs
+  const clipPath = defs
     .append("clipPath")
     .attr("id", clipId)
+    .attr("clipPathUnits", "userSpaceOnUse");
+  if (options.exportMode) {
+    clipPath.attr("data-export-clip", "keep");
+  }
+  clipPath
     .append("rect")
     .attr("x", frame.x)
     .attr("y", frame.y)
@@ -13994,7 +16215,7 @@ function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById
       .attr("vector-effect", "non-scaling-stroke");
 
   const insetGroup = panelGroup.append("g").attr("clip-path", `url(#${clipId})`);
-  renderInsetMapContent(insetGroup, mainProjection, frame, sourceFrame, selectedColorById, inset);
+  renderInsetMapContent(insetGroup, mainProjection, frame, sourceFrame, selectedColorById, inset, options);
 
   if (inset.label.trim()) {
     appendMapLabel(panelGroup, {
@@ -14011,16 +16232,17 @@ function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById
   }
 }
 
-function renderInsetMapContent(insetGroup, mainProjection, frame, sourceFrame, selectedColorById, inset) {
+function renderInsetMapContent(insetGroup, mainProjection, frame, sourceFrame, selectedColorById, inset, options = {}) {
   if (!sourceFrame) {
     const insetProjection = buildInsetProjection(frame, inset);
     const insetAtlasDataset = getAtlasDataset(Math.max(state.viewZoom * 2.4, 10), true);
     const selectedIds = new Set(state.selected.map((country) => country.id));
     const insetBorderGeometry = buildBorderGeometry(insetAtlasDataset, selectedIds);
     renderAtlasLayer(insetGroup, insetProjection, insetAtlasDataset, selectedColorById, insetBorderGeometry, {
+      exportMode: Boolean(options.exportMode),
       wrap: false,
       clipRect: frame,
-      clipPadding: INSET_RENDER_CLIP_PADDING,
+      clipPadding: options.exportMode ? 0 : INSET_RENDER_CLIP_PADDING,
     });
     return;
   }
@@ -14030,6 +16252,7 @@ function renderInsetMapContent(insetGroup, mainProjection, frame, sourceFrame, s
   const offsetY = frame.y + (frame.height - sourceFrame.height * scale) / 2;
   const transformedGroup = insetGroup
     .append("g")
+    .attr("class", "inset-map-transform")
     .attr(
       "transform",
       `translate(${offsetX - sourceFrame.x * scale} ${offsetY - sourceFrame.y * scale}) scale(${scale})`,
@@ -14038,9 +16261,10 @@ function renderInsetMapContent(insetGroup, mainProjection, frame, sourceFrame, s
   const selectedIds = new Set(state.selected.map((country) => country.id));
   const insetBorderGeometry = buildBorderGeometry(insetAtlasDataset, selectedIds);
   renderAtlasLayer(transformedGroup, mainProjection, insetAtlasDataset, selectedColorById, insetBorderGeometry, {
+    exportMode: Boolean(options.exportMode),
     wrap: false,
     clipRect: sourceFrame,
-    clipPadding: INSET_RENDER_CLIP_PADDING,
+    clipPadding: options.exportMode ? 0 : INSET_RENDER_CLIP_PADDING,
   });
 }
 
@@ -14632,7 +16856,7 @@ function updateExportMeta() {
       `${state.width} × ${state.height} px · 대한민국 · ${koreaRegionLevelLabels[state.koreaLevel]} · ` +
       `${scopeText} · ${formatPointSize(state.mapFontSizePt)} · ${scaleText} · ${borderText}` +
       (activeOverlayNames.length ? ` · 오버레이 ${activeOverlayNames.length}개` : "") +
-      " · 윤곽선 0.4pt";
+      ` · 윤곽선 ${OUTLINE_STROKE_WIDTH}`;
     return;
   }
 
@@ -14651,45 +16875,336 @@ function updateExportMeta() {
   elements.exportMeta.textContent =
     `${state.width} × ${state.height} px · ${projectionModeLabels[state.projectionMode]} · ` +
     `중심 ${formatLongitude(state.centerLongitude)} · 보기 ${Math.round(state.viewZoom * 100)}% · ` +
-    `${formatPointSize(state.mapFontSizePt)} · ${scaleText} · ${borderText} · ${detailModeText} · ${detailText} · 윤곽선 0.4pt`;
+    `${formatPointSize(state.mapFontSizePt)} · ${scaleText} · ${borderText} · ${detailModeText} · ${detailText} · 윤곽선 ${OUTLINE_STROKE_WIDTH}`;
 }
 
-function exportCurrentSvg() {
+async function exportCurrentSvg() {
+  try {
+    const exportNode = buildExportSvgNode();
+    const serializer = new XMLSerializer();
+    const serialized = serializer.serializeToString(exportNode);
+    const blob = new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n${serialized}`], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+    downloadBlob(blob, buildDownloadName());
+    setStatus("벡터 SVG 파일을 내보냈습니다.");
+  } catch (error) {
+    console.error(error);
+    setStatus("SVG 파일을 내보내지 못했습니다.", true);
+  }
+}
+
+async function exportCurrentPng() {
+  try {
+    const rasterScale = PNG_EXPORT_DPI / CSS_PIXEL_DPI;
+    const rawExportNode = prepareExportSourceSvgNode({ rasterScale });
+    const pngBlob = await rasterizeSvgNodeToPngBlob(rawExportNode, {
+      scale: rasterScale,
+      dpi: PNG_EXPORT_DPI,
+    });
+    downloadBlob(pngBlob, buildPngDownloadName());
+    setStatus(`500 DPI PNG 파일을 내보냈습니다.`);
+  } catch (error) {
+    console.error(error);
+    setStatus("PNG 파일을 내보내지 못했습니다.", true);
+  }
+}
+
+function buildExportSvgNode() {
+  if (!previewTransformIsIdentity()) {
+    commitPreviewInteraction();
+  }
+
+  if (state.mapVersion === "world") {
+    return buildWorldMapSvg({ exportMode: true }).svgNode;
+  }
+
+  if (!currentSvgNode) {
+    throw new Error("내보낼 지도를 아직 그리지 못했습니다.");
+  }
+
+  const exportNode = currentSvgNode.cloneNode(true);
+  ensureSvgFontStyle(exportNode);
+  return exportNode;
+}
+
+function prepareExportSourceSvgNode(options = {}) {
   if (!previewTransformIsIdentity()) {
     commitPreviewInteraction();
   }
 
   if (!currentSvgNode) {
-    setStatus("내보낼 지도를 아직 그리지 못했습니다.", true);
+    throw new Error("내보낼 지도를 아직 그리지 못했습니다.");
+  }
+
+  const exportNode = currentSvgNode.cloneNode(true);
+  ensureSvgFontStyle(exportNode);
+  normalizeExportStrokeEffects(exportNode, options.rasterScale);
+  return exportNode;
+}
+
+function normalizeExportStrokeEffects(svgNode, rasterScale = 1) {
+  if (!svgNode) {
     return;
   }
 
-  const serializer = new XMLSerializer();
-  const exportNode = buildExportSvgNode();
-  const serialized = serializer.serializeToString(exportNode);
-  const svgContent = `<?xml version="1.0" encoding="UTF-8"?>\n${serialized}`;
-  const blob = new Blob([svgContent], {
-    type: "image/svg+xml;charset=utf-8",
+  const safeRasterScale = Math.max(0.1, Number(rasterScale) || 1);
+  svgNode.querySelectorAll('[vector-effect="non-scaling-stroke"]').forEach((node) => {
+    const localScale = extractAncestorSvgScale(node);
+    bakeNonScalingStrokeForExport(node, safeRasterScale * localScale);
   });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = buildDownloadName();
-  link.style.display = "none";
-  document.body.append(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-  setStatus("SVG 파일을 내보냈습니다.");
 }
 
-function buildExportSvgNode() {
-  const exportNode = currentSvgNode.cloneNode(true);
-  const defs = ensureDefsElement(exportNode);
-  const styleElement = document.createElementNS("http://www.w3.org/2000/svg", "style");
-  styleElement.textContent = buildSvgFontStyle();
-  defs.insertBefore(styleElement, defs.firstChild);
-  return exportNode;
+function extractAncestorSvgScale(node) {
+  let scale = 1;
+  let current = node instanceof Element ? node : node?.parentElement;
+
+  while (current && current instanceof Element) {
+    const transformText = current.getAttribute("transform");
+    if (transformText) {
+      scale *= extractSvgScale(transformText);
+    }
+    current = current.parentElement;
+  }
+
+  return scale > 0 ? scale : 1;
+}
+
+function extractSvgScale(transformText) {
+  if (!transformText) {
+    return 1;
+  }
+
+  const match = String(transformText).match(/scale\(\s*([+-]?\d*\.?\d+(?:e[+-]?\d+)?)\s*(?:[, ]\s*([+-]?\d*\.?\d+(?:e[+-]?\d+)?)\s*)?\)/i);
+  if (!match) {
+    return 1;
+  }
+
+  const scaleX = Number(match[1]);
+  const scaleY = match[2] != null ? Number(match[2]) : scaleX;
+  if (!(scaleX > 0) || !(scaleY > 0)) {
+    return 1;
+  }
+
+  return (scaleX + scaleY) / 2;
+}
+
+function bakeNonScalingStrokeForExport(node, scale) {
+  node.removeAttribute("vector-effect");
+
+  const strokeWidth = node.getAttribute("stroke-width");
+  if (strokeWidth) {
+    node.setAttribute("stroke-width", scaleSvgMeasureList(strokeWidth, 1 / scale));
+  }
+
+  const dasharray = node.getAttribute("stroke-dasharray");
+  if (dasharray && dasharray !== "none") {
+    node.setAttribute("stroke-dasharray", scaleSvgMeasureList(dasharray, 1 / scale));
+  }
+}
+
+function scaleSvgMeasureList(value, factor) {
+  return String(value)
+    .trim()
+    .split(/[\s,]+/)
+    .map((token) => scaleSvgMeasureToken(token, factor))
+    .join(" ");
+}
+
+function scaleSvgMeasureToken(token, factor) {
+  const match = String(token).match(/^([+-]?\d*\.?\d+(?:e[+-]?\d+)?)([a-z%]*)$/i);
+  if (!match) {
+    return token;
+  }
+
+  const numeric = Number(match[1]);
+  if (!Number.isFinite(numeric)) {
+    return token;
+  }
+
+  return `${formatSvgNumeric(numeric * factor)}${match[2] ?? ""}`;
+}
+
+function formatSvgNumeric(value) {
+  const rounded = Number(value.toFixed(4));
+  return Number.isInteger(rounded) ? String(rounded) : String(rounded).replace(/(\.\d*?[1-9])0+$/u, "$1").replace(/\.0+$/u, "");
+}
+
+async function rasterizeSvgNode(svgNode, options = {}) {
+  const scale = Math.max(0.1, Number(options.scale) || 1);
+  const width = Math.max(1, Math.round(state.width * scale));
+  const height = Math.max(1, Math.round(state.height * scale));
+  const serializer = new XMLSerializer();
+  const serialized = serializer.serializeToString(svgNode);
+  const svgBlob = new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n${serialized}`], {
+    type: "image/svg+xml;charset=utf-8",
+  });
+  const svgUrl = URL.createObjectURL(svgBlob);
+
+  try {
+    const image = await loadImageElement(svgUrl);
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d");
+    if (!context) {
+      throw new Error("PNG용 캔버스를 만들지 못했습니다.");
+    }
+
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+    context.clearRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+
+    let blob = await canvasToBlob(canvas, "image/png");
+    if (options.dpi) {
+      blob = await applyPngDpiMetadata(blob, options.dpi);
+    }
+
+    return {
+      blob,
+      dataUrl: await readBlobAsDataUrl(blob),
+      width,
+      height,
+    };
+  } finally {
+    URL.revokeObjectURL(svgUrl);
+  }
+}
+
+async function rasterizeSvgNodeToPngBlob(svgNode, options = {}) {
+  const { blob } = await rasterizeSvgNode(svgNode, options);
+  return blob;
+}
+
+function loadImageElement(src) {
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    image.decoding = "sync";
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error("내보내기용 SVG 이미지를 불러오지 못했습니다."));
+    image.src = src;
+  });
+}
+
+function canvasToBlob(canvas, type) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error("이미지 데이터를 만들지 못했습니다."));
+        return;
+      }
+      resolve(blob);
+    }, type);
+  });
+}
+
+function readBlobAsDataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(new Error("내보내기 데이터를 읽지 못했습니다."));
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function applyPngDpiMetadata(blob, dpi) {
+  const bytes = new Uint8Array(await blob.arrayBuffer());
+  const signature = bytes.slice(0, 8);
+  const chunks = [signature];
+  const physChunk = buildPngPhysChunk(dpi);
+  let offset = 8;
+  let inserted = false;
+
+  while (offset + 8 <= bytes.length) {
+    const length = readUint32(bytes, offset);
+    const end = offset + length + 12;
+    if (end > bytes.length) {
+      break;
+    }
+
+    const type = decodePngChunkType(bytes, offset + 4);
+    if (type === "pHYs") {
+      if (!inserted) {
+        chunks.push(physChunk);
+        inserted = true;
+      }
+    } else {
+      chunks.push(bytes.slice(offset, end));
+      if (type === "IHDR" && !inserted) {
+        chunks.push(physChunk);
+        inserted = true;
+      }
+    }
+
+    offset = end;
+  }
+
+  return new Blob(chunks, { type: "image/png" });
+}
+
+function buildPngPhysChunk(dpi) {
+  const pixelsPerMeter = Math.max(1, Math.round(Number(dpi) / 0.0254));
+  const data = new Uint8Array(9);
+  const view = new DataView(data.buffer);
+  view.setUint32(0, pixelsPerMeter);
+  view.setUint32(4, pixelsPerMeter);
+  data[8] = 1;
+
+  const type = new TextEncoder().encode("pHYs");
+  const chunk = new Uint8Array(4 + 4 + data.length + 4);
+  const chunkView = new DataView(chunk.buffer);
+  chunkView.setUint32(0, data.length);
+  chunk.set(type, 4);
+  chunk.set(data, 8);
+  chunkView.setUint32(8 + data.length, getCrc32(concatenateUint8Arrays(type, data)));
+  return chunk;
+}
+
+function readUint32(bytes, offset) {
+  return new DataView(bytes.buffer, bytes.byteOffset + offset, 4).getUint32(0);
+}
+
+function decodePngChunkType(bytes, offset) {
+  return String.fromCharCode(bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]);
+}
+
+function concatenateUint8Arrays(...arrays) {
+  const totalLength = arrays.reduce((sum, array) => sum + array.length, 0);
+  const merged = new Uint8Array(totalLength);
+  let offset = 0;
+  arrays.forEach((array) => {
+    merged.set(array, offset);
+    offset += array.length;
+  });
+  return merged;
+}
+
+let cachedCrc32Table = null;
+
+function getCrc32(bytes) {
+  const table = getCrc32Table();
+  let crc = 0xffffffff;
+  bytes.forEach((byte) => {
+    crc = (crc >>> 8) ^ table[(crc ^ byte) & 0xff];
+  });
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function getCrc32Table() {
+  if (cachedCrc32Table) {
+    return cachedCrc32Table;
+  }
+
+  cachedCrc32Table = new Uint32Array(256);
+  for (let index = 0; index < 256; index += 1) {
+    let value = index;
+    for (let bit = 0; bit < 8; bit += 1) {
+      value = (value & 1) ? (0xedb88320 ^ (value >>> 1)) : (value >>> 1);
+    }
+    cachedCrc32Table[index] = value >>> 0;
+  }
+  return cachedCrc32Table;
 }
 
 function ensureDefsElement(svgNode) {
@@ -14704,11 +17219,54 @@ function ensureDefsElement(svgNode) {
 }
 
 function buildSvgFontStyle() {
-  const fontSrc = embeddedMapFontDataUrl || "./fonts/SidaeAi_S-Regular.otf";
+  const fontSrc = getMapFontSource();
   return [
-    `@font-face { font-family: '${MAP_FONT_FAMILY}'; src: url("${fontSrc}") format('opentype'); }`,
-    `.map-output-text { font-family: '${MAP_FONT_FAMILY}'; }`,
+    `@font-face { font-family: '${MAP_FONT_FAMILY}'; src: url("${fontSrc}") format('opentype'); font-display: block; }`,
+    `.map-output-text, .map-output-text text, .map-output-text tspan, .exam-graph-svg, .exam-graph-svg text, .exam-graph-svg tspan { font-family: '${MAP_FONT_FAMILY}'; }`,
   ].join("\n");
+}
+
+function getMapFontSource() {
+  return embeddedMapFontDataUrl || "./fonts/SidaeAi_S-Regular.otf";
+}
+
+function buildDocumentMapFontStyle() {
+  const fontSrc = getMapFontSource();
+  return `@font-face { font-family: '${MAP_FONT_FAMILY}'; src: url("${fontSrc}") format('opentype'); font-display: block; }`;
+}
+
+function ensureDocumentMapFontStyle() {
+  if (!document.head) {
+    return;
+  }
+  let styleElement = document.getElementById(MAP_FONT_STYLE_ELEMENT_ID);
+  if (!(styleElement instanceof HTMLStyleElement)) {
+    styleElement = document.createElement("style");
+    styleElement.id = MAP_FONT_STYLE_ELEMENT_ID;
+    styleElement.type = "text/css";
+    document.head.appendChild(styleElement);
+  }
+  styleElement.textContent = buildDocumentMapFontStyle();
+}
+
+function ensureSvgFontStyle(svgNode) {
+  if (!svgNode) {
+    return;
+  }
+  const defs = ensureDefsElement(svgNode);
+  let styleElement = defs.querySelector(MAP_SVG_FONT_STYLE_SELECTOR);
+  if (!styleElement) {
+    styleElement = document.createElementNS("http://www.w3.org/2000/svg", "style");
+    styleElement.setAttribute("data-map-font-style", "embedded");
+    styleElement.setAttribute("type", "text/css");
+    defs.insertBefore(styleElement, defs.firstChild);
+  }
+  styleElement.textContent = buildSvgFontStyle();
+}
+
+function rerenderFontDependentViews() {
+  renderSelectionViews();
+  renderMap();
 }
 
 function buildDownloadName() {
@@ -14737,6 +17295,22 @@ function buildDownloadName() {
     : "world";
 
   return `country-map-${prefix || "selection"}-${state.projectionMode}.svg`;
+}
+
+function buildPngDownloadName() {
+  return buildDownloadName().replace(/\.svg$/u, `-${PNG_EXPORT_DPI}dpi.png`);
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.style.display = "none";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function mountPreviewCanvas() {
@@ -14805,10 +17379,12 @@ function mountInsetEditor(editorLayer, shell, inset) {
   const editor = document.createElement("div");
   editor.className = "annotation-editor inset-editor";
 
-  const tag = document.createElement("span");
-  tag.className = "annotation-editor__tag";
-  tag.textContent = inset.label || "Inset";
-  editor.appendChild(tag);
+  if (inset.label.trim()) {
+    const tag = document.createElement("span");
+    tag.className = "annotation-editor__tag";
+    tag.textContent = inset.label.trim();
+    editor.appendChild(tag);
+  }
 
   const handle = document.createElement("button");
   handle.type = "button";
@@ -15585,7 +18161,7 @@ function addInsetFromRect(rect) {
   beginHistoryStep("인셋 추가");
   state.insets.push({
     id: makeId("inset"),
-    label: nextAnnotationLabel("inset"),
+    label: "",
     panelX: frame.x,
     panelY: frame.y,
     panelWidth: frame.width,
@@ -16044,9 +18620,16 @@ function isFiniteCoordinate(coordinate) {
 }
 
 async function loadEmbeddedMapFontData() {
+  if (embeddedMapFontDataUrl) {
+    ensureDocumentMapFontStyle();
+    rerenderFontDependentViews();
+    return;
+  }
+
   try {
     const response = await fetch("./fonts/SidaeAi_S-Regular.otf");
     if (!response.ok) {
+      ensureDocumentMapFontStyle();
       return;
     }
 
@@ -16054,6 +18637,16 @@ async function loadEmbeddedMapFontData() {
     embeddedMapFontDataUrl = `data:font/otf;base64,${arrayBufferToBase64(buffer)}`;
   } catch (_error) {
     embeddedMapFontDataUrl = null;
+  } finally {
+    ensureDocumentMapFontStyle();
+    if (document.fonts?.load) {
+      try {
+        await document.fonts.load(`12px "${MAP_FONT_FAMILY}"`);
+      } catch (_error) {
+        // 브라우저가 폰트 로드를 거부해도 기본 경로 스타일은 유지합니다.
+      }
+    }
+    rerenderFontDependentViews();
   }
 }
 

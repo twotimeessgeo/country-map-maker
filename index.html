@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>국가 선택형 지도 메이커</title>
+    <title>투타임즈 통계머신</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
@@ -18,7 +18,7 @@
     <div class="tw-page tw-stack app-page">
       <header class="tw-hero app-hero">
         <div class="tw-hero-copy">
-          <p class="tw-eyebrow">TWOTIMESS ATLAS BUILDER</p>
+          <p class="tw-eyebrow">투타임즈 통계머신</p>
           <nav class="tw-switch" aria-label="지도 버전 선택">
             <button class="map-version-button tw-switch-item" type="button" data-map-version="world">세계</button>
             <button class="map-version-button tw-switch-item" type="button" data-map-version="korea">대한민국</button>
@@ -34,7 +34,7 @@
               남극
             </button>
           </nav>
-          <h1 class="tw-hero-title">국가·권역 선택형 지도 메이커</h1>
+          <h1 class="tw-hero-title">투타임즈 통계머신</h1>
           <p class="tw-hero-text">
             세계 지도에서는 국가를 고르고, 한국 지도에서는 도/광역시, 시/군, 특별시·광역시의 구/군
             권역을 켜고 끄며 원하는 구도를 만든 뒤 현재 보이는 결과를 그대로 SVG로 내보낼 수 있습니다.
@@ -43,7 +43,7 @@
         <aside class="tw-hero-note">
           <p class="tw-kicker">현재 작업</p>
           <strong id="selectionSummary">선택 없음</strong>
-          <span id="exportMeta">310 × 310 px · 세계 · 평면 · 보기 100% · 윤곽선 0.4pt</span>
+          <span id="exportMeta">310 × 310 px · 세계 · 평면 · 보기 100% · 윤곽선 0.3pt</span>
         </aside>
       </header>
 
@@ -53,7 +53,10 @@
             <p class="tw-kicker">1. Workspace</p>
             <h2 class="tw-section-title">설정하고 조정하고 바로 확인하는 작업 구역</h2>
           </div>
-          <button id="downloadSvgButton" class="tw-button export-button" type="button">SVG 내보내기</button>
+          <div class="workspace-export-actions">
+            <button id="downloadSvgButton" class="tw-button export-button" type="button">SVG 내보내기</button>
+            <button id="downloadPngButton" class="tw-button export-button ghost-button" type="button">500 DPI PNG</button>
+          </div>
         </div>
 
         <div class="workspace-shell">
@@ -156,6 +159,18 @@
                       </button>
                     </div>
                     <div id="koreaRegionBlockBody" class="korea-collapsible-body">
+                      <div class="utility-search-row">
+                        <label class="tw-field utility-search-field">
+                          <span>권역 찾기</span>
+                          <input
+                            id="koreaRegionFilterInput"
+                            type="search"
+                            placeholder="예: 수원, 전주, 강릉"
+                            autocomplete="off"
+                          />
+                        </label>
+                        <p id="koreaRegionFilterMeta" class="utility-meta">전체 권역</p>
+                      </div>
                       <div id="koreaRegionChipList" class="region-chip-list korea-region-chip-list"></div>
                     </div>
                   </div>
@@ -325,10 +340,10 @@
                 </label>
                 <p class="hint world-only">
                   평면 시점에서는 바깥 프레임을, 극 시점에서는 원형 윤곽선을 사용하며 선 두께는 모두
-                  <code>0.4pt</code>입니다.
+                  <code>0.3pt</code>입니다.
                 </p>
                 <p class="hint korea-only" hidden>
-                  한국 지도에서는 행정 경계와 프레임 두께를 <code>0.4pt</code> 기준으로 맞추고, 주요 노선
+                  한국 지도에서는 행정 경계와 프레임 두께를 <code>0.3pt</code> 기준으로 맞추고, 주요 노선
                   오버레이를 함께 겹쳐 볼 수 있습니다.
                 </p>
               </article>
@@ -445,8 +460,12 @@
                     <div class="preview-quick-actions">
                       <button id="undoButton" class="tw-chip preview-quick-button" type="button">실행 취소</button>
                       <button id="redoButton" class="tw-chip preview-quick-button" type="button">다시 실행</button>
-                      <button id="zoomOutButton" class="tw-chip preview-quick-button" type="button">줌 아웃</button>
-                      <button id="resetViewButton" class="tw-chip preview-quick-button" type="button">전체 보기</button>
+                      <button id="zoomOutButton" class="tw-chip preview-quick-button world-only" type="button" hidden>
+                        줌 아웃
+                      </button>
+                      <button id="resetViewButton" class="tw-chip preview-quick-button world-only" type="button" hidden>
+                        전체 보기
+                      </button>
                     </div>
                   </section>
 
@@ -564,7 +583,7 @@
                   비교와 그래프에 쓸 국가를 여기서 색상과 함께 관리합니다.
                 </p>
               </div>
-              <div class="inline-actions korea-only" hidden>
+              <div id="selectionCompareActions" class="inline-actions korea-only" hidden>
                 <button id="groupSelectedKoreaRegionsButton" class="tw-chip" type="button">
                   체크한 권역 비교
                 </button>
@@ -572,6 +591,18 @@
                   비교 해제
                 </button>
               </div>
+            </div>
+            <div class="selection-tools">
+              <label class="tw-field utility-search-field">
+                <span id="selectionFilterLabel">선택 항목 찾기</span>
+                <input
+                  id="selectionFilterInput"
+                  type="search"
+                  placeholder="예: Brazil, AUS"
+                  autocomplete="off"
+                />
+              </label>
+              <p id="selectionFilterMeta" class="utility-meta">선택 없음</p>
             </div>
             <ul id="selectedCountryList" class="selected-country-list"></ul>
           </article>
@@ -619,6 +650,7 @@
     <script src="./data/korea-routes.js?v=20260423f"></script>
     <script src="./data/country-stats.js?v=20260423c"></script>
     <script src="./data/korea-stats.js?v=20260423c"></script>
-    <script src="./app.js?v=20260423q"></script>
+    <script src="./data/embedded-font.js?v=20260423a"></script>
+    <script src="./app.js?v=20260423u"></script>
   </body>
 </html>
