@@ -39,6 +39,7 @@ const MIN_ZOOM_DRAG_SIZE = 20;
 const MIN_INSET_DRAG_SIZE = 2;
 const MAP_RENDER_CLIP_PADDING = 24;
 const INSET_RENDER_CLIP_PADDING = 18;
+const COASTLINE_FRAGMENT_MAX_POINTS = 160;
 const MIN_INSET_ZOOM_SCALE = 0.2;
 const MAX_INSET_ZOOM_SCALE = 2.4;
 const MAX_STABLE_SPHERICAL_FILL_AREA = 2 * Math.PI;
@@ -324,9 +325,21 @@ const metricExplorerDisplayModeDefinitions = [
   { key: "scatter", label: "산포도" },
 ];
 const koreaGeoStatsMeta = window.KOREA_GEO_STATS_META ?? { categories: {}, levels: {} };
-const koreaGeoStatsRegionOrderByLevel = window.KOREA_GEO_STATS_REGION_ORDER ?? { provinces: [], cities: [] };
-const koreaGeoStatsRegionsByLevel = window.KOREA_GEO_STATS_REGIONS ?? { provinces: {}, cities: {} };
-const koreaGeoStatsMetricsByLevel = window.KOREA_GEO_STATS_METRICS ?? { provinces: {}, cities: {} };
+const koreaGeoStatsRegionOrderByLevel = window.KOREA_GEO_STATS_REGION_ORDER ?? {
+  provinces: [],
+  cities: [],
+  metroDistricts: [],
+};
+const koreaGeoStatsRegionsByLevel = window.KOREA_GEO_STATS_REGIONS ?? {
+  provinces: {},
+  cities: {},
+  metroDistricts: {},
+};
+const koreaGeoStatsMetricsByLevel = window.KOREA_GEO_STATS_METRICS ?? {
+  provinces: {},
+  cities: {},
+  metroDistricts: {},
+};
 const koreaGeoStatsCategoryDefinitions = [
   {
     key: "demography",
@@ -369,6 +382,12 @@ const koreaGeoStatsTrendIntervalDefinitions = [
 const koreaGeoStatsTrendValueModeDefinitions = [
   { key: "index", label: "기준 시점 = 100" },
   { key: "actual", label: "실제 값" },
+];
+const koreaGeoStatsCityPopulationTrendFallbackKeys = [
+  "population-census-linked-2020",
+  "population-census-2020-boundary",
+  "population-census-2020-admin",
+  "resident-population",
 ];
 const koreaGeoStatsRandomMetricBoosts = {
   "population-growth-rate": 16,
@@ -473,6 +492,51 @@ const koreaGeoStatsPreferredScatterCombos = [
 ];
 const countryStatsCropOrder = ["wheat", "rice", "maize"];
 const countryStatsLivestockOrder = ["cattle", "pigs", "sheep"];
+const programGraphTheme = {
+  colors: {
+    ink: "#111111",
+    mutedInk: "#555555",
+    paper: "#ffffff",
+    card: "#f7f7f7",
+    gridLight: "rgba(17, 17, 17, 0.1)",
+    gridStrong: "rgba(17, 17, 17, 0.22)",
+    precipitation: "#5f5f5f",
+    precipitationFill: "rgba(95, 95, 95, 0.18)",
+    neutralBar: "#bcbcbc",
+    frame: "#d7d7d7",
+  },
+  lineStyles: [
+    { stroke: "#111111", dasharray: null, background: "#bcbcbc" },
+    { stroke: "#5f5f5f", dasharray: "7 4", background: "#5f5f5f" },
+    { stroke: "#111111", dasharray: "2 4", background: "#ffffff" },
+    { stroke: "#777777", dasharray: "10 4 2 4", background: "#969696" },
+    {
+      stroke: "#444444",
+      dasharray: "5 3",
+      background: "repeating-linear-gradient(90deg, #777777 0 2px, #ffffff 2px 7px)",
+    },
+    {
+      stroke: "#111111",
+      dasharray: "3 3",
+      background: "repeating-linear-gradient(135deg, #777777 0 2px, #ffffff 2px 7px)",
+    },
+    {
+      stroke: "#6f6f6f",
+      dasharray: "1.5 4",
+      background: "radial-gradient(circle, #777777 0 1.3px, transparent 1.4px)",
+      backgroundSize: "7px 7px",
+    },
+    {
+      stroke: "#4a4a4a",
+      dasharray: "8 2 1 2",
+      background: "repeating-linear-gradient(0deg, #777777 0 2px, #ffffff 2px 7px)",
+    },
+  ],
+  markerRadius: 3.8,
+  markerStrokeWidth: "1",
+  scatterMinRadius: 3,
+  scatterMaxRadius: 5,
+};
 const countryStatsChartColors = {
   population: "#111111",
   urbanPopulation: "#404040",
@@ -504,24 +568,147 @@ const countryStatsChartColors = {
   bioenergy: "#a1a1a1",
   otherRenewables: "#b9b9b9",
 };
-const countryStatsVisualDefinitions = [
-  { stroke: "#111111", dasharray: null, background: "#111111" },
-  { stroke: "#333333", dasharray: "8 4", background: "repeating-linear-gradient(135deg, #4d4d4d 0 4px, #f3f3f3 4px 8px)" },
-  { stroke: "#4f4f4f", dasharray: "2 3", background: "repeating-linear-gradient(90deg, #6c6c6c 0 3px, #f1f1f1 3px 7px)" },
-  { stroke: "#686868", dasharray: "12 4 2 4", background: "repeating-linear-gradient(0deg, #8b8b8b 0 2px, #f1f1f1 2px 6px)" },
-  { stroke: "#2f2f2f", dasharray: "4 2 1 2", background: "repeating-linear-gradient(45deg, #666666 0 2px, #f1f1f1 2px 5px, #a9a9a9 5px 7px)" },
-  { stroke: "#585858", dasharray: "10 3", background: "repeating-linear-gradient(90deg, #585858 0 1px, #f1f1f1 1px 6px)" },
-  { stroke: "#8b8b8b", dasharray: null, background: "#c7c7c7" },
-];
+const countryStatsVisualDefinitions = programGraphTheme.lineStyles;
 const examGraphAliasLetters = ["가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하"];
+const examGraphTheme = {
+  colors: {
+    ink: "#111111",
+    mutedInk: "#555555",
+    paper: "#ffffff",
+    fillLight: "#d9d9d9",
+    fillMid: "#969696",
+    fillDark: "#3f3f3f",
+  },
+  strokes: {
+    frame: "0.4pt",
+    legendFrame: "0.4pt",
+    grid: "0.4pt",
+    edgeGrid: "0.4pt",
+    zeroAxis: "0.4pt",
+    dataOutline: "0.4pt",
+    line: "0.4pt",
+    marker: "0.4pt",
+  },
+  dash: {
+    grid: "4 4",
+  },
+  pattern: {
+    size: 6,
+    strokeWidth: "0.4pt",
+  },
+  type: {
+    title: 9,
+    subtitle: 7,
+    axisTick: 7.5,
+    rowLabel: 8,
+    rowLabelCompact: 8,
+    legend: 8,
+    footnote: 7,
+    axisTitle: 8,
+    pointLabel: 8,
+  },
+  legend: {
+    itemGap: 8,
+    paddingX: 6,
+    paddingY: 4,
+    swatch: 8,
+    swatchGap: 14,
+    sample: 14,
+    lineLabelGap: 4,
+    charWidth: 4.5,
+    rowHeight: 14,
+    maxItemsPerRow: 4,
+    height: 22,
+  },
+  layout: {
+    width: 310,
+    titleY: 14,
+    subtitleY: 26,
+    plotTop: 40,
+    xTickGap: 12,
+    yTickGap: 6,
+    labelGap: 6,
+    plotToLegend: 10,
+    legendToNote: 8,
+    bottomPadding: 6,
+    blockGap: 12,
+    spacingUnit: 2,
+  },
+  marker: {
+    trendRadius: 3,
+    scatterMinRadius: 3,
+    scatterMaxRadius: 5,
+  },
+  font: {
+    family: MAP_FONT_FAMILY,
+    stretchPercent: 95,
+    label: "SidaeAi_S",
+  },
+};
+const examGraphBasicTheme = {
+  colors: {
+    ink: "#181818",
+    mutedInk: "#666666",
+    paper: "#ffffff",
+    grid: "#e7e7e7",
+    frame: "#d6d6d6",
+    dataStroke: "#8b8b8b",
+    pointFill: "rgba(95, 95, 95, 0.14)",
+    fillLight: "#d9d9d9",
+    fillMid: "#a6a6a6",
+    fillDark: "#3f3f3f",
+  },
+  strokes: {
+    frame: "1",
+    legendFrame: "1",
+    grid: "1",
+    edgeGrid: "1",
+    zeroAxis: "1.2",
+    dataOutline: "1",
+    line: "2.2",
+    marker: "1",
+  },
+  dash: {
+    grid: "4 6",
+  },
+  pattern: {
+    size: 6,
+    strokeWidth: "1",
+  },
+  type: examGraphTheme.type,
+  legend: examGraphTheme.legend,
+  layout: examGraphTheme.layout,
+  marker: {
+    trendRadius: 3.6,
+    scatterMinRadius: 3,
+    scatterMaxRadius: 5,
+  },
+  font: {
+    family: MAP_FONT_FAMILY,
+    stretchPercent: 95,
+    label: "SidaeAi_S",
+  },
+};
 const examGraphPatternDefinitions = [
-  { key: "light", fill: "#d9d9d9" },
-  { key: "dark", fill: "#4a4a4a" },
+  { key: "light", fill: examGraphTheme.colors.fillLight },
+  { key: "dark", fill: examGraphTheme.colors.fillDark },
+  { key: "blank", fill: examGraphTheme.colors.paper },
+  { key: "mid", fill: examGraphTheme.colors.fillMid },
   { key: "vertical", pattern: "vertical" },
   { key: "diagonal", pattern: "diagonal" },
   { key: "dots", pattern: "dots" },
   { key: "horizontal", pattern: "horizontal" },
   { key: "cross", pattern: "cross" },
+];
+const examGraphBasicPatternDefinitions = [
+  { key: "basic-light", fill: "#d9d9d9" },
+  { key: "basic-dark", fill: "#6f6f6f" },
+  { key: "basic-blank", fill: "#ffffff" },
+  { key: "basic-mid", fill: "#a6a6a6" },
+  { key: "basic-vertical", pattern: "vertical" },
+  { key: "basic-diagonal", pattern: "diagonal" },
+  { key: "basic-dots", pattern: "dots" },
+  { key: "basic-horizontal", pattern: "horizontal" },
 ];
 const examGraphValueModeDefinitions = [
   { key: "amount", label: "양" },
@@ -537,8 +724,11 @@ const examGraphPreviewCountDefinitions = [
   { key: "2", label: "2개" },
   { key: "3", label: "3개" },
 ];
+const examGraphStyleModeDefinitions = [
+  { key: "basic", label: "기본" },
+  { key: "exam", label: "시험지형" },
+];
 const EXAM_GRAPH_FONT_BASE_PT = 8;
-const EXAM_GRAPH_FONT_STRETCH_PERCENT = 95;
 const examGraphPresetDefinitions = [
   {
     key: "stacked100",
@@ -895,13 +1085,25 @@ const examGraphPairMetricDefinitions = [
   },
 ];
 const examGraphLineStyleDefinitions = [
-  { stroke: "#111111", dasharray: null },
-  { stroke: "#4a4a4a", dasharray: "10 6" },
-  { stroke: "#111111", dasharray: "3 4" },
-  { stroke: "#7a7a7a", dasharray: "12 5 3 5" },
-  { stroke: "#2d2d2d", dasharray: "2 3" },
-  { stroke: "#5f5f5f", dasharray: "14 4" },
+  { stroke: examGraphTheme.colors.ink, dasharray: null },
+  { stroke: examGraphTheme.colors.ink, dasharray: "5 3" },
+  { stroke: examGraphTheme.colors.ink, dasharray: "1.5 2.5" },
+  { stroke: examGraphTheme.colors.fillDark, dasharray: "6 2.5 1.5 2.5" },
+  { stroke: examGraphTheme.colors.fillMid, dasharray: null },
+  { stroke: examGraphTheme.colors.fillDark, dasharray: "1 2" },
 ];
+const examGraphBasicLineStyleDefinitions = [
+  { stroke: "#111111", dasharray: null },
+  { stroke: "#5f5f5f", dasharray: "7 4" },
+  { stroke: "#111111", dasharray: "2 4" },
+  { stroke: "#777777", dasharray: "10 4 2 4" },
+  { stroke: "#444444", dasharray: "5 3" },
+  { stroke: "#6f6f6f", dasharray: "1.5 4" },
+  { stroke: "#4a4a4a", dasharray: "8 2 1 2" },
+].map((style) => ({
+  stroke: style.stroke,
+  dasharray: style.dasharray,
+}));
 const examGraphPopulationYears = getExamGraphPopulationYears();
 const examGraphAvailableContinents = [...new Set(
   Object.values(countryStatsById)
@@ -1108,6 +1310,7 @@ function buildAtlasDataset(variantTopology, datasetKey) {
       .filter((feature) => d3.geoArea(feature) > MAX_STABLE_SPHERICAL_FILL_AREA)
       .map((feature) => feature.id),
   );
+  const coastlineFragments = splitLineGeometryFragments(getLineGeometryFragments(coastlineMesh));
 
   return {
     datasetKey,
@@ -1116,6 +1319,7 @@ function buildAtlasDataset(variantTopology, datasetKey) {
     landFeature,
     borderMesh,
     coastlineMesh,
+    coastlineFragments,
     countryFeatures: variantCountryFeatures,
     countryById: new Map(variantCountryFeatures.map((feature) => [feature.id, feature])),
     unstableFillCountryIds,
@@ -1280,6 +1484,8 @@ const state = {
   koreaGeoStatsTrendInterval: 5,
   koreaGeoStatsTrendValueMode: "index",
   koreaGeoStatsTrendBasePeriodKey: "",
+  koreaGeoStatsTrendStartPeriodKey: "",
+  koreaGeoStatsTrendEndPeriodKey: "",
   koreaGeoStatsActionsExpanded: false,
   examGraphPresetKey: "stacked100",
   examGraphMetricKey: "population-total",
@@ -1294,6 +1500,7 @@ const state = {
   examGraphYearStart: 1970,
   examGraphYearEnd: 2023,
   examGraphAliasMode: true,
+  examGraphStyleMode: "basic",
   examGraphOrientation: "landscape",
   examGraphPreviewCount: 1,
   examGraphFontSizePt: 8,
@@ -3808,17 +4015,29 @@ function getKoreaGeoStatsLevelKey(level = state.koreaLevel) {
   if (level === "cities") {
     return "cities";
   }
+  if (level === "metroDistricts") {
+    return "metroDistricts";
+  }
   return "";
 }
 
 function getKoreaGeoStatsLevelLabel(levelKey = getKoreaGeoStatsLevelKey()) {
   return (
     koreaGeoStatsMeta?.levels?.[levelKey] ??
-    (levelKey === "cities" ? "시/군" : levelKey === "provinces" ? "도/광역시" : "권역")
+    (levelKey === "metroDistricts"
+      ? "구/군"
+      : levelKey === "cities"
+        ? "시/군"
+        : levelKey === "provinces"
+          ? "도/광역시"
+          : "권역")
   );
 }
 
 function getKoreaGeoStatsRegionNoun(levelKey = getKoreaGeoStatsLevelKey(), compact = false) {
+  if (levelKey === "metroDistricts") {
+    return compact ? "구군" : "구·군";
+  }
   if (levelKey === "cities") {
     return compact ? "시군" : "시·군";
   }
@@ -3929,6 +4148,10 @@ function ensureKoreaGeoStatsState(definitions = getKoreaGeoStatsDefinitions()) {
   }
   state.koreaGeoStatsTrendBasePeriodKey =
     typeof state.koreaGeoStatsTrendBasePeriodKey === "string" ? state.koreaGeoStatsTrendBasePeriodKey : "";
+  state.koreaGeoStatsTrendStartPeriodKey =
+    typeof state.koreaGeoStatsTrendStartPeriodKey === "string" ? state.koreaGeoStatsTrendStartPeriodKey : "";
+  state.koreaGeoStatsTrendEndPeriodKey =
+    typeof state.koreaGeoStatsTrendEndPeriodKey === "string" ? state.koreaGeoStatsTrendEndPeriodKey : "";
 
   const scatterFallbacks = categoryDefinitions.map((definition) => definition.key);
   if (!scatterFallbacks.includes(state.koreaGeoStatsScatterXKey)) {
@@ -3953,8 +4176,8 @@ function formatKoreaGeoStatsRegionLabel(regionId, levelKey = getKoreaGeoStatsLev
     return regionId;
   }
 
-  const shouldIncludeParent = includeParent ?? levelKey === "cities";
-  if (levelKey === "cities" && shouldIncludeParent && region.parentCode) {
+  const shouldIncludeParent = includeParent ?? (levelKey === "cities" || levelKey === "metroDistricts");
+  if ((levelKey === "cities" || levelKey === "metroDistricts") && shouldIncludeParent && region.parentCode) {
     return `${getKoreaGeoStatsProvinceShortLabel(region.parentCode)} · ${region.shortLabel ?? region.label ?? regionId}`;
   }
 
@@ -3965,6 +4188,9 @@ function getKoreaGeoStatsSelectedRegions(levelKey = getKoreaGeoStatsLevelKey()) 
   const regions = getKoreaGeoStatsRegions(levelKey);
   if (levelKey === "cities") {
     return state.koreaSelectedCities.filter((region) => regions[region.id]);
+  }
+  if (levelKey === "metroDistricts") {
+    return state.koreaSelectedMetroDistricts.filter((region) => regions[region.id]);
   }
   if (levelKey === "provinces") {
     return state.koreaSelectedProvinces.filter((region) => regions[region.id]);
@@ -3987,6 +4213,9 @@ function getKoreaGeoStatsScopeRegionIds(levelKey = getKoreaGeoStatsLevelKey()) {
   if (levelKey === "cities" && state.koreaCityScopeCodes.length) {
     const scopeCodes = getKoreaCityScopeCodeSet();
     return regionOrder.filter((regionId) => scopeCodes.has(regions[regionId]?.parentCode));
+  }
+  if (levelKey === "metroDistricts" && state.koreaParentCode) {
+    return regionOrder.filter((regionId) => regions[regionId]?.parentCode === state.koreaParentCode);
   }
   return regionOrder;
 }
@@ -4022,6 +4251,9 @@ function getKoreaGeoStatsScopeLabel(levelKey = getKoreaGeoStatsLevelKey()) {
   if (levelKey === "cities" && state.koreaCityScopeCodes.length) {
     return `${getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 })} 범위 ${noun} ${scopeRegionIds.length}곳`;
   }
+  if (levelKey === "metroDistricts" && state.koreaParentCode) {
+    return `${getKoreaProvinceName(state.koreaParentCode)} ${noun} ${scopeRegionIds.length}곳`;
+  }
   return `전국 ${noun} ${scopeRegionIds.length}곳`;
 }
 
@@ -4032,6 +4264,9 @@ function getKoreaGeoStatsScopeDescription(levelKey = getKoreaGeoStatsLevelKey())
   }
   if (levelKey === "cities" && state.koreaCityScopeCodes.length) {
     return `${getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 })} 범위의 ${getKoreaGeoStatsRegionNoun(levelKey)}만 비교합니다.`;
+  }
+  if (levelKey === "metroDistricts" && state.koreaParentCode) {
+    return `${getKoreaProvinceName(state.koreaParentCode)} 안의 ${getKoreaGeoStatsRegionNoun(levelKey)}만 비교합니다.`;
   }
   return `선택이 없으면 전국 ${getKoreaGeoStatsRegionOrder(levelKey).length}개 ${levelLabel}를 비교합니다.`;
 }
@@ -4069,6 +4304,22 @@ function getKoreaGeoStatsDefinitionMaxSeriesLength(definition) {
   }, 0);
 }
 
+function findKoreaGeoStatsCityPopulationTrendDefinition(definition, metricsByKey = getKoreaGeoStatsMetrics("cities")) {
+  if (!definition || definition.key !== "population-estimate") {
+    return null;
+  }
+
+  return koreaGeoStatsCityPopulationTrendFallbackKeys
+    .map((key) => metricsByKey[key])
+    .filter(Boolean)
+    .find(
+      (candidate) =>
+        candidate.key !== definition.key &&
+        getKoreaGeoStatsDefinitionMaxSeriesLength(candidate) >
+          getKoreaGeoStatsDefinitionMaxSeriesLength(definition),
+    );
+}
+
 function resolveKoreaGeoStatsTrendDefinition(
   definition,
   levelKey = getKoreaGeoStatsLevelKey(),
@@ -4079,17 +4330,49 @@ function resolveKoreaGeoStatsTrendDefinition(
   }
 
   if (levelKey === "cities" && definition.key === "population-estimate") {
-    const residentDefinition = metricsByKey["resident-population"];
-    if (
-      residentDefinition &&
-      getKoreaGeoStatsDefinitionMaxSeriesLength(residentDefinition) >
-        getKoreaGeoStatsDefinitionMaxSeriesLength(definition)
-    ) {
-      return residentDefinition;
+    const populationTrendDefinition = findKoreaGeoStatsCityPopulationTrendDefinition(definition, metricsByKey);
+    if (populationTrendDefinition) {
+      return populationTrendDefinition;
     }
   }
 
   return definition;
+}
+
+function getKoreaGeoStatsTrendCoverageLabel(series = []) {
+  const years = (series ?? [])
+    .flatMap((entry) => entry.points ?? [])
+    .map((point) => getKoreaGeoStatsPeriodMeta(point.periodKey).year)
+    .filter((year) => Number.isFinite(year) && year > 0);
+  if (!years.length) {
+    return "";
+  }
+  const firstYear = Math.min(...years);
+  const lastYear = Math.max(...years);
+  return firstYear === lastYear ? `${firstYear}년` : `${firstYear}~${lastYear}년`;
+}
+
+function getKoreaGeoStatsTrendSourceNote(displayDefinition, seriesDefinition, levelKey = getKoreaGeoStatsLevelKey()) {
+  if (!displayDefinition || !seriesDefinition) {
+    return "";
+  }
+
+  if (levelKey === "cities" && displayDefinition.key === "population-estimate") {
+    if (seriesDefinition.key === "population-census-linked-2020") {
+      return `시·군 인구 시계열은 ${seriesDefinition.label} 기준입니다. KOSIS 총조사 시군구 원표를 2020년 시·군 경계에 면적가중으로 맞춘 장기 시계열이라 행정구역 변화가 큰 곳은 해석에 주의하세요.`;
+    }
+    if (seriesDefinition.key === "resident-population") {
+      return `시·군 인구 시계열은 ${seriesDefinition.label} 기준입니다. 2020년 시·군 경계 장기 원표가 없을 때만 주민등록인구 fallback을 사용합니다.`;
+    }
+    if (seriesDefinition.key !== displayDefinition.key) {
+      return `시·군 인구 시계열은 ${seriesDefinition.label} 기준으로 보정했습니다. 2020년 기준 장기 원표가 아닌 경우 행정구역 변화가 큰 곳은 해석에 주의하세요.`;
+    }
+  }
+
+  if (seriesDefinition.key !== displayDefinition.key) {
+    return `시·군 장기 시계열은 ${seriesDefinition.label} 기준으로 보정했습니다.`;
+  }
+  return "";
 }
 
 function getKoreaGeoStatsPeriodMeta(periodKey) {
@@ -4214,8 +4497,43 @@ function getKoreaGeoStatsTrendPeriodOptions(series = []) {
     .map((key) => ({ key, label: periodLabelByKey.get(key) ?? key }));
 }
 
-function resolveKoreaGeoStatsTrendBasePeriodKey(series = []) {
-  const periodOptions = getKoreaGeoStatsTrendPeriodOptions(series);
+function resolveKoreaGeoStatsTrendPeriodRange(periodOptions = []) {
+  const sortedOptions = [...(periodOptions ?? [])].sort(
+    (a, b) => parseKoreaGeoStatsPeriodKey(a.key) - parseKoreaGeoStatsPeriodKey(b.key),
+  );
+  if (!sortedOptions.length) {
+    return { startPeriodKey: "", endPeriodKey: "", periodOptions: [] };
+  }
+
+  let startIndex = sortedOptions.findIndex((option) => option.key === state.koreaGeoStatsTrendStartPeriodKey);
+  let endIndex = sortedOptions.findIndex((option) => option.key === state.koreaGeoStatsTrendEndPeriodKey);
+  if (startIndex < 0) {
+    startIndex = 0;
+  }
+  if (endIndex < 0) {
+    endIndex = sortedOptions.length - 1;
+  }
+  if (startIndex > endIndex) {
+    [startIndex, endIndex] = [endIndex, startIndex];
+  }
+
+  return {
+    startPeriodKey: sortedOptions[startIndex]?.key ?? "",
+    endPeriodKey: sortedOptions[endIndex]?.key ?? "",
+    periodOptions: sortedOptions.slice(startIndex, endIndex + 1),
+  };
+}
+
+function filterKoreaGeoStatsTrendPointsByPeriodRange(points = [], startPeriodKey = "", endPeriodKey = "") {
+  const startValue = startPeriodKey ? parseKoreaGeoStatsPeriodKey(startPeriodKey) : -Infinity;
+  const endValue = endPeriodKey ? parseKoreaGeoStatsPeriodKey(endPeriodKey) : Infinity;
+  return (points ?? []).filter((point) => {
+    const periodValue = parseKoreaGeoStatsPeriodKey(point.periodKey);
+    return periodValue >= startValue && periodValue <= endValue;
+  });
+}
+
+function resolveKoreaGeoStatsTrendBasePeriodKey(periodOptions = []) {
   if (periodOptions.some((option) => option.key === state.koreaGeoStatsTrendBasePeriodKey)) {
     return state.koreaGeoStatsTrendBasePeriodKey;
   }
@@ -4280,11 +4598,23 @@ function buildKoreaGeoStatsTrendPresentation(
   const displayDefinition = definition;
   const seriesDefinition = resolveKoreaGeoStatsTrendDefinition(displayDefinition, levelKey);
   const rawSeries = getKoreaGeoStatsTrendSeries(seriesDefinition, latestEntries, levelKey);
-  const periodOptions = getKoreaGeoStatsTrendPeriodOptions(rawSeries);
-  const basePeriodKey = resolveKoreaGeoStatsTrendBasePeriodKey(rawSeries);
+  const rangePeriodOptions = getKoreaGeoStatsTrendPeriodOptions(rawSeries);
+  const periodRange = resolveKoreaGeoStatsTrendPeriodRange(rangePeriodOptions);
+  const rangedRawSeries = rawSeries
+    .map((entry) => ({
+      ...entry,
+      points: filterKoreaGeoStatsTrendPointsByPeriodRange(
+        entry.points,
+        periodRange.startPeriodKey,
+        periodRange.endPeriodKey,
+      ),
+    }))
+    .filter((entry) => entry.points.length);
+  const periodOptions = getKoreaGeoStatsTrendPeriodOptions(rangedRawSeries);
+  const basePeriodKey = resolveKoreaGeoStatsTrendBasePeriodKey(periodOptions);
   const interval = getKoreaGeoStatsTrendInterval();
   const valueMode = getKoreaGeoStatsTrendValueMode();
-  const sampledSeries = rawSeries
+  const sampledSeries = rangedRawSeries
     .map((entry) => ({
       ...entry,
       points: sampleKoreaGeoStatsTrendPoints(entry.points, interval, basePeriodKey),
@@ -4315,26 +4645,30 @@ function buildKoreaGeoStatsTrendPresentation(
   const usesAlternateSeriesDefinition = Boolean(
     seriesDefinition?.key && displayDefinition?.key && seriesDefinition.key !== displayDefinition.key,
   );
+  const coverageLabel = getKoreaGeoStatsTrendCoverageLabel(rangedRawSeries);
+  const detailLabel = [coverageLabel, `${interval}년 단위`].filter(Boolean).join(" · ");
+  const sourceNote = getKoreaGeoStatsTrendSourceNote(displayDefinition, seriesDefinition, levelKey);
 
   return {
     series,
-    rawSeries,
+    rawSeries: rangedRawSeries,
+    rangePeriodOptions,
     periodOptions,
     basePeriodKey,
     basePeriodLabel,
+    startPeriodKey: periodRange.startPeriodKey,
+    endPeriodKey: periodRange.endPeriodKey,
     interval,
     usesIndex,
     canUseIndex,
     seriesDefinition,
     usesAlternateSeriesDefinition,
-    sourceNote: usesAlternateSeriesDefinition
-      ? `시·군 장기 시계열은 ${seriesDefinition.label} 기준으로 보정했습니다.`
-      : "",
+    sourceNote,
     valueFormatter: usesIndex
       ? (value) => formatRelativeIndex(value)
       : (value) => formatKoreaGeoStatsCompactValue(seriesDefinition, value),
     summaryLabel: usesIndex ? `${basePeriodLabel || "기준 시점"} = 100` : "실제 값",
-    detailLabel: `${interval}년 단위`,
+    detailLabel,
   };
 }
 
@@ -4393,6 +4727,9 @@ function getKoreaGeoStatsBaseScopeRegionIds(levelKey = getKoreaGeoStatsLevelKey(
   if (levelKey === "cities" && state.koreaCityScopeCodes.length) {
     const scopeCodes = getKoreaCityScopeCodeSet();
     return regionOrder.filter((regionId) => scopeCodes.has(regions[regionId]?.parentCode));
+  }
+  if (levelKey === "metroDistricts" && state.koreaParentCode) {
+    return regionOrder.filter((regionId) => regions[regionId]?.parentCode === state.koreaParentCode);
   }
   return regionOrder;
 }
@@ -5115,17 +5452,160 @@ function applyKoreaGeoStatsRandomScenario() {
 function getKoreaGeoStatsGuideText(levelKey = getKoreaGeoStatsLevelKey()) {
   const regionNoun = getKoreaGeoStatsRegionNoun(levelKey);
   const compactRegionNoun = getKoreaGeoStatsRegionNoun(levelKey, true);
+  const activeDefinition = getKoreaGeoStatsDefinition();
   const trendHint =
     state.koreaGeoStatsDisplayMode === "trend" || state.koreaGeoStatsDisplayMode === "overview"
-      ? ` 시계열은 ${getKoreaGeoStatsTrendInterval()}년 단위로 줄이고, 필요하면 기준 시점을 100으로 맞춰 읽을 수 있습니다.`
+      ? ` 시계열은 시작·종료 시점과 ${getKoreaGeoStatsTrendInterval()}년 단위를 조절하고, 필요하면 기준 시점을 100으로 맞춰 읽을 수 있습니다.`
+      : "";
+  const cityPopulationBoundaryHint =
+    levelKey === "cities" && activeDefinition?.key === "population-estimate"
+      ? " 시·군 인구 추이는 2020년 시·군 경계 면적가중 장기 시계열을 우선 사용하고, 없을 때만 주민등록인구로 대체합니다."
       : "";
   if (getKoreaGeoStatsScopeMode(levelKey) === "selected") {
-    return `선택한 ${regionNoun}만 같은 축으로 비교합니다. 필요하면 랜덤 버튼으로 추천 ${compactRegionNoun} 조합이나 지표를 바로 바꿔 볼 수 있습니다.${trendHint}`;
+    return `선택한 ${regionNoun}만 같은 축으로 비교합니다. 필요하면 랜덤 버튼으로 추천 ${compactRegionNoun} 조합이나 지표를 바로 바꿔 볼 수 있습니다.${trendHint}${cityPopulationBoundaryHint}`;
   }
   if (levelKey === "cities" && state.koreaCityScopeCodes.length) {
-    return `${getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 })} 범위 ${regionNoun}을 같은 축으로 묶어 비교합니다. 세트 랜덤은 이 범위 안에서 출제용 조합을 다시 골라 줍니다.${trendHint}`;
+    return `${getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 })} 범위 ${regionNoun}을 같은 축으로 묶어 비교합니다. 세트 랜덤은 이 범위 안에서 출제용 조합을 다시 골라 줍니다.${trendHint}${cityPopulationBoundaryHint}`;
   }
-  return `선택이 없으면 전국 ${getKoreaGeoStatsRegionOrder(levelKey).length}개 ${compactRegionNoun}를 같은 축으로 펼쳐 시험형 비교 자료처럼 정리합니다. 랜덤 버튼은 출제 포인트가 살아 있는 지역·지표 조합을 추천합니다.${trendHint}`;
+  return `선택이 없으면 전국 ${getKoreaGeoStatsRegionOrder(levelKey).length}개 ${compactRegionNoun}를 같은 축으로 펼쳐 시험형 비교 자료처럼 정리합니다. 랜덤 버튼은 출제 포인트가 살아 있는 지역·지표 조합을 추천합니다.${trendHint}${cityPopulationBoundaryHint}`;
+}
+
+function getProgramGraphPlotBox(width, height, margin) {
+  const left = Number(margin.left) || 0;
+  const top = Number(margin.top) || 0;
+  const right = width - (Number(margin.right) || 0);
+  const bottom = height - (Number(margin.bottom) || 0);
+  return {
+    left,
+    top,
+    right,
+    bottom,
+    width: Math.max(1, right - left),
+    height: Math.max(1, bottom - top),
+  };
+}
+
+function getProgramGraphAxisDomain(values, { forceZeroStart = false, paddingRatio = 0.08, niceCount = 5 } = {}) {
+  const validValues = (values ?? []).filter((value) => Number.isFinite(Number(value))).map(Number);
+  if (!validValues.length) {
+    return { minimum: 0, maximum: 1 };
+  }
+
+  let minimum = Math.min(...validValues);
+  let maximum = Math.max(...validValues);
+  if (forceZeroStart && minimum > 0) {
+    minimum = 0;
+  }
+  if (maximum < 0) {
+    maximum = 0;
+  }
+
+  if (minimum === maximum) {
+    const padding = Math.abs(minimum) * 0.12 || 1;
+    minimum -= padding;
+    maximum += padding;
+  }
+
+  const span = maximum - minimum;
+  if (span > 0 && paddingRatio > 0) {
+    if (!(forceZeroStart && Math.abs(minimum) < 0.000001)) {
+      minimum -= span * paddingRatio;
+    }
+    maximum += span * paddingRatio;
+  }
+
+  if (forceZeroStart && minimum > 0) {
+    minimum = 0;
+  }
+
+  const [niceMinimum, niceMaximum] = d3.scaleLinear().domain([minimum, maximum]).nice(niceCount).domain();
+  return { minimum: niceMinimum, maximum: niceMaximum };
+}
+
+function getProgramGraphAxisTicks(minimum, maximum, count = 5) {
+  const baseTicks = d3.ticks(minimum, maximum, count);
+  const ticks = [...baseTicks, minimum, maximum];
+  if (minimum < 0 && maximum > 0) {
+    ticks.push(0);
+  }
+  return [...new Set(ticks.map((value) => Number(value.toFixed(6))))].sort((a, b) => a - b);
+}
+
+function createProgramGraphSvg(className, width, height, title) {
+  const svg = createSvgElement("svg");
+  svg.setAttribute("class", className);
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", title);
+  return svg;
+}
+
+function appendProgramGraphFrame(svg, plot) {
+  const frame = createSvgElement("rect");
+  frame.setAttribute("x", String(plot.left));
+  frame.setAttribute("y", String(plot.top));
+  frame.setAttribute("width", String(plot.width));
+  frame.setAttribute("height", String(plot.height));
+  frame.setAttribute("class", "country-stats-chart-frame");
+  svg.appendChild(frame);
+}
+
+function appendProgramGraphHorizontalGrid(svg, { plot, ticks, minimum, maximum, valueToY, valueFormatter }) {
+  ticks.forEach((tick) => {
+    const y = valueToY(tick);
+    const isZero = Math.abs(tick) < 0.000001;
+    const line = createSvgElement("line");
+    line.setAttribute("x1", String(plot.left));
+    line.setAttribute("x2", String(plot.right));
+    line.setAttribute("y1", String(y));
+    line.setAttribute("y2", String(y));
+    line.setAttribute("class", isZero ? "country-stats-chart-axis-line" : "country-stats-chart-grid-line");
+    svg.appendChild(line);
+
+    const label = createSvgElement("text");
+    label.setAttribute("x", String(plot.left - 7));
+    label.setAttribute("y", String(y + 3));
+    label.setAttribute("text-anchor", "end");
+    label.setAttribute("class", "country-stats-chart-axis-label");
+    label.textContent = valueFormatter(tick, Math.max(Math.abs(minimum), Math.abs(maximum)));
+    svg.appendChild(label);
+  });
+}
+
+function appendProgramGraphVerticalGrid(svg, { plot, ticks, minimum, maximum, valueToX, valueFormatter }) {
+  ticks.forEach((tick) => {
+    const x = valueToX(tick);
+    const isZero = Math.abs(tick) < 0.000001;
+    const line = createSvgElement("line");
+    line.setAttribute("x1", String(x));
+    line.setAttribute("x2", String(x));
+    line.setAttribute("y1", String(plot.top));
+    line.setAttribute("y2", String(plot.bottom));
+    line.setAttribute("class", isZero ? "country-stats-chart-axis-line" : "country-stats-chart-grid-line");
+    svg.appendChild(line);
+
+    const label = createSvgElement("text");
+    label.setAttribute("x", String(x));
+    label.setAttribute("y", String(plot.bottom + 18));
+    label.setAttribute(
+      "text-anchor",
+      Math.abs(tick - minimum) < 0.000001 ? "start" : Math.abs(tick - maximum) < 0.000001 ? "end" : "middle",
+    );
+    label.setAttribute("class", "country-stats-chart-axis-label");
+    label.textContent = valueFormatter(tick, Math.max(Math.abs(minimum), Math.abs(maximum)));
+    svg.appendChild(label);
+  });
+}
+
+function createProgramGraphAxisRow(leftLabel, centerLabel, rightLabel) {
+  const axis = document.createElement("div");
+  axis.className = "country-stats-bar-axis";
+  [leftLabel, centerLabel, rightLabel].forEach((label) => {
+    const item = document.createElement("span");
+    item.textContent = label;
+    axis.appendChild(item);
+  });
+  return axis;
 }
 
 function buildTimelineLineChartCard({ title, description, series, valueFormatter }) {
@@ -5151,53 +5631,29 @@ function buildTimelineLineChartCard({ title, description, series, valueFormatter
     validSeries.flatMap((entry) => entry.points.map((point) => [point.periodKey, point.periodLabel ?? point.periodKey])),
   );
   const values = validSeries.flatMap((entry) => entry.points.map((point) => Number(point.value)));
-  let minimumValue = Math.min(...values);
-  let maximumValue = Math.max(...values);
-  if (minimumValue === maximumValue) {
-    minimumValue -= 1;
-    maximumValue += 1;
-  }
+  const domain = getProgramGraphAxisDomain(values, { paddingRatio: 0.08, niceCount: 5 });
+  const minimumValue = domain.minimum;
+  const maximumValue = domain.maximum;
+  const yTicks = getProgramGraphAxisTicks(minimumValue, maximumValue, 5);
 
-  const width = 340;
-  const height = 192;
-  const plot = { left: 24, right: 12, top: 16, bottom: 28 };
-  const plotWidth = width - plot.left - plot.right;
-  const plotHeight = height - plot.top - plot.bottom;
-  const step = periods.length > 1 ? plotWidth / (periods.length - 1) : 0;
+  const width = 428;
+  const height = 248;
+  const plot = getProgramGraphPlotBox(width, height, { left: 58, right: 18, top: 24, bottom: 42 });
+  const step = periods.length > 1 ? plot.width / (periods.length - 1) : 0;
 
   const periodToX = new Map(periods.map((period, index) => [period, plot.left + step * index]));
-  const valueToY = (value) => plot.top + (maximumValue - Number(value)) / (maximumValue - minimumValue) * plotHeight;
+  const valueToY = (value) => plot.top + (maximumValue - Number(value)) / (maximumValue - minimumValue) * plot.height;
 
-  const svg = createSvgElement("svg");
-  svg.setAttribute("class", "country-stats-line-chart");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-
-  for (let index = 0; index < 4; index += 1) {
-    const y = plot.top + (plotHeight / 3) * index;
-    const line = createSvgElement("line");
-    line.setAttribute("x1", String(plot.left));
-    line.setAttribute("x2", String(width - plot.right));
-    line.setAttribute("y1", String(y));
-    line.setAttribute("y2", String(y));
-    line.setAttribute("class", "country-stats-line-chart__grid");
-    svg.appendChild(line);
-  }
-
-  const axisTop = createSvgElement("text");
-  axisTop.setAttribute("x", String(plot.left));
-  axisTop.setAttribute("y", "11");
-  axisTop.setAttribute("class", "country-stats-line-chart__label");
-  axisTop.textContent = valueFormatter(maximumValue);
-  svg.appendChild(axisTop);
-
-  const axisBottom = createSvgElement("text");
-  axisBottom.setAttribute("x", String(plot.left));
-  axisBottom.setAttribute("y", String(height - 4));
-  axisBottom.setAttribute("class", "country-stats-line-chart__label");
-  axisBottom.textContent = valueFormatter(minimumValue);
-  svg.appendChild(axisBottom);
+  const svg = createProgramGraphSvg("country-stats-line-chart", width, height, title);
+  appendProgramGraphHorizontalGrid(svg, {
+    plot,
+    ticks: yTicks,
+    minimum: minimumValue,
+    maximum: maximumValue,
+    valueToY,
+    valueFormatter: (value) => valueFormatter(value),
+  });
+  appendProgramGraphFrame(svg, plot);
 
   validSeries.forEach((entry, entryIndex) => {
     const visual = getCountryStatsVisual(entryIndex);
@@ -5217,8 +5673,11 @@ function buildTimelineLineChartCard({ title, description, series, valueFormatter
       const dot = createSvgElement("circle");
       dot.setAttribute("cx", String(periodToX.get(point.periodKey)));
       dot.setAttribute("cy", String(valueToY(point.value)));
-      dot.setAttribute("r", "3");
+      dot.setAttribute("r", String(programGraphTheme.markerRadius));
+      dot.setAttribute("class", "country-stats-line-chart__dot");
       dot.setAttribute("fill", visual.stroke || entry.color || "#111111");
+      dot.setAttribute("stroke", programGraphTheme.colors.paper);
+      dot.setAttribute("stroke-width", programGraphTheme.markerStrokeWidth);
       svg.appendChild(dot);
     });
   });
@@ -5230,7 +5689,7 @@ function buildTimelineLineChartCard({ title, description, series, valueFormatter
     }
     const label = createSvgElement("text");
     label.setAttribute("x", String(periodToX.get(period)));
-    label.setAttribute("y", String(height - 10));
+    label.setAttribute("y", String(plot.bottom + 25));
     label.setAttribute("text-anchor", "middle");
     label.setAttribute("class", "country-stats-line-chart__year");
     label.textContent = String(periodLabelByKey.get(period) ?? period);
@@ -5505,6 +5964,7 @@ function buildKoreaGeoStatsStackedComparisonCard({ title, description, totalLabe
     list.appendChild(wrapper);
   });
   card.appendChild(list);
+  card.appendChild(createProgramGraphAxisRow("0", "50", "100(%)"));
 
   return card;
 }
@@ -5729,7 +6189,7 @@ function renderKoreaGeoStatsPanel() {
   const levelKey = getKoreaGeoStatsLevelKey();
   if (!levelKey) {
     shell.appendChild(
-      createEmptyState("공식 한국지리 통계는 현재 도/광역시와 시/군 보기에서 제공합니다. 특별시·광역시 구/군 레벨은 아직 연결하지 않았습니다."),
+      createEmptyState("공식 한국지리 통계는 현재 도/광역시, 시/군, 서울·부산 구/군 보기에서 제공합니다."),
     );
     elements.koreaGeoStatsPanel.appendChild(shell);
     return;
@@ -5763,6 +6223,12 @@ function renderKoreaGeoStatsPanel() {
   const trendPresentation = buildKoreaGeoStatsTrendPresentation(activeDefinition, latestEntries, levelKey);
   if (state.koreaGeoStatsTrendBasePeriodKey !== trendPresentation.basePeriodKey) {
     state.koreaGeoStatsTrendBasePeriodKey = trendPresentation.basePeriodKey;
+  }
+  if (state.koreaGeoStatsTrendStartPeriodKey !== trendPresentation.startPeriodKey) {
+    state.koreaGeoStatsTrendStartPeriodKey = trendPresentation.startPeriodKey;
+  }
+  if (state.koreaGeoStatsTrendEndPeriodKey !== trendPresentation.endPeriodKey) {
+    state.koreaGeoStatsTrendEndPeriodKey = trendPresentation.endPeriodKey;
   }
 
   shell.appendChild(buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition, trendPresentation));
@@ -6050,10 +6516,14 @@ function renderKoreaGeoStatsPanel() {
     trendPresentation?.seriesDefinition
       ? trendPresentation.seriesDefinition
       : activeDefinition;
-  const sourceNote =
-    chartDefinition?.key !== activeDefinition?.key
-      ? `최신 비교표와 선택 지표는 ${activeDefinition.label}, 장기 시계열 그래프는 ${chartDefinition.label}을 사용했습니다.`
-      : "";
+  const sourceNotes = [];
+  if (chartDefinition?.key !== activeDefinition?.key) {
+    sourceNotes.push(`최신 비교표와 선택 지표는 ${activeDefinition.label}, 장기 시계열 그래프는 ${chartDefinition.label}을 사용했습니다.`);
+  }
+  if (trendPresentation?.sourceNote) {
+    sourceNotes.push(trendPresentation.sourceNote);
+  }
+  const sourceNote = [...new Set(sourceNotes)].join(" ");
   shell.appendChild(buildKoreaGeoStatsSourceRow(chartDefinition, sourceNote));
   elements.koreaGeoStatsPanel.appendChild(shell);
 }
@@ -6243,6 +6713,53 @@ function buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefi
     });
     intervalField.append(intervalLabel, intervalSelect);
     controls.appendChild(intervalField);
+
+    const rangePeriodOptions = trendPresentation.rangePeriodOptions?.length
+      ? trendPresentation.rangePeriodOptions
+      : trendPresentation.periodOptions;
+    const startPeriodField = document.createElement("div");
+    startPeriodField.className = "metric-explorer-control";
+    const startPeriodLabel = document.createElement("label");
+    startPeriodLabel.setAttribute("for", "koreaGeoStatsTrendStartPeriodSelect");
+    startPeriodLabel.textContent = "시작 시점";
+    const startPeriodSelect = document.createElement("select");
+    startPeriodSelect.id = "koreaGeoStatsTrendStartPeriodSelect";
+    rangePeriodOptions.forEach((optionConfig) => {
+      const option = document.createElement("option");
+      option.value = optionConfig.key;
+      option.textContent = optionConfig.label;
+      option.selected = optionConfig.key === trendPresentation.startPeriodKey;
+      startPeriodSelect.appendChild(option);
+    });
+    startPeriodSelect.disabled = rangePeriodOptions.length <= 1;
+    startPeriodSelect.addEventListener("change", () => {
+      state.koreaGeoStatsTrendStartPeriodKey = startPeriodSelect.value;
+      renderSelectionViews();
+    });
+    startPeriodField.append(startPeriodLabel, startPeriodSelect);
+    controls.appendChild(startPeriodField);
+
+    const endPeriodField = document.createElement("div");
+    endPeriodField.className = "metric-explorer-control";
+    const endPeriodLabel = document.createElement("label");
+    endPeriodLabel.setAttribute("for", "koreaGeoStatsTrendEndPeriodSelect");
+    endPeriodLabel.textContent = "종료 시점";
+    const endPeriodSelect = document.createElement("select");
+    endPeriodSelect.id = "koreaGeoStatsTrendEndPeriodSelect";
+    rangePeriodOptions.forEach((optionConfig) => {
+      const option = document.createElement("option");
+      option.value = optionConfig.key;
+      option.textContent = optionConfig.label;
+      option.selected = optionConfig.key === trendPresentation.endPeriodKey;
+      endPeriodSelect.appendChild(option);
+    });
+    endPeriodSelect.disabled = rangePeriodOptions.length <= 1;
+    endPeriodSelect.addEventListener("change", () => {
+      state.koreaGeoStatsTrendEndPeriodKey = endPeriodSelect.value;
+      renderSelectionViews();
+    });
+    endPeriodField.append(endPeriodLabel, endPeriodSelect);
+    controls.appendChild(endPeriodField);
 
     const basePeriodField = document.createElement("div");
     basePeriodField.className = "metric-explorer-control";
@@ -6707,7 +7224,7 @@ function buildKoreaGeoStatsTrendRawDataTable(trendPresentation) {
       ...entry,
       points: sampleKoreaGeoStatsTrendPoints(entry.points, trendPresentation.interval, trendPresentation.basePeriodKey),
     }))
-    .filter((entry) => entry.points.length >= 2);
+    .filter((entry) => entry.points.length);
   const periodKeys = [...new Set(sampledRawSeries.flatMap((entry) => entry.points.map((point) => point.periodKey)))].sort(
     (a, b) => parseKoreaGeoStatsPeriodKey(a) - parseKoreaGeoStatsPeriodKey(b),
   );
@@ -9054,7 +9571,7 @@ function applyCountryStatsPatternStyle(node, visual) {
 
   node.style.background = visual.background;
   node.style.backgroundRepeat = "repeat";
-  node.style.backgroundSize = "auto";
+  node.style.backgroundSize = visual.backgroundSize ?? "auto";
 }
 
 function getOrderedMetricEntries(map, order) {
@@ -9194,53 +9711,29 @@ function buildLineChartCard({ title, description, series, valueFormatter }) {
 
   const years = [...new Set(validSeries.flatMap((entry) => entry.points.map((point) => point.year)))].sort((a, b) => a - b);
   const allValues = validSeries.flatMap((entry) => entry.points.map((point) => Number(point.value)));
-  let minimumValue = Math.min(...allValues);
-  let maximumValue = Math.max(...allValues);
-  if (minimumValue === maximumValue) {
-    minimumValue = 0;
-    maximumValue = maximumValue || 1;
-  }
+  const domain = getProgramGraphAxisDomain(allValues, { paddingRatio: 0.08, niceCount: 5 });
+  const minimumValue = domain.minimum;
+  const maximumValue = domain.maximum;
+  const yTicks = getProgramGraphAxisTicks(minimumValue, maximumValue, 5);
 
-  const width = 340;
-  const height = 192;
-  const plot = { left: 24, right: 12, top: 16, bottom: 28 };
-  const plotWidth = width - plot.left - plot.right;
-  const plotHeight = height - plot.top - plot.bottom;
-  const yearStep = years.length > 1 ? plotWidth / (years.length - 1) : 0;
+  const width = 428;
+  const height = 248;
+  const plot = getProgramGraphPlotBox(width, height, { left: 58, right: 18, top: 24, bottom: 42 });
+  const yearStep = years.length > 1 ? plot.width / (years.length - 1) : 0;
 
   const yearToX = new Map(years.map((year, index) => [year, plot.left + yearStep * index]));
-  const valueToY = (value) => plot.top + (maximumValue - Number(value)) / (maximumValue - minimumValue) * plotHeight;
+  const valueToY = (value) => plot.top + (maximumValue - Number(value)) / (maximumValue - minimumValue) * plot.height;
 
-  const svg = createSvgElement("svg");
-  svg.setAttribute("class", "country-stats-line-chart");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-
-  for (let index = 0; index < 4; index += 1) {
-    const y = plot.top + (plotHeight / 3) * index;
-    const line = createSvgElement("line");
-    line.setAttribute("x1", String(plot.left));
-    line.setAttribute("x2", String(width - plot.right));
-    line.setAttribute("y1", String(y));
-    line.setAttribute("y2", String(y));
-    line.setAttribute("class", "country-stats-line-chart__grid");
-    svg.appendChild(line);
-  }
-
-  const axisTop = createSvgElement("text");
-  axisTop.setAttribute("x", String(plot.left));
-  axisTop.setAttribute("y", "11");
-  axisTop.setAttribute("class", "country-stats-line-chart__label");
-  axisTop.textContent = valueFormatter(maximumValue);
-  svg.appendChild(axisTop);
-
-  const axisBottom = createSvgElement("text");
-  axisBottom.setAttribute("x", String(plot.left));
-  axisBottom.setAttribute("y", String(height - 4));
-  axisBottom.setAttribute("class", "country-stats-line-chart__label");
-  axisBottom.textContent = valueFormatter(minimumValue);
-  svg.appendChild(axisBottom);
+  const svg = createProgramGraphSvg("country-stats-line-chart", width, height, title);
+  appendProgramGraphHorizontalGrid(svg, {
+    plot,
+    ticks: yTicks,
+    minimum: minimumValue,
+    maximum: maximumValue,
+    valueToY,
+    valueFormatter: (value) => valueFormatter(value),
+  });
+  appendProgramGraphFrame(svg, plot);
 
   validSeries.forEach((entry, entryIndex) => {
     const visual = getCountryStatsVisual(entryIndex);
@@ -9260,8 +9753,11 @@ function buildLineChartCard({ title, description, series, valueFormatter }) {
       const dot = createSvgElement("circle");
       dot.setAttribute("cx", String(yearToX.get(point.year)));
       dot.setAttribute("cy", String(valueToY(point.value)));
-      dot.setAttribute("r", "3");
+      dot.setAttribute("r", String(programGraphTheme.markerRadius));
+      dot.setAttribute("class", "country-stats-line-chart__dot");
       dot.setAttribute("fill", visual.stroke || entry.color || "#111111");
+      dot.setAttribute("stroke", programGraphTheme.colors.paper);
+      dot.setAttribute("stroke-width", programGraphTheme.markerStrokeWidth);
       svg.appendChild(dot);
     });
   });
@@ -9272,7 +9768,7 @@ function buildLineChartCard({ title, description, series, valueFormatter }) {
     }
     const label = createSvgElement("text");
     label.setAttribute("x", String(yearToX.get(year)));
-    label.setAttribute("y", String(height - 10));
+    label.setAttribute("y", String(plot.bottom + 25));
     label.setAttribute("text-anchor", "middle");
     label.setAttribute("class", "country-stats-line-chart__year");
     label.textContent = String(year);
@@ -9348,6 +9844,7 @@ function buildAmountBarChartCard({ title, description, entries, valueFormatter }
   });
 
   card.appendChild(bars);
+  card.appendChild(createProgramGraphAxisRow("0", valueFormatter(maximumValue / 2), valueFormatter(maximumValue)));
   return card;
 }
 
@@ -9382,6 +9879,7 @@ function buildShareCompositionCard({ title, description, totalLabel, segments })
     stack.appendChild(block);
   });
   card.appendChild(stack);
+  card.appendChild(createProgramGraphAxisRow("0", "50", "100(%)"));
 
   const breakdown = document.createElement("div");
   breakdown.className = "country-stats-breakdown-list";
@@ -9430,75 +9928,53 @@ function buildScatterChartCard({ title, description, entries, xLabel, yLabel, xF
     return card;
   }
 
-  let minX = Math.min(...validEntries.map((entry) => Number(entry.xValue)));
-  let maxX = Math.max(...validEntries.map((entry) => Number(entry.xValue)));
-  let minY = Math.min(...validEntries.map((entry) => Number(entry.yValue)));
-  let maxY = Math.max(...validEntries.map((entry) => Number(entry.yValue)));
-  if (minX === maxX) {
-    minX -= 1;
-    maxX += 1;
-  }
-  if (minY === maxY) {
-    minY -= 1;
-    maxY += 1;
-  }
-
+  const xValues = validEntries.map((entry) => Number(entry.xValue));
+  const yValues = validEntries.map((entry) => Number(entry.yValue));
+  const xDomain = getProgramGraphAxisDomain(xValues, {
+    forceZeroStart: xValues.every((value) => value >= 0),
+    paddingRatio: 0.08,
+    niceCount: 5,
+  });
+  const yDomain = getProgramGraphAxisDomain(yValues, {
+    forceZeroStart: yValues.every((value) => value >= 0),
+    paddingRatio: 0.08,
+    niceCount: 5,
+  });
+  const minX = xDomain.minimum;
+  const maxX = xDomain.maximum;
+  const minY = yDomain.minimum;
+  const maxY = yDomain.maximum;
+  const xTicks = getProgramGraphAxisTicks(minX, maxX, 5);
+  const yTicks = getProgramGraphAxisTicks(minY, maxY, 5);
   const maximumBubbleValue = Math.max(...validEntries.map((entry) => Number(entry.sizeValue)), 1);
-  const width = 360;
-  const height = 244;
-  const plot = { left: 44, right: 18, top: 16, bottom: 34 };
-  const plotWidth = width - plot.left - plot.right;
-  const plotHeight = height - plot.top - plot.bottom;
-  const xToPosition = (value) => plot.left + ((Number(value) - minX) / (maxX - minX)) * plotWidth;
-  const yToPosition = (value) => plot.top + (1 - (Number(value) - minY) / (maxY - minY)) * plotHeight;
-  const radiusForValue = (value) => 4 + Math.sqrt(Math.max(0, Number(value)) / maximumBubbleValue) * 12;
+  const width = 430;
+  const height = 292;
+  const plot = getProgramGraphPlotBox(width, height, { left: 64, right: 24, top: 26, bottom: 50 });
+  const xToPosition = (value) => plot.left + ((Number(value) - minX) / (maxX - minX)) * plot.width;
+  const yToPosition = (value) => plot.top + (1 - (Number(value) - minY) / (maxY - minY)) * plot.height;
+  const radiusForValue = (value) => {
+    const ratio = Math.sqrt(Math.max(0, Number(value)) / maximumBubbleValue);
+    return programGraphTheme.scatterMinRadius + ratio * (programGraphTheme.scatterMaxRadius - programGraphTheme.scatterMinRadius);
+  };
 
-  const svg = createSvgElement("svg");
-  svg.setAttribute("class", "country-stats-scatter-chart");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", `${title} 산포도`);
-
-  for (let index = 0; index < 5; index += 1) {
-    const x = plot.left + (plotWidth / 4) * index;
-    const y = plot.top + (plotHeight / 4) * index;
-
-    const vertical = createSvgElement("line");
-    vertical.setAttribute("x1", String(x));
-    vertical.setAttribute("x2", String(x));
-    vertical.setAttribute("y1", String(plot.top));
-    vertical.setAttribute("y2", String(height - plot.bottom));
-    vertical.setAttribute("class", "country-stats-scatter-chart__grid");
-    svg.appendChild(vertical);
-
-    const horizontal = createSvgElement("line");
-    horizontal.setAttribute("x1", String(plot.left));
-    horizontal.setAttribute("x2", String(width - plot.right));
-    horizontal.setAttribute("y1", String(y));
-    horizontal.setAttribute("y2", String(y));
-    horizontal.setAttribute("class", "country-stats-scatter-chart__grid");
-    svg.appendChild(horizontal);
-  }
-
-  if (minX < 0 && maxX > 0) {
-    const zeroXLine = createSvgElement("line");
-    zeroXLine.setAttribute("x1", String(xToPosition(0)));
-    zeroXLine.setAttribute("x2", String(xToPosition(0)));
-    zeroXLine.setAttribute("y1", String(plot.top));
-    zeroXLine.setAttribute("y2", String(height - plot.bottom));
-    zeroXLine.setAttribute("class", "country-stats-scatter-chart__axis-line");
-    svg.appendChild(zeroXLine);
-  }
-
-  if (minY < 0 && maxY > 0) {
-    const zeroYLine = createSvgElement("line");
-    zeroYLine.setAttribute("x1", String(plot.left));
-    zeroYLine.setAttribute("x2", String(width - plot.right));
-    zeroYLine.setAttribute("y1", String(yToPosition(0)));
-    zeroYLine.setAttribute("y2", String(yToPosition(0)));
-    zeroYLine.setAttribute("class", "country-stats-scatter-chart__axis-line");
-    svg.appendChild(zeroYLine);
-  }
+  const svg = createProgramGraphSvg("country-stats-scatter-chart", width, height, `${title} 산포도`);
+  appendProgramGraphVerticalGrid(svg, {
+    plot,
+    ticks: xTicks,
+    minimum: minX,
+    maximum: maxX,
+    valueToX: xToPosition,
+    valueFormatter: (value) => xFormatter(value),
+  });
+  appendProgramGraphHorizontalGrid(svg, {
+    plot,
+    ticks: yTicks,
+    minimum: minY,
+    maximum: maxY,
+    valueToY: yToPosition,
+    valueFormatter: (value) => yFormatter(value),
+  });
+  appendProgramGraphFrame(svg, plot);
 
   validEntries.forEach((entry) => {
     const circle = createSvgElement("circle");
@@ -9513,27 +9989,16 @@ function buildScatterChartCard({ title, description, entries, xLabel, yLabel, xF
   });
 
   getScatterLabelEntries(validEntries).forEach((entry) => {
+    const x = xToPosition(entry.xValue);
+    const y = yToPosition(entry.yValue);
+    const radius = radiusForValue(entry.sizeValue);
+    const placeLeft = x > plot.left + plot.width * 0.72;
     const label = createSvgElement("text");
-    label.setAttribute("x", String(xToPosition(entry.xValue) + radiusForValue(entry.sizeValue) + 3));
-    label.setAttribute("y", String(yToPosition(entry.yValue) - 2));
+    label.setAttribute("x", String(x + (placeLeft ? -radius - 4 : radius + 4)));
+    label.setAttribute("y", String(clamp(y - 2, plot.top + 8, plot.bottom - 4)));
+    label.setAttribute("text-anchor", placeLeft ? "end" : "start");
     label.setAttribute("class", "country-stats-scatter-chart__label");
     label.textContent = entry.label;
-    svg.appendChild(label);
-  });
-
-  const axisLabels = [
-    { x: plot.left, y: 12, text: yFormatter(maxY), anchor: "start" },
-    { x: plot.left, y: height - 6, text: yFormatter(minY), anchor: "start" },
-    { x: plot.left, y: height - 18, text: xFormatter(minX), anchor: "start" },
-    { x: width - plot.right, y: height - 18, text: xFormatter(maxX), anchor: "end" },
-  ];
-  axisLabels.forEach((config) => {
-    const label = createSvgElement("text");
-    label.setAttribute("x", String(config.x));
-    label.setAttribute("y", String(config.y));
-    label.setAttribute("text-anchor", config.anchor);
-    label.setAttribute("class", "country-stats-scatter-chart__axis");
-    label.textContent = config.text;
     svg.appendChild(label);
   });
 
@@ -9797,6 +10262,36 @@ function getExamGraphOrientationLabel(orientation = state.examGraphOrientation) 
   return examGraphOrientationDefinitions.find((definition) => definition.key === orientation)?.label ?? "가로형";
 }
 
+function getExamGraphStyleMode() {
+  if (state.examGraphStyleMode === "program") {
+    return "basic";
+  }
+  return examGraphStyleModeDefinitions.some((definition) => definition.key === state.examGraphStyleMode)
+    ? state.examGraphStyleMode
+    : "basic";
+}
+
+function getExamGraphStyleModeDefinition(styleMode = getExamGraphStyleMode()) {
+  return examGraphStyleModeDefinitions.find((definition) => definition.key === styleMode) ?? examGraphStyleModeDefinitions[0];
+}
+
+function isExamGraphBasicStyle() {
+  return getExamGraphStyleMode() === "basic";
+}
+
+function getActiveExamGraphVisualTheme() {
+  return isExamGraphBasicStyle() ? examGraphBasicTheme : examGraphTheme;
+}
+
+function getActiveExamGraphPatternDefinitions() {
+  return isExamGraphBasicStyle() ? examGraphBasicPatternDefinitions : examGraphPatternDefinitions;
+}
+
+function getExamGraphLineStyle(index = 0) {
+  const definitions = isExamGraphBasicStyle() ? examGraphBasicLineStyleDefinitions : examGraphLineStyleDefinitions;
+  return definitions[((index % definitions.length) + definitions.length) % definitions.length];
+}
+
 function getExamGraphPreviewCount() {
   return clamp(Math.round(Number(state.examGraphPreviewCount) || 1), 1, 3);
 }
@@ -9814,7 +10309,7 @@ function getExamGraphTextScale() {
 }
 
 function scaleExamGraphFontSize(fontSize) {
-  return Number((Number(fontSize) * getExamGraphTextScale()).toFixed(2));
+  return clamp(roundToStep(Number(fontSize) * getExamGraphTextScale(), 0.5), 7, 9);
 }
 
 function getExamGraphPopulationRow(stats, year) {
@@ -9872,6 +10367,12 @@ function ensureExamGraphState() {
   state.examGraphAliasMode = Boolean(state.examGraphAliasMode);
   if (!examGraphOrientationDefinitions.some((definition) => definition.key === state.examGraphOrientation)) {
     state.examGraphOrientation = "landscape";
+  }
+  if (state.examGraphStyleMode === "program") {
+    state.examGraphStyleMode = "basic";
+  }
+  if (!examGraphStyleModeDefinitions.some((definition) => definition.key === state.examGraphStyleMode)) {
+    state.examGraphStyleMode = "basic";
   }
   state.examGraphPreviewCount = getExamGraphPreviewCount();
   state.examGraphFontSizePt = getExamGraphFontSizePt();
@@ -9945,8 +10446,8 @@ function renderExamGraphPanel() {
     createMetricExplorerSummaryCard("데이터", model.metricLabel, model.metricDetail),
     createMetricExplorerSummaryCard(
       "디자인",
-      `${getExamGraphOrientationLabel()} · ${formatExamGraphPtLabel()}`,
-      `SidaeAi_S · 장평 ${EXAM_GRAPH_FONT_STRETCH_PERCENT}% · ${getExamGraphPreviewCount()}개 나란히`,
+      `${getExamGraphStyleModeDefinition().label} · ${getExamGraphOrientationLabel()} · ${formatExamGraphPtLabel()}`,
+      `폭 ${examGraphTheme.layout.width}px · ${getActiveExamGraphVisualTheme().font.label} · 장평 ${getActiveExamGraphVisualTheme().font.stretchPercent}% · ${getExamGraphPreviewCount()}개 나란히`,
     ),
   );
   shell.appendChild(summary);
@@ -10064,6 +10565,16 @@ function buildExamGraphControls() {
       state.examGraphTopN = value;
     });
   });
+  const styleModeField = buildExamGraphSelectField(
+    "보기 스타일",
+    examGraphStyleModeDefinitions,
+    getExamGraphStyleMode(),
+    (value) => {
+      updateExamGraphState("출제형 그래프 변경", () => {
+        state.examGraphStyleMode = value;
+      });
+    },
+  );
   const orientationField = buildExamGraphSelectField(
     "그래프 방향",
     examGraphOrientationDefinitions,
@@ -10129,7 +10640,7 @@ function buildExamGraphControls() {
   if (shouldShowMergeAmericas) {
     designControls.appendChild(mergeAmericasField);
   }
-  designControls.append(orientationField, previewCountField, fontSizeField, aliasField);
+  designControls.append(styleModeField, orientationField, previewCountField, fontSizeField, aliasField);
 
   if (state.examGraphPresetKey === "stacked100") {
     coreControls.append(
@@ -10282,7 +10793,7 @@ function buildExamGraphControls() {
   wrapper.appendChild(
     buildControlDisclosure({
       title: "디자인과 출력 형태",
-      detail: `${getExamGraphOrientationLabel()} · ${getExamGraphPreviewCount()}개 나란히 · ${formatExamGraphPtLabel()}`,
+      detail: `${getExamGraphStyleModeDefinition().label} · ${getExamGraphOrientationLabel()} · ${getExamGraphPreviewCount()}개 나란히 · ${formatExamGraphPtLabel()}`,
       contentNode: designControls,
       open: state.examGraphDesignExpanded,
       onToggle: (nextOpen) => {
@@ -10301,7 +10812,7 @@ function getExamGraphGuideText() {
   if (scopeMode === "selected") {
     return "지도에서 고른 국가를 우선 사용합니다. 필요하면 랜덤 버튼으로 수능특강 등장국 위주의 추천 국가나 통계를 바로 섞을 수 있습니다.";
   }
-  return "선택 국가가 없으면 전체 자료에서 수능특강 등장국을 우선으로 골라 시험지형 그래프를 만듭니다. 랜덤 버튼은 출제에 잘 맞는 통계·국가 조합을 추천합니다.";
+  return "선택 국가가 없으면 전체 자료에서 수능특강 등장국을 우선으로 골라 비교 그래프를 만듭니다. 랜덤 버튼은 출제에 잘 맞는 통계·국가 조합을 추천합니다.";
 }
 
 function getExamGraphValueModeOptionsForCurrentPreset() {
@@ -10391,6 +10902,7 @@ function captureExamGraphStateSnapshot() {
     examGraphGrouping: state.examGraphGrouping,
     examGraphTopN: state.examGraphTopN,
     examGraphAliasMode: state.examGraphAliasMode,
+    examGraphStyleMode: state.examGraphStyleMode,
     examGraphOrientation: state.examGraphOrientation,
     examGraphPreviewCount: state.examGraphPreviewCount,
     examGraphFontSizePt: state.examGraphFontSizePt,
@@ -10417,6 +10929,7 @@ function restoreExamGraphStateSnapshot(snapshot) {
     examGraphGrouping: snapshot.examGraphGrouping,
     examGraphTopN: snapshot.examGraphTopN,
     examGraphAliasMode: snapshot.examGraphAliasMode,
+    examGraphStyleMode: snapshot.examGraphStyleMode,
     examGraphOrientation: snapshot.examGraphOrientation,
     examGraphPreviewCount: snapshot.examGraphPreviewCount,
     examGraphFontSizePt: snapshot.examGraphFontSizePt,
@@ -11150,8 +11663,10 @@ function buildExamGraphModel() {
   }
   model.orientation = getExamGraphOrientation();
   model.orientationLabel = getExamGraphOrientationLabel(model.orientation);
+  model.styleMode = getExamGraphStyleMode();
+  model.styleModeLabel = getExamGraphStyleModeDefinition(model.styleMode).label;
   model.fontSizePt = getExamGraphFontSizePt();
-  model.fontStretchPercent = EXAM_GRAPH_FONT_STRETCH_PERCENT;
+  model.fontStretchPercent = getActiveExamGraphVisualTheme().font.stretchPercent;
   return model;
 }
 
@@ -12619,8 +13134,11 @@ function buildExamGraphPreviewEntries(model) {
     {
       key: "current",
       badge: "현재 통계",
-      description: `${getExamGraphOrientationLabel(model.orientation)} · ${formatExamGraphPtLabel(model.fontSizePt)} · ${model.displayModeLabel ?? "기본"}`,
-      exportName: buildExamGraphPreviewExportName(model.exportName, `${model.orientation}-${String(model.fontSizePt).replace(".", "_")}pt`),
+      description: `${model.styleModeLabel} · ${getExamGraphOrientationLabel(model.orientation)} · ${formatExamGraphPtLabel(model.fontSizePt)} · ${model.displayModeLabel ?? "기본"}`,
+      exportName: buildExamGraphPreviewExportName(
+        model.exportName,
+        `${model.styleMode}-${model.orientation}-${String(model.fontSizePt).replace(".", "_")}pt`,
+      ),
       model,
     },
   ];
@@ -12647,8 +13165,8 @@ function buildExamGraphPreviewEntries(model) {
     entries.push({
       key: candidate.key,
       badge: candidate.badge,
-      description: candidate.description,
-      exportName: buildExamGraphPreviewExportName(variant.exportName, candidate.suffix),
+      description: `${variant.styleModeLabel} · ${candidate.description}`,
+      exportName: buildExamGraphPreviewExportName(variant.exportName, `${candidate.suffix}-${variant.styleMode}`),
       model: variant,
     });
   });
@@ -12659,6 +13177,7 @@ function buildExamGraphPreviewEntries(model) {
 function buildExamGraphPreviewGallery(model) {
   const gallery = document.createElement("div");
   gallery.className = "exam-graph-preview-gallery";
+  gallery.dataset.style = model.styleMode ?? getExamGraphStyleMode();
   gallery.style.setProperty("--exam-graph-preview-columns", String(getExamGraphPreviewCount()));
   buildExamGraphPreviewEntries(model).forEach((entry) => {
     gallery.appendChild(buildExamGraphPreviewCard(entry));
@@ -12671,6 +13190,7 @@ function buildExamGraphPreviewCard(preview) {
   ensureSvgFontStyle(model.svgNode);
   const card = document.createElement("div");
   card.className = "exam-graph-preview-card country-stats-chart-card";
+  card.dataset.examGraphStyle = model.styleMode ?? getExamGraphStyleMode();
 
   const head = document.createElement("div");
   head.className = "exam-graph-preview-card__head";
@@ -12690,21 +13210,25 @@ function buildExamGraphPreviewCard(preview) {
   description.textContent = preview.description ?? model.description;
   copy.append(title, description);
 
-  const exportButton = document.createElement("button");
-  exportButton.type = "button";
-  exportButton.className = "tw-button ghost-button ghost-button--compact";
-  exportButton.textContent = "SVG 내보내기";
-  exportButton.addEventListener("click", () => {
-    downloadStandaloneSvgNode(model.svgNode, preview.exportName ?? model.exportName);
-    setStatus("출제형 그래프 SVG를 내보냈습니다.");
-  });
-
-  head.append(copy, exportButton);
+  if (model.styleMode === "exam") {
+    const exportButton = document.createElement("button");
+    exportButton.type = "button";
+    exportButton.className = "tw-button ghost-button ghost-button--compact";
+    exportButton.textContent = "SVG 내보내기";
+    exportButton.addEventListener("click", () => {
+      downloadStandaloneSvgNode(model.svgNode, preview.exportName ?? model.exportName);
+      setStatus("출제형 그래프 SVG를 내보냈습니다.");
+    });
+    head.append(copy, exportButton);
+  } else {
+    head.appendChild(copy);
+  }
   card.appendChild(head);
 
   const stage = document.createElement("div");
   stage.className = "exam-graph-stage";
   stage.dataset.orientation = model.orientation ?? "landscape";
+  stage.dataset.style = model.styleMode ?? getExamGraphStyleMode();
   stage.appendChild(model.svgNode);
   card.appendChild(stage);
 
@@ -13117,8 +13641,49 @@ function getExamGraphAxisTicks(minimum, maximum, count = 5) {
   return [...new Set(allTicks.map((value) => Number(value.toFixed(6))))].sort((a, b) => a - b);
 }
 
+function snapExamGraphCoordinate(value) {
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) {
+    return 0;
+  }
+  return Math.round(numericValue * 2) / 2;
+}
+
+function formatExamGraphCoordinate(value) {
+  const snappedValue = snapExamGraphCoordinate(value);
+  return Number.isInteger(snappedValue) ? String(snappedValue) : snappedValue.toFixed(1);
+}
+
+function setExamGraphCoordinate(node, attribute, value) {
+  node.setAttribute(attribute, formatExamGraphCoordinate(value));
+}
+
+function setExamGraphBox(node, { x, y, width, height }) {
+  setExamGraphCoordinate(node, "x", x);
+  setExamGraphCoordinate(node, "y", y);
+  setExamGraphCoordinate(node, "width", width);
+  setExamGraphCoordinate(node, "height", height);
+}
+
+function applyExamGraphStrokeStyle(node) {
+  node.setAttribute("vector-effect", "non-scaling-stroke");
+  node.setAttribute("shape-rendering", "geometricPrecision");
+}
+
 function buildExamGraphPositionScale(minimum, maximum, plotLeft, plotWidth) {
-  return (value) => plotLeft + ((Number(value) - minimum) / (maximum - minimum)) * plotWidth;
+  return (value) => snapExamGraphCoordinate(plotLeft + ((Number(value) - minimum) / (maximum - minimum)) * plotWidth);
+}
+
+function createExamGraphSvg(width, height, title) {
+  const svg = createSvgElement("svg");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("width", String(width));
+  svg.setAttribute("height", String(height));
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", title);
+  svg.setAttribute("class", `exam-graph-svg exam-graph-svg--${getExamGraphStyleMode()}`);
+  svg.setAttribute("data-exam-graph-style", getExamGraphStyleMode());
+  return svg;
 }
 
 function formatExamGraphAxisTick(value, maximumAbsolute = 0) {
@@ -13139,6 +13704,48 @@ function formatExamGraphAxisTick(value, maximumAbsolute = 0) {
   return numericValue.toLocaleString("ko-KR", { maximumFractionDigits: 2 });
 }
 
+function appendExamGraphPlotFrame(svg, { x, y, width, height }) {
+  const theme = getActiveExamGraphVisualTheme();
+  const frame = createSvgElement("rect");
+  setExamGraphBox(frame, { x, y, width, height });
+  frame.setAttribute("fill", theme.colors.paper);
+  frame.setAttribute("stroke", theme.colors.frame ?? theme.colors.ink);
+  frame.setAttribute("stroke-width", theme.strokes.frame);
+  applyExamGraphStrokeStyle(frame);
+  svg.appendChild(frame);
+  return frame;
+}
+
+function appendExamGraphPlotBorder(svg, { x, y, width, height }) {
+  const theme = getActiveExamGraphVisualTheme();
+  const border = createSvgElement("rect");
+  setExamGraphBox(border, { x, y, width, height });
+  border.setAttribute("fill", "none");
+  border.setAttribute("stroke", theme.colors.frame ?? theme.colors.ink);
+  border.setAttribute("stroke-width", theme.strokes.frame);
+  applyExamGraphStrokeStyle(border);
+  svg.appendChild(border);
+  return border;
+}
+
+function styleExamGraphGridLine(line, { zero = false } = {}) {
+  const theme = getActiveExamGraphVisualTheme();
+  line.setAttribute("stroke", zero ? theme.colors.ink : theme.colors.grid ?? theme.colors.ink);
+  line.setAttribute("stroke-width", zero ? theme.strokes.zeroAxis : theme.strokes.grid);
+  applyExamGraphStrokeStyle(line);
+  if (!zero) {
+    line.setAttribute("stroke-dasharray", theme.dash.grid);
+  }
+}
+
+function styleExamGraphDataRect(rect, fill) {
+  const theme = getActiveExamGraphVisualTheme();
+  rect.setAttribute("fill", fill);
+  rect.setAttribute("stroke", theme.colors.dataStroke ?? theme.colors.ink);
+  rect.setAttribute("stroke-width", theme.strokes.dataOutline);
+  applyExamGraphStrokeStyle(rect);
+}
+
 function appendExamGraphXAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, ticks, minimum, maximum, valueFormatter, axisFormatter = null }) {
   const valueToX = buildExamGraphPositionScale(minimum, maximum, plotLeft, plotWidth);
   const formatTick = axisFormatter ?? ((tick) => valueFormatter(tick));
@@ -13146,23 +13753,21 @@ function appendExamGraphXAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, t
     const x = valueToX(tick);
     const isEdge = Math.abs(tick - minimum) < 0.000001 || Math.abs(tick - maximum) < 0.000001;
     const isZero = Math.abs(tick) < 0.000001;
-    const line = createSvgElement("line");
-    line.setAttribute("x1", String(x));
-    line.setAttribute("x2", String(x));
-    line.setAttribute("y1", String(plotTop));
-    line.setAttribute("y2", String(plotTop + plotHeight));
-    line.setAttribute("stroke", "#111111");
-    line.setAttribute("stroke-width", isEdge || isZero ? "1.4" : "1");
-    if (!isEdge && !isZero) {
-      line.setAttribute("stroke-dasharray", "7 7");
+    if (!isEdge) {
+      const line = createSvgElement("line");
+      setExamGraphCoordinate(line, "x1", x);
+      setExamGraphCoordinate(line, "x2", x);
+      setExamGraphCoordinate(line, "y1", plotTop);
+      setExamGraphCoordinate(line, "y2", plotTop + plotHeight);
+      styleExamGraphGridLine(line, { zero: isZero });
+      svg.appendChild(line);
     }
-    svg.appendChild(line);
 
     const label = createSvgElement("text");
-    label.setAttribute("x", String(x));
-    label.setAttribute("y", String(plotTop + plotHeight + 28));
+    setExamGraphCoordinate(label, "x", x);
+    setExamGraphCoordinate(label, "y", plotTop + plotHeight + examGraphTheme.layout.xTickGap);
     label.setAttribute("text-anchor", Math.abs(tick - minimum) < 0.000001 ? "start" : Math.abs(tick - maximum) < 0.000001 ? "end" : "middle");
-    applyExamGraphTextStyle(label, { fontSize: 10.5, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = formatTick(tick);
     svg.appendChild(label);
   });
@@ -13170,74 +13775,143 @@ function appendExamGraphXAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, t
 }
 
 function appendExamGraphYAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, ticks, minimum, maximum, valueFormatter, axisFormatter = null }) {
-  const valueToY = (value) => plotTop + (1 - (Number(value) - minimum) / (maximum - minimum)) * plotHeight;
+  const valueToY = (value) => snapExamGraphCoordinate(plotTop + (1 - (Number(value) - minimum) / (maximum - minimum)) * plotHeight);
   const formatTick = axisFormatter ?? ((tick) => valueFormatter(tick));
   ticks.forEach((tick) => {
     const y = valueToY(tick);
     const isEdge = Math.abs(tick - minimum) < 0.000001 || Math.abs(tick - maximum) < 0.000001;
     const isZero = Math.abs(tick) < 0.000001;
-    const line = createSvgElement("line");
-    line.setAttribute("x1", String(plotLeft));
-    line.setAttribute("x2", String(plotLeft + plotWidth));
-    line.setAttribute("y1", String(y));
-    line.setAttribute("y2", String(y));
-    line.setAttribute("stroke", "#111111");
-    line.setAttribute("stroke-width", isEdge || isZero ? "1.4" : "1");
-    if (!isEdge && !isZero) {
-      line.setAttribute("stroke-dasharray", "7 7");
+    if (!isEdge) {
+      const line = createSvgElement("line");
+      setExamGraphCoordinate(line, "x1", plotLeft);
+      setExamGraphCoordinate(line, "x2", plotLeft + plotWidth);
+      setExamGraphCoordinate(line, "y1", y);
+      setExamGraphCoordinate(line, "y2", y);
+      styleExamGraphGridLine(line, { zero: isZero });
+      svg.appendChild(line);
     }
-    svg.appendChild(line);
 
     const label = createSvgElement("text");
-    label.setAttribute("x", String(plotLeft - 10));
-    label.setAttribute("y", String(y + 4));
+    setExamGraphCoordinate(label, "x", plotLeft - examGraphTheme.layout.yTickGap);
+    setExamGraphCoordinate(label, "y", y + 2.5);
     label.setAttribute("text-anchor", "end");
-    applyExamGraphTextStyle(label, { fontSize: 10.5, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = formatTick(tick);
     svg.appendChild(label);
   });
   return valueToY;
 }
 
+function chunkExamGraphLegendItems(items) {
+  const rowSize = Math.max(1, Number(examGraphTheme.legend.maxItemsPerRow) || 4);
+  const rows = [];
+  for (let index = 0; index < items.length; index += rowSize) {
+    rows.push(items.slice(index, index + rowSize));
+  }
+  return rows.length ? rows : [[]];
+}
+
+function measureExamGraphLegendRows(items, itemWidthGetter) {
+  const rows = chunkExamGraphLegendItems(items);
+  const rowWidths = rows.map((row) => {
+    const itemWidths = row.map(itemWidthGetter);
+    return itemWidths.reduce((sum, width) => sum + width, 0) + Math.max(0, row.length - 1) * examGraphTheme.legend.itemGap;
+  });
+  const width = snapExamGraphCoordinate(Math.max(...rowWidths, 0) + examGraphTheme.legend.paddingX * 2);
+  const height = snapExamGraphCoordinate(rows.length * examGraphTheme.legend.rowHeight + examGraphTheme.legend.paddingY * 2);
+  return { rows, rowWidths, width, height };
+}
+
+function measureExamGraphSwatchLegend(items) {
+  return measureExamGraphLegendRows(
+    items,
+    (item) => examGraphTheme.legend.swatchGap + String(item.label).length * examGraphTheme.legend.charWidth,
+  );
+}
+
+function measureExamGraphLineLegend(rows) {
+  return measureExamGraphLegendRows(
+    rows,
+    (row) =>
+      examGraphTheme.legend.sample +
+      examGraphTheme.legend.lineLabelGap +
+      String(row.displayLabel).length * examGraphTheme.legend.charWidth,
+  );
+}
+
+function getExamGraphLegendCenterY(plotBottom, measurement) {
+  const tickBand = examGraphTheme.layout.xTickGap + examGraphTheme.type.axisTick;
+  return snapExamGraphCoordinate(plotBottom + tickBand + examGraphTheme.layout.plotToLegend + measurement.height / 2);
+}
+
+function getExamGraphLegendBottomY(legendCenterY, measurement) {
+  return snapExamGraphCoordinate(legendCenterY + measurement.height / 2);
+}
+
+function getExamGraphNoteBaselineY(legendCenterY, measurement) {
+  return snapExamGraphCoordinate(getExamGraphLegendBottomY(legendCenterY, measurement) + examGraphTheme.layout.legendToNote + examGraphTheme.type.footnote);
+}
+
+function getExamGraphHeightAfterLegend(legendCenterY, measurement) {
+  return snapExamGraphCoordinate(getExamGraphLegendBottomY(legendCenterY, measurement) + examGraphTheme.layout.bottomPadding);
+}
+
+function getExamGraphHeightAfterNote(noteY) {
+  return snapExamGraphCoordinate(noteY + examGraphTheme.layout.bottomPadding);
+}
+
 function appendExamGraphLineLegend(svg, rows, centerX, y) {
-  const itemWidths = rows.map((row) => 42 + String(row.displayLabel).length * 12);
-  const totalWidth = itemWidths.reduce((sum, width) => sum + width, 0) + Math.max(0, rows.length - 1) * 12 + 20;
-  const startX = centerX - totalWidth / 2 + 10;
+  const theme = getActiveExamGraphVisualTheme();
+  const measurement = measureExamGraphLineLegend(rows);
+  const boxX = snapExamGraphCoordinate(centerX - measurement.width / 2);
+  const boxY = snapExamGraphCoordinate(y - measurement.height / 2);
 
   const box = createSvgElement("rect");
-  box.setAttribute("x", String(centerX - totalWidth / 2));
-  box.setAttribute("y", String(y - 18));
-  box.setAttribute("width", String(totalWidth));
-  box.setAttribute("height", "38");
-  box.setAttribute("fill", "#ffffff");
-  box.setAttribute("stroke", "#111111");
-  box.setAttribute("stroke-width", "1.2");
+  setExamGraphBox(box, { x: boxX, y: boxY, width: measurement.width, height: measurement.height });
+  box.setAttribute("fill", theme.colors.paper);
+  box.setAttribute("stroke", theme.colors.frame ?? theme.colors.ink);
+  box.setAttribute("stroke-width", theme.strokes.legendFrame);
+  applyExamGraphStrokeStyle(box);
   svg.appendChild(box);
 
-  let cursorX = startX;
-  rows.forEach((row, index) => {
-    const style = examGraphLineStyleDefinitions[index % examGraphLineStyleDefinitions.length];
-    const sample = createSvgElement("line");
-    sample.setAttribute("x1", String(cursorX));
-    sample.setAttribute("x2", String(cursorX + 18));
-    sample.setAttribute("y1", String(y + 1));
-    sample.setAttribute("y2", String(y + 1));
-    sample.setAttribute("stroke", style.stroke);
-    sample.setAttribute("stroke-width", "2.3");
-    if (style.dasharray) {
-      sample.setAttribute("stroke-dasharray", style.dasharray);
-    }
-    svg.appendChild(sample);
+  let itemIndex = 0;
+  measurement.rows.forEach((legendRow, rowIndex) => {
+    let cursorX = snapExamGraphCoordinate(centerX - measurement.rowWidths[rowIndex] / 2);
+    const rowY = snapExamGraphCoordinate(boxY + examGraphTheme.legend.paddingY + rowIndex * examGraphTheme.legend.rowHeight + examGraphTheme.legend.rowHeight / 2);
+    legendRow.forEach((row) => {
+      const style = getExamGraphLineStyle(itemIndex);
+      const itemWidth =
+        examGraphTheme.legend.sample +
+        examGraphTheme.legend.lineLabelGap +
+        String(row.displayLabel).length * examGraphTheme.legend.charWidth;
+      const sample = createSvgElement("line");
+      setExamGraphCoordinate(sample, "x1", cursorX);
+      setExamGraphCoordinate(sample, "x2", cursorX + examGraphTheme.legend.sample);
+      setExamGraphCoordinate(sample, "y1", rowY);
+      setExamGraphCoordinate(sample, "y2", rowY);
+      sample.setAttribute("stroke", style.stroke);
+      sample.setAttribute("stroke-width", theme.strokes.line);
+      if (isExamGraphBasicStyle()) {
+        sample.setAttribute("stroke-linecap", "round");
+      }
+      applyExamGraphStrokeStyle(sample);
+      if (style.dasharray) {
+        sample.setAttribute("stroke-dasharray", style.dasharray);
+      }
+      svg.appendChild(sample);
 
-    const label = createSvgElement("text");
-    label.setAttribute("x", String(cursorX + 24));
-    label.setAttribute("y", String(y + 5));
-    applyExamGraphTextStyle(label, { fontSize: 13, fontWeight: 700 });
-    label.textContent = row.displayLabel;
-    svg.appendChild(label);
+      const label = createSvgElement("text");
+      setExamGraphCoordinate(label, "x", cursorX + examGraphTheme.legend.sample + examGraphTheme.legend.lineLabelGap);
+      setExamGraphCoordinate(label, "y", rowY + 2.8);
+      applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.legend, fontWeight: 700 });
+      label.textContent = row.displayLabel;
+      svg.appendChild(label);
 
-    cursorX += itemWidths[index] + 12;
+      cursorX = snapExamGraphCoordinate(cursorX + itemWidth + examGraphTheme.legend.itemGap);
+      itemIndex += 1;
+    });
   });
+  return measurement;
 }
 
 function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, footnote, mode = "share", valueFormatter = (value) => formatPercent(value) }) {
@@ -13245,21 +13919,18 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
     return buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendItems, footnote, mode, valueFormatter });
   }
 
-  const width = 880;
-  const plotLeft = 158;
-  const plotTop = 74;
-  const plotWidth = 660;
-  const barHeight = 34;
-  const rowGap = 18;
-  const legendHeight = 72;
-  const footnoteHeight = footnote ? 30 : 0;
+  const width = examGraphTheme.layout.width;
+  const plotLeft = 48;
+  const plotTop = examGraphTheme.layout.plotTop;
+  const plotWidth = width - plotLeft - 9;
+  const barHeight = 12.5;
+  const rowGap = examGraphTheme.layout.blockGap;
   const plotHeight = rows.length * (barHeight + rowGap) - rowGap;
-  const height = plotTop + plotHeight + 68 + legendHeight + footnoteHeight;
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const legendMeasurement = measureExamGraphSwatchLegend(legendItems);
+  const legendY = getExamGraphLegendCenterY(plotTop + plotHeight, legendMeasurement);
+  const noteY = footnote ? getExamGraphNoteBaselineY(legendY, legendMeasurement) : null;
+  const height = noteY ? getExamGraphHeightAfterNote(noteY) : getExamGraphHeightAfterLegend(legendY, legendMeasurement);
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
 
@@ -13268,15 +13939,7 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
   const domainMaximum = mode === "amount" ? amountDomain.maximum : 100;
   const ticks = mode === "amount" ? getExamGraphAxisTicks(domainMinimum, domainMaximum, 5) : [0, 20, 40, 60, 80, 100];
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plotLeft));
-  frame.setAttribute("y", String(plotTop));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
 
   appendExamGraphXAxis(svg, {
     plotLeft,
@@ -13291,13 +13954,13 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
   });
 
   rows.forEach((row, rowIndex) => {
-    const y = plotTop + rowIndex * (barHeight + rowGap);
+    const y = snapExamGraphCoordinate(plotTop + rowIndex * (barHeight + rowGap));
     const label = createSvgElement("text");
-    label.setAttribute("x", String(plotLeft - 18));
-    label.setAttribute("y", String(y + barHeight / 2 + 1));
+    setExamGraphCoordinate(label, "x", plotLeft - examGraphTheme.layout.labelGap);
+    setExamGraphCoordinate(label, "y", y + barHeight / 2 + 1);
     label.setAttribute("text-anchor", "end");
     label.setAttribute("dominant-baseline", "middle");
-    applyExamGraphTextStyle(label, { fontSize: 18, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabel, fontWeight: 700 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
 
@@ -13306,25 +13969,21 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
       const rect = createSvgElement("rect");
       const segmentValue = mode === "amount" ? Number(segment.value) || 0 : clamp(Number(segment.share) || 0, 0, 100);
       const segmentWidth = domainMaximum > 0 ? (plotWidth * segmentValue) / domainMaximum : 0;
-      rect.setAttribute("x", String(cursorX));
-      rect.setAttribute("y", String(y));
-      rect.setAttribute("width", String(segmentWidth));
-      rect.setAttribute("height", String(barHeight));
-      rect.setAttribute("fill", getExamGraphFill(segmentIndex));
-      rect.setAttribute("stroke", "#111111");
-      rect.setAttribute("stroke-width", "1");
+      setExamGraphBox(rect, { x: cursorX, y, width: segmentWidth, height: barHeight });
+      styleExamGraphDataRect(rect, getExamGraphFill(segmentIndex));
       svg.appendChild(rect);
       cursorX += segmentWidth;
     });
   });
 
-  appendExamGraphLegend(svg, legendItems, width / 2, plotTop + plotHeight + 58);
+  appendExamGraphPlotBorder(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
+  appendExamGraphLegend(svg, legendItems, width / 2, legendY);
 
   if (footnote) {
     const note = createSvgElement("text");
-    note.setAttribute("x", String(plotLeft));
-    note.setAttribute("y", String(height - 10));
-    applyExamGraphTextStyle(note, { fontSize: 11, fontWeight: 500 });
+    setExamGraphCoordinate(note, "x", plotLeft);
+    setExamGraphCoordinate(note, "y", noteY);
+    applyExamGraphTextStyle(note, { fontSize: examGraphTheme.type.footnote, fontWeight: 500 });
     note.textContent = footnote;
     svg.appendChild(note);
   }
@@ -13333,34 +13992,25 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
 }
 
 function buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendItems, footnote, mode = "share", valueFormatter = (value) => formatPercent(value) }) {
-  const width = 720;
-  const height = 900;
-  const plot = { left: 80, right: 44, top: 86, bottom: footnote ? 214 : 184 };
+  const width = examGraphTheme.layout.width;
+  const plot = { left: 34, right: 8, top: examGraphTheme.layout.plotTop };
   const plotWidth = width - plot.left - plot.right;
-  const plotHeight = height - plot.top - plot.bottom;
+  const plotHeight = 218;
+  const legendMeasurement = measureExamGraphSwatchLegend(legendItems);
+  const legendY = getExamGraphLegendCenterY(plot.top + plotHeight, legendMeasurement);
+  const noteY = footnote ? getExamGraphNoteBaselineY(legendY, legendMeasurement) : null;
+  const height = noteY ? getExamGraphHeightAfterNote(noteY) : getExamGraphHeightAfterLegend(legendY, legendMeasurement);
   const step = plotWidth / rows.length;
-  const columnWidth = Math.min(48, step * 0.68);
+  const columnWidth = Math.min(17, step * 0.68);
   const amountDomain = getExamGraphAxisDomain(rows.map((row) => Number(row.total) || 0), { forceZeroStart: true, paddingRatio: 0.04 });
   const domainMinimum = mode === "amount" ? amountDomain.minimum : 0;
   const domainMaximum = mode === "amount" ? amountDomain.maximum : 100;
   const ticks = mode === "amount" ? getExamGraphAxisTicks(domainMinimum, domainMaximum, 5) : [0, 20, 40, 60, 80, 100];
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plot.left));
-  frame.setAttribute("y", String(plot.top));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
 
   const valueToY = appendExamGraphYAxis(svg, {
     plotLeft: plot.left,
@@ -13388,30 +14038,29 @@ function buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendI
       rect.setAttribute("y", String(nextY));
       rect.setAttribute("width", String(columnWidth));
       rect.setAttribute("height", String(Math.max(1, cursorY - nextY)));
-      rect.setAttribute("fill", getExamGraphFill(segmentIndex));
-      rect.setAttribute("stroke", "#111111");
-      rect.setAttribute("stroke-width", "1");
+      styleExamGraphDataRect(rect, getExamGraphFill(segmentIndex));
       svg.appendChild(rect);
       cursorY = nextY;
     });
 
     const label = createSvgElement("text");
     label.setAttribute("x", String(x + columnWidth / 2));
-    label.setAttribute("y", String(plot.top + plotHeight + 26));
+    label.setAttribute("y", String(plot.top + plotHeight + 13));
     label.setAttribute("text-anchor", "end");
-    label.setAttribute("transform", `rotate(-55 ${x + columnWidth / 2} ${plot.top + plotHeight + 26})`);
-    applyExamGraphTextStyle(label, { fontSize: 12, fontWeight: 700 });
+    label.setAttribute("transform", `rotate(-55 ${x + columnWidth / 2} ${plot.top + plotHeight + 13})`);
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
 
-  appendExamGraphLegend(svg, legendItems, width / 2, height - (footnote ? 78 : 48));
+  appendExamGraphPlotBorder(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
+  appendExamGraphLegend(svg, legendItems, width / 2, legendY);
 
   if (footnote) {
     const note = createSvgElement("text");
-    note.setAttribute("x", String(plot.left));
-    note.setAttribute("y", String(height - 18));
-    applyExamGraphTextStyle(note, { fontSize: 11, fontWeight: 500 });
+    setExamGraphCoordinate(note, "x", plot.left);
+    setExamGraphCoordinate(note, "y", noteY);
+    applyExamGraphTextStyle(note, { fontSize: examGraphTheme.type.footnote, fontWeight: 500 });
     note.textContent = footnote;
     svg.appendChild(note);
   }
@@ -13424,35 +14073,23 @@ function buildExamSingleBarSvg({ title, subtitle, rows, valueFormatter, axisForm
     return buildExamSingleBarSvgPortrait({ title, subtitle, rows, valueFormatter, axisFormatter });
   }
 
-  const width = 880;
-  const plotLeft = 170;
-  const plotTop = 74;
-  const plotWidth = 650;
-  const barHeight = 22;
-  const rowGap = 16;
+  const width = examGraphTheme.layout.width;
+  const plotLeft = 50;
+  const plotTop = examGraphTheme.layout.plotTop;
+  const plotWidth = width - plotLeft - 9;
+  const barHeight = 9.5;
+  const rowGap = examGraphTheme.layout.blockGap;
   const plotHeight = rows.length * (barHeight + rowGap) - rowGap;
-  const height = plotTop + plotHeight + 72;
+  const height = plotTop + plotHeight + 28;
   const values = rows.map((row) => Number(row.displayValue ?? row.value));
   const { minimum, maximum } = getExamGraphAxisDomain(values, { paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
 
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plotLeft));
-  frame.setAttribute("y", String(plotTop));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
 
   const valueToX = appendExamGraphXAxis(svg, {
     plotLeft,
@@ -13468,62 +14105,46 @@ function buildExamSingleBarSvg({ title, subtitle, rows, valueFormatter, axisForm
   const zeroX = valueToX(0);
 
   rows.forEach((row, rowIndex) => {
-    const y = plotTop + rowIndex * (barHeight + rowGap);
+    const y = snapExamGraphCoordinate(plotTop + rowIndex * (barHeight + rowGap));
     const value = Number(row.displayValue ?? row.value) || 0;
     const barStart = Math.min(zeroX, valueToX(value));
     const barWidth = Math.max(1, Math.abs(valueToX(value) - zeroX));
 
     const label = createSvgElement("text");
-    label.setAttribute("x", String(plotLeft - 16));
-    label.setAttribute("y", String(y + barHeight / 2));
+    setExamGraphCoordinate(label, "x", plotLeft - examGraphTheme.layout.labelGap);
+    setExamGraphCoordinate(label, "y", y + barHeight / 2);
     label.setAttribute("text-anchor", "end");
     label.setAttribute("dominant-baseline", "middle");
-    applyExamGraphTextStyle(label, { fontSize: 17, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabelCompact, fontWeight: 700 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
 
     const rect = createSvgElement("rect");
-    rect.setAttribute("x", String(barStart));
-    rect.setAttribute("y", String(y));
-    rect.setAttribute("width", String(barWidth));
-    rect.setAttribute("height", String(barHeight));
-    rect.setAttribute("fill", getExamGraphFill(rowIndex));
-    rect.setAttribute("stroke", "#111111");
-    rect.setAttribute("stroke-width", "1");
+    setExamGraphBox(rect, { x: barStart, y, width: barWidth, height: barHeight });
+    styleExamGraphDataRect(rect, getExamGraphFill(rowIndex));
     svg.appendChild(rect);
   });
 
+  appendExamGraphPlotBorder(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
   return svg;
 }
 
 function buildExamSingleBarSvgPortrait({ title, subtitle, rows, valueFormatter, axisFormatter = null }) {
-  const width = 720;
-  const height = 860;
-  const plot = { left: 84, right: 42, top: 88, bottom: 188 };
+  const width = examGraphTheme.layout.width;
+  const height = 308;
+  const plot = { left: 34, right: 8, top: examGraphTheme.layout.plotTop, bottom: 58 };
   const plotWidth = width - plot.left - plot.right;
   const plotHeight = height - plot.top - plot.bottom;
   const values = rows.map((row) => Number(row.displayValue ?? row.value));
   const { minimum, maximum } = getExamGraphAxisDomain(values, { paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
   const step = plotWidth / rows.length;
-  const columnWidth = Math.min(42, step * 0.7);
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const columnWidth = Math.min(16, step * 0.7);
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plot.left));
-  frame.setAttribute("y", String(plot.top));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
 
   const valueToY = appendExamGraphYAxis(svg, {
     plotLeft: plot.left,
@@ -13540,28 +14161,24 @@ function buildExamSingleBarSvgPortrait({ title, subtitle, rows, valueFormatter, 
 
   rows.forEach((row, rowIndex) => {
     const value = Number(row.displayValue ?? row.value) || 0;
-    const x = plot.left + step * rowIndex + (step - columnWidth) / 2;
+    const x = snapExamGraphCoordinate(plot.left + step * rowIndex + (step - columnWidth) / 2);
     const y = Math.min(zeroY, valueToY(value));
     const rect = createSvgElement("rect");
-    rect.setAttribute("x", String(x));
-    rect.setAttribute("y", String(y));
-    rect.setAttribute("width", String(columnWidth));
-    rect.setAttribute("height", String(Math.max(1, Math.abs(valueToY(value) - zeroY))));
-    rect.setAttribute("fill", getExamGraphFill(rowIndex));
-    rect.setAttribute("stroke", "#111111");
-    rect.setAttribute("stroke-width", "1");
+    setExamGraphBox(rect, { x, y, width: columnWidth, height: Math.max(1, Math.abs(valueToY(value) - zeroY)) });
+    styleExamGraphDataRect(rect, getExamGraphFill(rowIndex));
     svg.appendChild(rect);
 
     const label = createSvgElement("text");
     label.setAttribute("x", String(x + columnWidth / 2));
-    label.setAttribute("y", String(plot.top + plotHeight + 24));
+    label.setAttribute("y", String(plot.top + plotHeight + 13));
     label.setAttribute("text-anchor", "end");
-    label.setAttribute("transform", `rotate(-55 ${x + columnWidth / 2} ${plot.top + plotHeight + 24})`);
-    applyExamGraphTextStyle(label, { fontSize: 12.5, fontWeight: 700 });
+    label.setAttribute("transform", `rotate(-55 ${x + columnWidth / 2} ${plot.top + plotHeight + 13})`);
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
 
+  appendExamGraphPlotBorder(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
   return svg;
 }
 
@@ -13570,37 +14187,26 @@ function buildExamPairedBarSvg({ title, subtitle, rows, legendItems, valueFormat
     return buildExamPairedBarSvgPortrait({ title, subtitle, rows, legendItems, valueFormatter, axisFormatter });
   }
 
-  const width = 900;
-  const plotLeft = 178;
-  const plotTop = 78;
-  const plotWidth = 660;
-  const barHeight = 15;
-  const groupGap = 28;
-  const groupHeight = barHeight * 2 + 10;
-  const legendHeight = 66;
+  const width = examGraphTheme.layout.width;
+  const plotLeft = 52;
+  const plotTop = examGraphTheme.layout.plotTop;
+  const plotWidth = width - plotLeft - 9;
+  const barHeight = 7;
+  const groupGap = examGraphTheme.layout.blockGap;
+  const groupHeight = barHeight * 2 + 4;
   const plotHeight = rows.length * (groupHeight + groupGap) - groupGap;
-  const height = plotTop + plotHeight + legendHeight + 22;
+  const legendMeasurement = measureExamGraphSwatchLegend(legendItems);
+  const legendY = getExamGraphLegendCenterY(plotTop + plotHeight, legendMeasurement);
+  const height = getExamGraphHeightAfterLegend(legendY, legendMeasurement);
   const values = rows.flatMap((row) => [Number(row.displayFirstValue), Number(row.displaySecondValue)]);
   const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
 
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plotLeft));
-  frame.setAttribute("y", String(plotTop));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
 
   const valueToX = appendExamGraphXAxis(svg, {
     plotLeft,
@@ -13616,68 +14222,52 @@ function buildExamPairedBarSvg({ title, subtitle, rows, legendItems, valueFormat
   const zeroX = valueToX(0);
 
   rows.forEach((row, rowIndex) => {
-    const y = plotTop + rowIndex * (groupHeight + groupGap);
+    const y = snapExamGraphCoordinate(plotTop + rowIndex * (groupHeight + groupGap));
     const label = createSvgElement("text");
-    label.setAttribute("x", String(plotLeft - 18));
-    label.setAttribute("y", String(y + groupHeight / 2));
+    setExamGraphCoordinate(label, "x", plotLeft - examGraphTheme.layout.labelGap);
+    setExamGraphCoordinate(label, "y", y + groupHeight / 2);
     label.setAttribute("text-anchor", "end");
     label.setAttribute("dominant-baseline", "middle");
-    applyExamGraphTextStyle(label, { fontSize: 18, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabel, fontWeight: 700 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
 
     [
       { value: row.displayFirstValue, yOffset: 0, fill: legendItems[0]?.fill ?? getExamGraphFill(0), seriesIndex: 0 },
-      { value: row.displaySecondValue, yOffset: barHeight + 10, fill: legendItems[1]?.fill ?? getExamGraphFill(1), seriesIndex: 1 },
+      { value: row.displaySecondValue, yOffset: barHeight + 4, fill: legendItems[1]?.fill ?? getExamGraphFill(1), seriesIndex: 1 },
     ].forEach((bar) => {
       const x = Math.min(zeroX, valueToX(bar.value));
       const rect = createSvgElement("rect");
-      rect.setAttribute("x", String(x));
-      rect.setAttribute("y", String(y + bar.yOffset));
-      rect.setAttribute("width", String(Math.max(1, Math.abs(valueToX(bar.value) - zeroX))));
-      rect.setAttribute("height", String(barHeight));
-      rect.setAttribute("fill", bar.fill);
-      rect.setAttribute("stroke", "#111111");
-      rect.setAttribute("stroke-width", "1");
+      setExamGraphBox(rect, { x, y: y + bar.yOffset, width: Math.max(1, Math.abs(valueToX(bar.value) - zeroX)), height: barHeight });
+      styleExamGraphDataRect(rect, bar.fill);
       svg.appendChild(rect);
     });
   });
 
-  appendExamGraphLegend(svg, legendItems, width / 2, plotTop + plotHeight + 56);
+  appendExamGraphPlotBorder(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
+  appendExamGraphLegend(svg, legendItems, width / 2, legendY);
   return svg;
 }
 
 function buildExamPairedBarSvgPortrait({ title, subtitle, rows, legendItems, valueFormatter, axisFormatter = null }) {
-  const width = 740;
-  const height = 900;
-  const plot = { left: 84, right: 42, top: 88, bottom: 196 };
+  const width = examGraphTheme.layout.width;
+  const height = 326;
+  const plot = { left: 34, right: 8, top: examGraphTheme.layout.plotTop, bottom: 76 };
   const plotWidth = width - plot.left - plot.right;
   const plotHeight = height - plot.top - plot.bottom;
   const values = rows.flatMap((row) => [Number(row.displayFirstValue), Number(row.displaySecondValue)]);
   const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
   const step = plotWidth / rows.length;
-  const groupWidth = Math.min(54, step * 0.78);
-  const barGap = Math.min(8, groupWidth * 0.12);
-  const barWidth = Math.max(10, (groupWidth - barGap) / 2);
+  const groupWidth = Math.min(20, step * 0.78);
+  const barGap = Math.min(3, groupWidth * 0.12);
+  const barWidth = Math.max(6, (groupWidth - barGap) / 2);
 
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plot.left));
-  frame.setAttribute("y", String(plot.top));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
 
   const valueToY = appendExamGraphYAxis(svg, {
     plotLeft: plot.left,
@@ -13704,23 +14294,24 @@ function buildExamPairedBarSvgPortrait({ title, subtitle, rows, legendItems, val
       rect.setAttribute("y", String(y));
       rect.setAttribute("width", String(barWidth));
       rect.setAttribute("height", String(Math.max(1, Math.abs(valueToY(bar.value) - zeroY))));
-      rect.setAttribute("fill", bar.fill);
-      rect.setAttribute("stroke", "#111111");
-      rect.setAttribute("stroke-width", "1");
+      styleExamGraphDataRect(rect, bar.fill);
       svg.appendChild(rect);
     });
 
     const label = createSvgElement("text");
     label.setAttribute("x", String(x + groupWidth / 2));
-    label.setAttribute("y", String(plot.top + plotHeight + 24));
+    label.setAttribute("y", String(plot.top + plotHeight + 13));
     label.setAttribute("text-anchor", "end");
-    label.setAttribute("transform", `rotate(-55 ${x + groupWidth / 2} ${plot.top + plotHeight + 24})`);
-    applyExamGraphTextStyle(label, { fontSize: 12, fontWeight: 700 });
+    label.setAttribute("transform", `rotate(-55 ${x + groupWidth / 2} ${plot.top + plotHeight + 13})`);
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
 
-  appendExamGraphLegend(svg, legendItems, width / 2, height - 32);
+  const legendMeasurement = measureExamGraphSwatchLegend(legendItems);
+  const legendY = getExamGraphLegendCenterY(plot.top + plotHeight, legendMeasurement);
+  appendExamGraphPlotBorder(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
+  appendExamGraphLegend(svg, legendItems, width / 2, legendY);
   return svg;
 }
 
@@ -13729,35 +14320,29 @@ function buildExamTimeCompareSvg({ title, subtitle, rows, startYear, endYear, va
     return buildExamTimeCompareSvgPortrait({ title, subtitle, rows, startYear, endYear, valueFormatter, axisFormatter });
   }
 
-  const width = 900;
-  const plotLeft = 178;
-  const plotTop = 78;
-  const plotWidth = 660;
-  const barHeight = 16;
-  const rowGap = 28;
-  const groupHeight = barHeight * 2 + 10;
+  const width = examGraphTheme.layout.width;
+  const plotLeft = 52;
+  const plotTop = examGraphTheme.layout.plotTop;
+  const plotWidth = width - plotLeft - 9;
+  const barHeight = 7;
+  const rowGap = examGraphTheme.layout.blockGap;
+  const groupHeight = barHeight * 2 + 4;
   const plotHeight = rows.length * (groupHeight + rowGap) - rowGap;
-  const height = plotTop + plotHeight + 92;
+  const legendItems = [
+    { label: `${startYear}년`, fill: getExamGraphFill(1) },
+    { label: `${endYear}년`, fill: getExamGraphFill(0) },
+  ];
+  const legendMeasurement = measureExamGraphSwatchLegend(legendItems);
+  const legendY = getExamGraphLegendCenterY(plotTop + plotHeight, legendMeasurement);
+  const height = getExamGraphHeightAfterLegend(legendY, legendMeasurement);
   const values = rows.flatMap((row) => [Number(row.displayStartValue ?? row.startValue), Number(row.displayEndValue ?? row.endValue)]);
   const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plotLeft));
-  frame.setAttribute("y", String(plotTop));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
 
   const valueToX = appendExamGraphXAxis(svg, {
     plotLeft,
@@ -13773,75 +14358,56 @@ function buildExamTimeCompareSvg({ title, subtitle, rows, startYear, endYear, va
   const zeroX = valueToX(0);
 
   rows.forEach((row, rowIndex) => {
-    const y = plotTop + rowIndex * (groupHeight + rowGap);
+    const y = snapExamGraphCoordinate(plotTop + rowIndex * (groupHeight + rowGap));
     const label = createSvgElement("text");
-    label.setAttribute("x", String(plotLeft - 18));
-    label.setAttribute("y", String(y + groupHeight / 2));
+    setExamGraphCoordinate(label, "x", plotLeft - examGraphTheme.layout.labelGap);
+    setExamGraphCoordinate(label, "y", y + groupHeight / 2);
     label.setAttribute("text-anchor", "end");
     label.setAttribute("dominant-baseline", "middle");
-    applyExamGraphTextStyle(label, { fontSize: 18, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabel, fontWeight: 700 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
 
     [
       { value: row.displayStartValue ?? row.startValue, yOffset: 0, fill: getExamGraphFill(1) },
-      { value: row.displayEndValue ?? row.endValue, yOffset: barHeight + 10, fill: getExamGraphFill(0) },
+      { value: row.displayEndValue ?? row.endValue, yOffset: barHeight + 4, fill: getExamGraphFill(0) },
     ].forEach((bar) => {
       const rect = createSvgElement("rect");
-      rect.setAttribute("x", String(Math.min(zeroX, valueToX(bar.value))));
-      rect.setAttribute("y", String(y + bar.yOffset));
-      rect.setAttribute("width", String(Math.max(1, Math.abs(valueToX(bar.value) - zeroX))));
-      rect.setAttribute("height", String(barHeight));
-      rect.setAttribute("fill", bar.fill);
-      rect.setAttribute("stroke", "#111111");
-      rect.setAttribute("stroke-width", "1");
+      setExamGraphBox(rect, {
+        x: Math.min(zeroX, valueToX(bar.value)),
+        y: y + bar.yOffset,
+        width: Math.max(1, Math.abs(valueToX(bar.value) - zeroX)),
+        height: barHeight,
+      });
+      styleExamGraphDataRect(rect, bar.fill);
       svg.appendChild(rect);
     });
   });
 
-  appendExamGraphLegend(
-    svg,
-    [
-      { label: `${startYear}년`, fill: getExamGraphFill(1) },
-      { label: `${endYear}년`, fill: getExamGraphFill(0) },
-    ],
-    width / 2,
-    plotTop + plotHeight + 58,
-  );
+  appendExamGraphPlotBorder(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
+  appendExamGraphLegend(svg, legendItems, width / 2, legendY);
 
   return svg;
 }
 
 function buildExamTimeCompareSvgPortrait({ title, subtitle, rows, startYear, endYear, valueFormatter, axisFormatter = null }) {
-  const width = 740;
-  const height = 900;
-  const plot = { left: 84, right: 42, top: 88, bottom: 196 };
+  const width = examGraphTheme.layout.width;
+  const height = 326;
+  const plot = { left: 34, right: 8, top: examGraphTheme.layout.plotTop, bottom: 76 };
   const plotWidth = width - plot.left - plot.right;
   const plotHeight = height - plot.top - plot.bottom;
   const values = rows.flatMap((row) => [Number(row.displayStartValue ?? row.startValue), Number(row.displayEndValue ?? row.endValue)]);
   const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
   const step = plotWidth / rows.length;
-  const groupWidth = Math.min(54, step * 0.78);
-  const barGap = Math.min(8, groupWidth * 0.12);
-  const barWidth = Math.max(10, (groupWidth - barGap) / 2);
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const groupWidth = Math.min(20, step * 0.78);
+  const barGap = Math.min(3, groupWidth * 0.12);
+  const barWidth = Math.max(6, (groupWidth - barGap) / 2);
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plot.left));
-  frame.setAttribute("y", String(plot.top));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
 
   const valueToY = appendExamGraphYAxis(svg, {
     plotLeft: plot.left,
@@ -13868,86 +14434,71 @@ function buildExamTimeCompareSvgPortrait({ title, subtitle, rows, startYear, end
       rect.setAttribute("y", String(y));
       rect.setAttribute("width", String(barWidth));
       rect.setAttribute("height", String(Math.max(1, Math.abs(valueToY(bar.value) - zeroY))));
-      rect.setAttribute("fill", bar.fill);
-      rect.setAttribute("stroke", "#111111");
-      rect.setAttribute("stroke-width", "1");
+      styleExamGraphDataRect(rect, bar.fill);
       svg.appendChild(rect);
     });
 
     const label = createSvgElement("text");
     label.setAttribute("x", String(x + groupWidth / 2));
-    label.setAttribute("y", String(plot.top + plotHeight + 24));
+    label.setAttribute("y", String(plot.top + plotHeight + 13));
     label.setAttribute("text-anchor", "end");
-    label.setAttribute("transform", `rotate(-55 ${x + groupWidth / 2} ${plot.top + plotHeight + 24})`);
-    applyExamGraphTextStyle(label, { fontSize: 12, fontWeight: 700 });
+    label.setAttribute("transform", `rotate(-55 ${x + groupWidth / 2} ${plot.top + plotHeight + 13})`);
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
 
-  appendExamGraphLegend(
-    svg,
-    [
-      { label: `${startYear}년`, fill: getExamGraphFill(1) },
-      { label: `${endYear}년`, fill: getExamGraphFill(0) },
-    ],
-    width / 2,
-    height - 32,
-  );
+  const legendItems = [
+    { label: `${startYear}년`, fill: getExamGraphFill(1) },
+    { label: `${endYear}년`, fill: getExamGraphFill(0) },
+  ];
+  const legendMeasurement = measureExamGraphSwatchLegend(legendItems);
+  const legendY = getExamGraphLegendCenterY(plot.top + plotHeight, legendMeasurement);
+  appendExamGraphPlotBorder(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
+  appendExamGraphLegend(svg, legendItems, width / 2, legendY);
 
   return svg;
 }
 
 function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, axisFormatter = null }) {
   const isPortrait = getExamGraphOrientation() === "portrait";
-  const width = isPortrait ? 720 : 900;
-  const height = isPortrait ? 820 : 620;
-  const plot = isPortrait ? { left: 84, right: 42, top: 88, bottom: 126 } : { left: 84, right: 42, top: 88, bottom: 102 };
+  const width = examGraphTheme.layout.width;
+  const plot = isPortrait
+    ? { left: 32, right: 8, top: examGraphTheme.layout.plotTop }
+    : { left: 32, right: 8, top: examGraphTheme.layout.plotTop };
   const plotWidth = width - plot.left - plot.right;
-  const plotHeight = height - plot.top - plot.bottom;
+  const plotHeight = isPortrait ? 142 : 124;
+  const legendMeasurement = measureExamGraphLineLegend(rows);
+  const legendY = getExamGraphLegendCenterY(plot.top + plotHeight, legendMeasurement);
+  const height = getExamGraphHeightAfterLegend(legendY, legendMeasurement);
   const values = rows.flatMap((row) => row.points.map((point) => Number(point.displayValue ?? point.value)));
   const { minimum, maximum } = getExamGraphAxisDomain(values, { paddingRatio: 0.08 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
   const xStep = years.length > 1 ? plotWidth / (years.length - 1) : 0;
-  const yearToX = new Map(years.map((year, index) => [year, plot.left + xStep * index]));
-  const valueToY = (value) => plot.top + (1 - (Number(value) - minimum) / (maximum - minimum)) * plotHeight;
+  const yearToX = new Map(years.map((year, index) => [year, snapExamGraphCoordinate(plot.left + xStep * index)]));
+  const valueToY = (value) => snapExamGraphCoordinate(plot.top + (1 - (Number(value) - minimum) / (maximum - minimum)) * plotHeight);
 
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plot.left));
-  frame.setAttribute("y", String(plot.top));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
 
   ticks.forEach((tick) => {
     const y = valueToY(tick);
     const line = createSvgElement("line");
-    line.setAttribute("x1", String(plot.left));
-    line.setAttribute("x2", String(plot.left + plotWidth));
-    line.setAttribute("y1", String(y));
-    line.setAttribute("y2", String(y));
-    line.setAttribute("stroke", "#111111");
-    line.setAttribute("stroke-width", Math.abs(tick) < 0.000001 ? "1.4" : "1");
-    if (Math.abs(tick) >= 0.000001) {
-      line.setAttribute("stroke-dasharray", "7 7");
-    }
+    setExamGraphCoordinate(line, "x1", plot.left);
+    setExamGraphCoordinate(line, "x2", plot.left + plotWidth);
+    setExamGraphCoordinate(line, "y1", y);
+    setExamGraphCoordinate(line, "y2", y);
+    styleExamGraphGridLine(line, { zero: Math.abs(tick) < 0.000001 });
     svg.appendChild(line);
 
     const label = createSvgElement("text");
-    label.setAttribute("x", String(plot.left - 10));
-    label.setAttribute("y", String(y + 4));
+    setExamGraphCoordinate(label, "x", plot.left - examGraphTheme.layout.yTickGap);
+    setExamGraphCoordinate(label, "y", y + 2.5);
     label.setAttribute("text-anchor", "end");
-    applyExamGraphTextStyle(label, { fontSize: 10.5, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = axisFormatter ? axisFormatter(tick) : formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)));
     svg.appendChild(label);
   });
@@ -13959,36 +14510,40 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
     }
     const x = yearToX.get(year);
     const line = createSvgElement("line");
-    line.setAttribute("x1", String(x));
-    line.setAttribute("x2", String(x));
-    line.setAttribute("y1", String(plot.top));
-    line.setAttribute("y2", String(plot.top + plotHeight));
-    line.setAttribute("stroke", "#111111");
-    line.setAttribute("stroke-width", "1");
-    line.setAttribute("stroke-dasharray", "7 7");
+    setExamGraphCoordinate(line, "x1", x);
+    setExamGraphCoordinate(line, "x2", x);
+    setExamGraphCoordinate(line, "y1", plot.top);
+    setExamGraphCoordinate(line, "y2", plot.top + plotHeight);
+    styleExamGraphGridLine(line);
     svg.appendChild(line);
 
     const label = createSvgElement("text");
-    label.setAttribute("x", String(x));
-    label.setAttribute("y", String(height - 40));
+    setExamGraphCoordinate(label, "x", x);
+    setExamGraphCoordinate(label, "y", plot.top + plotHeight + examGraphTheme.layout.xTickGap);
     label.setAttribute("text-anchor", "middle");
-    applyExamGraphTextStyle(label, { fontSize: 10.5, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = `${year}`;
     svg.appendChild(label);
   });
 
   rows.forEach((row, rowIndex) => {
-    const style = examGraphLineStyleDefinitions[rowIndex % examGraphLineStyleDefinitions.length];
+    const theme = getActiveExamGraphVisualTheme();
+    const style = getExamGraphLineStyle(rowIndex);
     const path = createSvgElement("polyline");
     path.setAttribute(
       "points",
       row.points
-        .map((point) => `${yearToX.get(point.year)},${valueToY(point.displayValue ?? point.value)}`)
+        .map((point) => `${formatExamGraphCoordinate(yearToX.get(point.year))},${formatExamGraphCoordinate(valueToY(point.displayValue ?? point.value))}`)
         .join(" "),
     );
     path.setAttribute("fill", "none");
     path.setAttribute("stroke", style.stroke);
-    path.setAttribute("stroke-width", "2.4");
+    path.setAttribute("stroke-width", theme.strokes.line);
+    if (isExamGraphBasicStyle()) {
+      path.setAttribute("stroke-linecap", "round");
+      path.setAttribute("stroke-linejoin", "round");
+    }
+    applyExamGraphStrokeStyle(path);
     if (style.dasharray) {
       path.setAttribute("stroke-dasharray", style.dasharray);
     }
@@ -13996,30 +14551,35 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
 
     row.points.forEach((point) => {
       const dot = createSvgElement("circle");
-      dot.setAttribute("cx", String(yearToX.get(point.year)));
-      dot.setAttribute("cy", String(valueToY(point.displayValue ?? point.value)));
-      dot.setAttribute("r", "2.6");
+      setExamGraphCoordinate(dot, "cx", yearToX.get(point.year));
+      setExamGraphCoordinate(dot, "cy", valueToY(point.displayValue ?? point.value));
+      setExamGraphCoordinate(dot, "r", theme.marker.trendRadius);
       dot.setAttribute("fill", style.stroke);
+      if (isExamGraphBasicStyle()) {
+        dot.setAttribute("stroke", theme.colors.paper);
+        dot.setAttribute("stroke-width", theme.strokes.marker);
+        applyExamGraphStrokeStyle(dot);
+      }
       svg.appendChild(dot);
     });
   });
 
-  appendExamGraphLineLegend(svg, rows, width / 2, height - 24);
+  appendExamGraphPlotBorder(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
+  appendExamGraphLineLegend(svg, rows, width / 2, legendY);
   return svg;
 }
 
 function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter, yFormatter, sizeFormatter }) {
+  const theme = getActiveExamGraphVisualTheme();
   const isPortrait = getExamGraphOrientation() === "portrait";
-  const width = isPortrait ? 720 : 860;
-  const height = isPortrait ? 820 : 620;
-  const plot = isPortrait ? { left: 92, right: 42, top: 88, bottom: 116 } : { left: 92, right: 42, top: 88, bottom: 88 };
+  const width = examGraphTheme.layout.width;
+  const height = isPortrait ? 236 : 218;
+  const plot = isPortrait
+    ? { left: 36, right: 10, top: examGraphTheme.layout.plotTop, bottom: 46 }
+    : { left: 36, right: 10, top: examGraphTheme.layout.plotTop, bottom: 40 };
   const plotWidth = width - plot.left - plot.right;
   const plotHeight = height - plot.top - plot.bottom;
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", "exam-graph-svg");
+  const svg = createExamGraphSvg(width, height, title);
   appendExamGraphTitle(svg, title, subtitle, width);
 
   const xDomain = getExamGraphAxisDomain(rows.map((row) => Number(row.xValue)), { paddingRatio: 0.08 });
@@ -14032,19 +14592,14 @@ function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter
   const yTicks = getExamGraphAxisTicks(minY, maxY, 5);
 
   const maximumBubbleValue = Math.max(...rows.map((row) => Number(row.sizeValue) || 0), 1);
-  const xToPosition = (value) => plot.left + ((Number(value) - minX) / (maxX - minX)) * plotWidth;
-  const yToPosition = (value) => plot.top + (1 - (Number(value) - minY) / (maxY - minY)) * plotHeight;
-  const radiusForValue = (value) => 6 + Math.sqrt(Math.max(0, Number(value)) / maximumBubbleValue) * 13;
+  const xToPosition = (value) => snapExamGraphCoordinate(plot.left + ((Number(value) - minX) / (maxX - minX)) * plotWidth);
+  const yToPosition = (value) => snapExamGraphCoordinate(plot.top + (1 - (Number(value) - minY) / (maxY - minY)) * plotHeight);
+  const radiusForValue = (value) =>
+    theme.marker.scatterMinRadius +
+    Math.sqrt(Math.max(0, Number(value)) / maximumBubbleValue) *
+      (theme.marker.scatterMaxRadius - theme.marker.scatterMinRadius);
 
-  const frame = createSvgElement("rect");
-  frame.setAttribute("x", String(plot.left));
-  frame.setAttribute("y", String(plot.top));
-  frame.setAttribute("width", String(plotWidth));
-  frame.setAttribute("height", String(plotHeight));
-  frame.setAttribute("fill", "#ffffff");
-  frame.setAttribute("stroke", "#111111");
-  frame.setAttribute("stroke-width", "1.4");
-  svg.appendChild(frame);
+  appendExamGraphPlotFrame(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
 
   xTicks.forEach((tick) => {
     const x = xToPosition(tick);
@@ -14052,23 +14607,19 @@ function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter
     const isZero = Math.abs(tick) < 0.000001;
     if (!isEdge || isZero) {
       const vertical = createSvgElement("line");
-      vertical.setAttribute("x1", String(x));
-      vertical.setAttribute("x2", String(x));
-      vertical.setAttribute("y1", String(plot.top));
-      vertical.setAttribute("y2", String(plot.top + plotHeight));
-      vertical.setAttribute("stroke", "#111111");
-      vertical.setAttribute("stroke-width", isZero ? "1.4" : "1");
-      if (!isZero) {
-        vertical.setAttribute("stroke-dasharray", "7 7");
-      }
+      setExamGraphCoordinate(vertical, "x1", x);
+      setExamGraphCoordinate(vertical, "x2", x);
+      setExamGraphCoordinate(vertical, "y1", plot.top);
+      setExamGraphCoordinate(vertical, "y2", plot.top + plotHeight);
+      styleExamGraphGridLine(vertical, { zero: isZero });
       svg.appendChild(vertical);
     }
 
     const label = createSvgElement("text");
-    label.setAttribute("x", String(x));
-    label.setAttribute("y", String(plot.top + plotHeight + 26));
+    setExamGraphCoordinate(label, "x", x);
+    setExamGraphCoordinate(label, "y", plot.top + plotHeight + examGraphTheme.layout.xTickGap);
     label.setAttribute("text-anchor", Math.abs(tick - minX) < 0.000001 ? "start" : Math.abs(tick - maxX) < 0.000001 ? "end" : "middle");
-    applyExamGraphTextStyle(label, { fontSize: 10.5, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = xFormatter(tick);
     svg.appendChild(label);
   });
@@ -14079,128 +14630,127 @@ function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter
     const isZero = Math.abs(tick) < 0.000001;
     if (!isEdge || isZero) {
       const horizontal = createSvgElement("line");
-      horizontal.setAttribute("x1", String(plot.left));
-      horizontal.setAttribute("x2", String(plot.left + plotWidth));
-      horizontal.setAttribute("y1", String(y));
-      horizontal.setAttribute("y2", String(y));
-      horizontal.setAttribute("stroke", "#111111");
-      horizontal.setAttribute("stroke-width", isZero ? "1.4" : "1");
-      if (!isZero) {
-        horizontal.setAttribute("stroke-dasharray", "7 7");
-      }
+      setExamGraphCoordinate(horizontal, "x1", plot.left);
+      setExamGraphCoordinate(horizontal, "x2", plot.left + plotWidth);
+      setExamGraphCoordinate(horizontal, "y1", y);
+      setExamGraphCoordinate(horizontal, "y2", y);
+      styleExamGraphGridLine(horizontal, { zero: isZero });
       svg.appendChild(horizontal);
     }
 
     const label = createSvgElement("text");
-    label.setAttribute("x", String(plot.left - 10));
-    label.setAttribute("y", String(y + 4));
+    setExamGraphCoordinate(label, "x", plot.left - examGraphTheme.layout.yTickGap);
+    setExamGraphCoordinate(label, "y", y + 2.5);
     label.setAttribute("text-anchor", "end");
-    applyExamGraphTextStyle(label, { fontSize: 10.5, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
     label.textContent = yFormatter(tick);
     svg.appendChild(label);
   });
 
   rows.forEach((row) => {
     const circle = createSvgElement("circle");
-    circle.setAttribute("cx", String(xToPosition(row.xValue)));
-    circle.setAttribute("cy", String(yToPosition(row.yValue)));
-    circle.setAttribute("r", String(radiusForValue(row.sizeValue)));
-    circle.setAttribute("fill", "#f3f3f3");
-    circle.setAttribute("stroke", "#111111");
-    circle.setAttribute("stroke-width", "1.4");
+    setExamGraphCoordinate(circle, "cx", xToPosition(row.xValue));
+    setExamGraphCoordinate(circle, "cy", yToPosition(row.yValue));
+    setExamGraphCoordinate(circle, "r", radiusForValue(row.sizeValue));
+    circle.setAttribute("fill", isExamGraphBasicStyle() ? theme.colors.pointFill : theme.colors.paper);
+    circle.setAttribute("stroke", theme.colors.ink);
+    circle.setAttribute("stroke-width", theme.strokes.marker);
+    applyExamGraphStrokeStyle(circle);
     svg.appendChild(circle);
 
     const label = createSvgElement("text");
-    label.setAttribute("x", String(xToPosition(row.xValue) + radiusForValue(row.sizeValue) + 4));
-    label.setAttribute("y", String(yToPosition(row.yValue) - 2));
-    applyExamGraphTextStyle(label, { fontSize: 11, fontWeight: 700 });
+    setExamGraphCoordinate(label, "x", xToPosition(row.xValue) + radiusForValue(row.sizeValue) + 2.5);
+    setExamGraphCoordinate(label, "y", yToPosition(row.yValue) - 1.5);
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.pointLabel, fontWeight: 700 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
 
   const xAxisLabel = createSvgElement("text");
-  xAxisLabel.setAttribute("x", String(plot.left + plotWidth / 2));
-  xAxisLabel.setAttribute("y", String(height - 18));
+  setExamGraphCoordinate(xAxisLabel, "x", plot.left + plotWidth / 2);
+  setExamGraphCoordinate(xAxisLabel, "y", height - 8);
   xAxisLabel.setAttribute("text-anchor", "middle");
-  applyExamGraphTextStyle(xAxisLabel, { fontSize: 16, fontWeight: 700 });
+  applyExamGraphTextStyle(xAxisLabel, { fontSize: examGraphTheme.type.axisTitle, fontWeight: 700 });
   xAxisLabel.textContent = `${xLabel} · 버블 ${sizeFormatter(maximumBubbleValue)}`;
   svg.appendChild(xAxisLabel);
 
   const yAxisLabel = createSvgElement("text");
-  yAxisLabel.setAttribute("x", "28");
-  yAxisLabel.setAttribute("y", String(plot.top + plotHeight / 2));
+  setExamGraphCoordinate(yAxisLabel, "x", 9);
+  setExamGraphCoordinate(yAxisLabel, "y", plot.top + plotHeight / 2);
   yAxisLabel.setAttribute("text-anchor", "middle");
-  yAxisLabel.setAttribute("transform", `rotate(-90 28 ${plot.top + plotHeight / 2})`);
-  applyExamGraphTextStyle(yAxisLabel, { fontSize: 16, fontWeight: 700 });
+  yAxisLabel.setAttribute("transform", `rotate(-90 9 ${plot.top + plotHeight / 2})`);
+  applyExamGraphTextStyle(yAxisLabel, { fontSize: examGraphTheme.type.axisTitle, fontWeight: 700 });
   yAxisLabel.textContent = yLabel;
   svg.appendChild(yAxisLabel);
 
+  appendExamGraphPlotBorder(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
   return svg;
 }
 
 function appendExamGraphPatternDefs(svg) {
+  const theme = getActiveExamGraphVisualTheme();
   const defs = ensureDefsElement(svg);
-  examGraphPatternDefinitions.forEach((definition) => {
+  getActiveExamGraphPatternDefinitions().forEach((definition) => {
     if (!definition.pattern) {
       return;
     }
     const pattern = createSvgElement("pattern");
     pattern.setAttribute("id", `exam-pattern-${definition.key}`);
     pattern.setAttribute("patternUnits", "userSpaceOnUse");
-    pattern.setAttribute("width", "8");
-    pattern.setAttribute("height", "8");
+    pattern.setAttribute("width", String(theme.pattern.size));
+    pattern.setAttribute("height", String(theme.pattern.size));
 
     const background = createSvgElement("rect");
-    background.setAttribute("width", "8");
-    background.setAttribute("height", "8");
-    background.setAttribute("fill", "#ffffff");
+    background.setAttribute("width", String(theme.pattern.size));
+    background.setAttribute("height", String(theme.pattern.size));
+    background.setAttribute("fill", theme.colors.paper);
     pattern.appendChild(background);
 
     if (definition.pattern === "vertical") {
       const line = createSvgElement("line");
-      line.setAttribute("x1", "3");
-      line.setAttribute("x2", "3");
+      line.setAttribute("x1", String(theme.pattern.size / 2));
+      line.setAttribute("x2", String(theme.pattern.size / 2));
       line.setAttribute("y1", "0");
-      line.setAttribute("y2", "8");
-      line.setAttribute("stroke", "#111111");
-      line.setAttribute("stroke-width", "1");
+      line.setAttribute("y2", String(theme.pattern.size));
+      line.setAttribute("stroke", theme.colors.ink);
+      line.setAttribute("stroke-width", String(theme.pattern.strokeWidth));
       pattern.appendChild(line);
     } else if (definition.pattern === "diagonal") {
       [
-        { x1: "-1", y1: "7", x2: "7", y2: "-1" },
-        { x1: "3", y1: "9", x2: "11", y2: "1" },
+        { x1: "-1", y1: String(theme.pattern.size + 1), x2: String(theme.pattern.size + 1), y2: "-1" },
+        { x1: String(theme.pattern.size / 2), y1: String(theme.pattern.size + 2), x2: String(theme.pattern.size + 4), y2: "0" },
       ].forEach((config) => {
         const line = createSvgElement("line");
         Object.entries(config).forEach(([key, value]) => line.setAttribute(key, value));
-        line.setAttribute("stroke", "#111111");
-        line.setAttribute("stroke-width", "1");
+        line.setAttribute("stroke", theme.colors.ink);
+        line.setAttribute("stroke-width", String(theme.pattern.strokeWidth));
         pattern.appendChild(line);
       });
     } else if (definition.pattern === "dots") {
       const dot = createSvgElement("circle");
-      dot.setAttribute("cx", "4");
-      dot.setAttribute("cy", "4");
-      dot.setAttribute("r", "1.2");
-      dot.setAttribute("fill", "#111111");
+      dot.setAttribute("cx", String(theme.pattern.size / 2));
+      dot.setAttribute("cy", String(theme.pattern.size / 2));
+      dot.setAttribute("r", "0.9");
+      dot.setAttribute("fill", theme.colors.ink);
       pattern.appendChild(dot);
     } else if (definition.pattern === "horizontal") {
       const line = createSvgElement("line");
       line.setAttribute("x1", "0");
-      line.setAttribute("x2", "8");
-      line.setAttribute("y1", "4");
-      line.setAttribute("y2", "4");
-      line.setAttribute("stroke", "#111111");
-      line.setAttribute("stroke-width", "1");
+      line.setAttribute("x2", String(theme.pattern.size));
+      line.setAttribute("y1", String(theme.pattern.size / 2));
+      line.setAttribute("y2", String(theme.pattern.size / 2));
+      line.setAttribute("stroke", theme.colors.ink);
+      line.setAttribute("stroke-width", String(theme.pattern.strokeWidth));
       pattern.appendChild(line);
     } else if (definition.pattern === "cross") {
       [
-        { x1: "0", y1: "4", x2: "8", y2: "4" },
-        { x1: "4", y1: "0", x2: "4", y2: "8" },
+        { x1: "0", y1: String(theme.pattern.size / 2), x2: String(theme.pattern.size), y2: String(theme.pattern.size / 2) },
+        { x1: String(theme.pattern.size / 2), y1: "0", x2: String(theme.pattern.size / 2), y2: String(theme.pattern.size) },
       ].forEach((config) => {
         const line = createSvgElement("line");
         Object.entries(config).forEach(([key, value]) => line.setAttribute(key, value));
-        line.setAttribute("stroke", "#111111");
-        line.setAttribute("stroke-width", "1");
+        line.setAttribute("stroke", theme.colors.ink);
+        line.setAttribute("stroke-width", String(theme.pattern.strokeWidth));
         pattern.appendChild(line);
       });
     }
@@ -14210,75 +14760,91 @@ function appendExamGraphPatternDefs(svg) {
 }
 
 function getExamGraphFill(index) {
-  const definition = examGraphPatternDefinitions[index % examGraphPatternDefinitions.length];
+  const definitions = getActiveExamGraphPatternDefinitions();
+  const definition = definitions[index % definitions.length];
   return definition.pattern ? `url(#exam-pattern-${definition.key})` : definition.fill;
 }
 
 function appendExamGraphTitle(svg, title, subtitle, width) {
+  const theme = getActiveExamGraphVisualTheme();
   const titleNode = createSvgElement("text");
   titleNode.setAttribute("x", String(width / 2));
-  titleNode.setAttribute("y", "34");
+  titleNode.setAttribute("y", String(examGraphTheme.layout.titleY));
   titleNode.setAttribute("text-anchor", "middle");
-  applyExamGraphTextStyle(titleNode, { fontSize: 20, fontWeight: 800 });
+  applyExamGraphTextStyle(titleNode, { fontSize: examGraphTheme.type.title, fontWeight: 800 });
   titleNode.textContent = title;
   svg.appendChild(titleNode);
 
   if (subtitle) {
     const subtitleNode = createSvgElement("text");
     subtitleNode.setAttribute("x", String(width / 2));
-    subtitleNode.setAttribute("y", "56");
+    subtitleNode.setAttribute("y", String(examGraphTheme.layout.subtitleY));
     subtitleNode.setAttribute("text-anchor", "middle");
-    applyExamGraphTextStyle(subtitleNode, { fontSize: 11, fontWeight: 500, fill: "#555555" });
+    applyExamGraphTextStyle(subtitleNode, {
+      fontSize: examGraphTheme.type.subtitle,
+      fontWeight: 500,
+      fill: theme.colors.mutedInk,
+    });
     subtitleNode.textContent = subtitle;
     svg.appendChild(subtitleNode);
   }
 }
 
 function appendExamGraphLegend(svg, items, centerX, y) {
-  const itemWidths = items.map((item) => 34 + String(item.label).length * 12);
-  const totalWidth = itemWidths.reduce((sum, width) => sum + width, 0) + Math.max(0, items.length - 1) * 14 + 20;
-  const startX = centerX - totalWidth / 2 + 10;
+  const theme = getActiveExamGraphVisualTheme();
+  const measurement = measureExamGraphSwatchLegend(items);
+  const boxX = snapExamGraphCoordinate(centerX - measurement.width / 2);
+  const boxY = snapExamGraphCoordinate(y - measurement.height / 2);
 
   const box = createSvgElement("rect");
-  box.setAttribute("x", String(centerX - totalWidth / 2));
-  box.setAttribute("y", String(y - 20));
-  box.setAttribute("width", String(totalWidth));
-  box.setAttribute("height", "42");
-  box.setAttribute("fill", "#ffffff");
-  box.setAttribute("stroke", "#111111");
-  box.setAttribute("stroke-width", "1.2");
+  setExamGraphBox(box, { x: boxX, y: boxY, width: measurement.width, height: measurement.height });
+  box.setAttribute("fill", theme.colors.paper);
+  box.setAttribute("stroke", theme.colors.frame ?? theme.colors.ink);
+  box.setAttribute("stroke-width", theme.strokes.legendFrame);
+  applyExamGraphStrokeStyle(box);
   svg.appendChild(box);
 
-  let cursorX = startX;
-  items.forEach((item, index) => {
-    const swatch = createSvgElement("rect");
-    swatch.setAttribute("x", String(cursorX));
-    swatch.setAttribute("y", String(y - 8));
-    swatch.setAttribute("width", "18");
-    swatch.setAttribute("height", "18");
-    swatch.setAttribute("fill", item.fill ?? getExamGraphFill(index));
-    swatch.setAttribute("stroke", "#111111");
-    swatch.setAttribute("stroke-width", "1");
-    svg.appendChild(swatch);
+  let itemIndex = 0;
+  measurement.rows.forEach((legendRow, rowIndex) => {
+    let cursorX = snapExamGraphCoordinate(centerX - measurement.rowWidths[rowIndex] / 2);
+    const rowY = snapExamGraphCoordinate(boxY + examGraphTheme.legend.paddingY + rowIndex * examGraphTheme.legend.rowHeight + examGraphTheme.legend.rowHeight / 2);
+    legendRow.forEach((item) => {
+      const itemWidth = examGraphTheme.legend.swatchGap + String(item.label).length * examGraphTheme.legend.charWidth;
+      const swatch = createSvgElement("rect");
+      setExamGraphBox(swatch, {
+        x: cursorX,
+        y: rowY - examGraphTheme.legend.swatch / 2,
+        width: examGraphTheme.legend.swatch,
+        height: examGraphTheme.legend.swatch,
+      });
+      swatch.setAttribute("fill", item.fill ?? getExamGraphFill(itemIndex));
+      swatch.setAttribute("stroke", theme.colors.dataStroke ?? theme.colors.ink);
+      swatch.setAttribute("stroke-width", theme.strokes.dataOutline);
+      applyExamGraphStrokeStyle(swatch);
+      svg.appendChild(swatch);
 
-    const label = createSvgElement("text");
-    label.setAttribute("x", String(cursorX + 26));
-    label.setAttribute("y", String(y + 5));
-    applyExamGraphTextStyle(label, { fontSize: 13, fontWeight: 700 });
-    label.textContent = item.label;
-    svg.appendChild(label);
+      const label = createSvgElement("text");
+      setExamGraphCoordinate(label, "x", cursorX + examGraphTheme.legend.swatchGap);
+      setExamGraphCoordinate(label, "y", rowY + 2.8);
+      applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.legend, fontWeight: 700 });
+      label.textContent = item.label;
+      svg.appendChild(label);
 
-    cursorX += itemWidths[index] + 14;
+      cursorX = snapExamGraphCoordinate(cursorX + itemWidth + examGraphTheme.legend.itemGap);
+      itemIndex += 1;
+    });
   });
+  return measurement;
 }
 
-function applyExamGraphTextStyle(node, { fontSize = 12, fontWeight = 700, fill = "#111111" } = {}) {
+function applyExamGraphTextStyle(node, { fontSize = 12, fontWeight = 700, fill = getActiveExamGraphVisualTheme().colors.ink } = {}) {
+  const theme = getActiveExamGraphVisualTheme();
   node.setAttribute("fill", fill);
-  node.setAttribute("font-size", `${scaleExamGraphFontSize(fontSize)}px`);
+  node.setAttribute("font-size", `${scaleExamGraphFontSize(fontSize)}pt`);
   node.setAttribute("font-weight", String(fontWeight));
-  node.setAttribute("font-family", MAP_FONT_FAMILY);
-  node.setAttribute("font-stretch", `${EXAM_GRAPH_FONT_STRETCH_PERCENT}%`);
-  node.setAttribute("letter-spacing", "-0.03em");
+  node.setAttribute("font-family", theme.font.family);
+  node.setAttribute("font-stretch", `${theme.font.stretchPercent}%`);
+  node.setAttribute("letter-spacing", isExamGraphBasicStyle() ? "0" : "-0.03em");
   node.setAttribute("text-rendering", "geometricPrecision");
 }
 
@@ -14291,7 +14857,7 @@ function renderMarkerList() {
   elements.markerList.innerHTML = "";
 
   if (!state.markers.length) {
-    elements.markerList.appendChild(createEmptyState("마커 추가 모드에서 지도를 클릭하면 표시가 생깁니다."));
+    elements.markerList.appendChild(createEmptyState("3번 마커 모드에서 지도 위를 클릭하거나 드래그하면 조절 카드가 바로 생깁니다."));
     return;
   }
 
@@ -14374,7 +14940,7 @@ function renderMarkerList() {
 
     const meta = document.createElement("div");
     meta.className = "annotation-meta";
-    meta.textContent = `${formatCoordinate(marker.lat, "lat")} · ${formatCoordinate(marker.lon, "lon")} · 미리보기에서 직접 이동/크기 조절`;
+    meta.textContent = `${formatCoordinate(marker.lat, "lat")} · ${formatCoordinate(marker.lon, "lon")} · 캔버스 핸들로 이동/크기 조절`;
 
     item.append(head, fieldGrid, meta);
     elements.markerList.appendChild(item);
@@ -14385,7 +14951,7 @@ function renderInsetList() {
   elements.insetList.innerHTML = "";
 
   if (!state.insets.length) {
-    elements.insetList.appendChild(createEmptyState("인셋 추가 모드에서 드래그하면 확대 박스가 생깁니다."));
+    elements.insetList.appendChild(createEmptyState("4번 인셋 모드에서 확대할 영역을 드래그하면 조절 카드가 바로 생깁니다."));
     return;
   }
 
@@ -14476,7 +15042,7 @@ function renderInsetList() {
     meta.className = "annotation-meta";
     meta.textContent =
       `확대 ${Math.round(getInsetZoomScale(inset) * 100)}% · 샘플 점 ${inset.focusPoints.length}개 기준 · ` +
-      `미리보기에서 직접 이동/크기 조절`;
+      `캔버스 핸들로 위치/크기 조절`;
 
     item.append(head, fieldGrid, meta);
     elements.insetList.appendChild(item);
@@ -15420,12 +15986,16 @@ function buildBorderGeometry(atlasDataset, selectedIds) {
 }
 
 function renderAtlasLayer(container, projection, atlasDataset, selectedColorById, borderGeometry, options = {}) {
+  const clipRect = normalizeClipRect(options.clipRect, options.clipPadding ?? 0);
+  const limitToVisibleRect = state.projectionMode === "rectangular" && Boolean(clipRect);
   const copyOffsets =
     options.wrap === false
       ? [0]
       : Array.isArray(options.copyOffsets) && options.copyOffsets.length
         ? options.copyOffsets
-        : getProjectionCopyOffsets(projection);
+        : limitToVisibleRect
+          ? getVisibleProjectionCopyOffsets(projection, options.clipPadding ?? 0)
+          : getProjectionCopyOffsets(projection);
   const lakeDataset = getLakeDatasetForAtlasDataset(atlasDataset, state.viewZoom);
   const renderDetailedCountryFills = atlasDataset.datasetKey === "10m";
   const fallbackCountryDataset =
@@ -15449,11 +16019,10 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
   const selectedFeatures = renderDetailedCountryFills
     ? []
     : fillAtlasDataset.countryFeatures.filter((feature) => selectedColorById.has(feature.id));
-  const clipRect = normalizeClipRect(options.clipRect, options.clipPadding ?? 0);
 
   copyOffsets.forEach((offset) => {
-    const renderProjection = createRenderProjection(projection, shiftClipRect(clipRect, -offset, 0));
-    const path = d3.geoPath(renderProjection);
+    const shiftedClipRect = shiftClipRect(clipRect, -offset, 0);
+    const path = createRenderPath(projection, shiftedClipRect);
     const copyGroup = container
       .append("g")
       .attr("class", "map-copy")
@@ -15525,33 +16094,17 @@ function renderAtlasLayer(container, projection, atlasDataset, selectedColorById
       );
     }
 
-    const renderCoastlineFromLandOutline = Boolean(atlasDataset.landFeature) && (
-      options.exportMode || atlasDataset.datasetKey === "10m"
-    );
+    const coastlineSourceGeometries = getCoastlineRenderSourceGeometries(atlasDataset);
+    const coastlineRenderGeometries = limitToVisibleRect
+      ? getProjectedVisibleLineRenderGeometries(coastlineSourceGeometries, path, shiftedClipRect)
+      : coastlineSourceGeometries;
 
-    if (renderCoastlineFromLandOutline) {
-      copyGroup
-        .append("path")
-        .datum(atlasDataset.landFeature)
-        .attr("class", "map-coast-lines")
-        .attr("d", path)
-        .attr("fill", "none")
-        .attr("stroke", state.borderColor)
-        .attr("stroke-width", OUTLINE_STROKE_WIDTH)
-        .attr("stroke-linejoin", "round")
-        .attr("vector-effect", "non-scaling-stroke");
-    } else {
-      const coastlineGeometry = atlasDataset.coastlineMesh ?? atlasDataset.landFeature;
-      const coastlineLineFragments = getLineGeometryFragments(coastlineGeometry);
-      const coastlineRenderGeometries = coastlineLineFragments.length ? coastlineLineFragments : [coastlineGeometry];
-
-      appendLineGeometryPaths(copyGroup, coastlineRenderGeometries, path, {
-        className: "map-coast-lines",
-        stroke: state.borderColor,
-        strokeWidth: OUTLINE_STROKE_WIDTH,
-        strokeLinejoin: "round",
-      });
-    }
+    appendLineGeometryPaths(copyGroup, coastlineRenderGeometries, path, {
+      className: "map-coast-lines",
+      stroke: state.borderColor,
+      strokeWidth: OUTLINE_STROKE_WIDTH,
+      strokeLinejoin: "round",
+    });
   });
 }
 
@@ -15574,6 +16127,31 @@ function appendLineGeometryPaths(group, geometries, path, options = {}) {
     .attr("stroke-linecap", options.strokeLinecap ?? null)
     .attr("stroke-linejoin", options.strokeLinejoin ?? null)
     .attr("vector-effect", "non-scaling-stroke");
+}
+
+function getCoastlineRenderSourceGeometries(atlasDataset) {
+  if (!atlasDataset) {
+    return [];
+  }
+
+  if (atlasDataset.coastlineFragments?.length) {
+    return atlasDataset.coastlineFragments;
+  }
+
+  return getLineGeometryFragments(atlasDataset.coastlineMesh ?? atlasDataset.landFeature);
+}
+
+function getProjectedVisibleLineRenderGeometries(geometries, path, clipRect) {
+  if (!clipRect) {
+    return geometries;
+  }
+
+  const visibleGeometries = (geometries || []).filter((geometry) => {
+    const bounds = getGeometryScreenBounds(path, geometry);
+    return bounds ? rectsIntersect(bounds, clipRect) : true;
+  });
+
+  return visibleGeometries.length ? visibleGeometries : geometries;
 }
 
 function getLineGeometryFragments(geometry) {
@@ -15608,6 +16186,50 @@ function getLineGeometryFragments(geometry) {
   }
 
   return [];
+}
+
+function splitLineGeometryFragments(geometries, maxPoints = COASTLINE_FRAGMENT_MAX_POINTS) {
+  const chunkSize = Math.max(2, Math.floor(Number(maxPoints) || COASTLINE_FRAGMENT_MAX_POINTS));
+
+  return (geometries || []).flatMap((geometry) => {
+    const coordinates = geometry?.coordinates;
+    if (geometry?.type !== "LineString" || !Array.isArray(coordinates) || coordinates.length <= chunkSize) {
+      return geometry ? [geometry] : [];
+    }
+
+    const chunks = [];
+    const step = chunkSize - 1;
+    for (let start = 0; start < coordinates.length - 1; start += step) {
+      const chunkCoordinates = coordinates.slice(start, Math.min(start + chunkSize, coordinates.length));
+      if (chunkCoordinates.length >= 2) {
+        chunks.push({ type: "LineString", coordinates: chunkCoordinates });
+      }
+    }
+
+    return chunks;
+  });
+}
+
+function getGeometryScreenBounds(path, geometry) {
+  if (!geometry) {
+    return null;
+  }
+
+  try {
+    const [[x0, y0], [x1, y1]] = path.bounds(geometry);
+    if (![x0, y0, x1, y1].every(Number.isFinite)) {
+      return null;
+    }
+
+    return {
+      x: x0,
+      y: y0,
+      width: Math.max(0, x1 - x0),
+      height: Math.max(0, y1 - y0),
+    };
+  } catch (_error) {
+    return null;
+  }
 }
 
 function getBorderStrokeDasharray() {
@@ -15650,15 +16272,29 @@ function shiftClipRect(rect, deltaX = 0, deltaY = 0) {
   };
 }
 
-function createRenderProjection(projection, clipRect) {
-  if (!clipRect || typeof projection.copy !== "function") {
-    return projection;
+function createRenderPath(projection, clipRect) {
+  if (!clipRect || typeof projection?.clipExtent !== "function") {
+    return d3.geoPath(projection);
   }
 
-  return projection.copy().clipExtent([
+  const clipExtent = [
     [clipRect.x, clipRect.y],
     [clipRect.x + clipRect.width, clipRect.y + clipRect.height],
-  ]);
+  ];
+
+  if (typeof projection.copy === "function") {
+    return d3.geoPath(projection.copy().clipExtent(clipExtent));
+  }
+
+  return d3.geoPath({
+    stream(stream) {
+      const previousClipExtent = projection.clipExtent();
+      projection.clipExtent(clipExtent);
+      const projectedStream = projection.stream(stream);
+      projection.clipExtent(previousClipExtent);
+      return projectedStream;
+    },
+  });
 }
 
 function getProjectionCopyOffsets(projection) {
@@ -15719,38 +16355,21 @@ function finalizeVectorExportNode(svgNode) {
   document.body.appendChild(mount);
 
   try {
-    stripExportClipArtifacts(svgNode);
     pruneOffscreenExportElements(svgNode);
+    stripExportClipArtifacts(svgNode);
   } finally {
     mount.remove();
   }
 }
 
 function stripExportClipArtifacts(svgNode) {
-  const preservedClipIds = collectPreservedExportClipIds(svgNode);
-
   svgNode.querySelectorAll("[clip-path]").forEach((node) => {
-    const clipId = extractClipPathIdentifier(node.getAttribute("clip-path"));
-    if (clipId && preservedClipIds.has(clipId)) {
-      return;
-    }
     node.removeAttribute("clip-path");
   });
 
   svgNode.querySelectorAll("clipPath").forEach((node) => {
-    if (node.getAttribute("data-export-clip") === "keep") {
-      return;
-    }
     node.remove();
   });
-}
-
-function collectPreservedExportClipIds(svgNode) {
-  return new Set(
-    [...svgNode.querySelectorAll('clipPath[data-export-clip="keep"]')]
-      .map((node) => node.id)
-      .filter(Boolean),
-  );
 }
 
 function extractClipPathIdentifier(value) {
@@ -15760,7 +16379,7 @@ function extractClipPathIdentifier(value) {
 
 function pruneOffscreenExportElements(svgNode) {
   const viewport = { x: 0, y: 0, width: state.width, height: state.height };
-  const preservedClipIds = collectPreservedExportClipIds(svgNode);
+  const exportClipRects = collectExportClipRects(svgNode);
   const removableSelectors = [
     ".map-copy",
     ".map-country-fill",
@@ -15777,20 +16396,9 @@ function pruneOffscreenExportElements(svgNode) {
       return;
     }
 
-    const clippedAncestor = node.closest("[clip-path]");
-    if (clippedAncestor) {
-      const clipId = extractClipPathIdentifier(clippedAncestor.getAttribute("clip-path"));
-      if (clipId && preservedClipIds.has(clipId)) {
-        return;
-      }
-    }
-
-    let bounds = null;
-    try {
-      bounds = node.getBBox();
-    } catch (_error) {
-      bounds = null;
-    }
+    const bounds = getTransformedSvgBounds(node);
+    const clipRect = getNearestExportClipRect(node, exportClipRects);
+    const visibleRect = clipRect ?? viewport;
 
     if (!bounds || !Number.isFinite(bounds.width) || !Number.isFinite(bounds.height)) {
       return;
@@ -15801,10 +16409,78 @@ function pruneOffscreenExportElements(svgNode) {
       return;
     }
 
-    if (!rectsIntersect(bounds, viewport)) {
+    if (!rectsIntersect(bounds, visibleRect)) {
       node.remove();
     }
   });
+}
+
+function collectExportClipRects(svgNode) {
+  return new Map(
+    [...svgNode.querySelectorAll('clipPath[data-export-clip="keep"]')]
+      .map((clipPath) => {
+        const rect = clipPath.querySelector("rect");
+        if (!clipPath.id || !rect) {
+          return null;
+        }
+
+        const clipRect = {
+          x: Number(rect.getAttribute("x")) || 0,
+          y: Number(rect.getAttribute("y")) || 0,
+          width: Number(rect.getAttribute("width")) || 0,
+          height: Number(rect.getAttribute("height")) || 0,
+        };
+
+        if (clipRect.width <= 0 || clipRect.height <= 0) {
+          return null;
+        }
+
+        return [clipPath.id, clipRect];
+      })
+      .filter(Boolean),
+  );
+}
+
+function getNearestExportClipRect(node, exportClipRects) {
+  const clippedAncestor = node.closest("[clip-path]");
+  if (!clippedAncestor) {
+    return null;
+  }
+
+  const clipId = extractClipPathIdentifier(clippedAncestor.getAttribute("clip-path"));
+  return clipId ? exportClipRects.get(clipId) ?? null : null;
+}
+
+function getTransformedSvgBounds(node) {
+  try {
+    const bounds = node.getBBox();
+    const matrix = node.getCTM();
+    if (!matrix) {
+      return bounds;
+    }
+
+    const points = [
+      [bounds.x, bounds.y],
+      [bounds.x + bounds.width, bounds.y],
+      [bounds.x + bounds.width, bounds.y + bounds.height],
+      [bounds.x, bounds.y + bounds.height],
+    ].map(([x, y]) => new DOMPoint(x, y).matrixTransform(matrix));
+    const xs = points.map((point) => point.x);
+    const ys = points.map((point) => point.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+
+    return {
+      x: minX,
+      y: minY,
+      width: maxX - minX,
+      height: maxY - minY,
+    };
+  } catch (_error) {
+    return null;
+  }
 }
 
 function rectsIntersect(a, b) {
@@ -17222,7 +17898,7 @@ function buildSvgFontStyle() {
   const fontSrc = getMapFontSource();
   return [
     `@font-face { font-family: '${MAP_FONT_FAMILY}'; src: url("${fontSrc}") format('opentype'); font-display: block; }`,
-    `.map-output-text, .map-output-text text, .map-output-text tspan, .exam-graph-svg, .exam-graph-svg text, .exam-graph-svg tspan { font-family: '${MAP_FONT_FAMILY}'; }`,
+    `.map-output-text, .map-output-text text, .map-output-text tspan, .exam-graph-svg, .exam-graph-svg text, .exam-graph-svg tspan { font-family: '${MAP_FONT_FAMILY}'; font-stretch: ${EXAM_GRAPH_FONT_STRETCH_PERCENT}%; }`,
   ].join("\n");
 }
 

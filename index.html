@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>투타임즈 통계머신</title>
+    <title>투타임즈의 통계머신</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
@@ -12,13 +12,13 @@
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="./components.css" />
     <link rel="stylesheet" href="./patterns.css" />
-    <link rel="stylesheet" href="./styles.css?v=20260423f" />
+    <link rel="stylesheet" href="./styles.css?v=20260423h" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
       <header class="tw-hero app-hero">
         <div class="tw-hero-copy">
-          <p class="tw-eyebrow">투타임즈 통계머신</p>
+          <p class="tw-eyebrow">투타임즈의 통계머신</p>
           <nav class="tw-switch" aria-label="지도 버전 선택">
             <button class="map-version-button tw-switch-item" type="button" data-map-version="world">세계</button>
             <button class="map-version-button tw-switch-item" type="button" data-map-version="korea">대한민국</button>
@@ -34,7 +34,7 @@
               남극
             </button>
           </nav>
-          <h1 class="tw-hero-title">투타임즈 통계머신</h1>
+          <h1 class="tw-hero-title">투타임즈의 통계머신</h1>
           <p class="tw-hero-text">
             세계 지도에서는 국가를 고르고, 한국 지도에서는 도/광역시, 시/군, 특별시·광역시의 구/군
             권역을 켜고 끄며 원하는 구도를 만든 뒤 현재 보이는 결과를 그대로 SVG로 내보낼 수 있습니다.
@@ -469,6 +469,46 @@
                     </div>
                   </section>
 
+                  <section class="preview-toolbox__section preview-toolbox__section--annotations world-only" hidden>
+                    <div class="annotation-dock-head">
+                      <div>
+                        <p class="tw-kicker">Map Objects</p>
+                        <strong class="preview-toolbox__title">마커 · 인셋 조절</strong>
+                      </div>
+                      <button id="clearAnnotationsButton" class="tw-button ghost-button ghost-button--compact" type="button">
+                        표시 지우기
+                      </button>
+                    </div>
+                    <p class="hint preview-toolbox__description">
+                      캔버스 위 핸들로 바로 움직이고, 여기서는 라벨·크기·인셋 배율처럼 정확한 값을 맞춥니다.
+                    </p>
+                    <div class="annotation-dock-grid">
+                      <div class="annotation-dock-panel">
+                        <div class="annotation-dock-panel__head">
+                          <strong>마커</strong>
+                          <span>클릭/드래그로 추가</span>
+                        </div>
+                        <label class="tw-field compact-field">
+                          <span>새 마커 스타일</span>
+                          <select id="markerStyleInput">
+                            <option value="ring">원형</option>
+                            <option value="dashedOval">점선 타원</option>
+                            <option value="point">점</option>
+                            <option value="filledDot">검은 점</option>
+                          </select>
+                        </label>
+                        <ul id="markerList" class="annotation-list annotation-list--dock"></ul>
+                      </div>
+                      <div class="annotation-dock-panel">
+                        <div class="annotation-dock-panel__head">
+                          <strong>인셋</strong>
+                          <span>드래그로 확대 박스 생성</span>
+                        </div>
+                        <ul id="insetList" class="annotation-list annotation-list--dock"></ul>
+                      </div>
+                    </div>
+                  </section>
+
                   <section class="preview-toolbox__section world-only" hidden>
                     <p class="tw-kicker">Shortcuts</p>
                     <div class="shortcut-list">
@@ -524,11 +564,11 @@
               <div>
                 <h3 class="tw-card-title">시험형 비교 그래프</h3>
                 <p class="hint">
-                  실제 인문지리 문항처럼 구성비, 시점 변화, 국가·대륙 비교 그래프를 흑백 패턴으로 만들고,
-                  선택 국가·대륙을 <code>(가)</code>, <code>(나)</code>처럼 가린 상태로 SVG로 바로 내보낼 수 있습니다.
+                  기본 보기에서는 프로그램 안에서 읽기 좋은 비교 그래프로 보고,
+                  시험지형으로 바꾸면 흑백 패턴과 SVG 내보내기를 함께 쓸 수 있습니다.
                 </p>
               </div>
-              <div class="tw-badge">구성비 · 변화 · 흑백 패턴 SVG</div>
+              <div class="tw-badge">구성비 · 변화 · 비교 그래프</div>
             </div>
             <div id="examGraphPanel" class="exam-graph-panel"></div>
           </article>
@@ -567,7 +607,7 @@
                 <h3 class="tw-card-title">권역 구조 · 변화 탐색기</h3>
                 <p class="hint">
                   2027 수능특강 한국지리에서 자주 쓰는 통계만 선별해 실제 KOSIS 최신 시도·시군 값으로 다시 묶었습니다.
-                  인구 구조·이동, 도시·정주, 농업·촌락, 공업·서비스, 기후·에너지 그래프를 한 화면에서 바로 만들 수 있습니다.
+                  서울·부산 구/군에서는 상주인구와 주간인구 지표를 함께 볼 수 있습니다.
                 </p>
               </div>
               <div class="tw-badge">KOSIS · 수능특강 선별 통계</div>
@@ -607,35 +647,6 @@
             <ul id="selectedCountryList" class="selected-country-list"></ul>
           </article>
 
-          <article class="tw-data-card app-detail-card world-only" hidden>
-            <div class="app-toolbar">
-              <div>
-                <h3 class="tw-card-title">마커</h3>
-                <p class="hint">마커 추가 모드에서 만든 표시를 라벨, 크기, 회전값과 함께 조정합니다.</p>
-              </div>
-              <button id="clearAnnotationsButton" class="tw-button ghost-button" type="button">표시 지우기</button>
-            </div>
-            <label class="tw-field">
-              <span>새 마커 스타일</span>
-              <select id="markerStyleInput">
-                <option value="ring">원형</option>
-                <option value="dashedOval">점선 타원</option>
-                <option value="point">점</option>
-                <option value="filledDot">검은 점</option>
-              </select>
-            </label>
-            <ul id="markerList" class="annotation-list"></ul>
-          </article>
-
-          <article class="tw-data-card app-detail-card world-only" hidden>
-            <div class="app-card-head">
-              <div>
-                <h3 class="tw-card-title">인셋</h3>
-                <p class="hint">인셋 추가 모드에서 드래그한 확대 박스를 위치와 크기 기준으로 다듬습니다.</p>
-              </div>
-            </div>
-            <ul id="insetList" class="annotation-list"></ul>
-          </article>
         </div>
       </section>
     </div>
@@ -649,8 +660,8 @@
     <script src="./data/korea-admin.js"></script>
     <script src="./data/korea-routes.js?v=20260423f"></script>
     <script src="./data/country-stats.js?v=20260423c"></script>
-    <script src="./data/korea-stats.js?v=20260423c"></script>
+    <script src="./data/korea-stats.js?v=20260423e"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260423u"></script>
+    <script src="./app.js?v=20260423ad"></script>
   </body>
 </html>
