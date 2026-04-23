@@ -17896,9 +17896,10 @@ function ensureDefsElement(svgNode) {
 
 function buildSvgFontStyle() {
   const fontSrc = getMapFontSource();
+  const graphFontStretch = examGraphTheme.font.stretchPercent;
   return [
     `@font-face { font-family: '${MAP_FONT_FAMILY}'; src: url("${fontSrc}") format('opentype'); font-display: block; }`,
-    `.map-output-text, .map-output-text text, .map-output-text tspan, .exam-graph-svg, .exam-graph-svg text, .exam-graph-svg tspan { font-family: '${MAP_FONT_FAMILY}'; font-stretch: ${EXAM_GRAPH_FONT_STRETCH_PERCENT}%; }`,
+    `.map-output-text, .map-output-text text, .map-output-text tspan, .exam-graph-svg, .exam-graph-svg text, .exam-graph-svg tspan { font-family: '${MAP_FONT_FAMILY}'; font-stretch: ${graphFontStretch}%; }`,
   ].join("\n");
 }
 
