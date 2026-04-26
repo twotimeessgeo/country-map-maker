@@ -684,7 +684,6 @@ function renderComparison(regions) {
     state.dataset.comparisonPeriods.map((period) => [period.id, period])
   );
   const baseline = resolveComparisonBaseline(rows);
-  const sharedChartScale = buildClimateChartScale(regions);
 
   return `
     <div class="comparison-controls">
@@ -754,18 +753,22 @@ function renderComparison(regions) {
     ])}
     <div class="charts-grid">
       <article class="chart-card world-trend-card">
-        <h4>월 평균 기온</h4>
-        ${renderMonthlyTemperatureTrendChart(rows, sharedChartScale)}
-        ${renderTrendLegend(rows, "#111111")}
-        ${renderFootnoteLines(["선택된 지점 전체에 같은 기온 축을 적용했습니다."])}
+        <h4>월 평균 기온 편차</h4>
+        ${renderMonthlyTemperatureTrendChart(rows, baseline)}
+        ${renderTrendLegend(comparableTrendRows(rows, baseline), "#111111")}
+        ${renderFootnoteLines([
+          `월 평균 기온 편차 = 해당 지점 월 평균 기온 - ${baseline.formulaLabel}`,
+          baseline.mode === "region" ? "기준 지점은 편차선에서 제외했습니다." : "월별 선택 지점 평균을 기준선으로 삼았습니다.",
+        ])}
       </article>
       <article class="chart-card world-trend-card">
-        <h4>누적 강수량</h4>
-        ${renderCumulativePrecipitationTrendChart(rows)}
-        ${renderTrendLegend(rows, "#555555")}
+        <h4>누적 강수량 편차</h4>
+        ${renderCumulativePrecipitationTrendChart(rows, baseline)}
+        ${renderTrendLegend(comparableTrendRows(rows, baseline), "#555555")}
         ${renderFootnoteLines([
           "누적 강수량은 1월부터 해당 월까지의 강수량 합입니다.",
-          "선택된 지점 전체에 같은 강수 축을 적용했습니다.",
+          `누적 강수량 편차 = 해당 지점 누적 강수량 - ${baseline.formulaLabel}`,
+          baseline.mode === "region" ? "기준 지점은 편차선에서 제외했습니다." : "월별 선택 지점 평균 누적값을 기준선으로 삼았습니다.",
         ])}
       </article>
     </div>
@@ -966,7 +969,7 @@ function renderClimateChart(region, sharedChartScale = null) {
         .map(
           (tick) => `
             <line x1="${margin.left}" y1="${tick.y}" x2="${width - margin.right}" y2="${tick.y}" stroke="#d0d0d0" stroke-dasharray="4 4"></line>
-            <text x="${margin.left - 10}" y="${tick.y + 4}" text-anchor="end" font-size="11" fill="#555555">${formatSignedPlain(
+            <text x="${margin.left - 10}" y="${tick.y + 4}" text-anchor="end" font-size="11" fill="#555555">${formatPlainNumber(
               tick.tempValue
             )}</text>
             <text x="${width - margin.right + 10}" y="${tick.y + 4}" text-anchor="start" font-size="11" fill="#555555">${formatPlainNumber(
@@ -1142,25 +1145,64 @@ function renderAnnualRangeChart(rows) {
   `;
 }
 
-function renderMonthlyTemperatureTrendChart(rows, sharedChartScale) {
+function comparableTrendRows(rows, baseline) {
+  return baseline.mode === "region"
+    ? rows.filter((row) => row.region.id !== baseline.row.region.id)
+    : rows;
+}
+
+function cumulativePrecipitationValues(region) {
+  return region.monthlyPrecipitationMm.reduce((accumulator, value) => {
+    const previous = accumulator.length > 0 ? accumulator[accumulator.length - 1] : 0;
+    accumulator.push(round(previous + value));
+    return accumulator;
+  }, []);
+}
+
+function monthlyTemperatureTrendReference(rows, baseline, monthIndex) {
+  if (baseline.mode === "region") return baseline.row.region.monthlyTemperatureC[monthIndex];
+  return average(rows.map((row) => row.region.monthlyTemperatureC[monthIndex]));
+}
+
+function cumulativePrecipitationTrendReference(rows, baseline, monthIndex) {
+  if (baseline.mode === "region") return cumulativePrecipitationValues(baseline.row.region)[monthIndex];
+  return average(rows.map((row) => cumulativePrecipitationValues(row.region)[monthIndex]));
+}
+
+function trendDeviationAxis(values, stepPicker, fallbackMax) {
+  const maxAbs = Math.max(...values.map((value) => Math.abs(value)), fallbackMax);
+  const step = stepPicker(maxAbs);
+  const axisMax = Math.max(step, niceCeil(maxAbs, step));
+  return {
+    yMin: -axisMax,
+    yMax: axisMax,
+    step,
+  };
+}
+
+function renderMonthlyTemperatureTrendChart(rows, baseline) {
   const width = 520;
   const height = 286;
   const margin = { top: 18, right: 38, bottom: 36, left: 46 };
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
   const stepX = chartWidth / Math.max(state.dataset.months.length - 1, 1);
-  const yMin = sharedChartScale.temperatureMin;
-  const yMax = sharedChartScale.temperatureMax;
-  const step = pickTemperatureStep(yMax - yMin);
-  const ticks = buildTrendTicks(yMin, yMax, step);
-  const zeroY = yMin <= 0 && yMax >= 0 ? scaleY(0, yMin, yMax, margin.top, margin.top + chartHeight) : null;
+  const series = comparableTrendRows(rows, baseline).map((row) => ({
+    name: row.region.name,
+    values: row.region.monthlyTemperatureC.map((value, monthIndex) =>
+      round(value - monthlyTemperatureTrendReference(rows, baseline, monthIndex))
+    ),
+  }));
+  const axis = trendDeviationAxis(series.flatMap((item) => item.values), pickDeviationTemperatureStep, 1);
+  const ticks = buildTrendTicks(axis.yMin, axis.yMax, axis.step);
+  const zeroY = scaleY(0, axis.yMin, axis.yMax, margin.top, margin.top + chartHeight);
 
   return `
-    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지점 월 평균 기온 비교 그래프">
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지점 월 평균 기온 편차 그래프">
       <rect x="${margin.left}" y="${margin.top}" width="${chartWidth}" height="${chartHeight}" fill="#ffffff" stroke="#d7d7d7"></rect>
       ${ticks
         .map((tick) => {
-          const y = scaleY(tick, yMin, yMax, margin.top, margin.top + chartHeight);
+          const y = scaleY(tick, axis.yMin, axis.yMax, margin.top, margin.top + chartHeight);
           return `
             <line x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}" stroke="${tick === 0 ? "#111111" : "#d0d0d0"}" stroke-dasharray="${tick === 0 ? "0" : "4 4"}"></line>
             <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="#555555">${formatSignedPlain(tick)}</text>
@@ -1180,16 +1222,16 @@ function renderMonthlyTemperatureTrendChart(rows, sharedChartScale) {
       <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + chartHeight}" stroke="#111111"></line>
       <line x1="${width - margin.right}" y1="${margin.top}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="#111111"></line>
       <line x1="${margin.left}" y1="${margin.top + chartHeight}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="#111111"></line>
-      ${zeroY ? `<line x1="${margin.left}" y1="${zeroY}" x2="${width - margin.right}" y2="${zeroY}" stroke="#111111" stroke-width="1.4"></line>` : ""}
-      ${rows
-        .map((row, index) =>
+      <line x1="${margin.left}" y1="${zeroY}" x2="${width - margin.right}" y2="${zeroY}" stroke="#111111" stroke-width="1.4"></line>
+      ${series
+        .map((item, index) =>
           renderTrendSeriesLine(
-            { values: row.region.monthlyTemperatureC },
+            item,
             index,
             margin,
             stepX,
-            yMin,
-            yMax,
+            axis.yMin,
+            axis.yMax,
             margin.top + chartHeight,
             "#111111"
           )
@@ -1200,34 +1242,32 @@ function renderMonthlyTemperatureTrendChart(rows, sharedChartScale) {
   `;
 }
 
-function renderCumulativePrecipitationTrendChart(rows) {
+function renderCumulativePrecipitationTrendChart(rows, baseline) {
   const width = 520;
   const height = 286;
   const margin = { top: 18, right: 38, bottom: 36, left: 50 };
   const chartWidth = width - margin.left - margin.right;
   const chartHeight = height - margin.top - margin.bottom;
   const stepX = chartWidth / Math.max(state.dataset.months.length - 1, 1);
-  const series = rows.map((row) => ({
-    values: row.region.monthlyPrecipitationMm.reduce((accumulator, value) => {
-      const previous = accumulator.length > 0 ? accumulator[accumulator.length - 1] : 0;
-      accumulator.push(round(previous + value));
-      return accumulator;
-    }, []),
+  const series = comparableTrendRows(rows, baseline).map((row) => ({
+    name: row.region.name,
+    values: cumulativePrecipitationValues(row.region).map((value, monthIndex) =>
+      round(value - cumulativePrecipitationTrendReference(rows, baseline, monthIndex))
+    ),
   }));
-  const maxValue = Math.max(...series.flatMap((item) => item.values));
-  const step = pickCumulativePrecipitationStep(maxValue);
-  const yMax = Math.max(step * 2, niceCeil(maxValue, step));
-  const ticks = buildTrendTicks(0, yMax, step);
+  const axis = trendDeviationAxis(series.flatMap((item) => item.values), pickDeviationPrecipitationStep, 20);
+  const ticks = buildTrendTicks(axis.yMin, axis.yMax, axis.step);
+  const zeroY = scaleY(0, axis.yMin, axis.yMax, margin.top, margin.top + chartHeight);
 
   return `
-    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지점 누적 강수량 비교 그래프">
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지점 누적 강수량 편차 그래프">
       <rect x="${margin.left}" y="${margin.top}" width="${chartWidth}" height="${chartHeight}" fill="#ffffff" stroke="#d7d7d7"></rect>
       ${ticks
         .map((tick) => {
-          const y = scaleY(tick, 0, yMax, margin.top, margin.top + chartHeight);
+          const y = scaleY(tick, axis.yMin, axis.yMax, margin.top, margin.top + chartHeight);
           return `
-            <line x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}" stroke="#d0d0d0" stroke-dasharray="4 4"></line>
-            <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="#555555">${formatPlainNumber(tick)}</text>
+            <line x1="${margin.left}" y1="${y}" x2="${width - margin.right}" y2="${y}" stroke="${tick === 0 ? "#111111" : "#d0d0d0"}" stroke-dasharray="${tick === 0 ? "0" : "4 4"}"></line>
+            <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="#555555">${formatSignedPlain(tick)}</text>
           `;
         })
         .join("")}
@@ -1244,9 +1284,10 @@ function renderCumulativePrecipitationTrendChart(rows) {
       <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + chartHeight}" stroke="#111111"></line>
       <line x1="${width - margin.right}" y1="${margin.top}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="#111111"></line>
       <line x1="${margin.left}" y1="${margin.top + chartHeight}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="#111111"></line>
+      <line x1="${margin.left}" y1="${zeroY}" x2="${width - margin.right}" y2="${zeroY}" stroke="#111111" stroke-width="1.4"></line>
       ${series
         .map((item, index) =>
-          renderTrendSeriesLine(item, index, margin, stepX, 0, yMax, margin.top + chartHeight, "#555555")
+          renderTrendSeriesLine(item, index, margin, stepX, axis.yMin, axis.yMax, margin.top + chartHeight, "#555555")
         )
         .join("")}
       <text x="${margin.left}" y="12" font-size="11" fill="#555555" font-weight="700">(mm)</text>
@@ -1282,7 +1323,7 @@ function renderTrendLegend(rows, strokeColor = "#111111") {
           (row, index) => `
             <span class="series-legend-item">
               ${renderTrendLegendSwatch(index, strokeColor)}
-              <span>${escapeHtml(row.region.name)}</span>
+              <span>${escapeHtml(row.name || row.region?.name || "")}</span>
             </span>
           `
         )
@@ -1553,7 +1594,8 @@ function formatPlainNumber(value) {
 }
 
 function formatSignedPlain(value) {
-  return formatPlainNumber(value);
+  const rounded = round(value);
+  return `${rounded > 0 ? "+" : ""}${numberFormatter.format(rounded)}`;
 }
 
 function renderFootnoteLines(lines, className = "formula-note") {
