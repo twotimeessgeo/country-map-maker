@@ -1,0 +1,392 @@
+.cut-shell {
+  width: min(1480px, calc(100vw - 28px));
+  margin: 0 auto;
+  padding: 14px 0 30px;
+}
+
+.cut-topbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.cut-home-link,
+.cut-nav a,
+.cut-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #111111;
+  background: #ffffff;
+  color: #111111;
+  font-weight: 900;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cut-home-link {
+  background: #111111;
+  color: #ffffff;
+}
+
+.cut-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cut-home-link svg,
+.cut-nav svg,
+.cut-button svg,
+.cut-details summary svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.4;
+}
+
+.cut-layout {
+  display: grid;
+  grid-template-columns: minmax(440px, 0.86fr) minmax(520px, 1.14fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.cut-panel {
+  min-width: 0;
+  border: 1px solid #111111;
+  background: #ffffff;
+}
+
+.cut-input-panel {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.cut-output-panel {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.cut-heading {
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.cut-heading h1,
+.cut-heading h2 {
+  margin: 6px 0 0;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.cut-heading h1 {
+  font-size: clamp(2.7rem, 5vw, 5rem);
+  max-width: 7ch;
+}
+
+.cut-heading h2 {
+  font-size: 1.65rem;
+}
+
+.cut-kicker {
+  margin: 0;
+  color: #6b6258;
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.cut-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid #111111;
+  background: #f8f4ed;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.cut-badge.is-solid,
+.cut-primary {
+  background: #111111;
+  color: #ffffff;
+}
+
+.cut-form {
+  display: grid;
+  gap: 14px;
+}
+
+.cut-control-grid,
+.cut-history-row,
+.cut-paste-row {
+  display: grid;
+  gap: 10px;
+  align-items: end;
+}
+
+.cut-control-grid {
+  grid-template-columns: minmax(128px, 0.7fr) minmax(144px, 0.8fr) minmax(220px, 1.3fr);
+}
+
+.cut-history-row,
+.cut-paste-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.cut-field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.cut-field input,
+.cut-field select,
+.cut-field textarea {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid #111111;
+  border-radius: 0;
+  background: #ffffff;
+  color: #111111;
+}
+
+.cut-field textarea {
+  resize: vertical;
+}
+
+.cut-relation {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid #111111;
+  background: #fbfaf7;
+  color: #4b5563;
+  font-weight: 900;
+}
+
+.cut-input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
+  gap: 8px;
+}
+
+.cut-row {
+  display: grid;
+  grid-template-columns: 32px minmax(52px, 0.7fr) minmax(76px, 1fr);
+  gap: 6px;
+  align-items: end;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #111111;
+  background: #fbfaf7;
+}
+
+.cut-number {
+  display: grid;
+  place-items: center;
+  height: 38px;
+  background: #d9f99d;
+  font-weight: 950;
+}
+
+.cut-row label {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.cut-row label span {
+  color: #6b6258;
+  font-size: 0.74rem;
+  font-weight: 900;
+}
+
+.cut-row input {
+  width: 100%;
+  min-width: 0;
+  height: 38px;
+  padding: 0 8px;
+  border: 1px solid #111111;
+}
+
+.cut-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.cut-result-empty {
+  display: grid;
+  place-items: center;
+  min-height: 360px;
+  border: 1px dashed #111111;
+  background: #fbfaf7;
+}
+
+.cut-result-empty strong {
+  font-size: 1.6rem;
+}
+
+.cut-result {
+  display: grid;
+  gap: 14px;
+}
+
+.cut-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.cut-card {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid #111111;
+  background: #fbfaf7;
+}
+
+.cut-card strong {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.cut-card span {
+  color: #4b5563;
+  font-weight: 850;
+}
+
+.cut-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cut-metrics span,
+.cut-warning {
+  min-height: 34px;
+  padding: 8px 10px;
+  border: 1px solid #111111;
+  background: #ffffff;
+  font-weight: 900;
+}
+
+.cut-warning {
+  margin: 0;
+  background: #fef3c7;
+}
+
+.cut-details {
+  border: 1px solid #111111;
+  background: #ffffff;
+}
+
+.cut-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 46px;
+  padding: 0 12px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.cut-details[open] summary {
+  border-bottom: 1px solid #111111;
+}
+
+.cut-details[open] summary svg {
+  transform: rotate(180deg);
+}
+
+.cut-table {
+  display: grid;
+  max-height: 440px;
+  overflow: auto;
+}
+
+.cut-table-row {
+  display: grid;
+  grid-template-columns: var(--cut-table-template, repeat(4, minmax(0, 1fr)));
+  min-width: var(--cut-table-min-width, 520px);
+}
+
+.cut-table-row span {
+  min-width: 0;
+  padding: 9px 10px;
+  border-bottom: 1px solid #e7e7e7;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.cut-table-row.is-head span {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-bottom: 1px solid #111111;
+  background: #f8f4ed;
+  font-weight: 950;
+}
+
+.cut-table-row.is-cut span {
+  background: #d9f99d;
+}
+
+@media (max-width: 1080px) {
+  .cut-layout,
+  .cut-control-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .cut-shell {
+    width: min(100% - 20px, 1480px);
+    padding-top: 10px;
+  }
+
+  .cut-topbar,
+  .cut-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cut-nav,
+  .cut-actions {
+    justify-content: stretch;
+  }
+
+  .cut-home-link,
+  .cut-nav a,
+  .cut-button {
+    width: 100%;
+  }
+
+  .cut-history-row,
+  .cut-paste-row,
+  .cut-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cut-heading h1 {
+    font-size: 3rem;
+  }
+}

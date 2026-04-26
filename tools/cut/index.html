@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>지리 컷 예측기 | 수능 지리 유틸리티</title>
+    <meta
+      name="description"
+      content="한국지리와 세계지리 20문항 정답률을 입력해 원점수 컷과 표준점수 표를 계산합니다."
+    />
+    <meta name="theme-color" content="#f4f1ea" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+    />
+    <link rel="stylesheet" href="../../tokens.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="stylesheet" href="../../components.css" />
+    <link rel="stylesheet" href="./cut.css" />
+  </head>
+  <body>
+    <div class="cut-shell">
+      <header class="cut-topbar">
+        <a class="cut-home-link" href="../../index.html">
+          <i data-lucide="layout-dashboard"></i>
+          <span>포털</span>
+        </a>
+        <nav class="cut-nav" aria-label="도구 바로가기">
+          <a href="../../map.html">
+            <i data-lucide="map"></i>
+            <span>지도</span>
+          </a>
+          <a href="../climate/index.html">
+            <i data-lucide="cloud-sun"></i>
+            <span>기후</span>
+          </a>
+        </nav>
+      </header>
+
+      <main class="cut-layout">
+        <section class="cut-panel cut-input-panel" aria-labelledby="cutTitle">
+          <div class="cut-heading">
+            <div>
+              <p class="cut-kicker">GEOGRAPHY CUT</p>
+              <h1 id="cutTitle">지리 컷 예측기</h1>
+            </div>
+            <span class="cut-badge" id="modelBadge">로딩</span>
+          </div>
+
+          <form id="cutForm" class="cut-form">
+            <div class="cut-control-grid">
+              <label class="cut-field">
+                <span>과목</span>
+                <select id="subjectSelect" name="subject">
+                  <option value="한국지리">한국지리</option>
+                  <option value="세계지리">세계지리</option>
+                </select>
+              </label>
+              <label class="cut-field">
+                <span>입력값</span>
+                <select id="modeSelect" name="mode">
+                  <option value="national">전국 정답률</option>
+                  <option value="academy">재종 정답률</option>
+                </select>
+              </label>
+              <div class="cut-relation" id="relationText">모델 준비 중</div>
+            </div>
+
+            <div class="cut-history-row">
+              <label class="cut-field">
+                <span>과거 시험 DB</span>
+                <select id="historySelect"></select>
+              </label>
+              <button class="cut-button" type="button" id="loadHistoryButton">
+                <i data-lucide="database"></i>
+                <span>불러오기</span>
+              </button>
+            </div>
+
+            <div class="cut-paste-row">
+              <label class="cut-field">
+                <span>20개 정답률 붙여넣기</span>
+                <textarea id="ratePaste" rows="3" placeholder="82.1, 74.5, 61.0 ..."></textarea>
+              </label>
+              <button class="cut-button" type="button" id="applyPasteButton">
+                <i data-lucide="clipboard-paste"></i>
+                <span>적용</span>
+              </button>
+            </div>
+
+            <div class="cut-input-grid" id="inputGrid"></div>
+
+            <div class="cut-actions">
+              <button class="cut-button" type="button" id="defaultPointsButton">
+                <i data-lucide="list-restart"></i>
+                <span>배점 기본값</span>
+              </button>
+              <button class="cut-button cut-primary" type="submit">
+                <i data-lucide="calculator"></i>
+                <span>예측</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section class="cut-panel cut-output-panel" aria-labelledby="resultTitle">
+          <div class="cut-heading">
+            <div>
+              <p class="cut-kicker">RESULT</p>
+              <h2 id="resultTitle">예측 결과</h2>
+            </div>
+            <span class="cut-badge" id="statusBadge">대기</span>
+          </div>
+
+          <div class="cut-result-empty" id="emptyResult">
+            <strong>입력 대기</strong>
+          </div>
+
+          <div class="cut-result" id="resultPanel" hidden>
+            <div class="cut-card-grid" id="cutCardGrid"></div>
+            <div class="cut-metrics">
+              <span id="meanMetric">-</span>
+              <span id="rateMetric">-</span>
+            </div>
+            <p class="cut-warning" id="warningText" hidden></p>
+
+            <details class="cut-details" open>
+              <summary>
+                <span>원점수별 표준점수·백분위</span>
+                <i data-lucide="chevron-down"></i>
+              </summary>
+              <div class="cut-table" id="scoreTable"></div>
+            </details>
+
+            <details class="cut-details">
+              <summary>
+                <span>유사 과거 시험</span>
+                <i data-lucide="chevron-down"></i>
+              </summary>
+              <div class="cut-table" id="historyTable"></div>
+            </details>
+
+            <details class="cut-details">
+              <summary>
+                <span>문항별 환산표</span>
+                <i data-lucide="chevron-down"></i>
+              </summary>
+              <div class="cut-table" id="rateTable"></div>
+            </details>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./cut.js"></script>
+  </body>
+</html>
