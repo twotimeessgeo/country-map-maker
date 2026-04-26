@@ -1,7 +1,7 @@
 .portal-shell {
   width: min(1440px, calc(100vw - 28px));
   margin: 0 auto;
-  padding: 16px 0 32px;
+  padding: 14px 0 32px;
 }
 
 .portal-shell,
@@ -12,42 +12,11 @@
   font-family: var(--tw-font-latin);
 }
 
-.portal-topbar {
-  display: flex;
-  align-items: center;
-  min-height: 58px;
-}
-
-.portal-brand {
-  display: inline-flex;
-  gap: 10px;
-  align-items: center;
-  min-height: 46px;
-  padding: 0 14px;
-  border: 1px solid #151515;
-  background: #151515;
-  color: #ffffff;
-  font-family: var(--tw-font-latin);
-  font-weight: 300;
-  text-decoration: none;
-}
-
-.portal-brand span {
-  color: #d6d6d6;
-  font-size: 0.78rem;
-  font-weight: 200;
-}
-
-.portal-brand strong {
-  font-size: 1rem;
-  font-weight: 300;
-}
-
 .portal-tool-tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  margin: 14px 0 0;
+  margin: 10px 0 0;
 }
 
 .portal-tool-tabs a {
@@ -60,9 +29,9 @@
   border: 2px solid #151515;
   background: #ffffff;
   color: #565656;
-  font-size: 1.22rem;
+  font-size: 1.16rem;
   font-weight: 300;
-  line-height: 1.14;
+  line-height: 1.18;
   text-align: center;
   text-decoration: none;
   text-wrap: balance;
@@ -80,7 +49,7 @@
   grid-template-columns: minmax(0, 1.18fr) minmax(360px, 0.82fr);
   gap: 18px;
   align-items: end;
-  min-height: min(560px, calc(100vh - 178px));
+  min-height: min(520px, calc(100vh - 176px));
   padding: 18px 0;
 }
 
@@ -107,9 +76,9 @@
   max-width: 9.7ch;
   margin: 0;
   font-family: var(--tw-font-latin);
-  font-size: 8.2rem;
+  font-size: 7.6rem;
   font-weight: 200;
-  line-height: 0.89;
+  line-height: 0.92;
   letter-spacing: 0;
   text-wrap: balance;
 }
@@ -143,9 +112,9 @@
 .portal-manifesto .portal-manifesto-lead {
   color: #151515;
   font-family: var(--tw-font-latin);
-  font-size: 2.35rem;
+  font-size: 2.2rem;
   font-weight: 200;
-  line-height: 1;
+  line-height: 1.04;
 }
 
 .portal-manifesto-grid {
@@ -177,9 +146,43 @@
   line-height: 1.25;
 }
 
+.portal-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 8px 0 0;
+}
+
+.portal-gallery figure {
+  display: grid;
+  gap: 0;
+  min-width: 0;
+  margin: 0;
+  border: 1px solid #151515;
+  background: #ffffff;
+}
+
+.portal-gallery img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-bottom: 1px solid #151515;
+}
+
+.portal-gallery figcaption {
+  min-height: 40px;
+  padding: 10px 12px;
+  color: #151515;
+  font-family: var(--tw-font-latin);
+  font-size: 0.9rem;
+  font-weight: 300;
+  line-height: 1.1;
+}
+
 @media (max-width: 980px) {
   .portal-hero,
-  .portal-tool-tabs {
+  .portal-tool-tabs,
+  .portal-gallery {
     grid-template-columns: 1fr;
   }
 
@@ -196,15 +199,6 @@
   .portal-shell {
     width: min(100% - 20px, 1440px);
     padding-top: 10px;
-  }
-
-  .portal-topbar {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .portal-brand {
-    justify-content: center;
   }
 
   .portal-hero-copy {

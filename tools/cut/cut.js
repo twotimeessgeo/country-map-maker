@@ -1155,25 +1155,22 @@ function formatPercentValue(value) {
 function questionChoiceRatesHtml(item) {
   if (!item.choice_rates?.length) return "";
   return `
-    <details class="question-choice-rates">
-      <summary>선지별 선택률</summary>
-      <div class="question-choice-list">
+    <div class="question-choice-rates">
+      <div class="question-choice-heading">
+        <span>선지별 선택률</span>
+        <span>정답 기준</span>
+      </div>
+      <div class="question-choice-bars">
         ${item.choice_rates.map((choice) => `
-          <span>${choice.choice}번${choice.is_answer ? " 정답" : ""} · ${formatPercentValue(choice.rate)}</span>
+          <div class="question-choice-row${choice.is_answer ? " is-answer" : ""}" style="--rate: ${clamp(Number(choice.rate), 0, 100)}%;">
+            <span class="question-choice-label">${choice.choice}번${choice.is_answer ? " 정답" : ""}</span>
+            <span class="question-choice-track" aria-hidden="true"><span class="question-choice-fill"></span></span>
+            <span class="question-choice-value">${formatPercentValue(choice.rate)}</span>
+          </div>
         `).join("")}
       </div>
-    </details>
+    </div>
   `;
-}
-
-function loadExamByKey(examKey) {
-  const exam = historicalExams.find((candidate) => {
-    const key = `${candidate.subject}|${candidate.exam_year}|${candidate.month}`;
-    return key === examKey;
-  });
-  if (!exam) return;
-  setToolTab("predict", true);
-  loadHistoryExam(exam.id);
 }
 
 function renderQuestionSearchResults(event = null) {
@@ -1222,15 +1219,9 @@ function renderQuestionSearchResults(event = null) {
           ${item.image_url ? `<span>${escapeHtml(item.image_source_label || item.image_variant || "문항 이미지")}</span>` : ""}
         </div>
         ${questionChoiceRatesHtml(item)}
-        <div class="question-card-actions">
-          <button class="tw-button" type="button" data-load-exam="${escapeHtml(item.exam_key)}">이 시험 불러오기</button>
-        </div>
       </article>
     `;
   }).join("");
-  elements.questionResultGrid.querySelectorAll("[data-load-exam]").forEach((button) => {
-    button.addEventListener("click", () => loadExamByKey(button.dataset.loadExam));
-  });
   refreshIcons();
 }
 

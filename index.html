@@ -20,12 +20,24 @@
   </head>
   <body>
     <div class="portal-shell">
-      <header class="portal-topbar" aria-label="Promenade Geography">
-        <a class="portal-brand" href="./index.html" aria-label="Promenade Geography home">
+      <nav class="app-context-bar" aria-label="Promenade Geography">
+        <a class="app-context-brand" href="./index.html" aria-label="Promenade Geography home">
           <span>Promenade</span>
           <strong>Geography</strong>
         </a>
-      </header>
+        <details class="app-context-menu">
+          <summary>
+            <span class="app-menu-mark" aria-hidden="true"></span>
+            <span>Menu</span>
+          </summary>
+          <div class="app-context-menu-panel">
+            <a class="is-active" href="./index.html">Promenade</a>
+            <a href="./map.html">Map Editor</a>
+            <a href="./tools/climate/index.html">Climate Database</a>
+            <a href="./tools/cut/index.html">Exam Simulator</a>
+          </div>
+        </details>
+      </nav>
 
       <main>
         <nav class="portal-tool-tabs" aria-label="Primary tools">
@@ -63,6 +75,21 @@
               </div>
             </dl>
           </div>
+        </section>
+
+        <section class="portal-gallery" aria-label="Promenade Geography previews">
+          <figure>
+            <img src="./assets/portal-map.svg" alt="Map Editor preview" />
+            <figcaption>Map Editor</figcaption>
+          </figure>
+          <figure>
+            <img src="./assets/portal-climate.svg" alt="Climate Graphics preview" />
+            <figcaption>Climate Graphics</figcaption>
+          </figure>
+          <figure>
+            <img src="./assets/portal-cut.svg" alt="Exam Simulator preview" />
+            <figcaption>Exam Simulator</figcaption>
+          </figure>
         </section>
       </main>
     </div>
