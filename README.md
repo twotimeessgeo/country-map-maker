@@ -1,10 +1,34 @@
-# 투타임즈의 통계머신
+# 수능 지리 유틸리티 포털
+
+지도 제작, 기후 비교, 지리 등급컷 예측을 한곳에서 여는 정적 웹 포털입니다. GitHub Pages 같은 정적 호스팅에 그대로 올릴 수 있도록 루트 `index.html`을 포털 홈으로 두고, 각 도구는 독립 페이지로 분리했습니다.
+
+## 포털 구성
+
+- [index.html](/Users/twotimess/Desktop/Map/index.html): 포털 홈
+- [map.html](/Users/twotimess/Desktop/Map/map.html): 기존 `투타임즈의 통계머신`
+- [tools/climate/index.html](/Users/twotimess/Desktop/Map/tools/climate/index.html): 세계지리 기후머신
+- [tools/climate/korea.html](/Users/twotimess/Desktop/Map/tools/climate/korea.html): 한국지리 기후머신
+- [tools/cut/index.html](/Users/twotimess/Desktop/Map/tools/cut/index.html): 정적 지리 컷 예측기
+
+## 실행 방법
+
+```bash
+npm run start
+```
+
+그다음 [http://localhost:4173](http://localhost:4173)을 열면 됩니다.
+
+## GitHub Pages
+
+`.github/workflows/pages.yml`을 포함했습니다. `main` 브랜치에 반영되면 GitHub Actions가 루트 정적 사이트를 Pages 아티팩트로 배포합니다.
+
+## 투타임즈의 통계머신
 
 선택한 국가나 한국 권역만 색칠해서 지역 지도를 만들고, 현재 보이는 결과를 그대로 SVG로 내보내는 작은 웹 앱입니다. `index.html`을 직접 열어도 동작하도록 로컬 라이브러리와 데이터가 함께 들어 있습니다.
 
-## 사용 방법
+## 지도 도구 사용 방법
 
-1. [index.html](/Users/twotimess/Desktop/Map/index.html)를 브라우저에서 바로 열거나, 터미널에서 `npm run start` 후 [http://localhost:4173](http://localhost:4173) 로 접속합니다.
+1. [map.html](/Users/twotimess/Desktop/Map/map.html)를 브라우저에서 바로 열거나, 터미널에서 `npm run start` 후 [http://localhost:4173/map.html](http://localhost:4173/map.html) 로 접속합니다.
 2. 세계 지도에서는 검색창에 영문 국가명을 입력하거나 지도를 클릭해서 국가를 추가합니다.
 3. 한국 지도에서는 상단 `대한민국` 탭으로 전환한 뒤 `도/광역시`, `시/군`, `구/군` 권역을 칩이나 지도 클릭으로 켜고 끕니다. 일반 시의 `구`는 `시/군` 단계에서 합쳐서 보이고, 서울·광역시는 `구/군` 단계에서 별도로 볼 수 있습니다.
 4. 한국 권역은 선택 목록에서 여러 개를 체크한 뒤 `체크한 권역 비교`를 누르면 전국 지도에서 함께 비교할 수 있습니다. 부모 범위가 달라도 한 장에서 같이 볼 수 있고, 필요하면 노선 오버레이도 덧씌울 수 있습니다.
@@ -53,7 +77,7 @@
 - 전국 `시/군` 보기와 복수 도/광역시 범위만 남기는 결합 보기
 - 한국 권역 선택 목록 기반 전국 비교 보기
 - 서울·부산 구/군 상주인구, 주간인구, 주간인구지수 통계 보기
-- 경부고속도로, 경부고속철도, 영동고속도로, 호남고속철도 단순화 오버레이
+- 경부고속도로, 경부고속철도, 영동고속도로, 호남고속철도 중간 상세 오버레이와 고속철도 정차역 점 표시
 - `110m / 50m / 10m` 다중 세계 경계 데이터 기반 자동 디테일 전환
 - 밀러 계열 평면 지도와 북극/남극 시점 전환
 - 평면 지도 좌우 연속 렌더링

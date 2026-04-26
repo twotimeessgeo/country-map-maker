@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" role="img" aria-labelledby="title desc">
+  <title id="title">통계 지도 썸네일</title>
+  <desc id="desc">세계 지도와 통계 그래프를 함께 배치한 포털 썸네일</desc>
+  <rect width="960" height="640" fill="#f8f4ed"/>
+  <rect x="32" y="32" width="896" height="576" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+  <rect x="70" y="70" width="530" height="500" fill="#dbeafe" stroke="#111111" stroke-width="3"/>
+  <path d="M122 229c42-55 114-76 176-54 49 18 78 60 135 59 38-1 56-20 93-13 34 7 58 32 68 61 13 39-4 85-39 107-45 28-88-7-142 22-44 23-37 61-80 74-40 12-86-10-108-43-21-31-14-62-44-80-31-19-64 7-98-14-35-22-39-80-21-119z" fill="#86efac" stroke="#111111" stroke-width="3"/>
+  <path d="M194 185c18 38 37 76 55 114m92-116c-6 93-6 186 0 279m145-220c-32 62-61 125-88 190" fill="none" stroke="#111111" stroke-width="2" stroke-dasharray="8 8"/>
+  <circle cx="260" cy="304" r="13" fill="#111111"/>
+  <circle cx="421" cy="376" r="13" fill="#111111"/>
+  <circle cx="494" cy="263" r="13" fill="#111111"/>
+  <rect x="640" y="70" width="250" height="126" fill="#d9f99d" stroke="#111111" stroke-width="3"/>
+  <rect x="640" y="226" width="250" height="344" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+  <g fill="#111111">
+    <rect x="674" y="457" width="32" height="72"/>
+    <rect x="724" y="391" width="32" height="138"/>
+    <rect x="774" y="328" width="32" height="201"/>
+    <rect x="824" y="270" width="32" height="259"/>
+  </g>
+  <path d="M666 310h198M666 372h198M666 434h198M666 496h198" stroke="#cbd5e1" stroke-width="3"/>
+  <text x="76" y="548" fill="#111111" font-family="Pretendard, Arial, sans-serif" font-size="34" font-weight="900">MAP MACHINE</text>
+  <text x="668" y="146" fill="#111111" font-family="Pretendard, Arial, sans-serif" font-size="36" font-weight="900">SVG</text>
+</svg>

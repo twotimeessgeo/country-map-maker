@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Climate Database and Graphics | Korea | Promenade Geography</title>
+    <meta
+      name="description"
+      content="Compare Korea climate database records and render climate graphics for geography study."
+    />
+    <meta name="theme-color" content="#111111" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-app-mode="korea">
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">PROMENADE GEOGRAPHY</p>
+          <nav class="app-switch" aria-label="버전 선택">
+            <a class="app-switch-link" href="./index.html">세계지리</a>
+            <a class="app-switch-link is-active" href="./korea.html">한국지리</a>
+            <button type="button" class="app-switch-link app-switch-button" id="economyEggButton">경제지리</button>
+          </nav>
+          <h1>Climate Database and Graphics</h1>
+          <p class="hero-text" id="heroText">
+            남한과 북한의 대표 지점을 함께 고르고, 기상청 기준 월별 기온·강수 그래프와
+            1월·8월·겨울(12~2월)·여름(6~8월)·연교차 비교를 한 화면에서 볼 수 있습니다.
+          </p>
+        </div>
+        <div class="hero-note">
+          <p class="hero-note-label">한국지리 버전</p>
+          <strong id="heroCount">69개 지역</strong>
+          <span id="heroCaption">기상청 1991-2020 평년값 기준</span>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel controls-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">1. 지역 선택</p>
+              <h2>권역별로 찾고 지도에서도 골라보세요</h2>
+            </div>
+            <div class="selection-summary" id="selectionSummary">0개 선택됨</div>
+          </div>
+
+          <div class="control-bar has-sort">
+            <label class="search-field" for="searchInput">
+              <span>지역 검색</span>
+              <input
+                id="searchInput"
+                type="search"
+                placeholder="예: 서울, 평양, 강릉, 함흥"
+                autocomplete="off"
+              />
+            </label>
+            <label class="search-field sort-field" for="regionSortSelect">
+              <span>지역 정렬</span>
+              <select id="regionSortSelect">
+                <option value="default">기본순</option>
+                <option value="name">가나다순</option>
+                <option value="annualPrecipitationDesc">연 강수량 많은 순</option>
+                <option value="annualRangeDesc">연교차 큰 순</option>
+                <option value="warmestMonthDesc">최난월 기온 높은 순</option>
+                <option value="coldestMonthAsc">최한월 기온 낮은 순</option>
+              </select>
+            </label>
+            <div class="action-row">
+              <button type="button" class="ghost-button" id="randomSpacedSelectionButton">
+                너무 가깝지 않은 4지점 랜덤
+              </button>
+              <button type="button" class="ghost-button" id="clearSelectionButton">선택 해제</button>
+            </div>
+          </div>
+
+          <div class="filter-stack">
+            <div class="filter-group">
+              <p class="filter-label">국가 필터</p>
+              <div class="chip-row" id="nationChips"></div>
+            </div>
+            <div class="filter-group">
+              <p class="filter-label">권역 필터</p>
+              <div class="chip-row" id="zoneChips"></div>
+            </div>
+          </div>
+
+          <div class="explore-grid">
+            <article class="world-stage">
+              <div class="section-heading compact nested-heading">
+                <div>
+                  <p class="section-kicker">지도 선택</p>
+                  <h2>지도</h2>
+                </div>
+                <div class="selection-summary is-muted" id="mapSummary">지도 준비 중</div>
+              </div>
+              <div class="map-toolbar">
+                <div class="filter-group">
+                  <p class="filter-label">지도 표시</p>
+                  <div class="chip-row" id="mapScopeChips"></div>
+                </div>
+              </div>
+              <div id="worldMap"></div>
+              <p class="map-note">
+                * 지도 점 좌표는 기상청 지점정보를 기준으로 맞췄습니다. 점을 누르면 선택/해제되고,
+                "선택 지역만"으로 바꾸면 현재 고른 지역만 따로 볼 수 있습니다.
+              </p>
+            </article>
+
+            <article class="region-picker">
+              <details class="region-picker-details" open>
+                <summary class="region-picker-summary">
+                  <div class="section-heading compact nested-heading">
+                    <div>
+                      <p class="section-kicker">목록 선택</p>
+                      <h2>지역 목록</h2>
+                    </div>
+                    <span class="collapse-hint">접기 / 펼치기</span>
+                  </div>
+                </summary>
+                <div class="region-list" id="regionList"></div>
+              </details>
+            </article>
+
+          </div>
+        </section>
+
+        <section class="panel" id="selectedPanel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">2. 지역별 보기</p>
+              <h2>연중 기온·강수량 그래프와 핵심 시기 표</h2>
+            </div>
+          </div>
+          <div id="selectedRegionsContent" class="selected-grid"></div>
+        </section>
+
+        <section class="panel comparison-panel" id="comparisonPanel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">3. 지역 간 비교</p>
+              <h2>1월·8월, 겨울·여름, 연교차 비교</h2>
+            </div>
+          </div>
+          <div class="comparison-intro">
+            <p>
+              1월과 8월, 겨울과 여름을 묶어서 보고, 8월 평균기온에서 1월 평균기온을 뺀 연교차도 함께
+              비교할 수 있습니다. 월 평균 기온과 누적 강수량 추세도 같은 축으로 함께 볼 수 있습니다.
+            </p>
+          </div>
+          <div id="comparisonContent"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="data/korea-climate-data.js"></script>
+    <script src="data/korea-peninsula-geo.js"></script>
+    <script src="data/vendor-d3.min.js"></script>
+    <script src="korea-app.js"></script>
+  </body>
+</html>

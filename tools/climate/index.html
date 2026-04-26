@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Climate Database and Graphics | Promenade Geography</title>
+    <meta
+      name="description"
+      content="Compare climate database records and render geography graphics for world climate study."
+    />
+    <meta name="theme-color" content="#111111" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-app-mode="world">
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">PROMENADE GEOGRAPHY</p>
+          <nav class="app-switch" aria-label="버전 선택">
+            <a class="app-switch-link is-active" href="./index.html">세계지리</a>
+            <a class="app-switch-link" href="./korea.html">한국지리</a>
+            <button type="button" class="app-switch-link app-switch-button" id="economyEggButton">경제지리</button>
+          </nav>
+          <h1>Climate Database and Graphics</h1>
+          <p class="hero-text" id="heroText">
+            지역을 고르면 월별 기온과 강수량을 표와 기후 그래프로 확인하고,
+            여러 지역을 함께 선택하면 1월과 7월의 편차를 예시 이미지처럼 한눈에 비교할 수 있습니다.
+          </p>
+        </div>
+        <div class="hero-note">
+          <p class="hero-note-label">현재 기준</p>
+          <strong id="heroCount">114개 지역</strong>
+          <span id="heroCaption">Open-Meteo 1991-2020 API 기준</span>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel controls-panel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">1. 지역 선택</p>
+              <h2>검색하고 지도에서도 골라보세요</h2>
+            </div>
+            <div class="selection-summary" id="selectionSummary">0개 선택됨</div>
+          </div>
+
+          <div class="control-bar has-sort">
+            <label class="search-field" for="searchInput">
+              <span>지역 검색</span>
+              <input
+                id="searchInput"
+                type="search"
+                placeholder="예: 케이프타운, 파리, Aw"
+                autocomplete="off"
+              />
+            </label>
+            <label class="search-field sort-field" for="regionSortSelect">
+              <span>지역 정렬</span>
+              <select id="regionSortSelect">
+                <option value="default">기본순</option>
+                <option value="name">가나다순</option>
+                <option value="annualPrecipitationDesc">연 강수량 많은 순</option>
+                <option value="annualRangeDesc">연교차 큰 순</option>
+                <option value="warmestMonthDesc">최난월 기온 높은 순</option>
+                <option value="coldestMonthAsc">최한월 기온 낮은 순</option>
+              </select>
+            </label>
+            <div class="action-row">
+              <button type="button" class="ghost-button" id="randomClimateSelectionButton">
+                기후 다른 4지역 랜덤
+              </button>
+              <button type="button" class="ghost-button" id="clearSelectionButton">선택 해제</button>
+            </div>
+          </div>
+
+          <div class="filter-stack">
+            <div class="filter-group">
+              <p class="filter-label">대륙 필터</p>
+              <div class="chip-row" id="continentChips"></div>
+            </div>
+            <div class="filter-group">
+              <p class="filter-label">반구 필터</p>
+              <div class="chip-row" id="hemisphereChips"></div>
+            </div>
+            <div class="filter-group">
+              <p class="filter-label">기후 구분 필터</p>
+              <div class="chip-row" id="climateChips"></div>
+            </div>
+          </div>
+
+          <div class="explore-grid">
+            <article class="world-stage">
+              <div class="section-heading compact nested-heading">
+                <div>
+                  <p class="section-kicker">지도 선택</p>
+                  <h2>세계 지도에서 지역 고르기</h2>
+                </div>
+                <div class="selection-summary is-muted" id="mapSummary">지도 준비 중</div>
+              </div>
+              <div class="map-toolbar">
+                <div class="filter-group">
+                  <p class="filter-label">지도 표시</p>
+                  <div class="chip-row" id="mapScopeChips"></div>
+                </div>
+              </div>
+              <div id="worldMap"></div>
+              <p class="map-note">
+                * 점을 누르면 선택/해제됩니다. 위도·경도 기준으로 점을 찍고, "선택 지역만"으로 바꾸면
+                현재 고른 지역들만 따로 볼 수 있습니다.
+              </p>
+            </article>
+
+            <article class="region-picker">
+              <details class="region-picker-details" open>
+                <summary class="region-picker-summary">
+                  <div class="section-heading compact nested-heading">
+                    <div>
+                      <p class="section-kicker">목록 선택</p>
+                      <h2>지역 목록</h2>
+                    </div>
+                    <span class="collapse-hint">접기 / 펼치기</span>
+                  </div>
+                </summary>
+                <div class="region-list" id="regionList"></div>
+              </details>
+            </article>
+
+            <article class="api-stage">
+              <div class="section-heading compact nested-heading">
+                <div>
+                  <p class="section-kicker">온라인 확장</p>
+                  <h2>API로 새 지역 추가</h2>
+                </div>
+                <div class="selection-summary is-muted" id="apiStatusSummary">
+                  기본 지역 + 온라인 검색
+                </div>
+              </div>
+              <div class="control-bar api-control-bar">
+                <label class="search-field" for="apiSearchInput">
+                  <span>도시 / 지역명 검색</span>
+                  <input
+                    id="apiSearchInput"
+                    type="search"
+                    placeholder="예: 뉴델리, 시드니, 마드리드"
+                    autocomplete="off"
+                  />
+                </label>
+                <div class="action-row">
+                  <button type="button" class="ghost-button" id="syncBaseDatasetButton">
+                    기본 데이터 API 기준 완료
+                  </button>
+                  <button type="button" class="ghost-button" id="apiSearchButton">API 검색</button>
+                </div>
+              </div>
+              <p class="map-note" id="apiStatusText">
+                * Open-Meteo API로 좌표와 월별 기후를 불러와, 현재 앱의 지도·표·비교 그래프에 바로 추가합니다.
+              </p>
+              <div class="api-results" id="apiResults"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel" id="selectedPanel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">2. 지역별 보기</p>
+              <h2>월별 기온·강수량 표와 기후 그래프</h2>
+            </div>
+          </div>
+          <div id="selectedRegionsContent" class="selected-grid"></div>
+        </section>
+
+        <section class="panel comparison-panel" id="comparisonPanel">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">3. 지역 간 비교</p>
+              <h2>1월과 7월 편차 비교</h2>
+            </div>
+          </div>
+          <div class="comparison-intro">
+            <p>
+              편차 기준은 선택 지역 평균이나 특정 지역으로 바꿀 수 있고,
+              예시 문제처럼 온도는 점, 강수량은 막대로 표현했습니다.
+            </p>
+          </div>
+          <div id="comparisonContent"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="data/climate-data.js"></script>
+    <script src="data/exam-climate-statements.js"></script>
+    <script src="data/world-countries-50m.js"></script>
+    <script src="data/vendor-d3.min.js"></script>
+    <script src="data/vendor-topojson-client.min.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

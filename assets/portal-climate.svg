@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" role="img" aria-labelledby="title desc">
+  <title id="title">기후 비교 썸네일</title>
+  <desc id="desc">기후 그래프, 월별 강수량 막대, 지도 점을 함께 배치한 포털 썸네일</desc>
+  <rect width="960" height="640" fill="#eef7f2"/>
+  <rect x="32" y="32" width="896" height="576" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+  <rect x="70" y="76" width="360" height="236" fill="#e0f2fe" stroke="#111111" stroke-width="3"/>
+  <path d="M103 231c37-28 79-42 125-42 60 0 95 34 141 21 19-5 35-17 47-30" fill="none" stroke="#111111" stroke-width="4"/>
+  <circle cx="172" cy="187" r="9" fill="#ef4444"/>
+  <circle cx="251" cy="190" r="9" fill="#ef4444"/>
+  <circle cx="355" cy="207" r="9" fill="#ef4444"/>
+  <rect x="70" y="348" width="360" height="220" fill="#ffffff" stroke="#111111" stroke-width="3"/>
+  <g fill="#38bdf8" stroke="#111111" stroke-width="3">
+    <rect x="105" y="497" width="22" height="37"/>
+    <rect x="150" y="472" width="22" height="62"/>
+    <rect x="195" y="427" width="22" height="107"/>
+    <rect x="240" y="397" width="22" height="137"/>
+    <rect x="285" y="430" width="22" height="104"/>
+    <rect x="330" y="475" width="22" height="59"/>
+    <rect x="375" y="505" width="22" height="29"/>
+  </g>
+  <rect x="486" y="76" width="374" height="492" fill="#f8f4ed" stroke="#111111" stroke-width="3"/>
+  <path d="M535 290c29-70 104-121 184-116 58 4 97 36 112 80 19 58-12 120-68 143-45 18-72-3-119 13-42 14-53 47-81 41-34-8-50-71-28-161z" fill="#d9f99d" stroke="#111111" stroke-width="3"/>
+  <g fill="#111111">
+    <circle cx="635" cy="242" r="10"/>
+    <circle cx="701" cy="316" r="10"/>
+    <circle cx="768" cy="266" r="10"/>
+    <circle cx="610" cy="376" r="10"/>
+  </g>
+  <text x="104" y="134" fill="#111111" font-family="Pretendard, Arial, sans-serif" font-size="34" font-weight="900">TEMP</text>
+  <text x="518" y="526" fill="#111111" font-family="Pretendard, Arial, sans-serif" font-size="34" font-weight="900">CLIMATE MAP</text>
+</svg>

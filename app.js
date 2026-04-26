@@ -29,6 +29,8 @@ const OUTLINE_STROKE_WIDTH = "0.3pt";
 const KOREA_CITY_BOUNDARY_STROKE_WIDTH = "0.18pt";
 const KOREA_CITY_CONTEXT_STROKE_WIDTH = "0.45pt";
 const KOREA_METRO_DISTRICT_BOUNDARY_STROKE_WIDTH = "0.54pt";
+const KOREA_HSR_STATION_RADIUS = 1.45;
+const KOREA_HSR_STATION_HALO_RADIUS = 2.25;
 const MIN_INSET_PANEL_WIDTH = 36;
 const MIN_INSET_PANEL_HEIGHT = 36;
 const MAX_INSET_PANEL_WIDTH = 310;
@@ -3856,6 +3858,16 @@ function renderMetricExplorerPanel() {
   const scatterXDefinition = getMetricExplorerDefinitionByKey(definitions, state.metricExplorerScatterXKey);
   const scatterYDefinition = getMetricExplorerDefinitionByKey(definitions, state.metricExplorerScatterYKey);
   const scatterSizeDefinition = getMetricExplorerDefinitionByKey(definitions, state.metricExplorerScatterSizeKey);
+  const usesRelativeTable = state.metricExplorerDisplayMode === "relative";
+  const rankingTableEntries = usesRelativeTable
+    ? buildRelativeIndexTableEntries(results, activeDefinition.formatter, topN)
+    : results.slice(0, topN);
+  const rankingTableValueFormatter = usesRelativeTable
+    ? (value) => formatRelativeIndex(value)
+    : activeDefinition.formatter;
+  const rankingTableDescription = usesRelativeTable
+    ? "그래프의 상댓값 100 기준으로 환산한 표입니다. 실제 값은 항목 설명에 함께 남겼습니다."
+    : "그래프를 만들 때 바로 옮겨 적기 쉬운 값 표입니다.";
 
   const shell = document.createElement("div");
   shell.className = "metric-explorer-shell";
@@ -3988,17 +4000,17 @@ function renderMetricExplorerPanel() {
         buildMetricExplorerTable({
           title: state.metricExplorerGrouping === "continents" ? "대륙 순위표" : "국가 순위표",
           description: "값, 최신 기준연도, 보조 메모를 함께 보여줍니다.",
-          entries: results.slice(0, topN),
-          valueFormatter: activeDefinition.formatter,
+          entries: rankingTableEntries,
+          valueFormatter: rankingTableValueFormatter,
         }),
       );
     } else {
       chartGrid.append(
         buildMetricExplorerTable({
-          title: scopeMode === "selected" ? "선택 국가 비교표" : "국가 순위표",
-          description: "그래프를 만들 때 바로 옮겨 적기 쉬운 값 표입니다.",
-          entries: results.slice(0, topN),
-          valueFormatter: activeDefinition.formatter,
+          title: usesRelativeTable ? "상댓값 순위표" : scopeMode === "selected" ? "선택 국가 비교표" : "국가 순위표",
+          description: rankingTableDescription,
+          entries: rankingTableEntries,
+          valueFormatter: rankingTableValueFormatter,
         }),
       );
     }
@@ -4295,6 +4307,26 @@ function getKoreaGeoStatsLatestEntries(definition = getKoreaGeoStatsDefinition()
     })
     .filter(Boolean)
     .sort((a, b) => Number(b.value) - Number(a.value) || compareMetricLabels(a.label, b.label));
+}
+
+function buildRelativeIndexTableEntries(
+  entries = [],
+  formatter = (value) => String(value),
+  topN = entries.length,
+  { detailFormatter } = {},
+) {
+  const slicedEntries = (entries ?? []).slice(0, topN);
+  const maximumValue = Number(slicedEntries[0]?.value) || 0;
+  if (!(maximumValue > 0) || slicedEntries.some((entry) => Number(entry.value) < 0)) {
+    return [];
+  }
+
+  return slicedEntries.map((entry) => ({
+    ...entry,
+    value: (Number(entry.value) / maximumValue) * 100,
+    detail: detailFormatter ? detailFormatter(entry) : `실제 ${formatter(entry.value)} · ${entry.detail ?? entry.periodLabel ?? "최신값"}`,
+    valueDetail: "최댓값=100",
+  }));
 }
 
 function getKoreaGeoStatsDefinitionMaxSeriesLength(definition) {
@@ -6322,13 +6354,22 @@ function renderKoreaGeoStatsPanel() {
       }),
     );
   } else if (state.koreaGeoStatsDisplayMode === "relative") {
+    const relativeEntries = buildRelativeIndexTableEntries(
+      latestEntries,
+      (value) => formatKoreaGeoStatsValue(activeDefinition, value),
+      topN,
+      {
+        detailFormatter: (entry) =>
+          `실제 ${formatKoreaGeoStatsValue(activeDefinition, entry.value)} · ${entry.periodLabel ?? "최신 시점"}`,
+      },
+    );
     chartGrid.append(
       buildKoreaGeoStatsRelativeCard(latestEntries, activeDefinition, topN, levelKey),
       buildMetricExplorerTable({
-        title: "최신 순위표",
-        description: "최댓값 100 비교와 함께 실제 값도 옆에서 확인할 수 있습니다.",
-        entries: latestEntries.slice(0, topN),
-        valueFormatter: (value) => formatKoreaGeoStatsValue(activeDefinition, value),
+        title: "상댓값 순위표",
+        description: "그래프와 같은 최댓값 100 기준으로 환산한 표입니다. 실제 공식값은 항목 설명에 함께 남겼습니다.",
+        entries: relativeEntries,
+        valueFormatter: (value) => formatRelativeIndex(value),
       }),
     );
   } else if (state.koreaGeoStatsDisplayMode === "latest") {
@@ -7128,7 +7169,7 @@ function buildMetricExplorerTable({ title, description, entries, valueFormatter 
     const valueStrong = document.createElement("strong");
     valueStrong.textContent = valueFormatter(entry.value);
     const valueSmall = document.createElement("small");
-    valueSmall.textContent = entry.year ? `${entry.year}년` : "최신값";
+    valueSmall.textContent = entry.valueDetail ?? (entry.year ? `${entry.year}년` : "최신값");
     valueNode.append(valueStrong, valueSmall);
 
     row.append(rankNode, labelNode, valueNode);
@@ -7217,23 +7258,23 @@ function buildMetricExplorerMatrixTable({
 }
 
 function buildKoreaGeoStatsTrendRawDataTable(trendPresentation) {
-  const displayedSeriesLabels = new Set((trendPresentation?.series ?? []).map((entry) => entry.label));
-  const sampledRawSeries = (trendPresentation?.rawSeries ?? [])
-    .filter((entry) => !displayedSeriesLabels.size || displayedSeriesLabels.has(entry.label))
+  const sampledGraphSeries = (trendPresentation?.series ?? [])
     .map((entry) => ({
       ...entry,
-      points: sampleKoreaGeoStatsTrendPoints(entry.points, trendPresentation.interval, trendPresentation.basePeriodKey),
+      points: [...(entry.points ?? [])].sort(
+        (a, b) => parseKoreaGeoStatsPeriodKey(a.periodKey) - parseKoreaGeoStatsPeriodKey(b.periodKey),
+      ),
     }))
     .filter((entry) => entry.points.length);
-  const periodKeys = [...new Set(sampledRawSeries.flatMap((entry) => entry.points.map((point) => point.periodKey)))].sort(
+  const periodKeys = [...new Set(sampledGraphSeries.flatMap((entry) => entry.points.map((point) => point.periodKey)))].sort(
     (a, b) => parseKoreaGeoStatsPeriodKey(a) - parseKoreaGeoStatsPeriodKey(b),
   );
   const periodLabelByKey = new Map(
-    sampledRawSeries.flatMap((entry) => entry.points.map((point) => [point.periodKey, point.periodLabel ?? point.periodKey])),
+    sampledGraphSeries.flatMap((entry) => entry.points.map((point) => [point.periodKey, point.periodLabel ?? point.periodKey])),
   );
   const columns = [
     { key: "periodLabel", label: "시점" },
-    ...sampledRawSeries.map((entry, index) => ({
+    ...sampledGraphSeries.map((entry, index) => ({
       key: `series-${index}`,
       label: entry.label,
       align: "end",
@@ -7243,20 +7284,22 @@ function buildKoreaGeoStatsTrendRawDataTable(trendPresentation) {
     const row = {
       periodLabel: periodLabelByKey.get(periodKey) ?? periodKey,
     };
-    sampledRawSeries.forEach((entry, index) => {
+    sampledGraphSeries.forEach((entry, index) => {
       const point = entry.points.find((candidate) => candidate.periodKey === periodKey);
       row[`series-${index}`] = point
-        ? formatKoreaGeoStatsValue(trendPresentation.seriesDefinition, point.value)
+        ? trendPresentation.usesIndex
+          ? trendPresentation.valueFormatter(point.value)
+          : formatKoreaGeoStatsValue(trendPresentation.seriesDefinition, point.value)
         : "—";
     });
     return row;
   });
 
   return buildMetricExplorerMatrixTable({
-    title: "원 데이터 표",
+    title: "그래프 값 표",
     description:
       trendPresentation?.usesIndex
-        ? `그래프는 ${trendPresentation.basePeriodLabel || "기준 시점"} = 100으로 그렸고, 아래 표는 같은 시점의 실제 공식값입니다.`
+        ? `그래프와 같은 ${trendPresentation.basePeriodLabel || "기준 시점"} = 100 기준 상댓값입니다.`
         : "그래프에 실제로 사용한 시점만 공식값으로 다시 펼쳤습니다.",
     columns,
     rows,
@@ -11954,7 +11997,14 @@ function buildExamTrendLineGraphModel() {
       (row) => {
         const startPoint = row.points[0];
         const endPoint = row.points[row.points.length - 1];
-        return `${startPoint.year}년 ${definition.formatter(startPoint.value)} → ${endPoint.year}년 ${definition.formatter(endPoint.value)}`;
+        const actualLabel = `${startPoint.year}년 ${definition.formatter(startPoint.value)} → ${endPoint.year}년 ${definition.formatter(endPoint.value)}`;
+        if (state.examGraphValueMode === "share") {
+          return `${actualLabel} · 그래프값 ${formatPercent(startPoint.displayValue)} → ${formatPercent(endPoint.displayValue)}`;
+        }
+        if (state.examGraphValueMode === "relative") {
+          return `${actualLabel} · 그래프값 ${formatRelativeIndex(startPoint.displayValue)} → ${formatRelativeIndex(endPoint.displayValue)}`;
+        }
+        return actualLabel;
       },
     ),
     answerRows: buildExamGraphAnswerRows(
@@ -15488,7 +15538,7 @@ function renderKoreaMap() {
   }
 
   renderKoreaWaterwayLayer(root, path, landClipId);
-  renderKoreaRouteLayer(root, path);
+  renderKoreaRouteLayer(root, path, projection);
 
   if (landFeature) {
     root
@@ -15753,7 +15803,7 @@ function renderKoreaWaterwayLayer(root, path, clipId = "") {
   });
 }
 
-function renderKoreaRouteLayer(root, path) {
+function renderKoreaRouteLayer(root, path, projection) {
   const activeRoutes = getActiveKoreaRoutes();
   if (!activeRoutes.length) {
     return;
@@ -15788,19 +15838,111 @@ function renderKoreaRouteLayer(root, path) {
       .attr("vector-effect", "non-scaling-stroke");
   });
 
+  renderKoreaRouteStationLayer(routeLayer, projection, activeRoutes);
   renderKoreaRouteLegend(root, activeRoutes);
+}
+
+function renderKoreaRouteStationLayer(routeLayer, projection, activeRoutes) {
+  const stations = getActiveKoreaRouteStations(activeRoutes, projection);
+  if (!stations.length) {
+    return;
+  }
+
+  const stationLayer = routeLayer.append("g").attr("class", "korea-route-station-layer");
+
+  stationLayer
+    .selectAll(".korea-route-station-halo")
+    .data(stations)
+    .join("circle")
+    .attr("class", "korea-route-station-halo")
+    .attr("cx", (station) => station.point[0])
+    .attr("cy", (station) => station.point[1])
+    .attr("r", KOREA_HSR_STATION_HALO_RADIUS)
+    .attr("fill", "#ffffff")
+    .attr("stroke", state.borderColor)
+    .attr("stroke-width", "0.25pt")
+    .attr("vector-effect", "non-scaling-stroke");
+
+  const stationMarkers = stationLayer
+    .selectAll(".korea-route-station")
+    .data(stations)
+    .join("circle")
+    .attr("class", "korea-route-station")
+    .attr("cx", (station) => station.point[0])
+    .attr("cy", (station) => station.point[1])
+    .attr("r", KOREA_HSR_STATION_RADIUS)
+    .attr("fill", state.borderColor)
+    .attr("stroke", "none")
+    .attr("data-station-id", (station) => station.id)
+    .attr("data-route-id", (station) => station.routeId);
+
+  stationMarkers.append("title").text((station) => `${station.name} · ${station.routeName}`);
+}
+
+function getActiveKoreaRouteStations(activeRoutes, projection) {
+  if (typeof projection !== "function") {
+    return [];
+  }
+
+  const seen = new Set();
+  const stations = [];
+
+  activeRoutes.forEach((route) => {
+    (route.stations ?? []).forEach((station) => {
+      const coordinates = normalizeKoreaRouteCoordinate(station.coordinates);
+      if (!coordinates) {
+        return;
+      }
+
+      const id = String(station.id ?? `${station.name ?? "station"}-${coordinates.join(",")}`);
+      if (seen.has(id)) {
+        return;
+      }
+
+      const point = projection(coordinates);
+      if (!point || !point.every(Number.isFinite)) {
+        return;
+      }
+
+      seen.add(id);
+      stations.push({
+        ...station,
+        id,
+        routeId: route.id,
+        routeName: route.name,
+        coordinates,
+        point,
+      });
+    });
+  });
+
+  return stations;
+}
+
+function normalizeKoreaRouteCoordinate(coordinates) {
+  if (!Array.isArray(coordinates) || coordinates.length < 2) {
+    return null;
+  }
+
+  const longitude = Number(coordinates[0]);
+  const latitude = Number(coordinates[1]);
+
+  return Number.isFinite(longitude) && Number.isFinite(latitude) ? [longitude, latitude] : null;
 }
 
 function renderKoreaRouteLegend(root, activeRoutes) {
   const legend = root.append("g").attr("class", "korea-route-legend");
   const legendX = 16;
   const legendY = 16;
-  const rowHeight = activeRoutes.length >= 4 ? 10.5 : 11.5;
-  const fontSize = activeRoutes.length >= 4 ? 4.8 : 5.2;
+  const showStationLegend = activeRoutes.some((route) => route.stations?.length);
+  const rowCount = activeRoutes.length + (showStationLegend ? 1 : 0);
+  const rowHeight = rowCount >= 4 ? 10.5 : 11.5;
+  const fontSize = rowCount >= 4 ? 4.8 : 5.2;
   const swatchLength = 14;
   const textOffset = 22;
-  const panelWidth = clamp(40 + Math.max(...activeRoutes.map((route) => route.name.length)) * 11, 104, 132);
-  const panelHeight = 16 + activeRoutes.length * rowHeight;
+  const legendNames = [...activeRoutes.map((route) => route.name), ...(showStationLegend ? ["고속철도 정차역"] : [])];
+  const panelWidth = clamp(40 + Math.max(...legendNames.map((name) => name.length)) * 11, 104, 132);
+  const panelHeight = 16 + rowCount * rowHeight;
 
   legend
     .append("rect")
@@ -15839,6 +15981,31 @@ function renderKoreaRouteLegend(root, activeRoutes) {
       .attr("fill", state.borderColor)
       .text(route.name);
   });
+
+  if (showStationLegend) {
+    const y = legendY + activeRoutes.length * rowHeight;
+    legend
+      .append("circle")
+      .attr("cx", legendX + swatchLength / 2)
+      .attr("cy", y)
+      .attr("r", KOREA_HSR_STATION_RADIUS)
+      .attr("fill", state.borderColor)
+      .attr("stroke", "#ffffff")
+      .attr("stroke-width", "0.5pt")
+      .attr("vector-effect", "non-scaling-stroke");
+
+    legend
+      .append("text")
+      .attr("x", legendX + textOffset)
+      .attr("y", y)
+      .attr("dominant-baseline", "middle")
+      .attr("font-size", `${fontSize}pt`)
+      .attr("font-family", "Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif")
+      .attr("font-weight", 700)
+      .attr("letter-spacing", "-0.02em")
+      .attr("fill", state.borderColor)
+      .text("고속철도 정차역");
+  }
 }
 
 function getActiveKoreaRoutes() {
