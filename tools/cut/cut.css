@@ -379,12 +379,14 @@
 
 .question-result-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 14px;
+  align-items: stretch;
 }
 
 .question-card {
   display: grid;
+  grid-template-rows: auto minmax(56px, auto) auto 136px;
   gap: 12px;
   min-width: 0;
   padding: 12px;
@@ -396,8 +398,8 @@
   display: grid;
   place-items: center;
   width: 100%;
-  min-height: 132px;
-  overflow: visible;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
   border: var(--tw-border);
   background: var(--tw-panel-soft);
   color: var(--tw-muted);
@@ -406,7 +408,7 @@
 
 .question-image-frame img {
   width: 100%;
-  height: auto;
+  height: 100%;
   object-fit: contain;
   background: #ffffff;
 }
@@ -418,6 +420,7 @@
 .question-card-title {
   display: grid;
   gap: 3px;
+  align-content: start;
 }
 
 .question-card-title strong {
@@ -437,11 +440,15 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  align-content: start;
+  align-items: stretch;
 }
 
 .question-card-badges span,
 .question-choice-list span {
-  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
   padding: 5px 8px;
   border: 1px solid var(--tw-line);
   background: var(--tw-panel-soft);
@@ -457,6 +464,7 @@
 .question-choice-rates {
   display: grid;
   gap: 8px;
+  align-self: end;
   border-top: 1px solid var(--tw-line-faint);
   padding-top: 8px;
 }
@@ -506,6 +514,7 @@
 }
 
 .question-choice-fill {
+  display: block;
   width: var(--rate, 0%);
   height: 100%;
   background: #a8d8e8;
@@ -678,6 +687,10 @@
 @media (max-width: 420px) {
   .question-result-grid {
     grid-template-columns: 1fr;
+  }
+
+  .question-card {
+    grid-template-rows: auto minmax(56px, auto) auto 132px;
   }
 
   .question-choice-row {
