@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>수능 지리 유틸리티 포털</title>
+    <title>Promenade Geography</title>
     <meta
       name="description"
-      content="지도 제작, 기후 비교, 지리 등급컷 예측을 한곳에서 여는 수능 지리 유틸리티 포털입니다."
+      content="Promenade Geography is a map editor, climate graphics database, and exam simulator for geography workflows."
     />
     <meta name="theme-color" content="#f4f1ea" />
     <link
@@ -20,61 +20,92 @@
   </head>
   <body>
     <div class="portal-shell">
-      <header class="portal-topbar" aria-label="포털">
-        <a class="portal-brand" href="./index.html" aria-label="수능 지리 유틸리티 포털 홈">
-          <span>Geo Portal</span>
-          <strong>수능 지리 유틸리티</strong>
+      <header class="portal-topbar" aria-label="Promenade Geography">
+        <a class="portal-brand" href="./index.html" aria-label="Promenade Geography home">
+          <span>Promenade</span>
+          <strong>Geography</strong>
         </a>
         <nav class="portal-nav" aria-label="도구 바로가기">
           <a href="./map.html">
             <i data-lucide="map"></i>
-            <span>지도</span>
+            <span>Map</span>
           </a>
           <a href="./tools/climate/index.html">
             <i data-lucide="cloud-sun"></i>
-            <span>기후</span>
+            <span>Climate</span>
           </a>
           <a href="./tools/cut/index.html">
             <i data-lucide="calculator"></i>
-            <span>컷</span>
+            <span>Exam</span>
           </a>
         </nav>
       </header>
 
       <main>
+        <nav class="portal-tool-tabs" aria-label="Primary tools">
+          <a class="is-active" href="./map.html">Map Editor with Statistics Archive</a>
+          <a href="./tools/climate/index.html">Climate Database and Graphics</a>
+          <a href="./tools/cut/index.html">Exam Database with Simulator</a>
+        </nav>
+
         <section class="portal-hero" aria-labelledby="portalTitle">
           <div class="portal-hero-copy">
-            <p class="portal-kicker">TWOTIMESS GEOGRAPHY DESK</p>
-            <h1 id="portalTitle">수능 지리 유틸리티 포털</h1>
+            <p class="portal-kicker">THE GEOGRAPHY WORKROOM</p>
+            <h1 id="portalTitle">
+              <span>Promenade</span>
+              <span>Geography</span>
+            </h1>
             <div class="portal-command-row">
               <a class="portal-primary-action" href="./map.html">
                 <i data-lucide="map"></i>
-                <span>지도 제작기</span>
+                <span>Map Editor</span>
               </a>
               <a class="portal-secondary-action" href="./tools/climate/index.html">
                 <i data-lucide="cloud-sun"></i>
-                <span>기후 비교기</span>
+                <span>Climate Graphics</span>
               </a>
               <a class="portal-secondary-action" href="./tools/cut/index.html">
                 <i data-lucide="calculator"></i>
-                <span>컷 예측기</span>
+                <span>Exam Simulator</span>
               </a>
             </div>
           </div>
-          <div class="portal-snapshot-grid" aria-label="도구 상태">
-            <a class="portal-snapshot is-map" href="./map.html">
-              <img src="./assets/portal-map.svg" alt="지도 제작기 미리보기" />
-              <span>통계 지도</span>
-            </a>
-            <a class="portal-snapshot is-climate" href="./tools/climate/index.html">
-              <img src="./assets/portal-climate.svg" alt="기후 비교기 미리보기" />
-              <span>기후 그래프</span>
-            </a>
-            <a class="portal-snapshot is-cut" href="./tools/cut/index.html">
-              <img src="./assets/portal-cut.svg" alt="컷 예측기 미리보기" />
-              <span>등급컷</span>
-            </a>
+          <div class="portal-manifesto" aria-label="Promenade Geography manifesto">
+            <p class="portal-manifesto-lead">Map, Climate, Exam.</p>
+            <p>
+              지도 편집, 기후 그래픽, 기출 문항과 컷 시뮬레이션을 한 흐름으로 다루는
+              수능 지리 유틸리티 포털입니다.
+            </p>
+            <dl class="portal-manifesto-grid">
+              <div>
+                <dt>Archive</dt>
+                <dd>World and Korea map data</dd>
+              </div>
+              <div>
+                <dt>Graphics</dt>
+                <dd>Climate charts and tables</dd>
+              </div>
+              <div>
+                <dt>Simulator</dt>
+                <dd>Exam items with images</dd>
+              </div>
+            </dl>
           </div>
+        </section>
+
+        <section class="portal-snapshot-strip" aria-label="도구 미리보기">
+          <a class="portal-snapshot is-map" href="./map.html">
+            <img src="./assets/portal-map.svg" alt="지도 제작기 미리보기" />
+            <span>Map Editor</span>
+          </a>
+          <a class="portal-snapshot is-climate" href="./tools/climate/index.html">
+            <img src="./assets/portal-climate.svg" alt="기후 비교기 미리보기" />
+            <span>Climate Graphics</span>
+          </a>
+          <a class="portal-snapshot is-cut" href="./tools/cut/index.html">
+            <img src="./assets/portal-cut.svg" alt="시험 시뮬레이터 미리보기" />
+            <span>Exam Simulator</span>
+          </a>
         </section>
 
         <section class="portal-band" aria-labelledby="toolBoardTitle">
@@ -83,7 +114,7 @@
               <p class="portal-kicker">TOOLS</p>
               <h2 id="toolBoardTitle">작업 보드</h2>
             </div>
-            <span class="portal-badge">정적 배포 준비</span>
+            <span class="portal-badge">GitHub Pages Ready</span>
           </div>
 
           <div class="tool-grid">
@@ -93,22 +124,22 @@
               </a>
               <div class="tool-body">
                 <div>
-                  <p class="portal-kicker">MAP MACHINE</p>
-                  <h3>투타임즈의 통계머신</h3>
+                  <p class="portal-kicker">MAP EDITOR</p>
+                  <h3>Map Editor with Statistics Archive</h3>
                 </div>
                 <dl class="tool-facts">
                   <div>
-                    <dt>범위</dt>
-                    <dd>세계 · 대한민국</dd>
+                    <dt>Scope</dt>
+                    <dd>World · Korea</dd>
                   </div>
                   <div>
-                    <dt>출력</dt>
+                    <dt>Export</dt>
                     <dd>SVG · PNG</dd>
                   </div>
                 </dl>
                 <a class="tool-open" href="./map.html">
                   <i data-lucide="arrow-up-right"></i>
-                  <span>열기</span>
+                  <span>Open</span>
                 </a>
               </div>
             </article>
@@ -119,22 +150,22 @@
               </a>
               <div class="tool-body">
                 <div>
-                  <p class="portal-kicker">CLIMATE MACHINE</p>
-                  <h3>투타임즈의 기후머신</h3>
+                  <p class="portal-kicker">CLIMATE DATABASE</p>
+                  <h3>Climate Database and Graphics</h3>
                 </div>
                 <dl class="tool-facts">
                   <div>
-                    <dt>버전</dt>
+                    <dt>Mode</dt>
                     <dd>세계 · 한국</dd>
                   </div>
                   <div>
-                    <dt>자료</dt>
+                    <dt>Data</dt>
                     <dd>1991-2020</dd>
                   </div>
                 </dl>
                 <a class="tool-open" href="./tools/climate/index.html">
                   <i data-lucide="arrow-up-right"></i>
-                  <span>열기</span>
+                  <span>Open</span>
                 </a>
               </div>
             </article>
@@ -145,22 +176,22 @@
               </a>
               <div class="tool-body">
                 <div>
-                  <p class="portal-kicker">CUT PREDICTOR</p>
-                  <h3>지리 컷 예측기</h3>
+                  <p class="portal-kicker">EXAM DATABASE</p>
+                  <h3>Exam Database with Simulator</h3>
                 </div>
                 <dl class="tool-facts">
                   <div>
-                    <dt>과목</dt>
-                    <dd>한지 · 세지</dd>
+                    <dt>Subject</dt>
+                    <dd>Korea · World</dd>
                   </div>
                   <div>
-                    <dt>입력</dt>
-                    <dd>20문항</dd>
+                    <dt>Simulator</dt>
+                    <dd>20 Items</dd>
                   </div>
                 </dl>
                 <a class="tool-open" href="./tools/cut/index.html">
                   <i data-lucide="arrow-up-right"></i>
-                  <span>열기</span>
+                  <span>Open</span>
                 </a>
               </div>
             </article>

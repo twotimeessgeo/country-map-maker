@@ -1,5 +1,6 @@
 const MODEL_URL = "./data/geo_cut_model.json";
 const EBSI_URL = "./data/ebsi_geo_data.json";
+const IMAGE_MANIFEST_URL = "./data/question-image-manifest.json";
 const GRADE_Z = {
   "1": 1.7506860712521692,
   "2": 1.2265281200366105,
@@ -67,6 +68,7 @@ let historicalExams = [];
 let lastLoadedHistoryId = null;
 let questionBankItems = [];
 let questionAvailableExams = [];
+let questionImageById = new Map();
 let currentSolutions = [];
 let currentCsvHeaders = [];
 let currentCsvFilename = "solutions.csv";
@@ -190,8 +192,20 @@ async function loadJson(url) {
   return response.json();
 }
 
+async function loadOptionalJson(url, fallback) {
+  try {
+    return await loadJson(url);
+  } catch {
+    return fallback;
+  }
+}
+
 function historicalExamId(record) {
   return `${record.exam_year}-${String(record.month).padStart(2, "0")}-${record.subject}`;
+}
+
+function questionSubjectCode(subject) {
+  return subject === "세계지리" ? "world" : "korea";
 }
 
 function supportedRecord(record) {
@@ -335,8 +349,10 @@ function buildQuestionBank() {
       const [difficulty, difficultyLabel] = difficultyBand(wrongRate);
       const [status, statusLabel] = matchStatus(item.source, record);
       const label = `${baseExam.short_label} ${record.subject} ${question}번`;
+      const imageId = `${questionSubjectCode(record.subject)}-${record.exam_year}-${baseExam.month}-${String(question).padStart(2, "0")}`;
+      const image = questionImageById.get(imageId);
       const publicItem = {
-        id: `${record.subject}-${record.exam_year}-${baseExam.month}-${question}`,
+        id: imageId,
         label,
         exam_key: examKey,
         exam_label: baseExam.label,
@@ -355,6 +371,9 @@ function buildQuestionBank() {
         difficulty,
         difficulty_label: difficultyLabel,
         rate_source: rateSourceLabel(item.source),
+        image_url: image?.url || "",
+        image_variant: image?.variant || "",
+        image_source_label: image?.source_label || "",
         cuts,
         search_text: `${label} ${baseExam.label} ${statusLabel} ${difficultyLabel} ${rateSourceLabel(item.source)}`.toLowerCase(),
       };
@@ -1181,8 +1200,14 @@ function renderQuestionSearchResults(event = null) {
 
   elements.questionResultGrid.innerHTML = shown.map((item) => {
     const cutText = item.cuts?.["1"] ? `${item.cuts["1"]}/${item.cuts["2"]}/${item.cuts["3"]}` : "-";
+    const imageHtml = item.image_url
+      ? `<a class="question-image-frame" href="${escapeHtml(item.image_url)}" target="_blank" rel="noreferrer">
+          <img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.label)}" loading="lazy" />
+        </a>`
+      : `<div class="question-image-frame is-empty"><span>이미지 없음</span></div>`;
     return `
       <article class="question-card">
+        ${imageHtml}
         <div class="question-card-title">
           <strong>${escapeHtml(item.subject)} ${item.question}번</strong>
           <span>${escapeHtml(item.exam_label)} · 시행 ${item.exam_year}.${item.month}</span>
@@ -1194,6 +1219,7 @@ function renderQuestionSearchResults(event = null) {
           <span>정답률 ${formatPercentValue(item.correct_rate)}</span>
           <span>${item.points ? formatFixed(item.points, 0) : "-"}점</span>
           <span>컷 ${cutText}</span>
+          ${item.image_url ? `<span>${escapeHtml(item.image_source_label || item.image_variant || "문항 이미지")}</span>` : ""}
         </div>
         ${questionChoiceRatesHtml(item)}
         <div class="question-card-actions">
@@ -1462,14 +1488,21 @@ async function initialize() {
   renderCutRows();
   refreshIcons();
   try {
-    [model, ebsiPayload] = await Promise.all([loadJson(MODEL_URL), loadJson(EBSI_URL)]);
+    const [loadedModel, loadedEbsiPayload, imageManifest] = await Promise.all([
+      loadJson(MODEL_URL),
+      loadJson(EBSI_URL),
+      loadOptionalJson(IMAGE_MANIFEST_URL, { items: [] }),
+    ]);
+    model = loadedModel;
+    ebsiPayload = loadedEbsiPayload;
+    questionImageById = new Map((imageManifest.items || []).map((item) => [item.id, item]));
     historicalExams = buildHistoricalExams();
     questionBankItems = buildQuestionBank();
     fillDefaultPoints();
     updateRelation();
     renderHistorySelect();
     setModelBadge(`${model.training_records.total}개 학습`, true);
-    elements.modelMeta.textContent = `${historicalExams.length}개 시험 · ${questionBankItems.length}문항 DB · ${model.version}`;
+    elements.modelMeta.textContent = `${historicalExams.length}개 시험 · ${questionBankItems.length}문항 DB · 이미지 ${questionImageById.size}장 · ${model.version}`;
     setStatus(`${historicalExams.length}개 시험`, true);
     elements.questionBankBadge.textContent = `${questionBankItems.length}문항 DB`;
     elements.questionBankBadge.classList.add("is-solid");

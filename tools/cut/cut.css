@@ -2,16 +2,40 @@
   gap: 18px;
 }
 
+.cut-page .tw-hero-text,
+.question-card-title,
+.question-card-badges,
+.question-choice-list,
+.solution-upload,
+.solution-field {
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.cut-page .tw-eyebrow,
+.cut-page .tw-kicker,
+.cut-page .tw-switch-item,
+.cut-page .tw-button,
+.cut-page .tw-badge,
+.cut-page .tw-hero-title,
+.cut-page [data-tool-tab] {
+  font-family: var(--tw-font-latin);
+}
+
 .cut-hero {
   grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
 }
 
 .cut-hero .tw-hero-title {
-  max-width: 7ch;
+  max-width: 12ch;
+  font-weight: 200;
+  line-height: 0.94;
+  text-wrap: balance;
 }
 
 .cut-hero-note strong {
   font-size: 2.2rem;
+  font-weight: 650;
 }
 
 .cut-tool-tabs {
@@ -60,7 +84,7 @@
   border: var(--tw-border);
   background: var(--tw-panel-soft);
   color: var(--tw-muted);
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .cut-history-row,
@@ -98,7 +122,7 @@
   place-items: center;
   height: 38px;
   background: var(--tw-panel-soft);
-  font-weight: 950;
+  font-weight: 700;
 }
 
 .cut-row label {
@@ -110,7 +134,7 @@
 .cut-row label span {
   color: var(--tw-muted);
   font-size: 0.76rem;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .cut-row input {
@@ -177,7 +201,7 @@
 
 .cut-card span {
   color: var(--tw-muted);
-  font-weight: 850;
+  font-weight: 600;
 }
 
 .cut-result-metrics,
@@ -195,7 +219,7 @@
   padding: 8px 10px;
   border: var(--tw-border);
   background: #ffffff;
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .cut-warning {
@@ -226,7 +250,7 @@
 .app-collapse-label {
   color: var(--tw-muted);
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .cut-subtitle {
@@ -253,7 +277,7 @@
   padding: 9px 10px;
   border-bottom: 1px solid var(--tw-line-faint);
   font-size: 0.86rem;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 .cut-table-row.is-head span {
@@ -262,7 +286,7 @@
   z-index: 1;
   border-bottom: var(--tw-border);
   background: var(--tw-panel-soft);
-  font-weight: 950;
+  font-weight: 650;
 }
 
 .cut-table-row.is-cut span {
@@ -294,7 +318,7 @@
 
 .question-filter-group legend {
   padding: 0 6px;
-  font-weight: 900;
+  font-weight: 650;
 }
 
 .question-filter-fields {
@@ -335,7 +359,7 @@
 .question-quick-row > span {
   color: var(--tw-muted);
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .question-quick-row > div {
@@ -363,6 +387,29 @@
   background: #ffffff;
 }
 
+.question-image-frame {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border: var(--tw-border);
+  background: var(--tw-panel-soft);
+  color: var(--tw-muted);
+  text-decoration: none;
+}
+
+.question-image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #ffffff;
+}
+
+.question-image-frame.is-empty span {
+  font-weight: 600;
+}
+
 .question-card-title {
   display: grid;
   gap: 3px;
@@ -370,12 +417,13 @@
 
 .question-card-title strong {
   font-size: 1.05rem;
+  line-height: 1.24;
 }
 
 .question-card-title span {
   color: var(--tw-muted);
   font-size: 0.86rem;
-  font-weight: 850;
+  font-weight: 500;
 }
 
 .question-card-badges,
@@ -393,7 +441,7 @@
   border: 1px solid var(--tw-line);
   background: var(--tw-panel-soft);
   font-size: 0.8rem;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .question-card-badges .is-strong {
@@ -409,7 +457,7 @@
 .question-choice-rates summary {
   color: var(--tw-muted);
   font-size: 0.8rem;
-  font-weight: 900;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -456,14 +504,14 @@
 .solution-upload-title {
   grid-area: title;
   font-size: 1.05rem;
-  font-weight: 950;
+  font-weight: 650;
 }
 
 .solution-upload-meta {
   grid-area: meta;
   color: var(--tw-muted);
   font-size: 0.86rem;
-  font-weight: 850;
+  font-weight: 500;
 }
 
 .solution-viewer {
@@ -522,7 +570,7 @@
 .solution-field span {
   color: var(--tw-muted);
   font-size: 0.74rem;
-  font-weight: 900;
+  font-weight: 600;
 }
 
 .solution-field strong {

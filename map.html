@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>투타임즈의 통계머신</title>
+    <title>Map Editor with Statistics Archive | Promenade Geography</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
@@ -18,23 +18,12 @@
     <div class="tw-page tw-stack app-page">
       <header class="tw-hero app-hero">
         <div class="tw-hero-copy">
-          <p class="tw-eyebrow">투타임즈의 통계머신</p>
+          <p class="tw-eyebrow">PROMENADE GEOGRAPHY</p>
           <nav class="tw-switch" aria-label="지도 버전 선택">
             <button class="map-version-button tw-switch-item" type="button" data-map-version="world">세계</button>
             <button class="map-version-button tw-switch-item" type="button" data-map-version="korea">대한민국</button>
           </nav>
-          <nav id="projectionSwitch" class="tw-switch world-only" aria-label="지도 시점 선택">
-            <button class="projection-button tw-switch-item" type="button" data-projection="rectangular">
-              평면
-            </button>
-            <button class="projection-button tw-switch-item" type="button" data-projection="northPolar">
-              북극
-            </button>
-            <button class="projection-button tw-switch-item" type="button" data-projection="southPolar">
-              남극
-            </button>
-          </nav>
-          <h1 class="tw-hero-title">투타임즈의 통계머신</h1>
+          <h1 class="tw-hero-title">Map Editor with Statistics Archive</h1>
           <p class="tw-hero-text">
             세계 지도에서는 국가를 고르고, 한국 지도에서는 도/광역시, 시/군, 특별시·광역시의 구/군
             권역을 켜고 끄며 원하는 구도를 만든 뒤 현재 보이는 결과를 그대로 SVG로 내보낼 수 있습니다.
@@ -71,6 +60,20 @@
 
             <div id="statusMessage" class="status-message" aria-live="polite">
               지도를 클릭해서 바로 국가를 추가하거나 제거할 수도 있습니다.
+            </div>
+            <div class="workspace-projection-block world-only">
+              <p class="app-mini-label">지도 시점</p>
+              <nav id="projectionSwitch" class="tw-switch projection-switch" aria-label="지도 시점 선택">
+                <button class="projection-button tw-switch-item" type="button" data-projection="rectangular">
+                  평면
+                </button>
+                <button class="projection-button tw-switch-item" type="button" data-projection="northPolar">
+                  북극
+                </button>
+                <button class="projection-button tw-switch-item" type="button" data-projection="southPolar">
+                  남극
+                </button>
+              </nav>
             </div>
             <div class="tw-card-grid app-control-grid">
               <article class="tw-data-card app-control-card app-control-card--wide korea-selection-card">

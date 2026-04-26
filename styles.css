@@ -31,8 +31,10 @@ body[data-map-version="korea"] .world-only {
 }
 
 .app-hero .tw-hero-title {
-  max-width: 7.8ch;
-  font-size: clamp(2.12rem, 3.35vw, 3.4rem);
+  max-width: 12.5ch;
+  font-family: var(--tw-font-latin);
+  font-weight: 200;
+  font-size: 3.35rem;
 }
 
 .app-hero .tw-hero-text {
@@ -235,6 +237,24 @@ body[data-map-version="korea"] .app-detail-card--selection {
 
 .status-message.is-error::before {
   background: #7b2e2e;
+}
+
+.workspace-projection-block {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: var(--tw-border);
+  background: #ffffff;
+}
+
+.projection-switch {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.projection-switch .tw-switch-item {
+  min-width: 0;
 }
 
 .workspace-banner {
@@ -800,7 +820,7 @@ output {
   background: var(--tw-panel-soft);
   color: var(--tw-muted);
   font-size: 0.8rem;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .preview-mode-button__body {
@@ -2232,6 +2252,7 @@ code {
 
   .app-hero .tw-hero-title {
     max-width: 12ch;
+    font-size: 2.9rem;
   }
 
   .app-control-grid {
@@ -2344,5 +2365,9 @@ code {
   .preview-stage {
     min-height: 400px;
     padding: 18px;
+  }
+
+  .app-hero .tw-hero-title {
+    font-size: 2.35rem;
   }
 }

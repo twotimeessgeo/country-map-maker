@@ -1,3 +1,19 @@
+@font-face {
+  font-family: "TWK Lausanne";
+  src: url("../../fonts/TWKLausanne-200.ttf") format("truetype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "TWK Lausanne";
+  src: url("../../fonts/TWKLausanne-300.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --paper: #efefec;
   --panel: #ffffff;
@@ -9,6 +25,8 @@
   --line-faint: #e7e7e7;
   --shadow: none;
   --panel-radius: 0px;
+  --font-latin: "TWK Lausanne", "Pretendard Variable", "Pretendard", sans-serif;
+  --font-sans: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
 }
 
 * {
@@ -24,7 +42,8 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--ink);
-  font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  font-family: var(--font-sans);
+  font-weight: 400;
   background: var(--paper);
   line-height: 1.55;
   overflow-x: hidden;
@@ -62,8 +81,9 @@ body {
   margin: 0 0 10px;
   color: var(--muted);
   font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
+  font-family: var(--font-latin);
+  font-weight: 300;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -87,7 +107,7 @@ body {
   background: #ffffff;
   color: var(--muted);
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 600;
   text-decoration: none;
   line-height: 1;
   white-space: nowrap;
@@ -117,14 +137,16 @@ body {
 .month-panel h3,
 .region-card h3 {
   margin: 0;
-  font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", sans-serif;
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-family: var(--font-sans);
+  font-weight: 650;
+  letter-spacing: 0;
 }
 
 .hero h1 {
-  max-width: 12.5ch;
-  font-size: clamp(2.45rem, 4.2vw, 4.25rem);
+  max-width: 12ch;
+  font-family: var(--font-latin);
+  font-size: 4.15rem;
+  font-weight: 200;
   line-height: 0.95;
   word-break: keep-all;
   overflow-wrap: normal;
@@ -156,7 +178,7 @@ body {
   margin-bottom: 4px;
   font-size: 1.95rem;
   line-height: 0.98;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .hero-note span {
@@ -191,7 +213,7 @@ body {
 }
 
 .section-heading h2 {
-  font-size: clamp(1.4rem, 1.7vw, 1.9rem);
+  font-size: 1.85rem;
   line-height: 1.16;
 }
 
@@ -206,7 +228,7 @@ body {
   border-radius: 0;
   background: var(--ink);
   color: #ffffff;
-  font-weight: 700;
+  font-weight: 600;
   text-align: center;
   white-space: nowrap;
 }
@@ -231,7 +253,7 @@ body {
   display: grid;
   gap: 8px;
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .search-field input,
@@ -290,7 +312,7 @@ body {
   margin: 0;
   color: var(--muted);
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .ghost-button,
@@ -302,7 +324,7 @@ body {
   background: #ffffff;
   color: var(--ink);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: background-color 160ms ease, color 160ms ease, opacity 160ms ease;
 }
@@ -370,7 +392,7 @@ body {
   background: #ffffff;
   color: var(--muted);
   font-size: 0.84rem;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -421,7 +443,7 @@ body {
 
 .region-option-title strong {
   font-size: 1.05rem;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .region-option-title span,
@@ -568,7 +590,7 @@ table {
 thead th,
 tfoot td {
   background: #f2f2f2;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 th,
@@ -604,7 +626,7 @@ tfoot td {
   padding: 9px 11px;
   border-bottom: 1px solid var(--line-faint);
   background: #fafafa;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -676,7 +698,7 @@ tfoot td {
 .map-equator-label {
   fill: rgba(17, 17, 17, 0.72);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .map-landmass {
@@ -718,7 +740,7 @@ tfoot td {
   background: rgba(17, 17, 17, 0.92);
   color: #ffffff;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .map-marker {
@@ -750,7 +772,7 @@ tfoot td {
   background: rgba(17, 17, 17, 0.94);
   color: #ffffff;
   font-size: 0.7rem;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.01em;
   white-space: nowrap;
   opacity: 0;
@@ -989,7 +1011,7 @@ tfoot td {
   background: #ffffff;
   color: var(--muted);
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 650;
   cursor: pointer;
   user-select: none;
 }
@@ -1022,7 +1044,7 @@ tfoot td {
   background: #ffffff;
   color: var(--ink);
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.2;
   vertical-align: 0.08em;
 }
@@ -1122,7 +1144,7 @@ tfoot td {
   background: #ffffff;
   color: var(--ink);
   font-size: 0.72rem;
-  font-weight: 900;
+  font-weight: 700;
   line-height: 1.2;
   text-align: center;
   text-overflow: ellipsis;
@@ -1137,7 +1159,7 @@ tfoot td {
   gap: 6px;
   color: var(--muted);
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .exam-question-map-legend span {
@@ -1172,7 +1194,7 @@ tfoot td {
 }
 
 .exam-choice-list span {
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .exam-choice-list p {
@@ -1225,7 +1247,7 @@ tfoot td {
   cursor: pointer;
   color: var(--muted);
   font-size: 0.84rem;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .exam-answer-box {
@@ -1269,7 +1291,7 @@ tfoot td {
 
 .exam-answer-choice-text {
   color: var(--ink) !important;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .exam-answer-evidence {
@@ -1308,12 +1330,12 @@ tfoot td {
 .exam-answer-evidence dt {
   color: var(--muted);
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .exam-answer-evidence dd {
   color: var(--ink);
-  font-weight: 900;
+  font-weight: 700;
 }
 
 .exam-generated-list,
@@ -1451,7 +1473,7 @@ tfoot td {
 
 .exam-source-details summary {
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .charts-grid {
@@ -1508,7 +1530,7 @@ tfoot td {
   justify-self: end;
   min-width: min(100%, 240px);
   font-size: 0.86rem;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .comparison-select select {
@@ -1734,7 +1756,7 @@ tfoot td {
 
   .hero h1 {
     max-width: none;
-    font-size: clamp(2.3rem, 13vw, 3.7rem);
+    font-size: 3.35rem;
     line-height: 1;
   }
 
@@ -1857,7 +1879,7 @@ tfoot td {
   }
 
   .hero h1 {
-    font-size: clamp(2.15rem, 14vw, 3.15rem);
+    font-size: 2.75rem;
     line-height: 1;
   }
 

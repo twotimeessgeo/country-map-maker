@@ -4,6 +4,19 @@
   padding: 16px 0 32px;
 }
 
+.portal-shell,
+.portal-nav a,
+.portal-primary-action,
+.portal-secondary-action,
+.tool-open,
+.portal-tool-tabs a,
+.portal-kicker,
+.portal-manifesto,
+.portal-manifesto-grid,
+.tool-facts dt {
+  font-family: var(--tw-font-latin);
+}
+
 .portal-topbar {
   display: flex;
   gap: 14px;
@@ -29,17 +42,19 @@
   padding: 0 14px;
   background: #151515;
   color: #ffffff;
-  font-weight: 900;
+  font-family: var(--tw-font-latin);
+  font-weight: 300;
 }
 
 .portal-brand span {
   color: #d6d6d6;
   font-size: 0.78rem;
-  font-weight: 900;
+  font-weight: 200;
 }
 
 .portal-brand strong {
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 300;
 }
 
 .portal-nav {
@@ -54,7 +69,7 @@
   min-height: 42px;
   padding: 0 12px;
   background: #ffffff;
-  font-weight: 900;
+  font-weight: 300;
 }
 
 .portal-nav svg,
@@ -66,21 +81,52 @@
   stroke-width: 2.4;
 }
 
+.portal-tool-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.portal-tool-tabs a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 74px;
+  min-width: 0;
+  padding: 12px 18px;
+  border: 2px solid #151515;
+  background: #ffffff;
+  color: #565656;
+  font-size: 1.22rem;
+  font-weight: 300;
+  line-height: 1.14;
+  text-align: center;
+  text-decoration: none;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+.portal-tool-tabs a.is-active {
+  background: #151515;
+  color: #ffffff;
+}
+
 .portal-hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+  grid-template-columns: minmax(0, 1.18fr) minmax(360px, 0.82fr);
   gap: 18px;
-  align-items: stretch;
-  min-height: min(560px, calc(100vh - 106px));
-  padding: 18px 0 22px;
+  align-items: end;
+  min-height: min(560px, calc(100vh - 178px));
+  padding: 18px 0;
 }
 
 .portal-hero-copy {
   display: grid;
   align-content: end;
-  gap: 22px;
+  gap: 24px;
   min-height: 100%;
-  padding: clamp(22px, 4vw, 44px);
+  padding: 44px;
   border: 1px solid #151515;
   background: #ffffff;
 }
@@ -89,17 +135,24 @@
   margin: 0;
   color: #6b6258;
   font-size: 0.74rem;
-  font-weight: 900;
-  letter-spacing: 0.16em;
+  font-weight: 300;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
 .portal-hero h1 {
-  max-width: 8.4ch;
+  max-width: 9.7ch;
   margin: 0;
-  font-size: clamp(3.1rem, 7vw, 7.4rem);
-  line-height: 0.94;
+  font-family: var(--tw-font-latin);
+  font-size: 8.2rem;
+  font-weight: 200;
+  line-height: 0.89;
   letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.portal-hero h1 span {
+  display: block;
 }
 
 .portal-command-row {
@@ -114,7 +167,7 @@
   gap: 8px;
   min-height: 44px;
   padding: 0 14px;
-  font-weight: 950;
+  font-weight: 300;
 }
 
 .portal-primary-action {
@@ -128,25 +181,81 @@
   color: #151515;
 }
 
-.portal-snapshot-grid {
+.portal-manifesto {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  align-content: end;
+  gap: 26px;
   min-height: 100%;
+  padding: 36px;
+  border: 1px solid #151515;
+  background: #ffffff;
+  color: #151515;
+}
+
+.portal-manifesto p {
+  max-width: 36ch;
+  margin: 0;
+  color: #343434;
+  font-family: var(--tw-font-sans);
+  font-size: 1.08rem;
+  line-height: 1.82;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+.portal-manifesto .portal-manifesto-lead {
+  color: #151515;
+  font-family: var(--tw-font-latin);
+  font-size: 2.35rem;
+  font-weight: 200;
+  line-height: 1;
+}
+
+.portal-manifesto-grid {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid #151515;
+  border-left: 1px solid #151515;
+}
+
+.portal-manifesto-grid div {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border-right: 1px solid #151515;
+  border-bottom: 1px solid #151515;
+}
+
+.portal-manifesto-grid dt {
+  color: #5f5f5f;
+  font-size: 0.8rem;
+  font-weight: 300;
+}
+
+.portal-manifesto-grid dd {
+  margin: 0;
+  font-size: 1.03rem;
+  font-weight: 300;
+  line-height: 1.25;
+}
+
+.portal-snapshot-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 6px;
 }
 
 .portal-snapshot {
   position: relative;
   min-height: 0;
+  aspect-ratio: 18 / 7;
   overflow: hidden;
   border: 1px solid #151515;
   background: #ffffff;
   color: #151515;
   text-decoration: none;
-}
-
-.portal-snapshot:first-child {
-  grid-row: span 2;
 }
 
 .portal-snapshot img,
@@ -163,8 +272,9 @@
   padding: 7px 9px;
   border: 1px solid #151515;
   background: rgba(255, 255, 255, 0.92);
+  font-family: var(--tw-font-latin);
   font-size: 0.86rem;
-  font-weight: 950;
+  font-weight: 300;
 }
 
 .portal-band {
@@ -192,7 +302,8 @@
   padding: 0 10px;
   border: 1px solid #151515;
   background: #ffffff;
-  font-weight: 900;
+  font-family: var(--tw-font-latin);
+  font-weight: 300;
 }
 
 .tool-grid {
@@ -224,8 +335,12 @@
 
 .tool-body h3 {
   margin: 6px 0 0;
-  font-size: 1.28rem;
+  font-family: var(--tw-font-latin);
+  font-size: 1.42rem;
+  font-weight: 300;
   line-height: 1.15;
+  text-wrap: balance;
+  overflow-wrap: break-word;
 }
 
 .tool-facts {
@@ -245,12 +360,12 @@
 .tool-facts dt {
   color: #6b6258;
   font-size: 0.75rem;
-  font-weight: 900;
+  font-weight: 300;
 }
 
 .tool-facts dd {
   margin: 3px 0 0;
-  font-weight: 950;
+  font-weight: 600;
 }
 
 .tool-open {
@@ -263,11 +378,19 @@
     min-height: 0;
   }
 
-  .portal-snapshot-grid {
-    min-height: 420px;
+  .tool-grid {
+    grid-template-columns: 1fr;
   }
 
-  .tool-grid {
+  .portal-tool-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-hero h1 {
+    font-size: 5.8rem;
+  }
+
+  .portal-snapshot-strip {
     grid-template-columns: 1fr;
   }
 }
@@ -301,20 +424,20 @@
   }
 
   .portal-hero h1 {
-    font-size: 3.1rem;
+    max-width: 100%;
+    font-size: 3.9rem;
   }
 
-  .portal-snapshot-grid {
-    grid-template-columns: 1fr;
-    min-height: 0;
+  .portal-tool-tabs a {
+    font-size: 1.05rem;
+  }
+
+  .portal-manifesto {
+    padding: 22px;
   }
 
   .portal-snapshot {
     aspect-ratio: 16 / 10;
-  }
-
-  .portal-snapshot:first-child {
-    grid-row: auto;
   }
 
   .tool-facts {

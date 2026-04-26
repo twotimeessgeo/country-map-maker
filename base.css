@@ -13,6 +13,7 @@ body {
   background: var(--tw-paper);
   color: var(--tw-ink);
   font-family: var(--tw-font-sans);
+  font-weight: 400;
   line-height: 1.55;
   overflow-x: hidden;
 }
