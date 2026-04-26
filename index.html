@@ -25,25 +25,11 @@
           <span>Promenade</span>
           <strong>Geography</strong>
         </a>
-        <nav class="portal-nav" aria-label="도구 바로가기">
-          <a href="./map.html">
-            <i data-lucide="map"></i>
-            <span>Map</span>
-          </a>
-          <a href="./tools/climate/index.html">
-            <i data-lucide="cloud-sun"></i>
-            <span>Climate</span>
-          </a>
-          <a href="./tools/cut/index.html">
-            <i data-lucide="calculator"></i>
-            <span>Exam</span>
-          </a>
-        </nav>
       </header>
 
       <main>
         <nav class="portal-tool-tabs" aria-label="Primary tools">
-          <a class="is-active" href="./map.html">Map Editor with Statistics Archive</a>
+          <a href="./map.html">Map Editor with Statistics Archive</a>
           <a href="./tools/climate/index.html">Climate Database and Graphics</a>
           <a href="./tools/cut/index.html">Exam Database with Simulator</a>
         </nav>
@@ -55,20 +41,6 @@
               <span>Promenade</span>
               <span>Geography</span>
             </h1>
-            <div class="portal-command-row">
-              <a class="portal-primary-action" href="./map.html">
-                <i data-lucide="map"></i>
-                <span>Map Editor</span>
-              </a>
-              <a class="portal-secondary-action" href="./tools/climate/index.html">
-                <i data-lucide="cloud-sun"></i>
-                <span>Climate Graphics</span>
-              </a>
-              <a class="portal-secondary-action" href="./tools/cut/index.html">
-                <i data-lucide="calculator"></i>
-                <span>Exam Simulator</span>
-              </a>
-            </div>
           </div>
           <div class="portal-manifesto" aria-label="Promenade Geography manifesto">
             <p class="portal-manifesto-lead">Map, Climate, Exam.</p>
@@ -92,119 +64,7 @@
             </dl>
           </div>
         </section>
-
-        <section class="portal-snapshot-strip" aria-label="도구 미리보기">
-          <a class="portal-snapshot is-map" href="./map.html">
-            <img src="./assets/portal-map.svg" alt="지도 제작기 미리보기" />
-            <span>Map Editor</span>
-          </a>
-          <a class="portal-snapshot is-climate" href="./tools/climate/index.html">
-            <img src="./assets/portal-climate.svg" alt="기후 비교기 미리보기" />
-            <span>Climate Graphics</span>
-          </a>
-          <a class="portal-snapshot is-cut" href="./tools/cut/index.html">
-            <img src="./assets/portal-cut.svg" alt="시험 시뮬레이터 미리보기" />
-            <span>Exam Simulator</span>
-          </a>
-        </section>
-
-        <section class="portal-band" aria-labelledby="toolBoardTitle">
-          <div class="portal-section-head">
-            <div>
-              <p class="portal-kicker">TOOLS</p>
-              <h2 id="toolBoardTitle">작업 보드</h2>
-            </div>
-            <span class="portal-badge">GitHub Pages Ready</span>
-          </div>
-
-          <div class="tool-grid">
-            <article class="tool-card">
-              <a class="tool-media" href="./map.html">
-                <img src="./assets/portal-map.svg" alt="통계 지도 제작 화면" />
-              </a>
-              <div class="tool-body">
-                <div>
-                  <p class="portal-kicker">MAP EDITOR</p>
-                  <h3>Map Editor with Statistics Archive</h3>
-                </div>
-                <dl class="tool-facts">
-                  <div>
-                    <dt>Scope</dt>
-                    <dd>World · Korea</dd>
-                  </div>
-                  <div>
-                    <dt>Export</dt>
-                    <dd>SVG · PNG</dd>
-                  </div>
-                </dl>
-                <a class="tool-open" href="./map.html">
-                  <i data-lucide="arrow-up-right"></i>
-                  <span>Open</span>
-                </a>
-              </div>
-            </article>
-
-            <article class="tool-card">
-              <a class="tool-media" href="./tools/climate/index.html">
-                <img src="./assets/portal-climate.svg" alt="기후 그래프 비교 화면" />
-              </a>
-              <div class="tool-body">
-                <div>
-                  <p class="portal-kicker">CLIMATE DATABASE</p>
-                  <h3>Climate Database and Graphics</h3>
-                </div>
-                <dl class="tool-facts">
-                  <div>
-                    <dt>Mode</dt>
-                    <dd>세계 · 한국</dd>
-                  </div>
-                  <div>
-                    <dt>Data</dt>
-                    <dd>1991-2020</dd>
-                  </div>
-                </dl>
-                <a class="tool-open" href="./tools/climate/index.html">
-                  <i data-lucide="arrow-up-right"></i>
-                  <span>Open</span>
-                </a>
-              </div>
-            </article>
-
-            <article class="tool-card">
-              <a class="tool-media" href="./tools/cut/index.html">
-                <img src="./assets/portal-cut.svg" alt="지리 컷 예측 화면" />
-              </a>
-              <div class="tool-body">
-                <div>
-                  <p class="portal-kicker">EXAM DATABASE</p>
-                  <h3>Exam Database with Simulator</h3>
-                </div>
-                <dl class="tool-facts">
-                  <div>
-                    <dt>Subject</dt>
-                    <dd>Korea · World</dd>
-                  </div>
-                  <div>
-                    <dt>Simulator</dt>
-                    <dd>20 Items</dd>
-                  </div>
-                </dl>
-                <a class="tool-open" href="./tools/cut/index.html">
-                  <i data-lucide="arrow-up-right"></i>
-                  <span>Open</span>
-                </a>
-              </div>
-            </article>
-          </div>
-        </section>
       </main>
     </div>
-
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-    <script>
-      if (window.lucide) {
-        window.lucide.createIcons();
-      }
-    </script>
   </body>
 </html>
