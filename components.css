@@ -73,6 +73,8 @@
   line-height: 1;
   cursor: pointer;
   list-style: none;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .app-context-menu summary::-webkit-details-marker {
@@ -82,6 +84,15 @@
 .app-context-menu summary:focus-visible {
   outline: 2px solid rgba(0, 0, 0, 0.14);
   outline-offset: 2px;
+}
+
+.app-context-menu summary:hover,
+.app-context-menu summary:focus-visible {
+  transform: translateY(-1px);
+}
+
+.app-context-menu summary:active {
+  transform: translateY(0.5px);
 }
 
 .app-menu-mark {
@@ -125,6 +136,13 @@
   font-weight: 300;
   line-height: 1.1;
   text-decoration: none;
+  transition: transform 0.18s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.app-context-menu-panel a:hover,
+.app-context-menu-panel a:focus-visible {
+  transform: translateX(2px);
+  background: #f6f6f6;
 }
 
 .app-context-menu-panel a:last-child {
@@ -178,6 +196,23 @@
   min-height: var(--tw-chip-height);
   padding: 9px 14px;
   cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.2s ease,
+    color 0.2s ease, border-color 0.2s ease;
+}
+
+.tw-button:hover,
+.tw-button:focus-visible,
+.tw-switch-item:hover,
+.tw-switch-item:focus-visible,
+.tw-chip:hover,
+.tw-chip:focus-visible {
+  transform: translateY(-1px);
+}
+
+.tw-button:active,
+.tw-switch-item:active,
+.tw-chip:active {
+  transform: translateY(0.5px) scale(0.995);
 }
 
 .tw-chip.is-active,

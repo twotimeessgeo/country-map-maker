@@ -21,8 +21,10 @@ const markerStyleOptions = [
 ];
 
 const EARTH_RADIUS_KM = 6371.0088;
-const MAP_FONT_FAMILY = "SidaeAi_S";
-const MAP_FONT_STRETCH_X = 0.95;
+const SITE_GRAPH_FONT_FAMILY = '"Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif';
+const MAP_FONT_FAMILY = SITE_GRAPH_FONT_FAMILY;
+const MAP_FONT_STRETCH_X = 1;
+const EXAM_GRAPH_FONT_FAMILY = SITE_GRAPH_FONT_FAMILY;
 const MAP_FONT_STYLE_ELEMENT_ID = "map-live-font-style";
 const MAP_SVG_FONT_STYLE_SELECTOR = "style[data-map-font-style='embedded']";
 const OUTLINE_STROKE_WIDTH = "0.3pt";
@@ -626,13 +628,14 @@ const examGraphTheme = {
     width: 310,
     titleY: 14,
     subtitleY: 26,
-    plotTop: 40,
+    plotTop: 24,
     xTickGap: 12,
     yTickGap: 6,
     labelGap: 6,
-    plotToLegend: 10,
-    legendToNote: 8,
-    bottomPadding: 6,
+    plotToLegend: 12,
+    legendToNote: 14,
+    legendSidePadding: 12,
+    bottomPadding: 12,
     blockGap: 12,
     spacingUnit: 2,
   },
@@ -642,9 +645,9 @@ const examGraphTheme = {
     scatterMaxRadius: 5,
   },
   font: {
-    family: MAP_FONT_FAMILY,
-    stretchPercent: 95,
-    label: "SidaeAi_S",
+    family: EXAM_GRAPH_FONT_FAMILY,
+    stretchPercent: 100,
+    label: "Pretendard",
   },
 };
 const examGraphBasicTheme = {
@@ -686,9 +689,9 @@ const examGraphBasicTheme = {
     scatterMaxRadius: 5,
   },
   font: {
-    family: MAP_FONT_FAMILY,
-    stretchPercent: 95,
-    label: "SidaeAi_S",
+    family: EXAM_GRAPH_FONT_FAMILY,
+    stretchPercent: 100,
+    label: "Pretendard",
   },
 };
 const examGraphPatternDefinitions = [
@@ -728,7 +731,6 @@ const examGraphPreviewCountDefinitions = [
 ];
 const examGraphStyleModeDefinitions = [
   { key: "basic", label: "기본" },
-  { key: "exam", label: "시험지형" },
 ];
 const EXAM_GRAPH_FONT_BASE_PT = 8;
 const examGraphPresetDefinitions = [
@@ -1501,7 +1503,7 @@ const state = {
   examGraphTopN: 4,
   examGraphYearStart: 1970,
   examGraphYearEnd: 2023,
-  examGraphAliasMode: true,
+  examGraphAliasMode: false,
   examGraphStyleMode: "basic",
   examGraphOrientation: "landscape",
   examGraphPreviewCount: 1,
@@ -10306,12 +10308,7 @@ function getExamGraphOrientationLabel(orientation = state.examGraphOrientation) 
 }
 
 function getExamGraphStyleMode() {
-  if (state.examGraphStyleMode === "program") {
-    return "basic";
-  }
-  return examGraphStyleModeDefinitions.some((definition) => definition.key === state.examGraphStyleMode)
-    ? state.examGraphStyleMode
-    : "basic";
+  return "basic";
 }
 
 function getExamGraphStyleModeDefinition(styleMode = getExamGraphStyleMode()) {
@@ -10411,12 +10408,7 @@ function ensureExamGraphState() {
   if (!examGraphOrientationDefinitions.some((definition) => definition.key === state.examGraphOrientation)) {
     state.examGraphOrientation = "landscape";
   }
-  if (state.examGraphStyleMode === "program") {
-    state.examGraphStyleMode = "basic";
-  }
-  if (!examGraphStyleModeDefinitions.some((definition) => definition.key === state.examGraphStyleMode)) {
-    state.examGraphStyleMode = "basic";
-  }
+  state.examGraphStyleMode = "basic";
   state.examGraphPreviewCount = getExamGraphPreviewCount();
   state.examGraphFontSizePt = getExamGraphFontSizePt();
 
@@ -10483,15 +10475,8 @@ function renderExamGraphPanel() {
   summary.append(
     createMetricExplorerSummaryCard("프리셋", model.presetLabel, model.title),
     createMetricExplorerSummaryCard("비교 단위", model.groupLabel, model.scopeLabel),
-    createMetricExplorerSummaryCard("대상 소스", getExamGraphScopeSourceText(), model.sourceDetail || model.scopeLabel),
     createMetricExplorerSummaryCard("표시 방식", model.displayModeLabel ?? "기본", model.displayModeDetail ?? model.metricDetail),
-    createMetricExplorerSummaryCard("라벨", state.examGraphAliasMode ? "가명 표기" : "실명 표기", model.rowCountText),
     createMetricExplorerSummaryCard("데이터", model.metricLabel, model.metricDetail),
-    createMetricExplorerSummaryCard(
-      "디자인",
-      `${getExamGraphStyleModeDefinition().label} · ${getExamGraphOrientationLabel()} · ${formatExamGraphPtLabel()}`,
-      `폭 ${examGraphTheme.layout.width}px · ${getActiveExamGraphVisualTheme().font.label} · 장평 ${getActiveExamGraphVisualTheme().font.stretchPercent}% · ${getExamGraphPreviewCount()}개 나란히`,
-    ),
   );
   shell.appendChild(summary);
 
@@ -10608,16 +10593,6 @@ function buildExamGraphControls() {
       state.examGraphTopN = value;
     });
   });
-  const styleModeField = buildExamGraphSelectField(
-    "보기 스타일",
-    examGraphStyleModeDefinitions,
-    getExamGraphStyleMode(),
-    (value) => {
-      updateExamGraphState("출제형 그래프 변경", () => {
-        state.examGraphStyleMode = value;
-      });
-    },
-  );
   const orientationField = buildExamGraphSelectField(
     "그래프 방향",
     examGraphOrientationDefinitions,
@@ -10683,7 +10658,7 @@ function buildExamGraphControls() {
   if (shouldShowMergeAmericas) {
     designControls.appendChild(mergeAmericasField);
   }
-  designControls.append(styleModeField, orientationField, previewCountField, fontSizeField, aliasField);
+  designControls.append(orientationField, previewCountField, fontSizeField, aliasField);
 
   if (state.examGraphPresetKey === "stacked100") {
     coreControls.append(
@@ -13237,43 +13212,10 @@ function buildExamGraphPreviewGallery(model) {
 
 function buildExamGraphPreviewCard(preview) {
   const model = preview.model;
-  ensureSvgFontStyle(model.svgNode);
+  ensureSvgFontStyle(model.svgNode, { includeExamGraph: false });
   const card = document.createElement("div");
   card.className = "exam-graph-preview-card country-stats-chart-card";
   card.dataset.examGraphStyle = model.styleMode ?? getExamGraphStyleMode();
-
-  const head = document.createElement("div");
-  head.className = "exam-graph-preview-card__head";
-  const copy = document.createElement("div");
-  copy.className = "exam-graph-preview-card__copy";
-  if (preview.badge) {
-    const badge = document.createElement("span");
-    badge.className = "exam-graph-preview-card__eyebrow";
-    badge.textContent = preview.badge;
-    copy.appendChild(badge);
-  }
-  const title = document.createElement("h5");
-  title.className = "country-stats-chart-card__title";
-  title.textContent = model.title;
-  const description = document.createElement("p");
-  description.className = "country-stats-chart-card__meta";
-  description.textContent = preview.description ?? model.description;
-  copy.append(title, description);
-
-  if (model.styleMode === "exam") {
-    const exportButton = document.createElement("button");
-    exportButton.type = "button";
-    exportButton.className = "tw-button ghost-button ghost-button--compact";
-    exportButton.textContent = "SVG 내보내기";
-    exportButton.addEventListener("click", () => {
-      downloadStandaloneSvgNode(model.svgNode, preview.exportName ?? model.exportName);
-      setStatus("출제형 그래프 SVG를 내보냈습니다.");
-    });
-    head.append(copy, exportButton);
-  } else {
-    head.appendChild(copy);
-  }
-  card.appendChild(head);
 
   const stage = document.createElement("div");
   stage.className = "exam-graph-stage";
@@ -13624,7 +13566,7 @@ function buildExamGraphFileName(parts) {
 
 function downloadStandaloneSvgNode(svgNode, filename) {
   const exportNode = svgNode.cloneNode(true);
-  ensureSvgFontStyle(exportNode);
+  ensureSvgFontStyle(exportNode, { includeExamGraph: false });
 
   const serializer = new XMLSerializer();
   const serialized = serializer.serializeToString(exportNode);
@@ -13852,40 +13794,74 @@ function appendExamGraphYAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, t
   return valueToY;
 }
 
-function chunkExamGraphLegendItems(items) {
+function chunkExamGraphLegendItems(items, itemWidthGetter, maxLegendWidth = examGraphTheme.layout.width) {
   const rowSize = Math.max(1, Number(examGraphTheme.legend.maxItemsPerRow) || 4);
+  const availableWidth = Math.max(
+    80,
+    maxLegendWidth - examGraphTheme.layout.legendSidePadding * 2 - examGraphTheme.legend.paddingX * 2,
+  );
   const rows = [];
-  for (let index = 0; index < items.length; index += rowSize) {
-    rows.push(items.slice(index, index + rowSize));
+  let currentRow = [];
+  let currentRowWidth = 0;
+
+  items.forEach((item) => {
+    const itemContentWidth = itemWidthGetter(item);
+    const itemSpacing = currentRow.length ? examGraphTheme.legend.itemGap : 0;
+    const nextWidth = currentRowWidth + itemContentWidth + itemSpacing;
+    const shouldWrap = currentRow.length > 0 && (currentRow.length >= rowSize || nextWidth > availableWidth);
+    if (shouldWrap) {
+      rows.push(currentRow);
+      currentRow = [];
+      currentRowWidth = 0;
+    }
+    currentRow.push(item);
+    currentRowWidth = Math.min(
+      availableWidth,
+      currentRow.reduce(
+        (sum, currentItem, index) => sum + itemWidthGetter(currentItem) + (index ? examGraphTheme.legend.itemGap : 0),
+        0,
+      ),
+    );
+  });
+  if (currentRowWidth > 0) {
+    rows.push(currentRow);
   }
   return rows.length ? rows : [[]];
 }
 
-function measureExamGraphLegendRows(items, itemWidthGetter) {
-  const rows = chunkExamGraphLegendItems(items);
+function measureExamGraphLegendRows(items, itemWidthGetter, maxLegendWidth = examGraphTheme.layout.width) {
+  const rows = chunkExamGraphLegendItems(items, itemWidthGetter, maxLegendWidth);
+  const measuredMaxWidth = Math.max(
+    80,
+    maxLegendWidth - examGraphTheme.layout.legendSidePadding * 2 - examGraphTheme.legend.paddingX * 2,
+  );
   const rowWidths = rows.map((row) => {
     const itemWidths = row.map(itemWidthGetter);
-    return itemWidths.reduce((sum, width) => sum + width, 0) + Math.max(0, row.length - 1) * examGraphTheme.legend.itemGap;
+    const rawRowWidth = itemWidths.reduce((sum, width) => sum + width, 0) + Math.max(0, row.length - 1) * examGraphTheme.legend.itemGap;
+    return Math.min(rawRowWidth, measuredMaxWidth);
   });
   const width = snapExamGraphCoordinate(Math.max(...rowWidths, 0) + examGraphTheme.legend.paddingX * 2);
   const height = snapExamGraphCoordinate(rows.length * examGraphTheme.legend.rowHeight + examGraphTheme.legend.paddingY * 2);
   return { rows, rowWidths, width, height };
 }
 
-function measureExamGraphSwatchLegend(items) {
+function measureExamGraphSwatchLegend(items, maxLegendWidth = examGraphTheme.layout.width) {
   return measureExamGraphLegendRows(
     items,
     (item) => examGraphTheme.legend.swatchGap + String(item.label).length * examGraphTheme.legend.charWidth,
+    maxLegendWidth,
   );
 }
 
-function measureExamGraphLineLegend(rows) {
+function measureExamGraphLineLegend(rows, maxLegendWidth = examGraphTheme.layout.width) {
+  const theme = getActiveExamGraphVisualTheme();
   return measureExamGraphLegendRows(
     rows,
     (row) =>
-      examGraphTheme.legend.sample +
+      2 * theme.marker.trendRadius +
       examGraphTheme.legend.lineLabelGap +
       String(row.displayLabel).length * examGraphTheme.legend.charWidth,
+    maxLegendWidth,
   );
 }
 
@@ -13910,48 +13886,47 @@ function getExamGraphHeightAfterNote(noteY) {
   return snapExamGraphCoordinate(noteY + examGraphTheme.layout.bottomPadding);
 }
 
-function appendExamGraphLineLegend(svg, rows, centerX, y) {
+function appendExamGraphLineLegend(svg, rows, centerX, y, maxLegendWidth = examGraphTheme.layout.width) {
   const theme = getActiveExamGraphVisualTheme();
-  const measurement = measureExamGraphLineLegend(rows);
-  const boxX = snapExamGraphCoordinate(centerX - measurement.width / 2);
+  const measurement = measureExamGraphLineLegend(rows, maxLegendWidth);
+  const halfLegendWidth = measurement.width / 2;
+  const minBoxX = examGraphTheme.layout.legendSidePadding;
+  const maxBoxX = maxLegendWidth - examGraphTheme.layout.legendSidePadding - measurement.width;
+  const boxX = snapExamGraphCoordinate(
+    clamp(centerX - halfLegendWidth, minBoxX, Math.max(minBoxX, maxBoxX)),
+  );
   const boxY = snapExamGraphCoordinate(y - measurement.height / 2);
-
-  const box = createSvgElement("rect");
-  setExamGraphBox(box, { x: boxX, y: boxY, width: measurement.width, height: measurement.height });
-  box.setAttribute("fill", theme.colors.paper);
-  box.setAttribute("stroke", theme.colors.frame ?? theme.colors.ink);
-  box.setAttribute("stroke-width", theme.strokes.legendFrame);
-  applyExamGraphStrokeStyle(box);
-  svg.appendChild(box);
 
   let itemIndex = 0;
   measurement.rows.forEach((legendRow, rowIndex) => {
-    let cursorX = snapExamGraphCoordinate(centerX - measurement.rowWidths[rowIndex] / 2);
+    const innerWidth = Math.max(0, measurement.width - examGraphTheme.legend.paddingX * 2);
+    const rowWidth = Math.min(innerWidth, measurement.rowWidths[rowIndex]);
+    let cursorX = snapExamGraphCoordinate(boxX + examGraphTheme.legend.paddingX + (innerWidth - rowWidth) / 2);
     const rowY = snapExamGraphCoordinate(boxY + examGraphTheme.legend.paddingY + rowIndex * examGraphTheme.legend.rowHeight + examGraphTheme.legend.rowHeight / 2);
     legendRow.forEach((row) => {
       const style = getExamGraphLineStyle(itemIndex);
       const itemWidth =
-        examGraphTheme.legend.sample +
+        2 * theme.marker.trendRadius +
         examGraphTheme.legend.lineLabelGap +
         String(row.displayLabel).length * examGraphTheme.legend.charWidth;
-      const sample = createSvgElement("line");
-      setExamGraphCoordinate(sample, "x1", cursorX);
-      setExamGraphCoordinate(sample, "x2", cursorX + examGraphTheme.legend.sample);
-      setExamGraphCoordinate(sample, "y1", rowY);
-      setExamGraphCoordinate(sample, "y2", rowY);
-      sample.setAttribute("stroke", style.stroke);
-      sample.setAttribute("stroke-width", theme.strokes.line);
+      const sample = createSvgElement("circle");
+      setExamGraphCoordinate(sample, "cx", cursorX + theme.marker.trendRadius);
+      setExamGraphCoordinate(sample, "cy", rowY);
+      setExamGraphCoordinate(sample, "r", theme.marker.trendRadius);
+      sample.setAttribute("fill", style.stroke);
       if (isExamGraphBasicStyle()) {
-        sample.setAttribute("stroke-linecap", "round");
-      }
-      applyExamGraphStrokeStyle(sample);
-      if (style.dasharray) {
-        sample.setAttribute("stroke-dasharray", style.dasharray);
+        sample.setAttribute("stroke", theme.colors.paper);
+        sample.setAttribute("stroke-width", theme.strokes.marker);
+        applyExamGraphStrokeStyle(sample);
       }
       svg.appendChild(sample);
 
       const label = createSvgElement("text");
-      setExamGraphCoordinate(label, "x", cursorX + examGraphTheme.legend.sample + examGraphTheme.legend.lineLabelGap);
+      setExamGraphCoordinate(
+        label,
+        "x",
+        cursorX + 2 * theme.marker.trendRadius + examGraphTheme.legend.lineLabelGap,
+      );
       setExamGraphCoordinate(label, "y", rowY + 2.8);
       applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.legend, fontWeight: 700 });
       label.textContent = row.displayLabel;
@@ -13978,8 +13953,7 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
   const plotHeight = rows.length * (barHeight + rowGap) - rowGap;
   const legendMeasurement = measureExamGraphSwatchLegend(legendItems);
   const legendY = getExamGraphLegendCenterY(plotTop + plotHeight, legendMeasurement);
-  const noteY = footnote ? getExamGraphNoteBaselineY(legendY, legendMeasurement) : null;
-  const height = noteY ? getExamGraphHeightAfterNote(noteY) : getExamGraphHeightAfterLegend(legendY, legendMeasurement);
+  const height = getExamGraphHeightAfterLegend(legendY, legendMeasurement);
   const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
@@ -14029,15 +14003,6 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
   appendExamGraphPlotBorder(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
   appendExamGraphLegend(svg, legendItems, width / 2, legendY);
 
-  if (footnote) {
-    const note = createSvgElement("text");
-    setExamGraphCoordinate(note, "x", plotLeft);
-    setExamGraphCoordinate(note, "y", noteY);
-    applyExamGraphTextStyle(note, { fontSize: examGraphTheme.type.footnote, fontWeight: 500 });
-    note.textContent = footnote;
-    svg.appendChild(note);
-  }
-
   return svg;
 }
 
@@ -14048,8 +14013,7 @@ function buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendI
   const plotHeight = 218;
   const legendMeasurement = measureExamGraphSwatchLegend(legendItems);
   const legendY = getExamGraphLegendCenterY(plot.top + plotHeight, legendMeasurement);
-  const noteY = footnote ? getExamGraphNoteBaselineY(legendY, legendMeasurement) : null;
-  const height = noteY ? getExamGraphHeightAfterNote(noteY) : getExamGraphHeightAfterLegend(legendY, legendMeasurement);
+  const height = getExamGraphHeightAfterLegend(legendY, legendMeasurement);
   const step = plotWidth / rows.length;
   const columnWidth = Math.min(17, step * 0.68);
   const amountDomain = getExamGraphAxisDomain(rows.map((row) => Number(row.total) || 0), { forceZeroStart: true, paddingRatio: 0.04 });
@@ -14105,15 +14069,6 @@ function buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendI
 
   appendExamGraphPlotBorder(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
   appendExamGraphLegend(svg, legendItems, width / 2, legendY);
-
-  if (footnote) {
-    const note = createSvgElement("text");
-    setExamGraphCoordinate(note, "x", plot.left);
-    setExamGraphCoordinate(note, "y", noteY);
-    applyExamGraphTextStyle(note, { fontSize: examGraphTheme.type.footnote, fontWeight: 500 });
-    note.textContent = footnote;
-    svg.appendChild(note);
-  }
 
   return svg;
 }
@@ -14518,7 +14473,7 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
     : { left: 32, right: 8, top: examGraphTheme.layout.plotTop };
   const plotWidth = width - plot.left - plot.right;
   const plotHeight = isPortrait ? 142 : 124;
-  const legendMeasurement = measureExamGraphLineLegend(rows);
+  const legendMeasurement = measureExamGraphLineLegend(rows, width);
   const legendY = getExamGraphLegendCenterY(plot.top + plotHeight, legendMeasurement);
   const height = getExamGraphHeightAfterLegend(legendY, legendMeasurement);
   const values = rows.flatMap((row) => row.points.map((point) => Number(point.displayValue ?? point.value)));
@@ -14579,26 +14534,6 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
   rows.forEach((row, rowIndex) => {
     const theme = getActiveExamGraphVisualTheme();
     const style = getExamGraphLineStyle(rowIndex);
-    const path = createSvgElement("polyline");
-    path.setAttribute(
-      "points",
-      row.points
-        .map((point) => `${formatExamGraphCoordinate(yearToX.get(point.year))},${formatExamGraphCoordinate(valueToY(point.displayValue ?? point.value))}`)
-        .join(" "),
-    );
-    path.setAttribute("fill", "none");
-    path.setAttribute("stroke", style.stroke);
-    path.setAttribute("stroke-width", theme.strokes.line);
-    if (isExamGraphBasicStyle()) {
-      path.setAttribute("stroke-linecap", "round");
-      path.setAttribute("stroke-linejoin", "round");
-    }
-    applyExamGraphStrokeStyle(path);
-    if (style.dasharray) {
-      path.setAttribute("stroke-dasharray", style.dasharray);
-    }
-    svg.appendChild(path);
-
     row.points.forEach((point) => {
       const dot = createSvgElement("circle");
       setExamGraphCoordinate(dot, "cx", yearToX.get(point.year));
@@ -14615,7 +14550,7 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
   });
 
   appendExamGraphPlotBorder(svg, { x: plot.left, y: plot.top, width: plotWidth, height: plotHeight });
-  appendExamGraphLineLegend(svg, rows, width / 2, legendY);
+  appendExamGraphLineLegend(svg, rows, width / 2, legendY, width);
   return svg;
 }
 
@@ -14815,48 +14750,26 @@ function getExamGraphFill(index) {
   return definition.pattern ? `url(#exam-pattern-${definition.key})` : definition.fill;
 }
 
-function appendExamGraphTitle(svg, title, subtitle, width) {
-  const theme = getActiveExamGraphVisualTheme();
-  const titleNode = createSvgElement("text");
-  titleNode.setAttribute("x", String(width / 2));
-  titleNode.setAttribute("y", String(examGraphTheme.layout.titleY));
-  titleNode.setAttribute("text-anchor", "middle");
-  applyExamGraphTextStyle(titleNode, { fontSize: examGraphTheme.type.title, fontWeight: 800 });
-  titleNode.textContent = title;
-  svg.appendChild(titleNode);
-
-  if (subtitle) {
-    const subtitleNode = createSvgElement("text");
-    subtitleNode.setAttribute("x", String(width / 2));
-    subtitleNode.setAttribute("y", String(examGraphTheme.layout.subtitleY));
-    subtitleNode.setAttribute("text-anchor", "middle");
-    applyExamGraphTextStyle(subtitleNode, {
-      fontSize: examGraphTheme.type.subtitle,
-      fontWeight: 500,
-      fill: theme.colors.mutedInk,
-    });
-    subtitleNode.textContent = subtitle;
-    svg.appendChild(subtitleNode);
-  }
+function appendExamGraphTitle() {
+  // Preview cards already provide context outside the SVG. Keep the exported chart clean and reusable.
 }
 
-function appendExamGraphLegend(svg, items, centerX, y) {
+function appendExamGraphLegend(svg, items, centerX, y, maxLegendWidth = examGraphTheme.layout.width) {
   const theme = getActiveExamGraphVisualTheme();
-  const measurement = measureExamGraphSwatchLegend(items);
-  const boxX = snapExamGraphCoordinate(centerX - measurement.width / 2);
+  const measurement = measureExamGraphSwatchLegend(items, maxLegendWidth);
+  const halfLegendWidth = measurement.width / 2;
+  const minBoxX = examGraphTheme.layout.legendSidePadding;
+  const maxBoxX = maxLegendWidth - examGraphTheme.layout.legendSidePadding - measurement.width;
+  const boxX = snapExamGraphCoordinate(
+    clamp(centerX - halfLegendWidth, minBoxX, Math.max(minBoxX, maxBoxX)),
+  );
   const boxY = snapExamGraphCoordinate(y - measurement.height / 2);
-
-  const box = createSvgElement("rect");
-  setExamGraphBox(box, { x: boxX, y: boxY, width: measurement.width, height: measurement.height });
-  box.setAttribute("fill", theme.colors.paper);
-  box.setAttribute("stroke", theme.colors.frame ?? theme.colors.ink);
-  box.setAttribute("stroke-width", theme.strokes.legendFrame);
-  applyExamGraphStrokeStyle(box);
-  svg.appendChild(box);
 
   let itemIndex = 0;
   measurement.rows.forEach((legendRow, rowIndex) => {
-    let cursorX = snapExamGraphCoordinate(centerX - measurement.rowWidths[rowIndex] / 2);
+    const innerWidth = Math.max(0, measurement.width - examGraphTheme.legend.paddingX * 2);
+    const rowWidth = Math.min(innerWidth, measurement.rowWidths[rowIndex]);
+    let cursorX = snapExamGraphCoordinate(boxX + examGraphTheme.legend.paddingX + (innerWidth - rowWidth) / 2);
     const rowY = snapExamGraphCoordinate(boxY + examGraphTheme.legend.paddingY + rowIndex * examGraphTheme.legend.rowHeight + examGraphTheme.legend.rowHeight / 2);
     legendRow.forEach((item) => {
       const itemWidth = examGraphTheme.legend.swatchGap + String(item.label).length * examGraphTheme.legend.charWidth;
@@ -14894,7 +14807,7 @@ function applyExamGraphTextStyle(node, { fontSize = 12, fontWeight = 700, fill =
   node.setAttribute("font-weight", String(fontWeight));
   node.setAttribute("font-family", theme.font.family);
   node.setAttribute("font-stretch", `${theme.font.stretchPercent}%`);
-  node.setAttribute("letter-spacing", isExamGraphBasicStyle() ? "0" : "-0.03em");
+  node.setAttribute("letter-spacing", "0");
   node.setAttribute("text-rendering", "geometricPrecision");
 }
 
@@ -18061,22 +17974,30 @@ function ensureDefsElement(svgNode) {
   return defs;
 }
 
-function buildSvgFontStyle() {
-  const fontSrc = getMapFontSource();
-  const graphFontStretch = examGraphTheme.font.stretchPercent;
-  return [
-    `@font-face { font-family: '${MAP_FONT_FAMILY}'; src: url("${fontSrc}") format('opentype'); font-display: block; }`,
-    `.map-output-text, .map-output-text text, .map-output-text tspan, .exam-graph-svg, .exam-graph-svg text, .exam-graph-svg tspan { font-family: '${MAP_FONT_FAMILY}'; font-stretch: ${graphFontStretch}%; }`,
-  ].join("\n");
+function buildSvgFontStyle({ includeExamGraph = true } = {}) {
+  const mapFontStretch = Math.round(MAP_FONT_STRETCH_X * 100);
+  const rules = [
+    `.map-output-text, .map-output-text text, .map-output-text tspan { font-family: ${MAP_FONT_FAMILY}; font-stretch: ${mapFontStretch}%; }`,
+  ];
+
+  if (includeExamGraph) {
+    const examGraphFont = getActiveExamGraphVisualTheme().font.family;
+    const examGraphFontStretch = getActiveExamGraphVisualTheme().font.stretchPercent;
+    rules.push(
+      `.exam-graph-svg, .exam-graph-svg text, .exam-graph-svg tspan { font-family: ${examGraphFont}; font-stretch: ${examGraphFontStretch}%; }`,
+    );
+  }
+
+  return rules.join("\n");
 }
 
 function getMapFontSource() {
-  return embeddedMapFontDataUrl || "./fonts/SidaeAi_S-Regular.otf";
+  return embeddedMapFontDataUrl;
 }
 
 function buildDocumentMapFontStyle() {
-  const fontSrc = getMapFontSource();
-  return `@font-face { font-family: '${MAP_FONT_FAMILY}'; src: url("${fontSrc}") format('opentype'); font-display: block; }`;
+  const mapFontStretch = Math.round(MAP_FONT_STRETCH_X * 100);
+  return `.map-output-text, .map-output-text text, .map-output-text tspan { font-family: ${MAP_FONT_FAMILY}; font-stretch: ${mapFontStretch}%; }`;
 }
 
 function ensureDocumentMapFontStyle() {
@@ -18093,10 +18014,14 @@ function ensureDocumentMapFontStyle() {
   styleElement.textContent = buildDocumentMapFontStyle();
 }
 
-function ensureSvgFontStyle(svgNode) {
+function ensureSvgFontStyle(svgNode, options = {}) {
   if (!svgNode) {
     return;
   }
+  const config = {
+    includeExamGraph: true,
+    ...options,
+  };
   const defs = ensureDefsElement(svgNode);
   let styleElement = defs.querySelector(MAP_SVG_FONT_STYLE_SELECTOR);
   if (!styleElement) {
@@ -18105,7 +18030,7 @@ function ensureSvgFontStyle(svgNode) {
     styleElement.setAttribute("type", "text/css");
     defs.insertBefore(styleElement, defs.firstChild);
   }
-  styleElement.textContent = buildSvgFontStyle();
+  styleElement.textContent = buildSvgFontStyle(config);
 }
 
 function rerenderFontDependentViews() {
@@ -19464,34 +19389,16 @@ function isFiniteCoordinate(coordinate) {
 }
 
 async function loadEmbeddedMapFontData() {
-  if (embeddedMapFontDataUrl) {
-    ensureDocumentMapFontStyle();
-    rerenderFontDependentViews();
-    return;
-  }
-
-  try {
-    const response = await fetch("./fonts/SidaeAi_S-Regular.otf");
-    if (!response.ok) {
-      ensureDocumentMapFontStyle();
-      return;
+  embeddedMapFontDataUrl = null;
+  ensureDocumentMapFontStyle();
+  if (document.fonts?.load) {
+    try {
+      await document.fonts.load(`12px ${MAP_FONT_FAMILY}`);
+    } catch (_error) {
+      // 브라우저가 폰트 로드를 거부해도 시스템 기본 서체로 계속 렌더링합니다.
     }
-
-    const buffer = await response.arrayBuffer();
-    embeddedMapFontDataUrl = `data:font/otf;base64,${arrayBufferToBase64(buffer)}`;
-  } catch (_error) {
-    embeddedMapFontDataUrl = null;
-  } finally {
-    ensureDocumentMapFontStyle();
-    if (document.fonts?.load) {
-      try {
-        await document.fonts.load(`12px "${MAP_FONT_FAMILY}"`);
-      } catch (_error) {
-        // 브라우저가 폰트 로드를 거부해도 기본 경로 스타일은 유지합니다.
-      }
-    }
-    rerenderFontDependentViews();
   }
+  rerenderFontDependentViews();
 }
 
 function arrayBufferToBase64(buffer) {

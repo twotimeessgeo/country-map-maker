@@ -2,6 +2,10 @@
   gap: 18px;
 }
 
+.cut-page [hidden] {
+  display: none !important;
+}
+
 .cut-page .tw-hero-text,
 .question-card-title,
 .question-card-badges,
