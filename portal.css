@@ -33,7 +33,7 @@
 }
 
 .portal-brand span {
-  color: #d9f99d;
+  color: #d6d6d6;
   font-size: 0.78rem;
   font-weight: 900;
 }
@@ -82,9 +82,7 @@
   min-height: 100%;
   padding: clamp(22px, 4vw, 44px);
   border: 1px solid #151515;
-  background:
-    linear-gradient(135deg, rgba(217, 249, 157, 0.42), rgba(125, 211, 252, 0.16) 42%, rgba(255, 255, 255, 0) 72%),
-    #fbfaf7;
+  background: #ffffff;
 }
 
 .portal-kicker {
@@ -193,7 +191,7 @@
   min-height: 34px;
   padding: 0 10px;
   border: 1px solid #151515;
-  background: #d9f99d;
+  background: #ffffff;
   font-weight: 900;
 }
 

@@ -7,6 +7,8 @@ const GRADE_Z = {
 };
 
 const elements = {
+  toolTabs: Array.from(document.querySelectorAll("[data-tool-tab]")),
+  toolPanels: Array.from(document.querySelectorAll("[data-tool-panel]")),
   form: document.querySelector("#cutForm"),
   subject: document.querySelector("#subjectSelect"),
   mode: document.querySelector("#modeSelect"),
@@ -28,12 +30,46 @@ const elements = {
   scoreTable: document.querySelector("#scoreTable"),
   historyTable: document.querySelector("#historyTable"),
   rateTable: document.querySelector("#rateTable"),
+  modelMeta: document.querySelector("#modelMeta"),
+  questionForm: document.querySelector("#questionSearchForm"),
+  questionBankBadge: document.querySelector("#questionBankBadge"),
+  questionSubject: document.querySelector("#questionSearchSubject"),
+  questionExam: document.querySelector("#questionExamSelect"),
+  questionYearFrom: document.querySelector("#questionYearFrom"),
+  questionYearTo: document.querySelector("#questionYearTo"),
+  questionMonth: document.querySelector("#questionSearchMonth"),
+  questionNumber: document.querySelector("#questionNumber"),
+  questionDifficulty: document.querySelector("#questionDifficulty"),
+  questionMatch: document.querySelector("#questionMatchStatus"),
+  wrongRateMin: document.querySelector("#wrongRateMin"),
+  wrongRateMax: document.querySelector("#wrongRateMax"),
+  questionKeyword: document.querySelector("#questionKeyword"),
+  questionSort: document.querySelector("#questionSearchSort"),
+  questionReset: document.querySelector("#questionSearchResetButton"),
+  questionPresetButtons: Array.from(document.querySelectorAll("[data-question-preset]")),
+  questionSearchMeta: document.querySelector("#questionSearchMeta"),
+  questionResultGrid: document.querySelector("#questionResultGrid"),
+  solutionForm: document.querySelector("#solutionForm"),
+  csvInput: document.querySelector("#csvInput"),
+  csvLabel: document.querySelector("#csvLabel"),
+  csvMeta: document.querySelector("#csvMeta"),
+  solutionStatusBadge: document.querySelector("#solutionStatusBadge"),
+  solutionMatchRow: document.querySelector("#solutionMatchRow"),
+  solutionViewer: document.querySelector("#solutionViewer"),
+  solutionOverviewTable: document.querySelector("#solutionOverviewTable"),
+  solutionDetailGrid: document.querySelector("#solutionDetailGrid"),
+  downloadCsvButton: document.querySelector("#downloadCsvButton"),
 };
 
 let model = null;
 let ebsiPayload = null;
 let historicalExams = [];
 let lastLoadedHistoryId = null;
+let questionBankItems = [];
+let questionAvailableExams = [];
+let currentSolutions = [];
+let currentCsvHeaders = [];
+let currentCsvFilename = "solutions.csv";
 
 function refreshIcons() {
   if (window.lucide) window.lucide.createIcons();
@@ -122,6 +158,25 @@ function setModelBadge(text, solid = false) {
   elements.modelBadge.classList.toggle("is-solid", solid);
 }
 
+function setToolTab(tabName, updateHash = false) {
+  const nextTab = ["questions", "solutions"].includes(tabName) ? tabName : "predict";
+  elements.toolTabs.forEach((button) => {
+    const isActive = button.dataset.toolTab === nextTab;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-selected", isActive ? "true" : "false");
+  });
+  elements.toolPanels.forEach((panel) => {
+    panel.hidden = panel.dataset.toolPanel !== nextTab;
+  });
+  if (updateHash && window.history?.replaceState) {
+    const hashByTab = { predict: "#cut-predictor", questions: "#question-bank", solutions: "#csv-solutions" };
+    window.history.replaceState(null, "", hashByTab[nextTab]);
+  }
+  if (nextTab === "questions" && questionBankItems.length) {
+    renderQuestionSearchResults();
+  }
+}
+
 function setBusy(isBusy) {
   elements.form.querySelectorAll("button, input, select, textarea").forEach((control) => {
     control.disabled = isBusy;
@@ -181,6 +236,153 @@ function buildHistoricalExams() {
     || String(a.subject).localeCompare(String(b.subject), "ko")
   ));
   return exams;
+}
+
+function monthLabel(month) {
+  const padded = String(month).padStart(2, "0");
+  return padded === "11" ? "수능" : `${Number(padded)}월`;
+}
+
+function examShortLabel(record) {
+  const schoolYear = record.school_year || Number(record.exam_year) + 1;
+  return `${schoolYear} ${monthLabel(record.month)}`;
+}
+
+function examLabel(record) {
+  const schoolYear = record.school_year || Number(record.exam_year) + 1;
+  return `${schoolYear}학년도 ${monthLabel(record.month)} ${record.subject}`;
+}
+
+function rateSourceLabel(source) {
+  const text = String(source || "");
+  if (text.includes("inferred") || text.startsWith("easy_floor")) return "보충 데이터";
+  if (text) return "EBSi";
+  return "정보 없음";
+}
+
+function matchStatus(source, record) {
+  if (!record) return ["unmatched", "정보 없음"];
+  const text = String(source || "");
+  if (text.includes("inferred") || text.startsWith("easy_floor")) return ["inferred", "보충 데이터"];
+  if (text) return ["exact", "EBSi"];
+  return ["unmatched", "정보 없음"];
+}
+
+function difficultyBand(wrongRate) {
+  if (!Number.isFinite(wrongRate)) return ["unknown", "정보 없음"];
+  if (wrongRate >= 60) return ["very_hard", "최고난도"];
+  if (wrongRate >= 45) return ["hard", "고난도"];
+  if (wrongRate >= 25) return ["normal", "보통"];
+  return ["easy", "쉬움"];
+}
+
+function recordCuts(record) {
+  const cuts = {};
+  for (const cut of ["1", "2", "3"]) {
+    if (record?.[`raw${cut}`] !== null && record?.[`raw${cut}`] !== undefined) {
+      cuts[cut] = Math.trunc(Number(record[`raw${cut}`]));
+    }
+  }
+  return cuts;
+}
+
+function choiceRatesFor(record, question) {
+  for (const row of record.wrong_top15 || []) {
+    if (Number(row.question) !== Number(question)) continue;
+    const answer = Number(row.answer);
+    return (row.choices || [])
+      .map((rate, index) => ({
+        choice: index + 1,
+        rate: rate === null || rate === undefined ? null : Number(rate),
+        is_answer: index + 1 === answer,
+      }))
+      .filter((choice) => Number.isFinite(choice.rate));
+  }
+  return [];
+}
+
+function buildQuestionBank() {
+  const items = [];
+  const examGroups = new Map();
+
+  for (const record of ebsiPayload.records || []) {
+    if (!["한국지리", "세계지리"].includes(record?.subject)) continue;
+    const examKey = `${record.subject}|${record.exam_year}|${String(record.month).padStart(2, "0")}`;
+    const cuts = recordCuts(record);
+    const baseExam = {
+      key: examKey,
+      label: examLabel(record),
+      short_label: examShortLabel(record),
+      subject: record.subject,
+      exam_year: Number(record.exam_year),
+      school_year: record.school_year,
+      month: String(record.month).padStart(2, "0"),
+      count: 0,
+      exact_count: 0,
+      inferred_count: 0,
+      unmatched_count: 0,
+      cuts,
+    };
+    if (!examGroups.has(examKey)) examGroups.set(examKey, baseExam);
+
+    for (const item of record.items || []) {
+      const question = Number(item.question);
+      if (!question) continue;
+      const correctRate = item.national_rate === null || item.national_rate === undefined
+        ? null
+        : Number(item.national_rate);
+      const wrongRate = Number.isFinite(correctRate) ? roundOne(100 - correctRate) : null;
+      const [difficulty, difficultyLabel] = difficultyBand(wrongRate);
+      const [status, statusLabel] = matchStatus(item.source, record);
+      const label = `${baseExam.short_label} ${record.subject} ${question}번`;
+      const publicItem = {
+        id: `${record.subject}-${record.exam_year}-${baseExam.month}-${question}`,
+        label,
+        exam_key: examKey,
+        exam_label: baseExam.label,
+        exam_short_label: baseExam.short_label,
+        subject: record.subject,
+        exam_year: Number(record.exam_year),
+        school_year: record.school_year,
+        month: baseExam.month,
+        question,
+        points: item.points === null || item.points === undefined ? null : Number(item.points),
+        correct_rate: Number.isFinite(correctRate) ? roundOne(correctRate) : null,
+        wrong_rate: wrongRate,
+        choice_rates: choiceRatesFor(record, question),
+        match_status: status,
+        match_label: statusLabel,
+        difficulty,
+        difficulty_label: difficultyLabel,
+        rate_source: rateSourceLabel(item.source),
+        cuts,
+        search_text: `${label} ${baseExam.label} ${statusLabel} ${difficultyLabel} ${rateSourceLabel(item.source)}`.toLowerCase(),
+      };
+      items.push(publicItem);
+
+      const group = examGroups.get(examKey);
+      group.count += 1;
+      if (status === "exact") group.exact_count += 1;
+      else if (status === "inferred") group.inferred_count += 1;
+      else group.unmatched_count += 1;
+    }
+  }
+
+  questionAvailableExams = Array.from(examGroups.values()).sort((a, b) => (
+    b.exam_year - a.exam_year
+    || Number(b.month) - Number(a.month)
+    || String(a.subject).localeCompare(String(b.subject), "ko")
+  ));
+  return items.sort((a, b) => (
+    b.exam_year - a.exam_year
+    || Number(b.month) - Number(a.month)
+    || String(a.subject).localeCompare(String(b.subject), "ko")
+    || a.question - b.question
+  ));
+}
+
+function roundOne(value) {
+  return Math.round(Number(value) * 10) / 10;
 }
 
 function renderHistorySelect(selectedId = lastLoadedHistoryId) {
@@ -853,17 +1055,426 @@ function runPrediction(event = null) {
   }
 }
 
+function fieldValue(element) {
+  return String(element?.value || "").trim();
+}
+
+function renderQuestionExamSelect(selectedKey = elements.questionExam.value) {
+  if (!elements.questionExam) return;
+  const subject = fieldValue(elements.questionSubject);
+  const exams = questionAvailableExams.filter((exam) => !subject || exam.subject === subject);
+  elements.questionExam.innerHTML = '<option value="">시험 전체</option>';
+  for (const exam of exams) {
+    const inferred = exam.inferred_count ? ` · ${exam.inferred_count}보충` : "";
+    const unmatched = exam.unmatched_count ? ` · ${exam.unmatched_count}정보없음` : "";
+    const option = document.createElement("option");
+    option.value = exam.key;
+    option.textContent = `${exam.label} · ${exam.exact_count}실측${inferred}${unmatched}`;
+    elements.questionExam.appendChild(option);
+  }
+  if (selectedKey && exams.some((exam) => exam.key === selectedKey)) {
+    elements.questionExam.value = selectedKey;
+  }
+}
+
+function numberFilter(value, fallback = null) {
+  const text = String(value || "").trim();
+  if (!text) return fallback;
+  const number = Number(text);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+function filteredQuestionItems() {
+  const subject = fieldValue(elements.questionSubject);
+  const examKey = fieldValue(elements.questionExam);
+  const month = fieldValue(elements.questionMonth);
+  const difficulty = fieldValue(elements.questionDifficulty);
+  const match = fieldValue(elements.questionMatch);
+  const query = fieldValue(elements.questionKeyword).toLowerCase();
+  const question = numberFilter(elements.questionNumber.value);
+  const yearFrom = numberFilter(elements.questionYearFrom.value);
+  const yearTo = numberFilter(elements.questionYearTo.value);
+  const wrongMin = numberFilter(elements.wrongRateMin.value);
+  const wrongMax = numberFilter(elements.wrongRateMax.value);
+  const sort = fieldValue(elements.questionSort) || "latest";
+
+  const filtered = questionBankItems.filter((item) => {
+    if (examKey) {
+      if (item.exam_key !== examKey) return false;
+    } else {
+      if (subject && item.subject !== subject) return false;
+      if (month && item.month !== month.padStart(2, "0")) return false;
+      if (yearFrom !== null && item.exam_year < yearFrom) return false;
+      if (yearTo !== null && item.exam_year > yearTo) return false;
+    }
+    if (question !== null && item.question !== question) return false;
+    if (difficulty && item.difficulty !== difficulty) return false;
+    if (match && item.match_status !== match) return false;
+    if (wrongMin !== null && (!Number.isFinite(item.wrong_rate) || item.wrong_rate < wrongMin)) return false;
+    if (wrongMax !== null && (!Number.isFinite(item.wrong_rate) || item.wrong_rate > wrongMax)) return false;
+    if (query && !item.search_text.includes(query)) return false;
+    return true;
+  });
+
+  const rateValue = (item, field, fallback) => Number.isFinite(item[field]) ? item[field] : fallback;
+  if (sort === "wrong_desc") {
+    filtered.sort((a, b) => rateValue(b, "wrong_rate", -1) - rateValue(a, "wrong_rate", -1) || b.exam_year - a.exam_year || Number(b.month) - Number(a.month) || a.question - b.question);
+  } else if (sort === "correct_asc") {
+    filtered.sort((a, b) => rateValue(a, "correct_rate", 101) - rateValue(b, "correct_rate", 101) || b.exam_year - a.exam_year || Number(b.month) - Number(a.month) || a.question - b.question);
+  } else if (sort === "question") {
+    filtered.sort((a, b) => String(a.subject).localeCompare(String(b.subject), "ko") || a.question - b.question || b.exam_year - a.exam_year || Number(b.month) - Number(a.month));
+  } else {
+    filtered.sort((a, b) => b.exam_year - a.exam_year || Number(b.month) - Number(a.month) || String(a.subject).localeCompare(String(b.subject), "ko") || a.question - b.question);
+  }
+  return filtered;
+}
+
+function formatPercentValue(value) {
+  return Number.isFinite(Number(value)) ? `${formatFixed(value)}%` : "-";
+}
+
+function questionChoiceRatesHtml(item) {
+  if (!item.choice_rates?.length) return "";
+  return `
+    <details class="question-choice-rates">
+      <summary>선지별 선택률</summary>
+      <div class="question-choice-list">
+        ${item.choice_rates.map((choice) => `
+          <span>${choice.choice}번${choice.is_answer ? " 정답" : ""} · ${formatPercentValue(choice.rate)}</span>
+        `).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function loadExamByKey(examKey) {
+  const exam = historicalExams.find((candidate) => {
+    const key = `${candidate.subject}|${candidate.exam_year}|${candidate.month}`;
+    return key === examKey;
+  });
+  if (!exam) return;
+  setToolTab("predict", true);
+  loadHistoryExam(exam.id);
+}
+
+function renderQuestionSearchResults(event = null) {
+  if (event) event.preventDefault();
+  if (!questionBankItems.length) {
+    elements.questionSearchMeta.textContent = "기출 DB를 아직 불러오지 못했습니다.";
+    return;
+  }
+  renderQuestionExamSelect();
+  const filtered = filteredQuestionItems();
+  const shown = filtered.slice(0, 60);
+  const matchSummary = filtered.reduce((acc, item) => {
+    acc[item.match_status] = (acc[item.match_status] || 0) + 1;
+    return acc;
+  }, {});
+  elements.questionBankBadge.textContent = `${questionBankItems.length}문항 DB`;
+  elements.questionBankBadge.classList.add("is-solid");
+  elements.questionSearchMeta.textContent = `${filtered.length}개 검색됨 · EBSi ${matchSummary.exact || 0}개 · 보충 ${matchSummary.inferred || 0}개 · 정보 없음 ${matchSummary.unmatched || 0}개 · 최대 ${shown.length}개 표시`;
+
+  if (!shown.length) {
+    elements.questionResultGrid.innerHTML = '<div class="question-card"><strong>검색 결과 없음</strong></div>';
+    return;
+  }
+
+  elements.questionResultGrid.innerHTML = shown.map((item) => {
+    const cutText = item.cuts?.["1"] ? `${item.cuts["1"]}/${item.cuts["2"]}/${item.cuts["3"]}` : "-";
+    return `
+      <article class="question-card">
+        <div class="question-card-title">
+          <strong>${escapeHtml(item.subject)} ${item.question}번</strong>
+          <span>${escapeHtml(item.exam_label)} · 시행 ${item.exam_year}.${item.month}</span>
+        </div>
+        <div class="question-card-badges">
+          <span>${escapeHtml(item.match_label)}</span>
+          <span>${escapeHtml(item.difficulty_label)}</span>
+          <span class="is-strong">오답률 ${formatPercentValue(item.wrong_rate)}</span>
+          <span>정답률 ${formatPercentValue(item.correct_rate)}</span>
+          <span>${item.points ? formatFixed(item.points, 0) : "-"}점</span>
+          <span>컷 ${cutText}</span>
+        </div>
+        ${questionChoiceRatesHtml(item)}
+        <div class="question-card-actions">
+          <button class="tw-button" type="button" data-load-exam="${escapeHtml(item.exam_key)}">이 시험 불러오기</button>
+        </div>
+      </article>
+    `;
+  }).join("");
+  elements.questionResultGrid.querySelectorAll("[data-load-exam]").forEach((button) => {
+    button.addEventListener("click", () => loadExamByKey(button.dataset.loadExam));
+  });
+  refreshIcons();
+}
+
+function resetQuestionSearch() {
+  elements.questionForm.reset();
+  renderQuestionExamSelect("");
+  renderQuestionSearchResults();
+}
+
+function applyQuestionPreset(preset) {
+  const currentSubject = fieldValue(elements.questionSubject);
+  elements.questionForm.reset();
+  elements.questionSubject.value = currentSubject;
+  if (preset === "latest_exam") {
+    elements.questionMonth.value = "11";
+    elements.questionSort.value = "latest";
+  } else if (preset === "hard_exact") {
+    elements.questionMatch.value = "exact";
+    elements.wrongRateMin.value = "45";
+    elements.questionSort.value = "wrong_desc";
+  } else if (preset === "inferred") {
+    elements.questionMatch.value = "inferred";
+    elements.questionSort.value = "latest";
+  }
+  renderQuestionExamSelect();
+  renderQuestionSearchResults();
+}
+
+function normalizeAnswerValue(value) {
+  const text = String(value || "").trim();
+  const symbols = { "①": "1", "②": "2", "③": "3", "④": "4", "⑤": "5" };
+  for (const [symbol, digit] of Object.entries(symbols)) {
+    if (text.includes(symbol)) return digit;
+  }
+  const match = text.match(/[1-5]/);
+  return match ? match[0] : text;
+}
+
+function parseQuestionNumber(value, fallback) {
+  const match = String(value || "").match(/\d+/);
+  return match ? Number(match[0]) : fallback;
+}
+
+function parseRatePercent(value) {
+  const match = String(value || "").match(/\d+(?:\.\d+)?/);
+  if (!match) return null;
+  const number = Number(match[0]);
+  return number >= 0 && number <= 100 ? roundOne(number) : null;
+}
+
+function parseCsvRows(text) {
+  const rows = [];
+  let row = [];
+  let field = "";
+  let inQuotes = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index];
+    const next = text[index + 1];
+    if (char === '"' && inQuotes && next === '"') {
+      field += '"';
+      index += 1;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      row.push(field);
+      field = "";
+    } else if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") index += 1;
+      row.push(field);
+      if (row.some((cell) => String(cell).trim())) rows.push(row);
+      row = [];
+      field = "";
+    } else {
+      field += char;
+    }
+  }
+  row.push(field);
+  if (row.some((cell) => String(cell).trim())) rows.push(row);
+  return rows;
+}
+
+async function readCsvFile(file) {
+  const buffer = await file.arrayBuffer();
+  const decoders = ["utf-8", "euc-kr"];
+  for (const encoding of decoders) {
+    try {
+      const text = new TextDecoder(encoding, { fatal: encoding === "utf-8" }).decode(buffer);
+      if (text.includes("문항") || text.includes(",")) return text;
+    } catch {
+      // Try the next decoder.
+    }
+  }
+  return new TextDecoder("utf-8").decode(buffer);
+}
+
+function csvRowsToSolutions(rows) {
+  if (!rows.length) return [];
+  const headers = rows[0].map((cell) => String(cell || "").trim());
+  currentCsvHeaders = headers;
+  return rows.slice(1).map((cells, index) => {
+    const fields = {};
+    headers.forEach((header, cellIndex) => {
+      fields[header] = String(cells[cellIndex] || "").trim();
+    });
+    const number = parseQuestionNumber(fields["문항 번호"] || fields["문항"] || fields["번호"], index + 1);
+    if (fields["정답"]) fields["정답"] = normalizeAnswerValue(fields["정답"]);
+    return {
+      number,
+      label: fields["문항 번호"] || String(number),
+      fields,
+    };
+  }).filter((solution) => Number.isFinite(solution.number));
+}
+
+function solutionRate(solution) {
+  const fields = solution.fields || {};
+  return parseRatePercent(
+    fields["예상 정답률"]
+    || fields["정답률"]
+    || fields["예상정답률"]
+    || fields["전국 정답률"]
+  );
+}
+
+function applySolutionsToCut() {
+  const sorted = [...currentSolutions].sort((a, b) => a.number - b.number);
+  const rates = sorted.map(solutionRate).filter((rate) => rate !== null);
+  rateInputs().forEach((input, index) => {
+    input.value = rates[index] ?? "";
+  });
+  if (rates.length === 20) {
+    elements.paste.value = rates.map((rate) => formatFixed(rate)).join(", ");
+    setToolTab("predict", true);
+    runPrediction();
+  }
+  return rates.length;
+}
+
+function renderSolutionMatch(text) {
+  elements.solutionMatchRow.innerHTML = `<span>${escapeHtml(text)}</span>`;
+  elements.solutionMatchRow.hidden = false;
+}
+
+function renderSolutions() {
+  if (!currentSolutions.length) {
+    elements.solutionViewer.hidden = true;
+    elements.downloadCsvButton.disabled = true;
+    return;
+  }
+
+  elements.solutionViewer.hidden = false;
+  elements.downloadCsvButton.disabled = false;
+  const sorted = [...currentSolutions].sort((a, b) => a.number - b.number);
+  renderTable(
+    elements.solutionOverviewTable,
+    [
+      { label: "문항", value: (row) => `${row.number}번`, width: "0.65fr" },
+      { label: "정답", value: (row) => row.fields["정답"] || "-", width: "0.65fr" },
+      { label: "예상 정답률", value: (row) => formatPercentValue(solutionRate(row)), width: "1fr" },
+      { label: "변별도", value: (row) => row.fields["추정 변별도"] || "-", width: "0.8fr" },
+      { label: "오류 가능성", value: (row) => row.fields["오류 가능성"] || "-", width: "0.9fr" },
+    ],
+    sorted,
+    { minWidth: "620px" },
+  );
+
+  elements.solutionDetailGrid.innerHTML = sorted.map((solution) => {
+    const fields = solution.fields || {};
+    const detail = fields["해설"] || fields["정답 풀이"] || fields["Comment 내용"] || "";
+    return `
+      <article class="solution-card" data-solution-number="${solution.number}">
+        <div class="solution-card-head">
+          <strong>${solution.number}번</strong>
+          <span class="tw-badge is-solid">정답 ${escapeHtml(fields["정답"] || "-")}</span>
+        </div>
+        <div class="solution-field-grid">
+          <div class="solution-field"><span>예상 정답률</span><strong>${formatPercentValue(solutionRate(solution))}</strong></div>
+          <div class="solution-field"><span>변별도</span><strong>${escapeHtml(fields["추정 변별도"] || "-")}</strong></div>
+          <div class="solution-field"><span>타당도</span><strong>${escapeHtml(fields["추정 타당도"] || "-")}</strong></div>
+          <div class="solution-field"><span>오류 가능성</span><strong>${escapeHtml(fields["오류 가능성"] || "-")}</strong></div>
+        </div>
+        <label class="tw-field">
+          <span>해설</span>
+          <textarea data-solution-detail>${escapeHtml(detail)}</textarea>
+        </label>
+      </article>
+    `;
+  }).join("");
+
+  elements.solutionDetailGrid.querySelectorAll("[data-solution-number]").forEach((card) => {
+    const number = Number(card.dataset.solutionNumber);
+    const textarea = card.querySelector("[data-solution-detail]");
+    textarea.addEventListener("input", () => {
+      const solution = currentSolutions.find((item) => item.number === number);
+      if (!solution) return;
+      if ("해설" in solution.fields) solution.fields["해설"] = textarea.value;
+      else if ("정답 풀이" in solution.fields) solution.fields["정답 풀이"] = textarea.value;
+      else solution.fields["Comment 내용"] = textarea.value;
+    });
+  });
+}
+
+async function handleSolutionCsv(event) {
+  event.preventDefault();
+  const file = elements.csvInput.files?.[0];
+  if (!file) {
+    renderSolutionMatch("CSV 파일을 선택해주세요.");
+    return;
+  }
+  currentCsvFilename = file.name || "solutions.csv";
+  elements.csvLabel.textContent = currentCsvFilename;
+  elements.csvMeta.textContent = `${formatFixed(file.size / 1024, 1)} KB`;
+  try {
+    const text = await readCsvFile(file);
+    const rows = parseCsvRows(text);
+    currentSolutions = csvRowsToSolutions(rows);
+    const importedRates = applySolutionsToCut();
+    renderSolutions();
+    elements.solutionStatusBadge.textContent = `${currentSolutions.length}문항`;
+    elements.solutionStatusBadge.classList.add("is-solid");
+    renderSolutionMatch(`CSV ${currentSolutions.length}문항 적용 · 정답률 ${importedRates}개 반영`);
+  } catch (error) {
+    renderSolutionMatch(error.message);
+  }
+  refreshIcons();
+}
+
+function csvEscape(value) {
+  const text = String(value ?? "");
+  if (/[",\n\r]/.test(text)) return `"${text.replaceAll('"', '""')}"`;
+  return text;
+}
+
+function downloadEditedCsv() {
+  if (!currentSolutions.length) return;
+  const headers = currentCsvHeaders.length
+    ? currentCsvHeaders
+    : Array.from(new Set(currentSolutions.flatMap((solution) => Object.keys(solution.fields || {}))));
+  const lines = [
+    headers.map(csvEscape).join(","),
+    ...currentSolutions
+      .sort((a, b) => a.number - b.number)
+      .map((solution) => headers.map((header) => csvEscape(solution.fields?.[header] || "")).join(",")),
+  ];
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = currentCsvFilename.replace(/\.csv$/i, "") + "-edited.csv";
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
 async function initialize() {
   renderCutRows();
   refreshIcons();
   try {
     [model, ebsiPayload] = await Promise.all([loadJson(MODEL_URL), loadJson(EBSI_URL)]);
     historicalExams = buildHistoricalExams();
+    questionBankItems = buildQuestionBank();
     fillDefaultPoints();
     updateRelation();
     renderHistorySelect();
     setModelBadge(`${model.training_records.total}개 학습`, true);
+    elements.modelMeta.textContent = `${historicalExams.length}개 시험 · ${questionBankItems.length}문항 DB · ${model.version}`;
     setStatus(`${historicalExams.length}개 시험`, true);
+    elements.questionBankBadge.textContent = `${questionBankItems.length}문항 DB`;
+    elements.questionBankBadge.classList.add("is-solid");
+    renderQuestionExamSelect();
+    renderQuestionSearchResults();
     const latest = historicalExams.find((exam) => exam.subject === elements.subject.value);
     if (latest) loadHistoryExam(latest.id);
   } catch (error) {
@@ -873,6 +1484,9 @@ async function initialize() {
   }
 }
 
+elements.toolTabs.forEach((button) => {
+  button.addEventListener("click", () => setToolTab(button.dataset.toolTab, true));
+});
 elements.subject.addEventListener("change", () => {
   fillDefaultPoints();
   updateRelation();
@@ -883,12 +1497,35 @@ elements.loadHistory.addEventListener("click", () => loadHistoryExam());
 elements.applyPaste.addEventListener("click", applyPasteValues);
 elements.defaultPoints.addEventListener("click", fillDefaultPoints);
 elements.form.addEventListener("submit", runPrediction);
+elements.questionForm.addEventListener("submit", renderQuestionSearchResults);
+elements.questionSubject.addEventListener("change", () => renderQuestionExamSelect());
+elements.questionReset.addEventListener("click", resetQuestionSearch);
+elements.questionPresetButtons.forEach((button) => {
+  button.addEventListener("click", () => applyQuestionPreset(button.dataset.questionPreset));
+});
+elements.solutionForm.addEventListener("submit", handleSolutionCsv);
+elements.csvInput.addEventListener("change", () => {
+  const file = elements.csvInput.files?.[0];
+  elements.csvLabel.textContent = file?.name || "CSV 선택";
+  elements.csvMeta.textContent = file ? `${formatFixed(file.size / 1024, 1)} KB` : "문항 번호와 예상 정답률을 읽어 컷 예측에 반영합니다";
+});
+elements.downloadCsvButton.addEventListener("click", downloadEditedCsv);
+
+const initialHash = window.location.hash;
+if (initialHash === "#question-bank") {
+  setToolTab("questions");
+} else if (initialHash === "#csv-solutions") {
+  setToolTab("solutions");
+} else {
+  setToolTab("predict");
+}
 
 window.GeoCut = {
   predictCut,
   featureValues,
   convertAcademyToNational,
   convertNationalToAcademy,
+  filteredQuestionItems,
 };
 
 initialize();
