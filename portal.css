@@ -12,6 +12,10 @@
   margin-bottom: 42px;
 }
 
+.portal-shell .portal-home-bar {
+  justify-content: flex-end;
+}
+
 .portal-shell .app-context-brand {
   gap: 14px;
   min-height: 0;
@@ -19,6 +23,7 @@
   border: 0;
   background: transparent;
   color: #111111;
+  letter-spacing: -0.03em;
 }
 
 .portal-shell .app-context-brand span,
@@ -55,6 +60,7 @@
   font-size: 0.78rem;
   font-weight: 300;
   line-height: 1.35;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
 }
 
@@ -62,10 +68,10 @@
   max-width: 10ch;
   margin: 0;
   font-family: var(--tw-font-latin);
-  font-size: 8.4rem;
+  font-size: 8.9rem;
   font-weight: 200;
   line-height: 0.92;
-  letter-spacing: 0;
+  letter-spacing: -0.035em;
   text-wrap: balance;
 }
 
@@ -96,6 +102,7 @@
 }
 
 .portal-index a {
+  position: relative;
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr) minmax(220px, 0.42fr);
   gap: 28px;
@@ -105,12 +112,41 @@
   border-bottom: 1px solid #111111;
   color: #111111;
   text-decoration: none;
+  transition: transform 0.2s ease, color 0.2s ease, border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.portal-index a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #111111;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.24s ease;
+}
+
+.portal-index a:hover::after,
+.portal-index a:focus-visible::after {
+  transform: scaleX(1);
 }
 
 .portal-index a:hover strong,
 .portal-index a:focus-visible strong {
   text-decoration: underline;
   text-underline-offset: 0.16em;
+}
+
+.portal-index a:hover,
+.portal-index a:focus-visible {
+  transform: translateY(-1px);
+}
+
+.portal-index a:active {
+  transform: translateY(0.5px);
 }
 
 .portal-index span,
@@ -145,7 +181,7 @@
   }
 
   .portal-hero h1 {
-    font-size: 5.8rem;
+    font-size: 6.2rem;
   }
 
   .portal-index a {
@@ -169,7 +205,7 @@
 
   .portal-hero h1 {
     max-width: 100%;
-    font-size: 3.9rem;
+    font-size: 4.1rem;
   }
 
   .portal-index {

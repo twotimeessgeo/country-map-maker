@@ -22,7 +22,9 @@ const elements = {
   inputGrid: document.querySelector("#inputGrid"),
   modelBadge: document.querySelector("#modelBadge"),
   statusBadge: document.querySelector("#statusBadge"),
+  resultTitle: document.querySelector("#resultTitle"),
   emptyResult: document.querySelector("#emptyResult"),
+  emptyResultText: document.querySelector("#emptyResultText"),
   resultPanel: document.querySelector("#resultPanel"),
   cutCardGrid: document.querySelector("#cutCardGrid"),
   meanMetric: document.querySelector("#meanMetric"),
@@ -60,18 +62,44 @@ const elements = {
   solutionOverviewTable: document.querySelector("#solutionOverviewTable"),
   solutionDetailGrid: document.querySelector("#solutionDetailGrid"),
   downloadCsvButton: document.querySelector("#downloadCsvButton"),
+  downloadCsvTemplateButton: document.querySelector("#downloadCsvTemplateButton"),
+  predictButton: document.querySelector("#cutForm [type=\"submit\"]"),
 };
 
 let model = null;
 let ebsiPayload = null;
 let historicalExams = [];
 let lastLoadedHistoryId = null;
+let isHistoryActualMode = false;
+let historyActualModeLabel = "";
 let questionBankItems = [];
 let questionAvailableExams = [];
 let questionImageById = new Map();
 let currentSolutions = [];
 let currentCsvHeaders = [];
 let currentCsvFilename = "solutions.csv";
+const DEFAULT_HISTORY_YEAR = 2026;
+const CSV_TEMPLATE_HEADERS = [
+  "문항 번호",
+  "정답",
+  "예상 정답률",
+  "선택 비율 예상",
+  "추정 변별도",
+  "추정 타당도",
+  "오류 가능성",
+  "해설",
+  "정답 풀이",
+  "오답 풀이",
+  "검토 메모(장점)",
+  "검토 메모(약점)",
+  "Comment 제목",
+  "Comment 내용",
+];
+
+function ensureValueOrDefault(element, value) {
+  if (!element) return;
+  element.value = String(value);
+}
 
 function refreshIcons() {
   if (window.lucide) window.lucide.createIcons();
@@ -183,13 +211,94 @@ function setBusy(isBusy) {
   elements.form.querySelectorAll("button, input, select, textarea").forEach((control) => {
     control.disabled = isBusy;
   });
+  if (!isBusy && isHistoryActualMode) {
+    setHistoryInputLock(true, historyActualModeLabel);
+  }
   if (isBusy) setStatus("계산 중", true);
 }
 
+function setHistoryInputLock(isLocked, sourceLabel = "과거 시험 DB") {
+  const pointControls = [...pointInputs(), ...rateInputs()];
+  pointControls.forEach((input) => {
+    input.readOnly = isLocked;
+    input.disabled = isLocked;
+  });
+
+  if (elements.paste) {
+    elements.paste.readOnly = isLocked;
+    elements.paste.disabled = isLocked;
+  }
+  if (elements.applyPaste) {
+    elements.applyPaste.disabled = isLocked;
+  }
+  if (elements.defaultPoints) {
+    elements.defaultPoints.disabled = isLocked;
+  }
+  if (elements.mode) {
+    elements.mode.disabled = isLocked;
+  }
+  if (elements.history) {
+    elements.history.disabled = false;
+  }
+  if (elements.loadHistory) {
+    elements.loadHistory.disabled = false;
+  }
+  if (elements.predictButton) {
+    elements.predictButton.disabled = isLocked;
+    elements.predictButton.setAttribute("aria-disabled", isLocked ? "true" : "false");
+  }
+
+  isHistoryActualMode = isLocked;
+  historyActualModeLabel = isLocked ? sourceLabel : "";
+}
+
+function releaseHistoryInputLock() {
+  setHistoryInputLock(false);
+}
+
+function buildJsonUrlCandidates(url) {
+  const trimmed = String(url || "");
+  const candidates = [trimmed];
+  if (!trimmed.startsWith("./data/")) {
+    return candidates;
+  }
+
+  const relativePath = trimmed.replace(/^\.\//, "");
+  if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+    const marker = "/tools/cut/";
+    const markerIndex = window.location.pathname.lastIndexOf(marker);
+    if (markerIndex >= 0) {
+      const rootPath = window.location.pathname.slice(0, markerIndex);
+      candidates.push(`${rootPath}${marker}${relativePath}`);
+      candidates.push(`/tools/cut/${relativePath}`);
+      candidates.push(`${window.location.origin}${rootPath}${marker}${relativePath}`);
+    } else {
+      candidates.push(`/tools/cut/${relativePath}`);
+      candidates.push(`${window.location.origin}/tools/cut/${relativePath}`);
+    }
+  }
+
+  return [...new Set(candidates)];
+}
+
 async function loadJson(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`${url} 로드 실패`);
-  return response.json();
+  const candidates = buildJsonUrlCandidates(url);
+  const failures = [];
+
+  for (const candidate of candidates) {
+    try {
+      const response = await fetch(candidate);
+      if (!response.ok) {
+        failures.push(`${candidate} (${response.status} ${response.statusText})`);
+        continue;
+      }
+      return response.json();
+    } catch (error) {
+      failures.push(`${candidate} (${error instanceof Error ? error.message : "네트워크 오류"})`);
+    }
+  }
+
+  throw new Error(`${url} 로드 실패: ${failures.join(", ")}`);
 }
 
 async function loadOptionalJson(url, fallback) {
@@ -455,7 +564,14 @@ function selectedHistoryExam() {
 
 function loadHistoryExam(examId = elements.history.value) {
   const exam = historicalExams.find((item) => item.id === examId);
-  if (!exam) return;
+  if (!exam) {
+    showWarning("과거 시험 정보를 찾을 수 없습니다.");
+    elements.history.value = "";
+    elements.paste.value = "";
+    releaseHistoryLock();
+    showPendingResultState("과거 시험을 선택해주세요");
+    return;
+  }
   lastLoadedHistoryId = exam.id;
   elements.subject.value = exam.subject;
   elements.mode.value = "national";
@@ -468,7 +584,92 @@ function loadHistoryExam(examId = elements.history.value) {
     input.value = exam.rates[index] ?? "";
   });
   elements.paste.value = exam.rates.map((rate) => formatFixed(rate)).join(", ");
-  runPrediction();
+  setHistoryInputLock(true, `${exam.subject} ${exam.label || ""}`.trim());
+  setToolTab("predict", true);
+  try {
+    renderHistoryActualResult(exam);
+    showWarning("");
+    setStatus("채점 완료");
+  } catch (error) {
+    releaseHistoryLock();
+    showWarning(error instanceof Error ? error.message : "과거 시험 결과 렌더링에 실패했습니다.");
+    showPendingResultState("과거 시험 결과를 불러오지 못했습니다");
+  }
+}
+
+function releaseHistoryLock() {
+  if (!isHistoryActualMode) return;
+  lastLoadedHistoryId = null;
+  setHistoryInputLock(false);
+}
+
+function renderHistoryActualResult(exam) {
+  if (!exam) return;
+  const points = exam.points.map((value) => Number(value)).filter((value) => Number.isFinite(value));
+  const rates = exam.rates.map((value) => Number(value)).filter((value) => Number.isFinite(value));
+  const featureValuesForHistory = featureValues(rates, points);
+  const actualPredictions = {};
+  const cutDiffs = {};
+
+  for (const cut of ["1", "2", "3"]) {
+    const rawCut = Number(exam.cuts?.[cut]);
+    if (!Number.isFinite(rawCut)) {
+      continue;
+    }
+    const roundedCut = Math.trunc(rawCut);
+    actualPredictions[cut] = {
+      predicted_cut: rawCut,
+      suggested_cut: roundedCut,
+      range_low: rawCut,
+      range_high: rawCut,
+      rmse: NaN,
+      mae: NaN,
+      historical_cap: rawCut,
+      runtime_correction: NaN,
+    };
+    cutDiffs[cut] = 0;
+  }
+
+  const conversionRows = points.map((point, index) => ({
+    question: index + 1,
+    points: point,
+    national_rate: rates[index] ?? "",
+    academy_rate: rates[index] ?? "",
+    academy_rate_label: `${formatFixed(rates[index], 1)}%`,
+    academy_rate_is_upper_bound: false,
+  }));
+
+  const actualData = {
+    subject: exam.subject,
+    mode: "national",
+    predictions: actualPredictions,
+    estimated_national_rates: rates,
+    estimated_academy_rates: rates,
+    conversion_rows: conversionRows,
+    score_table: [],
+    historical_matches: [
+      {
+        id: exam.id,
+        subject: exam.subject,
+        exam_year: exam.exam_year,
+        month: exam.month,
+        mean: exam.mean,
+        nat_sd: exam.nat_sd,
+        cuts: exam.cuts ?? {},
+        cut_diffs: cutDiffs,
+        distance: 0,
+      },
+    ],
+    features: {
+      ...featureValuesForHistory,
+      mean: Number.isFinite(exam.mean) ? exam.mean : featureValuesForHistory.mean,
+      nat_sd: Number.isFinite(exam.nat_sd) ? exam.nat_sd : featureValuesForHistory.nat_sd,
+    },
+    warnings: ["과거 시험 데이터: 실제 컷/정답률입니다."],
+    matched_historical_anchors: [],
+  };
+
+  renderResult(actualData, "actual");
 }
 
 function parsePasteValues() {
@@ -991,7 +1192,8 @@ function showWarning(text) {
   elements.warningText.hidden = !text;
 }
 
-function renderResult(data) {
+function renderResult(data, resultMode = "prediction") {
+  setResultTitle(resultMode);
   elements.emptyResult.hidden = true;
   elements.resultPanel.hidden = false;
   elements.cutCardGrid.innerHTML = model.cuts.map((cut) => {
@@ -1039,7 +1241,7 @@ function renderResult(data) {
       { label: "문항", value: (row) => row.question, width: "0.6fr" },
       { label: "배점", value: (row) => formatFixed(row.points, 0), width: "0.6fr" },
       { label: "전국", value: (row) => `${formatFixed(row.national_rate)}%`, width: "0.8fr" },
-      { label: "재종 환산", value: (row) => row.academy_rate_label, width: "1fr" },
+      { label: "시대인재N 환산", value: (row) => row.academy_rate_label, width: "1fr" },
     ],
     data.conversion_rows,
   );
@@ -1050,11 +1252,16 @@ function renderResult(data) {
 function runPrediction(event = null) {
   if (event) event.preventDefault();
   if (!model || !ebsiPayload) return false;
+  if (isHistoryActualMode) {
+    showWarning("과거 시험 데이터는 채점 결과로 표시됩니다.");
+    setStatus("채점 완료", true);
+    return false;
+  }
   setBusy(true);
   try {
     const payload = collectPayload();
     const data = predictCut(payload.subject, payload.rates, payload.points, payload.mode);
-    renderResult(data);
+    renderResult(data, "prediction");
     window.GeoCutLastResult = data;
     return true;
   } catch (error) {
@@ -1237,6 +1444,8 @@ function applyQuestionPreset(preset) {
   elements.questionSubject.value = currentSubject;
   if (preset === "latest_exam") {
     elements.questionMonth.value = "11";
+    ensureValueOrDefault(elements.questionYearFrom, DEFAULT_HISTORY_YEAR);
+    ensureValueOrDefault(elements.questionYearTo, DEFAULT_HISTORY_YEAR);
     elements.questionSort.value = "latest";
   } else if (preset === "hard_exact") {
     elements.questionMatch.value = "exact";
@@ -1347,15 +1556,20 @@ function solutionRate(solution) {
 }
 
 function applySolutionsToCut() {
+  releaseHistoryLock();
   const sorted = [...currentSolutions].sort((a, b) => a.number - b.number);
   const rates = sorted.map(solutionRate).filter((rate) => rate !== null);
+  const expectedCount = 20;
+  elements.paste.value = rates.map((rate) => formatFixed(rate)).join(", ");
   rateInputs().forEach((input, index) => {
     input.value = rates[index] ?? "";
   });
-  if (rates.length === 20) {
-    elements.paste.value = rates.map((rate) => formatFixed(rate)).join(", ");
-    setToolTab("predict", true);
+  setToolTab("predict", true);
+  if (rates.length === expectedCount) {
     runPrediction();
+  } else {
+    setResultTitle("prediction");
+    showPendingResultState(`정답률 ${rates.length}개 반영됨 (${expectedCount}개 필요)`);
   }
   return rates.length;
 }
@@ -1475,6 +1689,59 @@ function downloadEditedCsv() {
   URL.revokeObjectURL(url);
 }
 
+function downloadCsvTemplate() {
+  const rows = [
+    CSV_TEMPLATE_HEADERS,
+    ...Array.from({ length: 20 }, (_, index) => [
+      `${index + 1}번`,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ]),
+  ];
+  const blob = new Blob(["\ufeff" + rows.map((row) => row.map(csvEscape).join(",")).join("\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = "gemini_solution_template.csv";
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
+function setResultTitle(resultMode) {
+  if (!elements.resultTitle) return;
+  elements.resultTitle.textContent = resultMode === "actual" ? "채점 결과" : "예측 결과";
+}
+
+function showPendingResultState(message = "결과 준비 전") {
+  if (isHistoryActualMode) return;
+  if (elements.emptyResultText) {
+    elements.emptyResultText.textContent = message;
+  }
+  elements.emptyResult.hidden = true;
+  elements.resultPanel.hidden = true;
+  elements.cutCardGrid.innerHTML = "";
+  elements.scoreTable.innerHTML = "";
+  elements.historyTable.innerHTML = "";
+  elements.rateTable.innerHTML = "";
+  elements.meanMetric.textContent = "-";
+  elements.rateMetric.textContent = "-";
+  showWarning(message);
+  setStatus("확인 필요");
+}
+
 async function initialize() {
   renderCutRows();
   refreshIcons();
@@ -1498,9 +1765,16 @@ async function initialize() {
     elements.questionBankBadge.textContent = `${questionBankItems.length}문항 DB`;
     elements.questionBankBadge.classList.add("is-solid");
     renderQuestionExamSelect();
+    ensureValueOrDefault(elements.questionYearFrom, DEFAULT_HISTORY_YEAR);
+    ensureValueOrDefault(elements.questionYearTo, DEFAULT_HISTORY_YEAR);
+    elements.questionMonth.value = "11";
+    elements.questionSort.value = "latest";
     renderQuestionSearchResults();
     const latest = historicalExams.find((exam) => exam.subject === elements.subject.value);
-    if (latest) loadHistoryExam(latest.id);
+    if (latest) {
+      elements.history.value = latest.id;
+      lastLoadedHistoryId = latest.id;
+    }
   } catch (error) {
     setModelBadge("로드 실패");
     setStatus("오류");
@@ -1512,16 +1786,25 @@ elements.toolTabs.forEach((button) => {
   button.addEventListener("click", () => setToolTab(button.dataset.toolTab, true));
 });
 elements.subject.addEventListener("change", () => {
+  releaseHistoryLock();
   fillDefaultPoints();
   updateRelation();
   renderHistorySelect();
 });
-elements.mode.addEventListener("change", updateRelation);
+elements.mode.addEventListener("change", () => {
+  releaseHistoryLock();
+  updateRelation();
+});
 elements.loadHistory.addEventListener("click", () => loadHistoryExam());
+elements.history.addEventListener("change", () => {
+  releaseHistoryLock();
+});
 elements.applyPaste.addEventListener("click", applyPasteValues);
 elements.defaultPoints.addEventListener("click", fillDefaultPoints);
 elements.form.addEventListener("submit", runPrediction);
 elements.questionForm.addEventListener("submit", renderQuestionSearchResults);
+elements.inputGrid.addEventListener("input", releaseHistoryLock);
+elements.paste?.addEventListener("input", releaseHistoryLock);
 elements.questionSubject.addEventListener("change", () => renderQuestionExamSelect());
 elements.questionReset.addEventListener("click", resetQuestionSearch);
 elements.questionPresetButtons.forEach((button) => {
@@ -1532,17 +1815,25 @@ elements.csvInput.addEventListener("change", () => {
   const file = elements.csvInput.files?.[0];
   elements.csvLabel.textContent = file?.name || "CSV 선택";
   elements.csvMeta.textContent = file ? `${formatFixed(file.size / 1024, 1)} KB` : "문항 번호와 예상 정답률을 읽어 컷 예측에 반영합니다";
+  if (file) {
+    void handleSolutionCsv(new Event("submit"));
+  }
 });
 elements.downloadCsvButton.addEventListener("click", downloadEditedCsv);
+elements.downloadCsvTemplateButton?.addEventListener("click", downloadCsvTemplate);
 
-const initialHash = window.location.hash;
-if (initialHash === "#question-bank") {
-  setToolTab("questions");
-} else if (initialHash === "#csv-solutions") {
-  setToolTab("solutions");
-} else {
-  setToolTab("predict");
+function setToolTabFromHash(hash = window.location.hash) {
+  if (hash === "#csv-solutions") {
+    setToolTab("solutions");
+  } else if (hash === "#cut-predictor") {
+    setToolTab("predict");
+  } else {
+    setToolTab("questions");
+  }
 }
+
+setToolTabFromHash();
+window.addEventListener("hashchange", () => setToolTabFromHash());
 
 window.GeoCut = {
   predictCut,

@@ -1744,8 +1744,8 @@ kbd {
   height: auto;
   overflow: visible;
   background: #ffffff;
-  font-family: "SidaeAi_S";
-  font-stretch: 95%;
+  font-family: var(--tw-font-sans);
+  font-stretch: 100%;
 }
 
 .country-stats-chart-grid-line {
@@ -1945,7 +1945,7 @@ kbd {
 
 .exam-graph-preview-gallery[data-style="basic"] {
   gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
 }
 
 .exam-graph-preview-card {
@@ -1953,8 +1953,8 @@ kbd {
 }
 
 .exam-graph-preview-card[data-exam-graph-style="basic"] {
-  gap: 14px;
-  padding: 16px;
+  gap: 0;
+  padding: 0;
   border: 1px solid var(--tw-line);
   background: #ffffff;
 }
@@ -1974,27 +1974,26 @@ kbd {
 }
 
 .exam-graph-stage {
-  padding: 10px;
-  border: 0.4pt solid var(--tw-line-faint);
-  background:
-    linear-gradient(180deg, #fafafa 0%, #f1f1f1 100%);
+  padding: 16px;
+  border: 1px solid var(--tw-line-faint);
+  background: #ffffff;
   overflow: auto;
 }
 
 .exam-graph-stage[data-style="basic"] {
-  padding: 16px;
-  border: 1px solid var(--tw-line-soft);
-  background: var(--tw-panel-soft);
+  padding: 18px;
+  border: 0;
+  background: #ffffff;
 }
 
 .exam-graph-stage .exam-graph-svg {
   display: block;
-  width: min(100%, 310px);
-  max-width: 310px;
+  width: min(100%, 520px);
+  max-width: 520px;
   height: auto;
   margin: 0 auto;
   background: #ffffff;
-  box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.06);
+  box-shadow: none;
 }
 
 .exam-graph-stage[data-style="basic"] .exam-graph-svg {
@@ -2141,8 +2140,8 @@ kbd {
   height: auto;
   overflow: visible;
   background: #ffffff;
-  font-family: "SidaeAi_S";
-  font-stretch: 95%;
+  font-family: var(--tw-font-sans);
+  font-stretch: 100%;
 }
 
 .country-stats-scatter-chart__axis-line {

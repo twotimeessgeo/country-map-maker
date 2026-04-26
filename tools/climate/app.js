@@ -562,6 +562,8 @@ const WORLD_LANDMASSES = [
 ];
 
 const collator = new Intl.Collator("ko-KR");
+const climateCsvExports = new Map();
+let climateCsvExportId = 0;
 const numberFormatter = new Intl.NumberFormat("ko-KR", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 1,
@@ -588,7 +590,7 @@ const state = {
   mapScope: "all",
   examMonthIndex: 0,
   examUseNightLength: false,
-  examUseVariableLabels: true,
+  examUseVariableLabels: false,
   examReversedCategoryKeys: new Set(),
   examQuestionSeed: 1,
   apiResults: [],
@@ -722,6 +724,8 @@ async function fetchWorldTopologyWithFallback(urls) {
 }
 
 function bindEvents() {
+  elements.selectedRegionsContent?.addEventListener("click", handleClimateCsvDownload);
+
   elements.searchInput.addEventListener("input", (event) => {
     state.query = event.target.value.trim();
     render();
@@ -798,6 +802,12 @@ function bindEvents() {
   });
 
   elements.comparisonContent.addEventListener("click", (event) => {
+    const csvButton = event.target.closest("[data-climate-csv-download]");
+    if (csvButton) {
+      handleClimateCsvDownload(event);
+      return;
+    }
+
     const randomRegionButton = event.target.closest("[data-exam-region-random]");
     if (randomRegionButton) {
       applyRandomClimateSelection();
@@ -1059,7 +1069,193 @@ function pickRandomItem(items) {
   return items[Math.floor(Math.random() * items.length)];
 }
 
+function resetClimateCsvExports() {
+  climateCsvExports.clear();
+  climateCsvExportId = 0;
+}
+
+function sanitizeClimateCsvExportId(rawValue) {
+  const text = String(rawValue ?? "").toLowerCase().trim();
+  const normalized = text.normalize("NFKC").replace(/[^a-z0-9가-힣._-]/gi, "-");
+  const collapsed = normalized.replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+  return collapsed || `dataset-${climateCsvExportId + 1}`;
+}
+
+function buildClimateCsvFilename(label, index) {
+  const baseName = sanitizeClimateCsvExportId(label).replace(/[^a-z0-9가-힣._-]/gi, "-");
+  return `${baseName}-${String(index).padStart(3, "0")}`;
+}
+
+function buildClimateCsvLine(values) {
+  return values.map((value) => {
+    const text = String(value ?? "");
+    if (/[",\n\r]/.test(text)) {
+      return `"${text.replaceAll('"', '""')}"`;
+    }
+    return text;
+  }).join(",");
+}
+
+function registerClimateCsvExport(context, headers, rows, filename) {
+  climateCsvExportId += 1;
+  const key = `climate-csv-${sanitizeClimateCsvExportId(context)}-${String(climateCsvExportId).padStart(3, "0")}`;
+  const safeHeaders = headers.map((value) => String(value ?? ""));
+  const safeRows = rows.map((row) => row.map((value) => String(value ?? "")));
+  climateCsvExports.set(key, {
+    filename: buildClimateCsvFilename(filename || context, climateCsvExportId),
+    headers: safeHeaders,
+    rows: safeRows,
+  });
+  return key;
+}
+
+function renderClimateComparisonTable(
+  selectedRegions,
+  monthIndexes,
+  valueAccessor,
+  valueFormatter,
+  unitLabel,
+  csvContext,
+  tableLabel
+) {
+  const headers = monthIndexes.map((monthIndex) => `${MONTH_LABELS[monthIndex]} (${unitLabel})`);
+  const dataRows = selectedRegions.map((region) =>
+    monthIndexes.map((monthIndex) => valueAccessor(region, monthIndex))
+  );
+  const csvRows = dataRows.map((values, index) => {
+    const regionName = selectedRegions[index]?.name ?? `지역 ${index + 1}`;
+    return [regionName, ...values.map((value) => (Number.isFinite(value) ? round(value) : ""))];
+  });
+  const csvKey = registerClimateCsvExport(
+    csvContext,
+    ["지역", ...headers],
+    csvRows,
+    `${csvContext}-원데이터`
+  );
+
+  const isCompactTable = headers.length <= 2;
+  const resolvedTableLabel = tableLabel || "원 데이터";
+
+  return `
+    <details class="comparison-data-block${isCompactTable ? " is-compact" : ""}">
+      <summary class="comparison-data-summary" title="${escapeHtml(resolvedTableLabel)}">원 데이터</summary>
+      <div class="comparison-data-head">
+        <button type="button" class="ghost-button" data-climate-csv-download="${escapeHtml(csvKey)}">CSV 다운로드</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>지역</th>
+              ${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${selectedRegions
+              .map(
+                (region, index) => `
+                  <tr>
+                    <th scope="row">${escapeHtml(region.name)}</th>
+                    ${dataRows[index]
+                      .map((value) => `<td>${Number.isFinite(value) ? valueFormatter(value) : "-"}</td>`)
+                      .join("")}
+                  </tr>
+                `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  `;
+}
+
+function renderChartDataBlock({
+  tableLabel,
+  headers,
+  rows,
+  displayRows,
+  csvContext,
+  csvFilename,
+}) {
+  const renderedRows = displayRows || rows;
+  const csvRows = rows || renderedRows;
+  const csvKey = registerClimateCsvExport(
+    csvContext,
+    headers,
+    csvRows.map((row) => row.map((value) => (Number.isFinite(value) ? round(value) : value || ""))),
+    csvFilename || `${csvContext}-원데이터`
+  );
+
+  const isCompactTable = headers.length <= 3;
+  const resolvedTableLabel = tableLabel || "원 데이터";
+
+  return `
+    <details class="comparison-data-block${isCompactTable ? " is-compact" : ""}">
+      <summary class="comparison-data-summary" title="${escapeHtml(resolvedTableLabel)}">원 데이터</summary>
+      <div class="comparison-data-head">
+        <button type="button" class="ghost-button" data-climate-csv-download="${escapeHtml(csvKey)}">CSV 다운로드</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              ${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+              ${renderedRows
+                .map(
+                  (row) => `
+                    <tr>
+                    ${row
+                      .map((value, index) => {
+                        const formattedValue = value === null || value === undefined || value === "" ? "-" : String(value);
+                        const isHeaderCell = index === 0;
+                        const escapedValue = escapeHtml(formattedValue);
+                        return isHeaderCell
+                          ? `<th scope="row">${escapedValue}</th>`
+                          : `<td>${escapedValue}</td>`;
+                      })
+                      .join("")}
+                  </tr>
+                `
+              )
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  `;
+}
+
+function handleClimateCsvDownload(event) {
+  const button = event.target.closest("[data-climate-csv-download]");
+  if (!button) return;
+  const key = button.dataset.climateCsvDownload;
+  const payload = climateCsvExports.get(key);
+  if (!payload) return;
+
+  const rows = [];
+  if (payload.headers.length) {
+    rows.push(buildClimateCsvLine(payload.headers));
+  }
+  payload.rows.forEach((row) => rows.push(buildClimateCsvLine(row)));
+
+  const blob = new Blob(["\uFEFF" + rows.join("\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `${payload.filename || "climate-data"}.csv`;
+  anchor.click();
+  URL.revokeObjectURL(url);
+}
+
 function render() {
+  resetClimateCsvExports();
+
   const visibleRegions = sortDisplayedRegions(getVisibleRegions());
   const selectedRegions = sortDisplayedRegions(getSelectedRegions());
   normalizeComparisonBaseline(selectedRegions);
@@ -1366,8 +1562,19 @@ function renderSelectedRegions(selectedRegions) {
   const sharedChartScale = buildClimateChartScale(selectedRegions);
 
   return selectedRegions
-    .map(
-      (region, index) => `
+    .map((region, index) => {
+      const csvKey = registerClimateCsvExport(
+        `world-region-${region.id}-raw`,
+        ["월", "평균 기온(°C)", "강수량(mm)"],
+        [...region.months.map((month, monthIndex) => [
+          month,
+          Number.isFinite(region.monthlyTemperatureC[monthIndex]) ? round(region.monthlyTemperatureC[monthIndex]) : "",
+          Number.isFinite(region.monthlyPrecipitationMm[monthIndex]) ? round(region.monthlyPrecipitationMm[monthIndex]) : "",
+        ]), ["연간", region.annualMeanTemperatureC, region.annualPrecipitationMm]],
+        `${region.name}-월별기후`
+      );
+
+      return `
         <article class="region-card world-region-card" style="animation-delay: ${index * 50}ms">
           <div class="region-card-top">
             <div class="region-card-body">
@@ -1420,32 +1627,44 @@ function renderSelectedRegions(selectedRegions) {
               <p class="chart-caption">* 회색 막대는 강수량, 검은 선은 평균 기온입니다.</p>
             </div>
           </div>
-          <div class="table-wrap region-card-table is-transposed">
-            <table class="transpose-table">
-              <thead>
-                <tr>
-                  <th>항목</th>
-                  ${region.months.map((month) => `<th>${escapeHtml(month)}</th>`).join("")}
-                  <th>연간</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <th scope="row">평균 기온</th>
-                  ${region.monthlyTemperatureC.map((value) => `<td>${formatTemp(value)}</td>`).join("")}
-                  <td>${formatTemp(region.annualMeanTemperatureC)}</td>
-                </tr>
-                <tr>
-                  <th scope="row">강수량</th>
-                  ${region.monthlyPrecipitationMm.map((value) => `<td>${formatMm(value)}</td>`).join("")}
-                  <td>${formatMm(region.annualPrecipitationMm)}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <details class="climate-data-details">
+            <summary>원 데이터</summary>
+            <div class="climate-data-tools">
+              <button
+                type="button"
+                class="ghost-button climate-csv-download"
+                data-climate-csv-download="${escapeHtml(csvKey)}"
+              >
+                CSV 다운로드
+              </button>
+            </div>
+            <div class="table-wrap region-card-table is-transposed">
+              <table class="transpose-table">
+                <thead>
+                  <tr>
+                    <th>항목</th>
+                    ${region.months.map((month) => `<th>${escapeHtml(month)}</th>`).join("")}
+                    <th>연간</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">평균 기온</th>
+                    ${region.monthlyTemperatureC.map((value) => `<td>${formatTemp(value)}</td>`).join("")}
+                    <td>${formatTemp(region.annualMeanTemperatureC)}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">강수량</th>
+                    ${region.monthlyPrecipitationMm.map((value) => `<td>${formatMm(value)}</td>`).join("")}
+                    <td>${formatMm(region.annualPrecipitationMm)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
         </article>
       `
-    )
+    })
     .join("");
 }
 
@@ -2062,6 +2281,81 @@ function renderComparison(selectedRegions) {
   }
 
   const baseline = resolveWorldComparisonBaseline(selectedRegions);
+  const januaryJulyMonthIndexes = COMPARISON_MONTHS;
+  const allMonthIndexes = MONTH_LABELS.map((_, index) => index);
+  const precipitationJanJulyDataTable = renderClimateComparisonTable(
+    selectedRegions,
+    januaryJulyMonthIndexes,
+    (region, monthIndex) => region.monthlyPrecipitationMm[monthIndex],
+    (value) => formatMm(value),
+    "mm",
+    "comparison-precipitation-july-focus",
+    "원 데이터 (1월·7월)"
+  );
+  const temperatureJanJulyDataTable = renderClimateComparisonTable(
+    selectedRegions,
+    januaryJulyMonthIndexes,
+    (region, monthIndex) => region.monthlyTemperatureC[monthIndex],
+    (value) => formatTemp(value),
+    "°C",
+    "comparison-temperature-july-focus",
+    "원 데이터 (1월·7월)"
+  );
+  const monthlyTemperatureAnnualDataTable = renderClimateComparisonTable(
+    selectedRegions,
+    allMonthIndexes,
+    (region, monthIndex) => region.monthlyTemperatureC[monthIndex],
+    (value) => formatTemp(value),
+    "°C",
+    "comparison-monthly-temperature-annual",
+    "원 데이터"
+  );
+  const cumulativePrecipitationAnnualDataTable = renderClimateComparisonTable(
+    selectedRegions,
+    allMonthIndexes,
+    (region, monthIndex) => cumulativePrecipitationValues(region)[monthIndex],
+    (value) => formatMm(value),
+    "mm",
+    "comparison-cumulative-precipitation-annual",
+    "원 데이터 (1월~12월)"
+  );
+  const comparableTrendRows = comparableTrendRegions(selectedRegions, baseline);
+  const worldTemperatureDeltaRows = comparableTrendRows.map((region) => [
+    region.name,
+    ...region.monthlyTemperatureC.map((value, monthIndex) =>
+      round(value - monthlyTemperatureTrendReference(selectedRegions, baseline, monthIndex))
+    ),
+  ]);
+  const worldCumulativePrecipitationDeltaRows = comparableTrendRows.map((region) => [
+    region.name,
+    ...cumulativePrecipitationValues(region).map((value, monthIndex) =>
+      round(value - cumulativePrecipitationTrendReference(selectedRegions, baseline, monthIndex))
+    ),
+  ]);
+  const monthlyTemperatureDeltaHeaders = MONTH_LABELS.map((monthLabel) => `${monthLabel}(°C)`);
+  const monthlyPrecipitationDeltaHeaders = MONTH_LABELS.map((monthLabel) => `${monthLabel}(mm)`);
+  const worldTemperatureDeltaTable = renderChartDataBlock({
+    tableLabel: "월별 온도 차이 원 데이터",
+    headers: ["지역", ...monthlyTemperatureDeltaHeaders],
+    rows: worldTemperatureDeltaRows,
+    displayRows: worldTemperatureDeltaRows.map((row) => [
+      row[0],
+      ...row.slice(1).map((value) => formatSigned(value, "°C")),
+    ]),
+    csvContext: "world-comparison-monthly-temperature-delta",
+    csvFilename: "월별온도차이원데이터",
+  });
+  const worldPrecipitationDeltaTable = renderChartDataBlock({
+    tableLabel: "월별 누적강수량 차이 원 데이터",
+    headers: ["지역", ...monthlyPrecipitationDeltaHeaders],
+    rows: worldCumulativePrecipitationDeltaRows,
+    displayRows: worldCumulativePrecipitationDeltaRows.map((row) => [
+      row[0],
+      ...row.slice(1).map((value) => formatSigned(value, " mm")),
+    ]),
+    csvContext: "world-comparison-monthly-cumulative-precipitation-delta",
+    csvFilename: "월별누적강수량차이원데이터",
+  });
 
   return `
     <div class="comparison-controls">
@@ -2092,6 +2386,7 @@ function renderComparison(selectedRegions) {
         <h4>월 평균 기온 편차</h4>
         ${renderMonthlyTemperatureTrendChart(selectedRegions, baseline)}
         ${renderTrendLegend(comparableTrendRegions(selectedRegions, baseline), COLORS.temperature)}
+        ${worldTemperatureDeltaTable}
         ${renderFootnoteLines([
           `월 평균 기온 편차 = 해당 지역 월 평균 기온 − ${baseline.formulaLabel}`,
           baseline.mode === "region" ? "기준 지역은 편차선에서 제외했습니다." : "월별 선택 지역 평균을 기준선으로 삼았습니다.",
@@ -2101,11 +2396,72 @@ function renderComparison(selectedRegions) {
         <h4>누적 강수량 편차</h4>
         ${renderCumulativePrecipitationTrendChart(selectedRegions, baseline)}
         ${renderTrendLegend(comparableTrendRegions(selectedRegions, baseline), COLORS.rain)}
+        ${worldPrecipitationDeltaTable}
         ${renderFootnoteLines([
           "누적 강수량은 1월부터 해당 월까지의 강수량 합입니다.",
           `누적 강수량 편차 = 해당 지역 누적 강수량 − ${baseline.formulaLabel}`,
           baseline.mode === "region" ? "기준 지역은 편차선에서 제외했습니다." : "월별 선택 지역 평균 누적값을 기준선으로 삼았습니다.",
         ])}
+      </article>
+      <article class="chart-card world-trend-card">
+        <h4>월 평균 기온</h4>
+        ${renderMonthlyTemperatureActualTrendChart(
+          selectedRegions,
+          allMonthIndexes,
+          (region, monthIndex) => region.monthlyTemperatureC[monthIndex],
+          {
+            pointPadding: 14,
+          }
+        )}
+        ${renderTrendLegend(selectedRegions, COLORS.temperature)}
+        ${monthlyTemperatureAnnualDataTable}
+        ${renderFootnoteLines(["선택 지역의 월 평균 기온(°C) 실제값을 함께 확인합니다."])}
+      </article>
+      <article class="chart-card world-trend-card">
+        <h4>누적 강수량</h4>
+        ${renderCumulativePrecipitationActualTrendChart(
+          selectedRegions,
+          allMonthIndexes,
+          (region, monthIndex) => cumulativePrecipitationValues(region)[monthIndex],
+          {
+            pointPadding: 14,
+          }
+        )}
+        ${renderTrendLegend(selectedRegions, COLORS.rain)}
+        ${cumulativePrecipitationAnnualDataTable}
+        ${renderFootnoteLines(["선택 지역의 누적 강수량(mm) 실제값을 함께 확인합니다."])}
+      </article>
+      <article class="chart-card world-trend-card">
+        <h4>1월·7월 강수량</h4>
+        ${renderCumulativePrecipitationActualTrendChart(
+          selectedRegions,
+          januaryJulyMonthIndexes,
+          (region, monthIndex) => region.monthlyPrecipitationMm[monthIndex],
+          {
+            showLine: false,
+            horizontalPadding: 30,
+            pointPadding: 24,
+          }
+        )}
+        ${renderTrendLegend(selectedRegions, COLORS.rain)}
+        ${precipitationJanJulyDataTable}
+        ${renderFootnoteLines(["선택 지역의 1월·7월 시기 강수량(mm) 실제값을 함께 확인합니다."])}
+      </article>
+      <article class="chart-card world-trend-card">
+        <h4>1월·7월 평균 기온</h4>
+        ${renderMonthlyTemperatureActualTrendChart(
+          selectedRegions,
+          januaryJulyMonthIndexes,
+          (region, monthIndex) => region.monthlyTemperatureC[monthIndex],
+          {
+            showLine: false,
+            horizontalPadding: 30,
+            pointPadding: 24,
+          }
+        )}
+        ${renderTrendLegend(selectedRegions, COLORS.temperature)}
+        ${temperatureJanJulyDataTable}
+        ${renderFootnoteLines(["선택 지역의 1월·7월 시기 평균 기온(°C) 실제값을 함께 확인합니다."])}
       </article>
     </div>
     ${renderExamClimateSourcePanel(selectedRegions)}
@@ -3463,15 +3819,18 @@ function resolveWorldComparisonBaseline(selectedRegions) {
 
 function renderMonthPanel(selectedRegions, monthIndex, panelIndex, baseline) {
   const monthLabel = state.dataset.months[monthIndex];
+  const isBoundaryMonth = monthIndex === 0 || monthIndex === 6;
   const rows = selectedRegions.map((region) => ({
     id: region.id,
     name: region.name,
     temperature: region.monthlyTemperatureC[monthIndex],
     precipitation: region.monthlyPrecipitationMm[monthIndex],
+    cumulativePrecipitation: cumulativePrecipitationValues(region)[monthIndex],
   }));
 
   const meanTemperature = average(rows.map((row) => row.temperature));
   const meanPrecipitation = average(rows.map((row) => row.precipitation));
+  const meanCumulativePrecipitation = average(rows.map((row) => row.cumulativePrecipitation));
   const temperatureReference =
     baseline.mode === "region" ? baseline.region.monthlyTemperatureC[monthIndex] : meanTemperature;
   const precipitationReference =
@@ -3481,13 +3840,53 @@ function renderMonthPanel(selectedRegions, monthIndex, panelIndex, baseline) {
     temperatureDeviation: round(row.temperature - temperatureReference),
     precipitationDeviation: round(row.precipitation - precipitationReference),
   }));
+
+  const monthCsvRows = rowsWithDeviation.map((row) => [
+    row.name,
+    row.temperature,
+    row.temperatureDeviation,
+    row.precipitation,
+    row.precipitationDeviation,
+    row.cumulativePrecipitation,
+    baseline.mode === "region" && baseline.region.id === row.id ? "기준" : "일반",
+  ]);
+  const csvKey = registerClimateCsvExport(
+    `world-comparison-${monthIndex + 1}-${monthLabel}-raw`,
+    ["지역", "평균 기온(°C)", "기온편차(°C)", "강수량(mm)", "강수편차(mm)", "누적강수량(mm)", "구분"],
+    monthCsvRows,
+    `${monthLabel}-월별-지역별-기후값`
+  );
   const chartRows =
     baseline.mode === "region"
       ? rowsWithDeviation.filter((row) => row.id !== baseline.region.id)
       : rowsWithDeviation;
 
+  const chartTemperatureDeviationRows = chartRows.map((row) => [
+    row.name,
+    row.temperature,
+    row.temperatureDeviation,
+  ]);
+  const chartPrecipitationDeviationRows = chartRows.map((row) => [
+    row.name,
+    row.precipitation,
+    row.precipitationDeviation,
+  ]);
+  const monthTemperatureRows = rows.map((row) => [
+    row.name,
+    row.temperature,
+  ]);
+  const monthPrecipitationRows = rows.map((row) => [
+    row.name,
+    row.precipitation,
+  ]);
+  const monthCumulativePrecipitationRows = rows.map((row) => [
+    row.name,
+    row.cumulativePrecipitation,
+  ]);
+
   const temperatureValues = rows.map((row) => row.temperature);
   const precipitationValues = rows.map((row) => row.precipitation);
+  const cumulativePrecipitationValuesByMonth = rows.map((row) => row.cumulativePrecipitation);
 
   return `
     <article class="month-panel world-month-panel" style="animation-delay: ${panelIndex * 70}ms">
@@ -3499,48 +3898,155 @@ function renderMonthPanel(selectedRegions, monthIndex, panelIndex, baseline) {
         <span class="stat-pill">강수량 범위 ${formatMm(
           Math.max(...precipitationValues) - Math.min(...precipitationValues)
         )}</span>
+        <span class="stat-pill">누적 강수량 평균 ${formatMm(meanCumulativePrecipitation)}</span>
+        <span class="stat-pill">누적 강수량 범위 ${formatMm(
+          Math.max(...cumulativePrecipitationValuesByMonth) - Math.min(...cumulativePrecipitationValuesByMonth)
+        )}</span>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>지역</th>
-              <th>평균 기온</th>
-              <th>기온 편차</th>
-              <th>강수량</th>
-              <th>강수 편차</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsWithDeviation
-              .map(
-                (row) => `
-                  <tr>
-                    <td>${escapeHtml(
-                      baseline.mode === "region" && baseline.region.id === row.id
-                        ? `${row.name} (기준)`
-                        : row.name
-                    )}</td>
-                    <td>${formatTemp(row.temperature)}</td>
-                    <td>${formatSigned(row.temperatureDeviation, "°C")}</td>
-                    <td>${formatMm(row.precipitation)}</td>
-                    <td>${formatSigned(row.precipitationDeviation, " mm")}</td>
-                  </tr>
-                `
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
+      <details class="climate-data-details">
+        <summary>원 데이터</summary>
+        <div class="climate-data-tools">
+          <button
+            type="button"
+            class="ghost-button climate-csv-download"
+            data-climate-csv-download="${escapeHtml(csvKey)}"
+          >
+            CSV 다운로드
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>지역</th>
+                <th>평균 기온</th>
+                <th>기온 편차</th>
+                <th>강수량</th>
+                <th>강수 편차</th>
+                <th>누적 강수량</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsWithDeviation
+                .map(
+                  (row) => `
+                    <tr>
+                      <td>${escapeHtml(
+                        baseline.mode === "region" && baseline.region.id === row.id
+                          ? `${row.name} (기준)`
+                          : row.name
+                      )}</td>
+                      <td>${formatTemp(row.temperature)}</td>
+                      <td>${formatSigned(row.temperatureDeviation, "°C")}</td>
+                      <td>${formatMm(row.precipitation)}</td>
+                      <td>${formatSigned(row.precipitationDeviation, " mm")}</td>
+                      <td>${formatMm(row.cumulativePrecipitation)}</td>
+                    </tr>
+                  `
+                )
+                .join("")}
+            </tbody>
+          </table>
+        </div>
+      </details>
       <div class="charts-grid">
         <article class="chart-card">
-          <h4>${escapeHtml(monthLabel)} 평균 기온 차이</h4>
-          ${renderDeviationTemperatureChart(chartRows)}
-        </article>
+              <h4>${escapeHtml(monthLabel)} 평균 기온 차이</h4>
+              ${renderDeviationTemperatureChart(chartRows)}
+              ${renderChartDataBlock({
+                tableLabel: `${monthLabel} 평균 기온 차이 원 데이터`,
+                headers: ["지역", "평균 기온(°C)", "기온차이(°C)"],
+                rows: chartTemperatureDeviationRows,
+                displayRows: chartTemperatureDeviationRows.map((row) => [
+                  row[0],
+                  formatTemp(row[1]),
+                  formatSigned(row[2], "°C"),
+                ]),
+                csvContext: `world-comparison-${monthIndex + 1}-${monthLabel}-temp-delta`,
+                csvFilename: `${monthLabel}-평균 기온 차이`
+              })}
+            </article>
         <article class="chart-card">
-          <h4>${escapeHtml(monthLabel)} 강수량 차이</h4>
-          ${renderDeviationPrecipitationChart(chartRows)}
-        </article>
+              <h4>${escapeHtml(monthLabel)} 강수량 차이</h4>
+              ${renderDeviationPrecipitationChart(chartRows)}
+              ${renderChartDataBlock({
+                tableLabel: `${monthLabel} 강수량 차이 원 데이터`,
+                headers: ["지역", "강수량(mm)", "강수량차이(mm)"],
+                rows: chartPrecipitationDeviationRows,
+                displayRows: chartPrecipitationDeviationRows.map((row) => [
+                  row[0],
+                  formatMm(row[1]),
+                  formatSigned(row[2], "mm"),
+                ]),
+                csvContext: `world-comparison-${monthIndex + 1}-${monthLabel}-precip-delta`,
+                csvFilename: `${monthLabel}-강수량차이`
+              })}
+            </article>
+        ${isBoundaryMonth
+          ? `
+            <article class="chart-card">
+              <h4>${escapeHtml(monthLabel)} 평균 기온</h4>
+              ${renderActualTemperaturePanelChart(rows, { examStyle: true })}
+              ${renderChartDataBlock({
+                tableLabel: `${monthLabel} 평균 기온 원 데이터`,
+                headers: ["지역", "평균 기온(°C)"],
+                rows: monthTemperatureRows,
+                displayRows: monthTemperatureRows.map((row) => [
+                  row[0],
+                  formatTemp(row[1]),
+                ]),
+                csvContext: `world-comparison-${monthIndex + 1}-${monthLabel}-monthly-temperature`,
+                csvFilename: `${monthLabel}-평균 기온`
+              })}
+            </article>
+            <article class="chart-card">
+              <h4>${escapeHtml(monthLabel)} 강수량</h4>
+              ${renderActualPrecipitationPanelChart(rows, { examStyle: true })}
+              ${renderChartDataBlock({
+                tableLabel: `${monthLabel} 강수량 원 데이터`,
+                headers: ["지역", "강수량(mm)"],
+                rows: monthPrecipitationRows,
+                displayRows: monthPrecipitationRows.map((row) => [
+                  row[0],
+                  formatMm(row[1]),
+                ]),
+                csvContext: `world-comparison-${monthIndex + 1}-${monthLabel}-monthly-precipitation`,
+                csvFilename: `${monthLabel}-강수량`
+              })}
+            </article>
+          `
+          : `
+            <article class="chart-card">
+              <h4>${escapeHtml(monthLabel)} 월 평균 기온</h4>
+              ${renderActualTemperaturePanelChart(rows)}
+              ${renderChartDataBlock({
+                tableLabel: `${monthLabel} 월 평균 기온 원 데이터`,
+                headers: ["지역", "평균 기온(°C)"],
+                rows: monthTemperatureRows,
+                displayRows: monthTemperatureRows.map((row) => [
+                  row[0],
+                  formatTemp(row[1]),
+                ]),
+                csvContext: `world-comparison-${monthIndex + 1}-${monthLabel}-monthly-temperature`,
+                csvFilename: `${monthLabel}-월 평균 기온`
+              })}
+            </article>
+            <article class="chart-card">
+              <h4>${escapeHtml(monthLabel)} 누적 강수량</h4>
+              ${renderActualCumulativePrecipitationPanelChart(rows)}
+              ${renderChartDataBlock({
+                tableLabel: `${monthLabel} 누적 강수량 원 데이터`,
+                headers: ["지역", "누적강수량(mm)"],
+                rows: monthCumulativePrecipitationRows,
+                displayRows: monthCumulativePrecipitationRows.map((row) => [
+                  row[0],
+                  formatMm(row[1]),
+                ]),
+                csvContext: `world-comparison-${monthIndex + 1}-${monthLabel}-cumulative-precipitation`,
+                csvFilename: `${monthLabel}-누적강수량`
+              })}
+            </article>
+          `}
       </div>
       ${renderFootnoteLines([
         `현재 기준: ${baseline.label}`,
@@ -3548,9 +4054,9 @@ function renderMonthPanel(selectedRegions, monthIndex, panelIndex, baseline) {
         `강수량 차이 = 해당 지역 강수량 − ${baseline.formulaLabel}`,
         baseline.mode === "region" ? "기준 지역은 편차 그래프에서 제외했습니다." : "",
       ])}
-    </article>
-  `;
-}
+      </article>
+    `;
+  }
 
 function comparableTrendRegions(selectedRegions, baseline) {
   return baseline.mode === "region"
@@ -3591,7 +4097,10 @@ function renderMonthlyTemperatureTrendChart(selectedRegions, baseline) {
   const width = 520;
   const height = 286;
   const margin = { top: 18, right: 38, bottom: 36, left: 46 };
-  const chartWidth = width - margin.left - margin.right;
+  const horizontalPadding = 12;
+  const plotLeft = margin.left + horizontalPadding;
+  const plotRight = width - margin.right - horizontalPadding;
+  const chartWidth = plotRight - plotLeft;
   const chartHeight = height - margin.top - margin.bottom;
   const stepX = chartWidth / Math.max(MONTH_LABELS.length - 1, 1);
   const series = comparableTrendRegions(selectedRegions, baseline).map((region) => ({
@@ -3607,7 +4116,7 @@ function renderMonthlyTemperatureTrendChart(selectedRegions, baseline) {
   return `
     <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 월 평균 기온 편차 그래프">
       <rect
-        x="${margin.left}"
+        x="${plotLeft}"
         y="${margin.top}"
         width="${chartWidth}"
         height="${chartHeight}"
@@ -3617,11 +4126,11 @@ function renderMonthlyTemperatureTrendChart(selectedRegions, baseline) {
       ${tickValues
         .map((tick) => {
           const y = scaleY(tick, axis.yMin, axis.yMax, margin.top, margin.top + chartHeight);
-          return `
+            return `
             <line
-              x1="${margin.left}"
+              x1="${plotLeft}"
               y1="${y}"
-              x2="${width - margin.right}"
+              x2="${plotRight}"
               y2="${y}"
               stroke="${tick === 0 ? COLORS.zero : COLORS.gridSoft}"
               stroke-width="${tick === 0 ? 1.5 : 1}"
@@ -3633,7 +4142,7 @@ function renderMonthlyTemperatureTrendChart(selectedRegions, baseline) {
         })
         .join("")}
       ${MONTH_LABELS.map((month, index) => {
-        const x = margin.left + stepX * index;
+        const x = plotLeft + stepX * index;
         const tickY = margin.top + chartHeight;
         return `
           <line x1="${x}" y1="${tickY}" x2="${x}" y2="${tickY + 7}" stroke="${COLORS.grid}" />
@@ -3642,16 +4151,16 @@ function renderMonthlyTemperatureTrendChart(selectedRegions, baseline) {
           </text>
         `;
       }).join("")}
-      <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
-      <line x1="${width - margin.right}" y1="${margin.top}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
-      <line x1="${margin.left}" y1="${margin.top + chartHeight}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
-      <line x1="${margin.left}" y1="${zeroY}" x2="${width - margin.right}" y2="${zeroY}" stroke="${COLORS.zero}" stroke-width="1.4" />
+      <line x1="${plotLeft}" y1="${margin.top}" x2="${plotLeft}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotRight}" y1="${margin.top}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${margin.top + chartHeight}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${zeroY}" x2="${plotRight}" y2="${zeroY}" stroke="${COLORS.zero}" stroke-width="1.4" />
       ${series
         .map((item, index) =>
           renderTrendSeriesLine(
             item,
             index,
-            margin,
+            { ...margin, left: plotLeft },
             stepX,
             axis.yMin,
             axis.yMax,
@@ -3669,7 +4178,10 @@ function renderCumulativePrecipitationTrendChart(selectedRegions, baseline) {
   const width = 520;
   const height = 286;
   const margin = { top: 18, right: 38, bottom: 36, left: 50 };
-  const chartWidth = width - margin.left - margin.right;
+  const horizontalPadding = 12;
+  const plotLeft = margin.left + horizontalPadding;
+  const plotRight = width - margin.right - horizontalPadding;
+  const chartWidth = plotRight - plotLeft;
   const chartHeight = height - margin.top - margin.bottom;
   const stepX = chartWidth / Math.max(MONTH_LABELS.length - 1, 1);
   const cumulativeSeries = comparableTrendRegions(selectedRegions, baseline).map((region) => ({
@@ -3685,7 +4197,7 @@ function renderCumulativePrecipitationTrendChart(selectedRegions, baseline) {
   return `
     <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 누적 강수량 편차 그래프">
       <rect
-        x="${margin.left}"
+        x="${plotLeft}"
         y="${margin.top}"
         width="${chartWidth}"
         height="${chartHeight}"
@@ -3695,11 +4207,11 @@ function renderCumulativePrecipitationTrendChart(selectedRegions, baseline) {
       ${tickValues
         .map((tick) => {
           const y = scaleY(tick, axis.yMin, axis.yMax, margin.top, margin.top + chartHeight);
-          return `
+            return `
             <line
-              x1="${margin.left}"
+              x1="${plotLeft}"
               y1="${y}"
-              x2="${width - margin.right}"
+              x2="${plotRight}"
               y2="${y}"
               stroke="${tick === 0 ? COLORS.zero : COLORS.gridSoft}"
               stroke-width="${tick === 0 ? 1.5 : 1}"
@@ -3711,7 +4223,7 @@ function renderCumulativePrecipitationTrendChart(selectedRegions, baseline) {
         })
         .join("")}
       ${MONTH_LABELS.map((month, index) => {
-        const x = margin.left + stepX * index;
+        const x = plotLeft + stepX * index;
         const tickY = margin.top + chartHeight;
         return `
           <line x1="${x}" y1="${tickY}" x2="${x}" y2="${tickY + 7}" stroke="${COLORS.grid}" />
@@ -3720,14 +4232,648 @@ function renderCumulativePrecipitationTrendChart(selectedRegions, baseline) {
           </text>
         `;
       }).join("")}
-      <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
-      <line x1="${width - margin.right}" y1="${margin.top}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
-      <line x1="${margin.left}" y1="${margin.top + chartHeight}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
-      <line x1="${margin.left}" y1="${zeroY}" x2="${width - margin.right}" y2="${zeroY}" stroke="${COLORS.zero}" stroke-width="1.4" />
+      <line x1="${plotLeft}" y1="${margin.top}" x2="${plotLeft}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotRight}" y1="${margin.top}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${margin.top + chartHeight}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${zeroY}" x2="${plotRight}" y2="${zeroY}" stroke="${COLORS.zero}" stroke-width="1.4" />
       ${cumulativeSeries
         .map((series, index) =>
-          renderTrendSeriesLine(series, index, margin, stepX, axis.yMin, axis.yMax, margin.top + chartHeight, COLORS.rain)
+          renderTrendSeriesLine(
+            series,
+            index,
+            { ...margin, left: plotLeft },
+            stepX,
+            axis.yMin,
+            axis.yMax,
+            margin.top + chartHeight,
+            COLORS.rain
+          )
         )
+        .join("")}
+      <text x="${margin.left}" y="12" font-size="11" fill="${COLORS.rain}" font-weight="700">(mm)</text>
+    </svg>
+  `;
+}
+
+function renderActualTemperaturePanelChart(rows, options = {}) {
+  const width = 430;
+  const height = 308;
+  const margin = { top: 24, right: 20, bottom: 72, left: 54 };
+  const horizontalPadding = 14;
+  const examStyle = options.examStyle === true;
+  const plotLeft = examStyle ? margin.left : margin.left + horizontalPadding;
+  const plotRight = examStyle ? width - margin.right : width - margin.right - horizontalPadding;
+  const chartWidth = plotRight - plotLeft;
+  const chartHeight = height - margin.top - margin.bottom;
+  const values = rows.map((row) => row.temperature);
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const span = Math.max(maximum - minimum, 1);
+  const step = pickTemperatureStep(span);
+  const yMin = niceFloor(minimum - step, step);
+  const yMax = niceCeil(maximum + step, step);
+  const tickValues = buildTrendTicks(yMin, yMax, step);
+  const stepX = examStyle
+    ? chartWidth / Math.max(rows.length, 1)
+    : rows.length > 1
+      ? chartWidth / Math.max(rows.length - 1, 1)
+      : 0;
+
+  const points = rows.map((row, index) => {
+    const x = examStyle
+      ? plotLeft + stepX * index + stepX / 2
+      : rows.length > 1
+        ? plotLeft + stepX * index
+        : (plotLeft + plotRight) / 2;
+    const y = scaleY(row.temperature, yMin, yMax, margin.top, margin.top + chartHeight);
+    return {
+      x,
+      y,
+      name: row.name,
+    };
+  });
+  const linePoints = points.map((point) => `${point.x},${point.y}`).join(" ");
+  const zeroY =
+    yMin < 0 && yMax > 0 ? scaleY(0, yMin, yMax, margin.top, margin.top + chartHeight) : null;
+
+  return `
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 평균 기온 그래프">
+      <rect
+        x="${plotLeft}"
+        y="${margin.top}"
+        width="${chartWidth}"
+        height="${chartHeight}"
+        fill="${COLORS.white}"
+        stroke="${COLORS.gridSoft}"
+      />
+      ${tickValues
+        .map((tick) => {
+          const y = scaleY(tick, yMin, yMax, margin.top, margin.top + chartHeight);
+          return `
+            <line
+              x1="${plotLeft}"
+              y1="${y}"
+              x2="${plotRight}"
+              y2="${y}"
+              stroke="${zeroY !== null && tick === 0 ? COLORS.zero : COLORS.grid}"
+              stroke-width="${zeroY !== null && tick === 0 ? 1.6 : 1}"
+              stroke-dasharray="${zeroY !== null && tick === 0 ? "" : "4 5"}"
+            />
+            <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="${COLORS.ink}">
+              ${formatPlainNumber(tick)}
+            </text>
+          `;
+        })
+        .join("")}
+      ${points
+        .map((point, index) => {
+          const x = point.x;
+          const tickY = margin.top + chartHeight;
+          return `
+            <line x1="${x}" y1="${tickY}" y2="${tickY + 7}" x2="${x}" stroke="${COLORS.grid}" />
+            ${renderSvgAxisLabel(x, height - 26, point.name, 6)}
+          `;
+        })
+        .join("")}
+      <line x1="${plotLeft}" y1="${margin.top}" x2="${plotLeft}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotRight}" y1="${margin.top}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${margin.top + chartHeight}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      ${examStyle
+        ? ""
+        : `
+          <polyline
+            fill="none"
+            stroke="${COLORS.temperature}"
+            stroke-width="2"
+            points="${linePoints}"
+          />
+        `}
+      ${points.map((point) => `
+        <circle cx="${point.x}" cy="${point.y}" r="${examStyle ? 6.4 : 3.6}" fill="${examStyle ? COLORS.zero : COLORS.temperature}" />
+      `).join("")}
+      <text x="${margin.left}" y="12" font-size="11" fill="${COLORS.temperature}" font-weight="700">(°C)</text>
+    </svg>
+  `;
+}
+
+function renderMonthlyTemperatureActualTrendChart(
+  selectedRegions,
+  monthIndexes = COMPARISON_MONTHS,
+  valueAccessor = (region, monthIndex) => region.monthlyTemperatureC[monthIndex],
+  options = {}
+) {
+  const width = 520;
+  const height = 286;
+  const margin = { top: 18, right: 38, bottom: 36, left: 46 };
+  const horizontalPadding = Number.isFinite(options.horizontalPadding) ? options.horizontalPadding : 18;
+  const pointPadding = Number.isFinite(options.pointPadding) ? options.pointPadding : 0;
+  const showLine = options.showLine !== false;
+  const plotLeft = margin.left + horizontalPadding;
+  const plotRight = width - margin.right - horizontalPadding;
+  const chartWidth = plotRight - plotLeft;
+  const chartHeight = height - margin.top - margin.bottom;
+  const focusMonthIndexes = monthIndexes;
+  const focusMonthLabels = focusMonthIndexes.map((index) => MONTH_LABELS[index].replace("월", ""));
+  const pointRangeWidth = Math.max(chartWidth - pointPadding * 2, 0);
+  const stepX = pointRangeWidth / Math.max(focusMonthLabels.length - 1, 1);
+  const pointPlotLeft = plotLeft + pointPadding;
+  const series = selectedRegions.map((region) => ({
+    name: region.name,
+    values: focusMonthIndexes.map((monthIndex) => valueAccessor(region, monthIndex)),
+  }));
+  const values = series.flatMap((item) => item.values);
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const span = Math.max(maximum - minimum, 1);
+  const step = pickTemperatureStep(span);
+  const yMin = niceFloor(minimum - step, step);
+  const yMax = niceCeil(maximum + step, step);
+  const tickValues = buildTrendTicks(yMin, yMax, step);
+
+  return `
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 월별 평균 기온 그래프">
+      <rect
+        x="${plotLeft}"
+        y="${margin.top}"
+        width="${chartWidth}"
+        height="${chartHeight}"
+        fill="${COLORS.white}"
+        stroke="${COLORS.gridSoft}"
+      />
+      ${tickValues
+        .map((tick) => {
+          const y = scaleY(tick, yMin, yMax, margin.top, margin.top + chartHeight);
+            return `
+            <line
+              x1="${plotLeft}"
+              y1="${y}"
+              x2="${plotRight}"
+              y2="${y}"
+              stroke="${tick === 0 ? COLORS.zero : COLORS.grid}"
+              stroke-width="${tick === 0 ? 1.5 : 1}"
+            />
+            <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="${COLORS.ink}">
+              ${formatSignedPlain(tick)}
+            </text>
+          `;
+        })
+        .join("")}
+      ${focusMonthLabels.map((tickLabel, tickIndex) => {
+        const x = pointPlotLeft + stepX * tickIndex;
+        const tickY = margin.top + chartHeight;
+        return `
+          <line x1="${x}" y1="${tickY}" y2="${tickY + 7}" x2="${x}" stroke="${COLORS.grid}" />
+          <text x="${x}" y="${height - 12}" text-anchor="middle" font-size="11" fill="${COLORS.ink}">
+            ${escapeHtml(tickLabel)}
+          </text>
+        `;
+      }).join("")}
+      <line x1="${plotRight}" y1="${margin.top}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${margin.top + chartHeight}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      ${series
+        .map((item, index) => {
+          const style = COMPARISON_LINE_STYLES[index % COMPARISON_LINE_STYLES.length];
+          const points = item.values.map((value, pointIndex) => {
+            const x = pointPlotLeft + stepX * pointIndex;
+            const y = scaleY(value, yMin, yMax, margin.top, margin.top + chartHeight);
+            return { x, y };
+          });
+          const linePoints = points.map((point) => `${point.x},${point.y}`).join(" ");
+          return `
+            ${showLine ? `
+              <polyline
+                fill="none"
+                stroke="${COLORS.temperature}"
+                stroke-width="2"
+                stroke-dasharray="${style.dasharray || ""}"
+                points="${linePoints}"
+              />
+            ` : ""}
+            ${points
+              .map((point) => `
+                ${renderTrendMarker(point.x, point.y, style.marker, COLORS.temperature)}
+              `)
+              .join("")}
+          `;
+        })
+        .join("")}
+      <text x="${margin.left}" y="12" font-size="11" fill="${COLORS.temperature}" font-weight="700">(°C)</text>
+    </svg>
+  `;
+}
+
+function renderCumulativePrecipitationActualTrendChart(
+  selectedRegions,
+  monthIndexes = COMPARISON_MONTHS,
+  valueAccessor = (region, monthIndex) => cumulativePrecipitationValues(region)[monthIndex],
+  options = {}
+) {
+  const width = 520;
+  const height = 286;
+  const margin = { top: 18, right: 38, bottom: 36, left: 50 };
+  const horizontalPadding = Number.isFinite(options.horizontalPadding) ? options.horizontalPadding : 18;
+  const pointPadding = Number.isFinite(options.pointPadding) ? options.pointPadding : 0;
+  const showLine = options.showLine !== false;
+  const plotLeft = margin.left + horizontalPadding;
+  const plotRight = width - margin.right - horizontalPadding;
+  const chartWidth = plotRight - plotLeft;
+  const chartHeight = height - margin.top - margin.bottom;
+  const focusMonthIndexes = monthIndexes;
+  const focusMonthLabels = focusMonthIndexes.map((index) => MONTH_LABELS[index].replace("월", ""));
+  const pointRangeWidth = Math.max(chartWidth - pointPadding * 2, 0);
+  const stepX = pointRangeWidth / Math.max(focusMonthLabels.length - 1, 1);
+  const pointPlotLeft = plotLeft + pointPadding;
+  const series = selectedRegions.map((region) => ({
+    name: region.name,
+    values: focusMonthIndexes.map((monthIndex) => valueAccessor(region, monthIndex)),
+  }));
+  const values = series.flatMap((item) => item.values);
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const step = pickPrecipitationStep(Math.max(maximum, 1));
+  const yMin = Math.min(0, niceFloor(minimum - step, step));
+  const yMax = niceCeil(maximum + step, step);
+  const tickValues = buildTrendTicks(yMin, yMax, step);
+
+  return `
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 월별 누적 강수량 그래프">
+      <rect
+        x="${plotLeft}"
+        y="${margin.top}"
+        width="${chartWidth}"
+        height="${chartHeight}"
+        fill="${COLORS.white}"
+        stroke="${COLORS.gridSoft}"
+      />
+      ${tickValues
+        .map((tick) => {
+          const y = scaleY(tick, yMin, yMax, margin.top, margin.top + chartHeight);
+            return `
+            <line
+              x1="${plotLeft}"
+              y1="${y}"
+              x2="${plotRight}"
+              y2="${y}"
+              stroke="${tick === 0 ? COLORS.zero : COLORS.grid}"
+              stroke-width="${tick === 0 ? 1.5 : 1}"
+            />
+            <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="${COLORS.ink}">
+              ${formatSignedPlain(tick)}
+            </text>
+          `;
+        })
+        .join("")}
+      ${focusMonthLabels.map((monthLabel, monthIndex) => {
+        const x = pointPlotLeft + stepX * monthIndex;
+        const tickY = margin.top + chartHeight;
+        return `
+          <line x1="${x}" y1="${tickY}" y2="${tickY + 7}" x2="${x}" stroke="${COLORS.grid}" />
+          <text x="${x}" y="${height - 12}" text-anchor="middle" font-size="11" fill="${COLORS.ink}">
+            ${escapeHtml(monthLabel)}
+          </text>
+        `;
+      }).join("")}
+      <line x1="${plotLeft}" y1="${margin.top}" x2="${plotLeft}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotRight}" y1="${margin.top}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${margin.top + chartHeight}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      ${series
+        .map((item, index) => {
+          const style = COMPARISON_LINE_STYLES[index % COMPARISON_LINE_STYLES.length];
+          const points = item.values.map((value, pointIndex) => {
+            const x = pointPlotLeft + stepX * pointIndex;
+            const y = scaleY(value, yMin, yMax, margin.top, margin.top + chartHeight);
+            return `${x},${y}`;
+          });
+          return `
+            ${showLine ? `
+            <polyline
+              fill="none"
+              stroke="${COLORS.rain}"
+                stroke-width="2"
+                stroke-dasharray="${style.dasharray || ""}"
+                points="${points.join(" ")}"
+              />
+            ` : ""}
+            ${item.values
+            .map((value, pointIndex) => {
+                const x = pointPlotLeft + stepX * pointIndex;
+                const y = scaleY(value, yMin, yMax, margin.top, margin.top + chartHeight);
+                return renderTrendMarker(x, y, style.marker, COLORS.rain);
+              })
+              .join("")}
+          `;
+        })
+        .join("")}
+      <text x="${margin.left}" y="12" font-size="11" fill="${COLORS.rain}" font-weight="700">(mm)</text>
+    </svg>
+  `;
+}
+
+function renderActualCumulativePrecipitationPanelChart(rows) {
+  const width = 430;
+  const height = 308;
+  const margin = { top: 24, right: 20, bottom: 72, left: 56 };
+  const horizontalPadding = 14;
+  const plotLeft = margin.left + horizontalPadding;
+  const plotRight = width - margin.right - horizontalPadding;
+  const chartWidth = plotRight - plotLeft;
+  const chartHeight = height - margin.top - margin.bottom;
+  const values = rows.map((row) => row.cumulativePrecipitation);
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const step = pickPrecipitationStep(Math.max(maximum, 1));
+  const yMin = Math.min(0, niceFloor(minimum - step, step));
+  const yMax = niceCeil(maximum + step, step);
+  const tickValues = buildTrendTicks(yMin, yMax, step);
+  const stepX = rows.length > 1 ? chartWidth / Math.max(rows.length - 1, 1) : 0;
+
+  const points = rows.map((row, index) => {
+    const x = rows.length > 1 ? plotLeft + stepX * index : (plotLeft + plotRight) / 2;
+    const y = scaleY(row.cumulativePrecipitation, yMin, yMax, margin.top, margin.top + chartHeight);
+    return {
+      x,
+      y,
+      name: row.name,
+    };
+  });
+  const linePoints = points.map((point) => `${point.x},${point.y}`).join(" ");
+
+  return `
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 누적 강수량 그래프">
+      <rect
+        x="${plotLeft}"
+        y="${margin.top}"
+        width="${chartWidth}"
+        height="${chartHeight}"
+        fill="${COLORS.white}"
+        stroke="${COLORS.gridSoft}"
+      />
+      ${tickValues
+        .map((tick) => {
+          const y = scaleY(tick, yMin, yMax, margin.top, margin.top + chartHeight);
+            return `
+            <line
+              x1="${plotLeft}"
+              y1="${y}"
+              x2="${plotRight}"
+              y2="${y}"
+              stroke="${COLORS.grid}"
+              stroke-width="1"
+              stroke-dasharray="4 5"
+            />
+            <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="${COLORS.ink}">
+              ${formatPlainNumber(tick)}
+            </text>
+          `;
+        })
+        .join("")}
+      ${examStyle
+        ? ""
+        : points
+            .map((point) => {
+              const x = point.x;
+              const tickY = margin.top + chartHeight;
+              return `
+                <line x1="${x}" y1="${tickY}" y2="${tickY + 7}" x2="${x}" stroke="${COLORS.grid}" />
+                ${renderSvgAxisLabel(x, height - 26, point.name, 6)}
+              `;
+            })
+            .join("")}
+      <line x1="${plotRight}" y1="${margin.top}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${margin.top + chartHeight}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <polyline
+        fill="none"
+        stroke="${COLORS.rain}"
+        stroke-width="2"
+        points="${linePoints}"
+      />
+      ${points.map((point) => `
+        <circle cx="${point.x}" cy="${point.y}" r="3.6" fill="${COLORS.rain}" />
+      `).join("")}
+      <text x="${margin.left}" y="12" font-size="11" fill="${COLORS.rain}" font-weight="700">(mm)</text>
+    </svg>
+  `;
+}
+
+function renderActualPrecipitationPanelChart(rows, options = {}) {
+  const width = 430;
+  const height = 308;
+  const margin = { top: 24, right: 20, bottom: 72, left: 56 };
+  const horizontalPadding = 14;
+  const examStyle = options.examStyle === true;
+  const plotLeft = examStyle ? margin.left : margin.left + horizontalPadding;
+  const plotRight = examStyle ? width - margin.right : width - margin.right - horizontalPadding;
+  const chartWidth = plotRight - plotLeft;
+  const chartHeight = height - margin.top - margin.bottom;
+  const values = rows.map((row) => row.precipitation);
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const step = pickPrecipitationStep(Math.max(maximum, 1));
+  const yMin = Math.min(0, niceFloor(minimum - step, step));
+  const yMax = niceCeil(maximum + step, step);
+  const tickValues = buildTrendTicks(yMin, yMax, step);
+  const stepX = examStyle
+    ? chartWidth / Math.max(rows.length, 1)
+    : rows.length > 1
+      ? chartWidth / Math.max(rows.length - 1, 1)
+      : 0;
+  const barWidth = stepX * 0.48;
+  const zeroY = scaleY(0, yMin, yMax, margin.top, margin.top + chartHeight);
+
+  const points = rows.map((row, index) => {
+    const x = examStyle
+      ? plotLeft + stepX * index + stepX / 2
+      : rows.length > 1
+        ? plotLeft + stepX * index
+        : (plotLeft + plotRight) / 2;
+    const y = scaleY(row.precipitation, yMin, yMax, margin.top, margin.top + chartHeight);
+    return {
+      x,
+      y,
+      name: row.name,
+    };
+  });
+  const linePoints = points.map((point) => `${point.x},${point.y}`).join(" ");
+  const bars = rows
+    .map((row, index) => {
+      const centerX = plotLeft + stepX * index + stepX / 2;
+      const x = centerX - barWidth / 2;
+      const y = scaleY(row.precipitation, yMin, yMax, margin.top, margin.top + chartHeight);
+      const rectY = Math.min(y, zeroY);
+      const rectHeight = Math.abs(zeroY - y);
+      return `
+        <rect
+          x="${x}"
+          y="${rectY}"
+          width="${barWidth}"
+          height="${rectHeight}"
+          fill="${COLORS.barNeutral}"
+          stroke="${COLORS.ink}"
+          stroke-width="1.2"
+        />
+        ${renderSvgAxisLabel(centerX, height - 26, row.name, 6)}
+      `;
+    })
+    .join("");
+
+  return `
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 강수량 그래프">
+      <rect
+        x="${plotLeft}"
+        y="${margin.top}"
+        width="${chartWidth}"
+        height="${chartHeight}"
+        fill="${COLORS.white}"
+        stroke="${COLORS.gridSoft}"
+      />
+      ${tickValues
+        .map((tick) => {
+          const y = scaleY(tick, yMin, yMax, margin.top, margin.top + chartHeight);
+          return `
+            <line
+              x1="${plotLeft}"
+              y1="${y}"
+              x2="${plotRight}"
+              y2="${y}"
+              stroke="${COLORS.grid}"
+              stroke-width="1"
+              stroke-dasharray="4 5"
+            />
+            <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="${COLORS.ink}">
+              ${formatPlainNumber(tick)}
+            </text>
+          `;
+        })
+        .join("")}
+      ${examStyle
+        ? ""
+        : points
+            .map((point) => {
+              const x = point.x;
+              const tickY = margin.top + chartHeight;
+              return `
+                <line x1="${x}" y1="${tickY}" y2="${tickY + 7}" x2="${x}" stroke="${COLORS.grid}" />
+                ${renderSvgAxisLabel(x, height - 26, point.name, 6)}
+              `;
+            })
+            .join("")}
+      <line x1="${plotLeft}" y1="${margin.top}" x2="${plotLeft}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotRight}" y1="${margin.top}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${margin.top + chartHeight}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      ${examStyle
+        ? bars
+        : `
+          <polyline
+            fill="none"
+            stroke="${COLORS.rain}"
+            stroke-width="2"
+            points="${linePoints}"
+          />
+          ${points.map((point) => `
+            <circle cx="${point.x}" cy="${point.y}" r="3.6" fill="${COLORS.rain}" />
+          `).join("")}
+        `}
+      <text x="${margin.left}" y="12" font-size="11" fill="${COLORS.rain}" font-weight="700">(mm)</text>
+    </svg>
+  `;
+}
+
+function renderJanJulyRainfallPanelChart(selectedRegions) {
+  const options = {
+    showLine: false,
+    horizontalPadding: 22,
+  };
+  const width = 430;
+  const height = 308;
+  const margin = { top: 24, right: 20, bottom: 72, left: 56 };
+  const horizontalPadding = Number.isFinite(options.horizontalPadding) ? options.horizontalPadding : 14;
+  const showLine = options.showLine !== false;
+  const plotLeft = margin.left + horizontalPadding;
+  const plotRight = width - margin.right - horizontalPadding;
+  const chartWidth = plotRight - plotLeft;
+  const chartHeight = height - margin.top - margin.bottom;
+  const focusMonthIndexes = [0, 6];
+  const focusMonthLabels = focusMonthIndexes.map((monthIndex) => MONTH_LABELS[monthIndex].replace("월", ""));
+  const series = selectedRegions.map((region) => ({
+    name: region.name,
+    values: focusMonthIndexes.map((monthIndex) => region.monthlyPrecipitationMm[monthIndex]),
+  }));
+  const values = series.flatMap((item) => item.values);
+  const minimum = Math.min(...values);
+  const maximum = Math.max(...values);
+  const step = pickPrecipitationStep(Math.max(maximum, 1));
+  const yMin = Math.max(0, niceFloor(minimum - step, step));
+  const yMax = niceCeil(maximum + step, step);
+  const tickValues = buildTrendTicks(yMin, yMax, step);
+  const stepX = chartWidth > 0 ? chartWidth / Math.max(focusMonthIndexes.length - 1, 1) : 0;
+
+  return `
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 1월·7월 강수량 그래프">
+      <rect
+        x="${plotLeft}"
+        y="${margin.top}"
+        width="${chartWidth}"
+        height="${chartHeight}"
+        fill="${COLORS.white}"
+        stroke="${COLORS.gridSoft}"
+      />
+      ${tickValues
+        .map((tick) => {
+          const y = scaleY(tick, yMin, yMax, margin.top, margin.top + chartHeight);
+          return `
+            <line
+              x1="${plotLeft}"
+              y1="${y}"
+              x2="${plotRight}"
+              y2="${y}"
+              stroke="${COLORS.grid}"
+              stroke-width="1"
+              stroke-dasharray="4 5"
+            />
+            <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="${COLORS.ink}">
+              ${formatSignedPlain(tick)}
+            </text>
+          `;
+        })
+        .join("")}
+      ${focusMonthLabels.map((monthLabel, monthIndex) => {
+        const x = plotLeft + stepX * monthIndex;
+        const tickY = margin.top + chartHeight;
+        return `
+          <line x1="${x}" y1="${tickY}" y2="${tickY + 7}" x2="${x}" stroke="${COLORS.grid}" />
+          <text x="${x}" y="${height - 12}" text-anchor="middle" font-size="11" fill="${COLORS.ink}">
+            ${escapeHtml(monthLabel)}
+          </text>
+        `;
+      }).join("")}
+      <line x1="${plotLeft}" y1="${margin.top}" x2="${plotLeft}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotRight}" y1="${margin.top}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      <line x1="${plotLeft}" y1="${margin.top + chartHeight}" x2="${plotRight}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
+      ${series
+        .map((item) => {
+          const points = item.values.map((value, pointIndex) => {
+            const x = plotLeft + stepX * pointIndex;
+            const y = scaleY(value, yMin, yMax, margin.top, margin.top + chartHeight);
+            return `${x},${y}`;
+          });
+          return `
+            ${showLine ? `
+              <polyline
+                fill="none"
+                stroke="${COLORS.rain}"
+                stroke-width="2"
+                points="${points.join(" ")}"
+              />
+            ` : ""}
+            ${item.values
+              .map((value, pointIndex) => {
+                const x = plotLeft + stepX * pointIndex;
+                const y = scaleY(value, yMin, yMax, margin.top, margin.top + chartHeight);
+                return `<circle cx="${x}" cy="${y}" r="3.6" fill="${COLORS.rain}" />`;
+              })
+              .join("")}
+          `;
+        })
         .join("")}
       <text x="${margin.left}" y="12" font-size="11" fill="${COLORS.rain}" font-weight="700">(mm)</text>
     </svg>

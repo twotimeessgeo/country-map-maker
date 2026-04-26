@@ -24,7 +24,6 @@
       <nav class="app-context-bar" aria-label="Promenade Geography">
         <a class="app-context-brand" href="../../index.html" aria-label="Promenade Geography home">
           <span>Promenade</span>
-          <strong>Geography</strong>
         </a>
         <details class="app-context-menu">
           <summary>
@@ -56,13 +55,13 @@
       </header>
 
       <nav class="tw-switch cut-tool-tabs" aria-label="컷 도구 선택">
-        <button class="tw-switch-item is-active" type="button" data-tool-tab="predict">컷 예측</button>
-        <button class="tw-switch-item" type="button" data-tool-tab="questions">기출 검색</button>
+        <button class="tw-switch-item is-active" type="button" data-tool-tab="questions">기출 검색</button>
+        <button class="tw-switch-item" type="button" data-tool-tab="predict">컷 예측</button>
         <button class="tw-switch-item" type="button" data-tool-tab="solutions">CSV 해설</button>
       </nav>
 
       <main class="cut-tool-stack">
-        <section class="cut-tab-panel" data-tool-panel="predict">
+        <section class="cut-tab-panel" data-tool-panel="predict" hidden>
           <div class="cut-predict-layout">
             <section class="tw-panel cut-workbench" aria-labelledby="cutTitle">
               <div class="tw-section-heading compact">
@@ -86,7 +85,7 @@
                     <span>입력값</span>
                     <select id="modeSelect" name="mode">
                       <option value="national">전국 정답률</option>
-                      <option value="academy">재종 정답률</option>
+                      <option value="academy">시대인재N 정답률</option>
                     </select>
                   </label>
                   <div class="cut-relation" id="relationText">모델 준비 중</div>
@@ -137,8 +136,8 @@
                 </div>
               </div>
 
-              <div class="cut-result-empty" id="emptyResult">
-                <strong>입력 대기</strong>
+              <div class="cut-result-empty" id="emptyResult" hidden>
+                <strong id="emptyResultText">결과 준비 전</strong>
               </div>
 
               <div class="cut-result" id="resultPanel" hidden>
@@ -175,7 +174,7 @@
                   <summary class="app-collapse-summary">
                     <div>
                       <p class="tw-kicker">RATE CONVERSION</p>
-                      <h3 class="cut-subtitle">문항별 전국·재종 환산</h3>
+                      <h3 class="cut-subtitle">문항별 전국·시대인재N 환산</h3>
                     </div>
                     <span class="app-collapse-label">펼치기</span>
                   </summary>
@@ -186,7 +185,7 @@
           </div>
         </section>
 
-        <section class="cut-tab-panel" data-tool-panel="questions" hidden>
+        <section class="cut-tab-panel" data-tool-panel="questions">
           <section class="tw-panel question-panel" aria-labelledby="questionTitle">
             <div class="tw-section-heading compact">
               <div>
@@ -346,6 +345,10 @@
                 <button class="tw-button" type="button" id="downloadCsvButton" disabled>
                   <i data-lucide="download"></i>
                   <span>CSV 내보내기</span>
+                </button>
+                <button class="tw-button" type="button" id="downloadCsvTemplateButton">
+                  <i data-lucide="file-down"></i>
+                  <span>양식 다운로드</span>
                 </button>
               </div>
             </form>
