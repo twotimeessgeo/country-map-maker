@@ -1131,17 +1131,27 @@ kbd {
 }
 
 .marker-editor {
-  border-radius: 999px;
+  border-color: transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
-.marker-editor--ring,
-.marker-editor--point,
-.marker-editor--filledDot {
-  border-style: solid;
+.marker-editor:hover,
+.marker-editor.is-dragging {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
 }
 
-.marker-editor--filledDot {
-  background: rgba(16, 16, 16, 0.08);
+.marker-editor .annotation-editor__handle {
+  right: -6px;
+  bottom: -6px;
+  width: 13px;
+  height: 13px;
+  background: #ffffff;
+  border: 1px solid #111111;
+  box-shadow: 0 1px 4px rgba(17, 17, 17, 0.16);
 }
 
 .marker-editor--dashedOval {

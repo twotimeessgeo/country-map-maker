@@ -16578,7 +16578,7 @@ function renderMarkerList() {
     const head = document.createElement("div");
     head.className = "annotation-head";
     const title = document.createElement("strong");
-    title.textContent = `${marker.label || "무라벨"} · ${markerStyleLabel(marker.style)}`;
+    title.textContent = markerStyleLabel(marker.style);
     const removeButton = document.createElement("button");
     removeButton.type = "button";
     removeButton.className = "remove-button tw-button";
@@ -16592,16 +16592,6 @@ function renderMarkerList() {
     });
     head.append(title, removeButton);
 
-    const labelInput = document.createElement("input");
-    labelInput.type = "text";
-    labelInput.value = marker.label;
-    labelInput.addEventListener("input", () => {
-      beginHistoryStep("마커 라벨 변경");
-      marker.label = labelInput.value;
-      renderAnnotations();
-      renderMap();
-    });
-
     const styleSelect = buildMarkerStyleSelect(marker.style);
     styleSelect.addEventListener("change", () => {
       beginHistoryStep("마커 스타일 변경");
@@ -16611,8 +16601,9 @@ function renderMarkerList() {
       renderMap();
     });
 
-    const sizeInput = buildNumberInput(marker.size, 2, 140, 1, "마커 크기 변경", (value) => {
-      marker.size = clamp(value, 2, 140);
+    const sizeRange = getMarkerSizeRange(marker.style);
+    const sizeInput = buildNumberInput(marker.size, sizeRange.min, sizeRange.max, 1, "마커 크기 변경", (value) => {
+      marker.size = clampMarkerSize(marker, value);
       renderMap();
     });
 
@@ -16626,26 +16617,13 @@ function renderMarkerList() {
       renderMap();
     });
 
-    const offsetXInput = buildNumberInput(marker.offsetX, -320, 320, 1, "마커 라벨 위치 변경", (value) => {
-      marker.offsetX = clamp(value, -320, 320);
-      renderMap();
-    });
-
-    const offsetYInput = buildNumberInput(marker.offsetY, -320, 320, 1, "마커 라벨 위치 변경", (value) => {
-      marker.offsetY = clamp(value, -320, 320);
-      renderMap();
-    });
-
     const fieldGrid = document.createElement("div");
     fieldGrid.className = "annotation-grid";
     fieldGrid.append(
-      createField("라벨", labelInput),
       createField("스타일", styleSelect),
       createField("크기", sizeInput),
       createField("세로비", aspectInput),
       createField("회전", rotationInput),
-      createField("라벨 X", offsetXInput),
-      createField("라벨 Y", offsetYInput),
     );
 
     const meta = document.createElement("div");
@@ -18564,45 +18542,21 @@ function renderMarkerLayer(root, projection) {
       return;
     }
 
-    const markerGroup = group.append("g").attr("class", `marker marker--${marker.style}`);
-    const labelPoint = {
-      x: point.x + marker.offsetX,
-      y: point.y + marker.offsetY,
-    };
-
-    drawMarkerShape(markerGroup, marker, point);
-
-    if (marker.label.trim()) {
-      const leaderStart = projectLeaderAnchor(point, labelPoint, marker);
-      markerGroup
-        .append("path")
-        .attr("d", `M ${leaderStart.x} ${leaderStart.y} L ${labelPoint.x} ${labelPoint.y}`)
-        .attr("fill", "none")
-        .attr("stroke", state.borderColor)
-        .attr("stroke-width", OUTLINE_STROKE_WIDTH)
-        .attr("vector-effect", "non-scaling-stroke");
-
-      appendMapLabel(markerGroup, {
-        x: labelPoint.x + (marker.offsetX >= 0 ? 6 : -6),
-        y: labelPoint.y + 3,
-        text: marker.label.trim(),
-        anchor: marker.offsetX >= 0 ? "start" : "end",
-        fill: state.borderColor,
-      });
-    }
+    drawMarkerShape(group.append("g").attr("class", `marker marker--${marker.style}`), marker, point);
   });
 }
 
 function drawMarkerShape(group, marker, point) {
   const strokeWidth = marker.style === "filledDot" ? 0 : OUTLINE_STROKE_WIDTH;
+  const scale = getMarkerRenderScale(marker);
 
   if (marker.style === "ring") {
     group
       .append("circle")
       .attr("cx", point.x)
       .attr("cy", point.y)
-      .attr("r", Math.max(7, marker.size))
-      .attr("fill", "#ffffff")
+      .attr("r", Math.max(7, marker.size * scale))
+      .attr("fill", "none")
       .attr("stroke", state.borderColor)
       .attr("stroke-width", strokeWidth)
       .attr("vector-effect", "non-scaling-stroke");
@@ -18614,8 +18568,8 @@ function drawMarkerShape(group, marker, point) {
       .append("ellipse")
       .attr("cx", point.x)
       .attr("cy", point.y)
-      .attr("rx", Math.max(9, marker.size))
-      .attr("ry", Math.max(7, marker.size * marker.aspect))
+      .attr("rx", Math.max(9, marker.size * scale))
+      .attr("ry", Math.max(7, marker.size * marker.aspect * scale))
       .attr("fill", "none")
       .attr("stroke", state.borderColor)
       .attr("stroke-width", OUTLINE_STROKE_WIDTH)
@@ -18630,8 +18584,8 @@ function drawMarkerShape(group, marker, point) {
       .append("circle")
       .attr("cx", point.x)
       .attr("cy", point.y)
-      .attr("r", Math.max(4.5, marker.size * 0.62))
-      .attr("fill", "#ffffff")
+      .attr("r", Math.max(4.5, marker.size * 0.62 * scale))
+      .attr("fill", "none")
       .attr("stroke", state.borderColor)
       .attr("stroke-width", OUTLINE_STROKE_WIDTH)
       .attr("vector-effect", "non-scaling-stroke");
@@ -18642,28 +18596,23 @@ function drawMarkerShape(group, marker, point) {
     .append("circle")
     .attr("cx", point.x)
     .attr("cy", point.y)
-    .attr("r", Math.max(2.8, marker.size))
+    .attr("r", clampMarkerSize(marker, marker.size))
     .attr("fill", state.borderColor)
     .attr("stroke", "none");
 }
 
-function projectLeaderAnchor(origin, labelPoint, marker) {
-  const deltaX = labelPoint.x - origin.x;
-  const deltaY = labelPoint.y - origin.y;
-  const distance = Math.hypot(deltaX, deltaY) || 1;
-  const unitX = deltaX / distance;
-  const unitY = deltaY / distance;
-  const radius =
-    marker.style === "dashedOval"
-      ? Math.max(marker.size, marker.size * marker.aspect, 10)
-      : marker.style === "filledDot"
-        ? Math.max(2.8, marker.size)
-        : Math.max(6, marker.size);
+function getMarkerRenderScale(marker) {
+  if (marker.style === "filledDot") {
+    return 1;
+  }
 
-  return {
-    x: origin.x + unitX * radius,
-    y: origin.y + unitY * radius,
-  };
+  const anchorZoom = Number(marker.viewZoom);
+  if (!Number.isFinite(anchorZoom) || anchorZoom <= 0) {
+    marker.viewZoom = state.viewZoom;
+    return 1;
+  }
+
+  return clamp(state.viewZoom / anchorZoom, 0.18, 8);
 }
 
 function renderInsetLayer(root, defs, mainProjection, selectedColorById, options = {}) {
@@ -19929,11 +19878,6 @@ function mountMarkerEditor(editorLayer, shell, marker) {
   editor.className = `annotation-editor marker-editor marker-editor--${marker.style}`;
   editor.title = "드래그해 마커 위치 이동";
 
-  const tag = document.createElement("span");
-  tag.className = "annotation-editor__tag";
-  tag.textContent = marker.label || markerStyleLabel(marker.style);
-  editor.appendChild(tag);
-
   const handle = document.createElement("button");
   handle.type = "button";
   handle.className = "annotation-editor__handle";
@@ -20105,8 +20049,9 @@ function startMarkerEditorResize(event, shell, marker, editor) {
     const deltaY = (moveEvent.clientY - startY) / (currentPreviewScale || 1);
 
     if (marker.style === "dashedOval") {
-      const width = clamp(startSize * 2 + deltaX * 2, 18, 320);
-      const height = clamp(startSize * startAspect * 2 + deltaY * 2, 14, 320);
+      const markerScale = getMarkerRenderScale(marker);
+      const width = clamp((startSize * markerScale * 2 + deltaX * 2) / markerScale, 18, 320);
+      const height = clamp((startSize * startAspect * markerScale * 2 + deltaY * 2) / markerScale, 14, 320);
       const previewMarker = {
         ...marker,
         size: width / 2,
@@ -20116,7 +20061,8 @@ function startMarkerEditorResize(event, shell, marker, editor) {
       return;
     }
 
-    const nextSize = clamp(startSize + getUniformResizeDelta(deltaX, deltaY), 4, 180);
+    const markerScale = getMarkerRenderScale(marker);
+    const nextSize = clampMarkerSize(marker, startSize + getUniformResizeDelta(deltaX, deltaY) / markerScale);
     positionEditorFrame(editor, buildMarkerEditorFrame(startPoint, { ...marker, size: nextSize }));
   };
 
@@ -20130,12 +20076,14 @@ function startMarkerEditorResize(event, shell, marker, editor) {
     const deltaY = (upEvent.clientY - startY) / (currentPreviewScale || 1);
     beginHistoryStep("마커 크기 변경");
     if (marker.style === "dashedOval") {
-      const width = clamp(startSize * 2 + deltaX * 2, 18, 320);
-      const height = clamp(startSize * startAspect * 2 + deltaY * 2, 14, 320);
+      const markerScale = getMarkerRenderScale(marker);
+      const width = clamp((startSize * markerScale * 2 + deltaX * 2) / markerScale, 18, 320);
+      const height = clamp((startSize * startAspect * markerScale * 2 + deltaY * 2) / markerScale, 14, 320);
       marker.size = width / 2;
       marker.aspect = clamp(height / Math.max(width, 1), 0.2, 3);
     } else {
-      marker.size = clamp(startSize + getUniformResizeDelta(deltaX, deltaY), 4, 180);
+      const markerScale = getMarkerRenderScale(marker);
+      marker.size = clampMarkerSize(marker, startSize + getUniformResizeDelta(deltaX, deltaY) / markerScale);
     }
     renderAnnotations();
     renderMap();
@@ -20158,9 +20106,11 @@ function positionEditorFrame(editor, frame) {
 }
 
 function buildMarkerEditorFrame(point, marker) {
-  const padding = 12;
-  const radiusX = marker.style === "dashedOval" ? Math.max(9, marker.size) : getMarkerVisualRadius(marker);
-  const radiusY = marker.style === "dashedOval" ? Math.max(7, marker.size * marker.aspect) : getMarkerVisualRadius(marker);
+  const padding = marker.style === "filledDot" ? 10 : 12;
+  const scale = getMarkerRenderScale(marker);
+  const radiusX = marker.style === "dashedOval" ? Math.max(9, marker.size * scale) : getMarkerVisualRadius(marker);
+  const radiusY =
+    marker.style === "dashedOval" ? Math.max(7, marker.size * marker.aspect * scale) : getMarkerVisualRadius(marker);
   return {
     x: point.x - radiusX - padding,
     y: point.y - radiusY - padding,
@@ -20171,15 +20121,15 @@ function buildMarkerEditorFrame(point, marker) {
 
 function getMarkerVisualRadius(marker) {
   if (marker.style === "ring") {
-    return Math.max(7, marker.size);
+    return Math.max(7, marker.size * getMarkerRenderScale(marker));
   }
   if (marker.style === "point") {
-    return Math.max(4.5, marker.size * 0.62);
+    return Math.max(4.5, marker.size * 0.62 * getMarkerRenderScale(marker));
   }
   if (marker.style === "filledDot") {
-    return Math.max(2.8, marker.size);
+    return clampMarkerSize(marker, marker.size);
   }
-  return Math.max(9, marker.size);
+  return Math.max(9, marker.size * getMarkerRenderScale(marker));
 }
 
 function handleCanvasWheel(event) {
@@ -20195,6 +20145,13 @@ function handleCanvasWheel(event) {
 
   const desiredFactor = Math.pow(2, -event.deltaY / 320);
   const actualFactor = clampPreviewScaleFactor(desiredFactor);
+  if (hasMapAnnotations()) {
+    applyRelativeZoom(actualFactor, point, point, { recordHistory: false });
+    renderMap();
+    setStatus(`보기 ${Math.round(state.viewZoom * 100)}%`);
+    return;
+  }
+
   updatePreviewInteraction(actualFactor, point);
   queuePreviewCommit();
 }
@@ -20221,6 +20178,12 @@ function handleCanvasGestureChange(event) {
   const nextScale = event.scale || 1;
   const factor = clampPreviewScaleFactor(nextScale / (activeGestureScale || 1));
   activeGestureScale = nextScale;
+  if (hasMapAnnotations()) {
+    applyRelativeZoom(factor, point, point, { recordHistory: false });
+    renderMap();
+    return;
+  }
+
   updatePreviewInteraction(factor, point);
   queuePreviewCommit();
 }
@@ -20666,8 +20629,10 @@ function addMarkerFromDrag(startPoint, endPoint) {
   if (state.markerDraftStyle === "dashedOval") {
     marker.size = clamp(rect.width / 2, 9, 180);
     marker.aspect = clamp(rect.height / Math.max(rect.width, 1), 0.2, 3);
+  } else if (state.markerDraftStyle === "filledDot") {
+    marker.size = clampMarkerSize(marker, marker.size);
   } else {
-    marker.size = clamp(Math.max(rect.width, rect.height) / 2, 4, 180);
+    marker.size = clampMarkerSize(marker, Math.max(rect.width, rect.height) / 2);
   }
 
   beginHistoryStep("마커 추가");
@@ -20684,12 +20649,13 @@ function createMarkerData(coordinate) {
     lon: coordinate[0],
     lat: coordinate[1],
     style: state.markerDraftStyle,
-    label: defaults.label === "auto" ? nextAnnotationLabel("marker") : defaults.label,
+    label: defaults.label,
     size: defaults.size,
     aspect: defaults.aspect,
     rotation: defaults.rotation,
     offsetX: defaults.offsetX,
     offsetY: defaults.offsetY,
+    viewZoom: state.viewZoom,
   };
 }
 
@@ -20856,12 +20822,14 @@ function zoomOutOneStep() {
   applyRelativeZoom(1 / 1.6, center, center);
 }
 
-function applyRelativeZoom(factor, sourcePoint, destinationPoint = sourcePoint) {
+function applyRelativeZoom(factor, sourcePoint, destinationPoint = sourcePoint, options = {}) {
   if (!currentRenderContext) {
     return;
   }
 
-  beginHistoryStep("보기 변경");
+  if (options.recordHistory !== false) {
+    beginHistoryStep("보기 변경");
+  }
   const oldZoom = state.viewZoom;
   const newZoom = clampViewZoom(oldZoom * factor);
   const actualFactor = newZoom / oldZoom;
@@ -20886,6 +20854,10 @@ function resetViewWindow() {
   state.viewZoom = 1;
   state.viewOffsetX = 0;
   state.viewOffsetY = 0;
+}
+
+function hasMapAnnotations() {
+  return state.markers.length > 0 || state.insets.length > 0;
 }
 
 function clampViewZoom(value) {
@@ -20928,31 +20900,38 @@ function normalizeRect(startPoint, endPoint) {
 
 function markerDefaults(style) {
   if (style === "dashedOval") {
-    return { label: "auto", size: 24, aspect: 0.62, rotation: 0, offsetX: 44, offsetY: -24 };
+    return { label: "", size: 24, aspect: 0.62, rotation: 0, offsetX: 0, offsetY: 0 };
   }
 
   if (style === "point") {
-    return { label: "auto", size: 10, aspect: 1, rotation: 0, offsetX: 26, offsetY: -18 };
+    return { label: "", size: 10, aspect: 1, rotation: 0, offsetX: 0, offsetY: 0 };
   }
 
   if (style === "filledDot") {
-    return { label: "", size: 4, aspect: 1, rotation: 0, offsetX: 18, offsetY: -18 };
+    return { label: "", size: 4, aspect: 1, rotation: 0, offsetX: 0, offsetY: 0 };
   }
 
-  return { label: "auto", size: 16, aspect: 1, rotation: 0, offsetX: 36, offsetY: -22 };
+  return { label: "", size: 16, aspect: 1, rotation: 0, offsetX: 0, offsetY: 0 };
 }
 
 function applyMarkerDefaultsIfNeeded(marker) {
   const defaults = markerDefaults(marker.style);
-  if (!marker.label.trim() && defaults.label === "auto" && marker.style !== "filledDot") {
-    marker.label = nextAnnotationLabel("marker");
-  }
-
   marker.size = defaults.size;
   marker.aspect = defaults.aspect;
   marker.rotation = defaults.rotation;
   marker.offsetX = defaults.offsetX;
   marker.offsetY = defaults.offsetY;
+  marker.viewZoom = state.viewZoom;
+}
+
+function getMarkerSizeRange(style) {
+  return style === "filledDot" ? { min: 3, max: 5 } : { min: 2, max: 140 };
+}
+
+function clampMarkerSize(markerOrStyle, value) {
+  const style = typeof markerOrStyle === "string" ? markerOrStyle : markerOrStyle?.style;
+  const range = getMarkerSizeRange(style);
+  return clamp(Number(value) || range.min, range.min, range.max);
 }
 
 function markerStyleLabel(style) {
