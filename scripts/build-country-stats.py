@@ -82,6 +82,13 @@ UNHCR_POPULATION_API_URL_TEMPLATE = (
     "?limit={limit}&page={page}&year={year}&{dimension}_all=true"
 )
 
+EXAM_REFERENCE_YEARS = {
+    "agriculture": 2023,
+    "energy": 2023,
+    "populationStructure": 2023,
+    "refugees": 2024,
+}
+
 WORLD_BANK_EXPORT_INDICATORS = {
     "valueCurrentUsd": {
         "indicator_code": "NE.EXP.GNFS.CD",
@@ -171,8 +178,14 @@ WORLD_BANK_MIGRATION_INDICATORS = {
 
 FAOSTAT_PRODUCTION_SERIES = {
     ("Wheat", "Production"): {"section": "crops", "metric": "production", "key": "wheat", "label": "밀"},
+    ("Wheat", "Area harvested"): {"section": "crops", "metric": "areaHarvested", "key": "wheat", "label": "밀"},
+    ("Wheat", "Yield"): {"section": "crops", "metric": "yield", "key": "wheat", "label": "밀"},
     ("Rice", "Production"): {"section": "crops", "metric": "production", "key": "rice", "label": "쌀"},
+    ("Rice", "Area harvested"): {"section": "crops", "metric": "areaHarvested", "key": "rice", "label": "쌀"},
+    ("Rice", "Yield"): {"section": "crops", "metric": "yield", "key": "rice", "label": "쌀"},
     ("Maize (corn)", "Production"): {"section": "crops", "metric": "production", "key": "maize", "label": "옥수수"},
+    ("Maize (corn)", "Area harvested"): {"section": "crops", "metric": "areaHarvested", "key": "maize", "label": "옥수수"},
+    ("Maize (corn)", "Yield"): {"section": "crops", "metric": "yield", "key": "maize", "label": "옥수수"},
     ("Cattle", "Stocks"): {"section": "livestock", "metric": "stocks", "key": "cattle", "label": "소"},
     ("Swine / pigs", "Stocks"): {"section": "livestock", "metric": "stocks", "key": "pigs", "label": "돼지"},
     ("Sheep", "Stocks"): {"section": "livestock", "metric": "stocks", "key": "sheep", "label": "양"},
@@ -325,6 +338,13 @@ def compact_number(value: float | None, digits: int = 2) -> float | int | None:
     if abs(rounded - round(rounded)) < 10 ** (-(digits + 1)):
         return int(round(rounded))
     return rounded
+
+
+def normalize_m49_code(value: str | None) -> str:
+    digits = re.sub(r"\D+", "", value or "")
+    if not digits:
+        return ""
+    return str(int(digits))
 
 
 def fetch_text(url: str, user_agent: str) -> str:
@@ -563,11 +583,19 @@ def fetch_world_bank_indicator_series(indicator_code: str) -> dict[str, dict[int
     return series_by_iso3
 
 
-def get_latest_series_entry(series: dict[int, float] | None, digits: int = 2) -> dict[str, object] | None:
+def get_latest_series_entry(
+    series: dict[int, float] | None,
+    digits: int = 2,
+    max_year: int | None = None,
+) -> dict[str, object] | None:
     if not series:
         return None
 
-    valid_years = [year for year, value in series.items() if value is not None]
+    valid_years = [
+        year
+        for year, value in series.items()
+        if value is not None and (max_year is None or year <= max_year)
+    ]
     if not valid_years:
         return None
 
@@ -591,6 +619,7 @@ def get_latest_series_value_at_or_before(series: dict[int, float] | None, year: 
 def get_latest_structured_entry(
     series_map: dict[str, dict[str, dict[int, float]]],
     digits_map: dict[str, int],
+    max_year: int | None = None,
 ) -> dict[str, dict[str, object]]:
     entries_by_iso3: dict[str, dict[str, object]] = {}
     all_iso3_codes = sorted({iso3_code for series_by_iso3 in series_map.values() for iso3_code in series_by_iso3})
@@ -601,6 +630,7 @@ def get_latest_structured_entry(
                 year
                 for series_by_iso3 in series_map.values()
                 for year in series_by_iso3.get(iso3_code, {})
+                if max_year is None or year <= max_year
             },
             reverse=True,
         )
@@ -724,7 +754,7 @@ def build_faostat_production_entries() -> dict[str, dict[str, object]]:
                 if not target:
                     continue
 
-                area_id = re.sub(r"\D+", "", row.get("Area Code (M49)", ""))
+                area_id = normalize_m49_code(row.get("Area Code (M49)", ""))
                 value = parse_number(row.get("Value"))
                 if not area_id or value is None:
                     continue
@@ -733,11 +763,13 @@ def build_faostat_production_entries() -> dict[str, dict[str, object]]:
                     year = int(row["Year"])
                 except (KeyError, TypeError, ValueError):
                     continue
+                if year > EXAM_REFERENCE_YEARS["agriculture"]:
+                    continue
 
                 country_stats = stats_by_area_id.setdefault(
                     area_id,
                     {
-                        "crops": {"production": {}, "trade": {}},
+                        "crops": {"production": {}, "areaHarvested": {}, "yield": {}, "trade": {}},
                         "livestock": {"stocks": {}, "meat": {}},
                     },
                 )
@@ -774,8 +806,8 @@ def build_faostat_trade_entries() -> dict[str, dict[str, object]]:
                 if not element_key:
                     continue
 
-                reporter_area_id = re.sub(r"\D+", "", row.get("Reporter Country Code (M49)", ""))
-                partner_area_id = re.sub(r"\D+", "", row.get("Partner Country Code (M49)", ""))
+                reporter_area_id = normalize_m49_code(row.get("Reporter Country Code (M49)", ""))
+                partner_area_id = normalize_m49_code(row.get("Partner Country Code (M49)", ""))
                 value = parse_number(row.get("Value"))
                 if not reporter_area_id or value is None:
                     continue
@@ -786,6 +818,8 @@ def build_faostat_trade_entries() -> dict[str, dict[str, object]]:
                 try:
                     year = int(row["Year"])
                 except (KeyError, TypeError, ValueError):
+                    continue
+                if year > EXAM_REFERENCE_YEARS["agriculture"]:
                     continue
 
                 country_bucket = aggregated_by_area_id.setdefault(reporter_area_id, {})
@@ -876,6 +910,8 @@ def build_energy_mix_entries(
             year = int(row["Year"])
         except (KeyError, TypeError, ValueError):
             continue
+        if year > EXAM_REFERENCE_YEARS["energy"]:
+            continue
 
         current_entry = entries_by_iso3.get(iso3_code)
         if current_entry and year < current_entry["year"]:
@@ -930,6 +966,8 @@ def build_fossil_production_entries() -> dict[str, dict[str, object]]:
             try:
                 year = int(row["Year"])
             except (KeyError, TypeError, ValueError):
+                continue
+            if year > EXAM_REFERENCE_YEARS["energy"]:
                 continue
 
             yearly_values = series_by_iso3.setdefault(iso3_code, {}).setdefault(year, {})
@@ -1030,6 +1068,7 @@ def build_population_structure_entries(
     age_entries = get_latest_structured_entry(
         age_series,
         digits_map={key: config["digits"] for key, config in WORLD_BANK_AGE_INDICATORS.items()},
+        max_year=EXAM_REFERENCE_YEARS["populationStructure"],
     )
     population_context_series = {
         key: fetch_world_bank_indicator_series(config["indicator_code"])
@@ -1060,6 +1099,7 @@ def build_population_structure_entries(
         density_entry = get_latest_series_entry(
             population_context_series["density"].get(iso3_code),
             digits=WORLD_BANK_POPULATION_CONTEXT_INDICATORS["density"]["digits"],
+            max_year=EXAM_REFERENCE_YEARS["populationStructure"],
         )
         counts = {
             key: compact_number(total_population * value / 100, 0) if total_population is not None else None
@@ -1086,7 +1126,7 @@ def build_population_structure_entries(
 
 
 def get_latest_unhcr_population_year() -> int | None:
-    for year in range(date.today().year, 2019, -1):
+    for year in range(EXAM_REFERENCE_YEARS["refugees"], 2019, -1):
         try:
             payload = fetch_json(
                 UNHCR_POPULATION_API_URL_TEMPLATE.format(limit=1, page=1, year=year, dimension="coo"),
@@ -1244,16 +1284,20 @@ def merge_agriculture_entries(
     trade_entry: dict[str, object] | None,
 ) -> dict[str, object] | None:
     crops_production = ((production_entry or {}).get("crops") or {}).get("production", {})
+    crops_area_harvested = ((production_entry or {}).get("crops") or {}).get("areaHarvested", {})
+    crops_yield = ((production_entry or {}).get("crops") or {}).get("yield", {})
     livestock_stocks = ((production_entry or {}).get("livestock") or {}).get("stocks", {})
     livestock_meat = ((production_entry or {}).get("livestock") or {}).get("meat", {})
     crops_trade = trade_entry or {}
 
-    if not any((crops_production, crops_trade, livestock_stocks, livestock_meat)):
+    if not any((crops_production, crops_area_harvested, crops_yield, crops_trade, livestock_stocks, livestock_meat)):
         return None
 
     return {
         "crops": {
             "production": crops_production,
+            "areaHarvested": crops_area_harvested,
+            "yield": crops_yield,
             "trade": crops_trade,
         },
         "livestock": {
@@ -1341,6 +1385,7 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
 
     meta = {
         "generatedAt": date.today().isoformat(),
+        "examReferenceYears": EXAM_REFERENCE_YEARS,
         "coverage": {
             "atlasCountries": len(atlas_rows),
             "matchedIso3": len(atlas_id_to_iso3),
@@ -1361,11 +1406,11 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
                 "url": URBAN_SHARE_URL,
             },
             "faostatProduction": {
-                "label": "FAOSTAT Production Crops and Livestock bulk download",
+                "label": "FAOSTAT Production Crops and Livestock bulk download, 수능특강 기준 2023년",
                 "url": FAOSTAT_PRODUCTION_BULK_URL,
             },
             "faostatTrade": {
-                "label": "FAOSTAT Trade Detailed Trade Matrix bulk download",
+                "label": "FAOSTAT Trade Detailed Trade Matrix bulk download, 수능특강 기준 2023년",
                 "url": FAOSTAT_TRADE_BULK_URL,
             },
             "religion": {
@@ -1373,15 +1418,15 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
                 "url": PEW_RELIGION_URL,
             },
             "primaryEnergy": {
-                "label": "Our World in Data primary energy by source",
+                "label": "Our World in Data primary energy by source, 수능특강 기준 2023년",
                 "url": PRIMARY_ENERGY_URL,
             },
             "electricityMix": {
-                "label": "Our World in Data electricity generation by source",
+                "label": "Our World in Data electricity generation by source, 수능특강 기준 2023년",
                 "url": ELECTRICITY_MIX_URL,
             },
             "fossilProduction": {
-                "label": "Our World in Data fossil fuel production by source",
+                "label": "Our World in Data fossil fuel production by source, 수능특강 기준 2023년",
                 "url": OIL_PRODUCTION_URL,
             },
             "continents": {
@@ -1401,7 +1446,7 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
                 ),
             },
             "worldBankPopulationStructure": {
-                "label": "World Bank WDI age structure indicators API",
+                "label": "World Bank WDI age structure indicators API, 수능특강 기준 2023년",
                 "url": WORLD_BANK_API_URL_TEMPLATE.format(
                     indicator_code=WORLD_BANK_AGE_INDICATORS["age0To14"]["indicator_code"]
                 ),
@@ -1419,8 +1464,13 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
                 ),
             },
             "unhcrRefugees": {
-                "label": "UNHCR Refugee Data Finder population API",
-                "url": UNHCR_POPULATION_API_URL_TEMPLATE.format(limit=1000, page=1, year=date.today().year - 1, dimension="coo"),
+                "label": "UNHCR Refugee Data Finder population API, 수능특강 기준 2024년",
+                "url": UNHCR_POPULATION_API_URL_TEMPLATE.format(
+                    limit=1000,
+                    page=1,
+                    year=EXAM_REFERENCE_YEARS["refugees"],
+                    dimension="coo",
+                ),
             },
         },
     }

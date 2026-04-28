@@ -1955,7 +1955,7 @@ kbd {
 .exam-graph-preview-card[data-exam-graph-style="basic"] {
   gap: 0;
   padding: 0;
-  border: 1px solid var(--tw-line);
+  border: 1px solid var(--tw-line-faint);
   background: #ffffff;
 }
 
@@ -1981,15 +1981,15 @@ kbd {
 }
 
 .exam-graph-stage[data-style="basic"] {
-  padding: 18px;
+  padding: 22px;
   border: 0;
   background: #ffffff;
 }
 
 .exam-graph-stage .exam-graph-svg {
   display: block;
-  width: min(100%, 520px);
-  max-width: 520px;
+  width: min(100%, 430px);
+  max-width: 430px;
   height: auto;
   margin: 0 auto;
   background: #ffffff;
@@ -1997,8 +1997,8 @@ kbd {
 }
 
 .exam-graph-stage[data-style="basic"] .exam-graph-svg {
-  width: min(100%, 520px);
-  max-width: 520px;
+  width: min(100%, 430px);
+  max-width: 430px;
   font-family: var(--tw-font-sans);
   box-shadow: none;
 }

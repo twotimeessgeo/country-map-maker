@@ -1760,7 +1760,9 @@ async function initialize() {
     updateRelation();
     renderHistorySelect();
     setModelBadge(`${model.training_records.total}개 학습`, true);
-    elements.modelMeta.textContent = `${historicalExams.length}개 시험 · ${questionBankItems.length}문항 DB · 이미지 ${questionImageById.size}장 · ${model.version}`;
+    if (elements.modelMeta) {
+      elements.modelMeta.textContent = `${historicalExams.length}개 시험 · ${questionBankItems.length}문항 DB · 이미지 ${questionImageById.size}장 · ${model.version}`;
+    }
     setStatus(`${historicalExams.length}개 시험`, true);
     elements.questionBankBadge.textContent = `${questionBankItems.length}문항 DB`;
     elements.questionBankBadge.classList.add("is-solid");

@@ -576,22 +576,22 @@ const countryStatsVisualDefinitions = programGraphTheme.lineStyles;
 const examGraphAliasLetters = ["가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하"];
 const examGraphTheme = {
   colors: {
-    ink: "#111111",
-    mutedInk: "#555555",
+    ink: "#202020",
+    mutedInk: "#707070",
     paper: "#ffffff",
-    fillLight: "#d9d9d9",
-    fillMid: "#969696",
-    fillDark: "#3f3f3f",
+    fillLight: "#dddddd",
+    fillMid: "#a9a9a9",
+    fillDark: "#6f6f6f",
   },
   strokes: {
-    frame: "0.4pt",
-    legendFrame: "0.4pt",
-    grid: "0.4pt",
-    edgeGrid: "0.4pt",
-    zeroAxis: "0.4pt",
-    dataOutline: "0.4pt",
-    line: "0.4pt",
-    marker: "0.4pt",
+    frame: "0.55",
+    legendFrame: "0.55",
+    grid: "0.45",
+    edgeGrid: "0.45",
+    zeroAxis: "0.55",
+    dataOutline: "0.45",
+    line: "0.65",
+    marker: "0.55",
   },
   dash: {
     grid: "4 4",
@@ -601,48 +601,48 @@ const examGraphTheme = {
     strokeWidth: "0.4pt",
   },
   type: {
-    title: 9,
-    subtitle: 7,
-    axisTick: 7.5,
-    rowLabel: 8,
-    rowLabelCompact: 8,
-    legend: 8,
+    title: 8.4,
+    subtitle: 6.6,
+    axisTick: 6.8,
+    rowLabel: 7.2,
+    rowLabelCompact: 6.8,
+    legend: 7.1,
     footnote: 7,
-    axisTitle: 8,
-    pointLabel: 8,
+    axisTitle: 7,
+    pointLabel: 7,
   },
   legend: {
-    itemGap: 8,
+    itemGap: 10,
     paddingX: 6,
     paddingY: 4,
-    swatch: 8,
-    swatchGap: 14,
+    swatch: 6,
+    swatchGap: 10,
     sample: 14,
     lineLabelGap: 4,
-    charWidth: 4.5,
-    rowHeight: 14,
+    charWidth: 4,
+    rowHeight: 12,
     maxItemsPerRow: 4,
     height: 22,
   },
   layout: {
-    width: 310,
+    width: 430,
     titleY: 14,
     subtitleY: 26,
-    plotTop: 24,
-    xTickGap: 12,
-    yTickGap: 6,
-    labelGap: 6,
+    plotTop: 28,
+    xTickGap: 11,
+    yTickGap: 7,
+    labelGap: 8,
     plotToLegend: 12,
     legendToNote: 14,
-    legendSidePadding: 12,
-    bottomPadding: 12,
-    blockGap: 12,
+    legendSidePadding: 10,
+    bottomPadding: 14,
+    blockGap: 10,
     spacingUnit: 2,
   },
   marker: {
-    trendRadius: 3,
-    scatterMinRadius: 3,
-    scatterMaxRadius: 5,
+    trendRadius: 2.8,
+    scatterMinRadius: 2.8,
+    scatterMaxRadius: 4.8,
   },
   font: {
     family: EXAM_GRAPH_FONT_FAMILY,
@@ -652,26 +652,26 @@ const examGraphTheme = {
 };
 const examGraphBasicTheme = {
   colors: {
-    ink: "#181818",
-    mutedInk: "#666666",
+    ink: "#202020",
+    mutedInk: "#707070",
     paper: "#ffffff",
-    grid: "#e7e7e7",
-    frame: "#d6d6d6",
-    dataStroke: "#8b8b8b",
+    grid: "#e9e9e9",
+    frame: "#d8d8d8",
+    dataStroke: "#9c9c9c",
     pointFill: "rgba(95, 95, 95, 0.14)",
-    fillLight: "#d9d9d9",
-    fillMid: "#a6a6a6",
-    fillDark: "#3f3f3f",
+    fillLight: "#dddddd",
+    fillMid: "#a9a9a9",
+    fillDark: "#6f6f6f",
   },
   strokes: {
-    frame: "0.4pt",
-    legendFrame: "0.4pt",
-    grid: "0.4pt",
-    edgeGrid: "0.4pt",
-    zeroAxis: "0.4pt",
-    dataOutline: "0.4pt",
-    line: "0.4pt",
-    marker: "0.4pt",
+    frame: "0.55",
+    legendFrame: "0.55",
+    grid: "0.45",
+    edgeGrid: "0.45",
+    zeroAxis: "0.55",
+    dataOutline: "0.45",
+    line: "0.65",
+    marker: "0.55",
   },
   dash: {
     grid: "4 4",
@@ -684,9 +684,9 @@ const examGraphBasicTheme = {
   legend: examGraphTheme.legend,
   layout: examGraphTheme.layout,
   marker: {
-    trendRadius: 3.6,
-    scatterMinRadius: 3,
-    scatterMaxRadius: 5,
+    trendRadius: 3,
+    scatterMinRadius: 2.8,
+    scatterMaxRadius: 4.8,
   },
   font: {
     family: EXAM_GRAPH_FONT_FAMILY,
@@ -1470,8 +1470,8 @@ const state = {
   activeStatsCountryId: null,
   metricExplorerCategoryKey: "demography",
   metricExplorerDisplayMode: "overview",
-  metricExplorerMetricKey: "population-total",
-  metricExplorerTopN: 12,
+  metricExplorerMetricKey: "",
+  metricExplorerTopN: 5,
   metricExplorerGrouping: "countries",
   metricExplorerMapHighlightEnabled: false,
   metricExplorerScatterXKey: "population-total",
@@ -3477,7 +3477,7 @@ function buildSelectedColorById() {
 }
 
 function getMetricExplorerTopN() {
-  return clamp(Math.round(Number(state.metricExplorerTopN) || 10), 1, 30);
+  return clamp(Math.round(Number(state.metricExplorerTopN) || 5), 1, 30);
 }
 
 function buildMetricExplorerHighlightColorById() {
@@ -3630,11 +3630,15 @@ function ensureMetricExplorerState(definitions = getMetricExplorerDefinitions())
   const categoryDefinitions = getMetricExplorerCategoryDefinitionsFiltered(definitions);
   if (!categoryDefinitions.length) {
     state.metricExplorerCategoryKey = metricExplorerCategoryDefinitions[0].key;
+    state.metricExplorerMetricKey = "";
     return;
   }
 
-  if (!categoryDefinitions.some((definition) => definition.key === state.metricExplorerMetricKey)) {
-    state.metricExplorerMetricKey = categoryDefinitions[0].key;
+  if (
+    state.metricExplorerMetricKey &&
+    !categoryDefinitions.some((definition) => definition.key === state.metricExplorerMetricKey)
+  ) {
+    state.metricExplorerMetricKey = "";
   }
 
   let visibleDefinitions = getMetricExplorerVisibleDefinitions(definitions);
@@ -3642,19 +3646,22 @@ function ensureMetricExplorerState(definitions = getMetricExplorerDefinitions())
     state.metricExplorerDisplayMode = "overview";
     visibleDefinitions = getMetricExplorerVisibleDefinitions(definitions);
   }
-  if (!visibleDefinitions.some((definition) => definition.key === state.metricExplorerMetricKey)) {
-    state.metricExplorerMetricKey = visibleDefinitions[0]?.key ?? categoryDefinitions[0].key;
+  if (
+    state.metricExplorerMetricKey &&
+    !visibleDefinitions.some((definition) => definition.key === state.metricExplorerMetricKey)
+  ) {
+    state.metricExplorerMetricKey = "";
   }
 
   const scatterFallbacks = categoryDefinitions.map((definition) => definition.key);
   if (!scatterFallbacks.includes(state.metricExplorerScatterXKey)) {
-    state.metricExplorerScatterXKey = scatterFallbacks[0] ?? state.metricExplorerMetricKey;
+    state.metricExplorerScatterXKey = scatterFallbacks[0] ?? "";
   }
   if (!scatterFallbacks.includes(state.metricExplorerScatterYKey)) {
-    state.metricExplorerScatterYKey = scatterFallbacks[1] ?? scatterFallbacks[0] ?? state.metricExplorerMetricKey;
+    state.metricExplorerScatterYKey = scatterFallbacks[1] ?? scatterFallbacks[0] ?? "";
   }
   if (!scatterFallbacks.includes(state.metricExplorerScatterSizeKey)) {
-    state.metricExplorerScatterSizeKey = scatterFallbacks[2] ?? scatterFallbacks[0] ?? state.metricExplorerMetricKey;
+    state.metricExplorerScatterSizeKey = scatterFallbacks[2] ?? scatterFallbacks[0] ?? "";
   }
 }
 
@@ -3851,6 +3858,17 @@ function renderMetricExplorerPanel() {
   const categoryDefinitions = getMetricExplorerCategoryDefinitionsFiltered(definitions);
   const visibleDefinitions = getMetricExplorerVisibleDefinitions(definitions);
   const activeDefinition = getMetricExplorerDefinition(definitions);
+
+  const shell = document.createElement("div");
+  shell.className = "metric-explorer-shell";
+  shell.appendChild(buildMetricExplorerControls(definitions, visibleDefinitions, activeDefinition));
+
+  if (!activeDefinition) {
+    shell.appendChild(createEmptyState("지표를 선택하면 그래프와 순위표가 표시됩니다."));
+    elements.metricExplorerPanel.appendChild(shell);
+    return;
+  }
+
   const results = getMetricExplorerResults(activeDefinition);
   const continentResults = getMetricExplorerResults(activeDefinition, "continents");
   const countryResults = getMetricExplorerResults(activeDefinition, "countries");
@@ -3870,10 +3888,6 @@ function renderMetricExplorerPanel() {
   const rankingTableDescription = usesRelativeTable
     ? "그래프의 상댓값 100 기준으로 환산한 표입니다. 실제 값은 항목 설명에 함께 남겼습니다."
     : "그래프를 만들 때 바로 옮겨 적기 쉬운 값 표입니다.";
-
-  const shell = document.createElement("div");
-  shell.className = "metric-explorer-shell";
-  shell.appendChild(buildMetricExplorerControls(definitions, visibleDefinitions, activeDefinition));
 
   const summary = document.createElement("div");
   summary.className = "metric-explorer-summary";
@@ -6893,6 +6907,7 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
     button.addEventListener("click", () => {
       beginHistoryStep("지표 탐색기 변경");
       state.metricExplorerCategoryKey = category.key;
+      state.metricExplorerMetricKey = "";
       ensureMetricExplorerState(definitions);
       renderSelectionViews();
       renderMap();
@@ -6912,6 +6927,7 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
     button.addEventListener("click", () => {
       beginHistoryStep("지표 탐색기 변경");
       state.metricExplorerDisplayMode = mode.key;
+      state.metricExplorerMetricKey = "";
       ensureMetricExplorerState(definitions);
       renderSelectionViews();
       renderMap();
@@ -6931,7 +6947,7 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
     const button = document.createElement("button");
     button.type = "button";
     button.className = "metric-explorer-metric-chip";
-    button.classList.toggle("is-active", definition.key === activeDefinition.key);
+    button.classList.toggle("is-active", definition.key === activeDefinition?.key);
     button.textContent = definition.label;
     button.addEventListener("click", () => {
       beginHistoryStep("지표 탐색기 변경");
@@ -6985,7 +7001,7 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
   topNInput.value = String(getMetricExplorerTopN());
   topNInput.addEventListener("input", () => {
     beginHistoryStep("지표 탐색기 변경");
-    state.metricExplorerTopN = clamp(Math.round(Number(topNInput.value) || 10), 1, 30);
+    state.metricExplorerTopN = clamp(Math.round(Number(topNInput.value) || 5), 1, 30);
     renderSelectionViews();
     renderMap();
   });
@@ -7558,6 +7574,54 @@ function getMetricExplorerDefinitions() {
       getValue: (stats) => getNamedCropMetric(stats, "maize", "production"),
     },
     {
+      key: "crops-wheat-area",
+      category: "식량 · 가축",
+      label: "밀 재배 면적",
+      aggregation: "sum",
+      formatter: (value) => formatHectareAmount(value),
+      getValue: (stats) => getNamedCropMetric(stats, "wheat", "areaHarvested"),
+    },
+    {
+      key: "crops-rice-area",
+      category: "식량 · 가축",
+      label: "쌀 재배 면적",
+      aggregation: "sum",
+      formatter: (value) => formatHectareAmount(value),
+      getValue: (stats) => getNamedCropMetric(stats, "rice", "areaHarvested"),
+    },
+    {
+      key: "crops-maize-area",
+      category: "식량 · 가축",
+      label: "옥수수 재배 면적",
+      aggregation: "sum",
+      formatter: (value) => formatHectareAmount(value),
+      getValue: (stats) => getNamedCropMetric(stats, "maize", "areaHarvested"),
+    },
+    {
+      key: "crops-wheat-yield",
+      category: "식량 · 가축",
+      label: "밀 단위 면적당 생산량",
+      aggregation: "mean",
+      formatter: (value) => formatCropYield(value),
+      getValue: (stats) => getNamedCropMetric(stats, "wheat", "yield"),
+    },
+    {
+      key: "crops-rice-yield",
+      category: "식량 · 가축",
+      label: "쌀 단위 면적당 생산량",
+      aggregation: "mean",
+      formatter: (value) => formatCropYield(value),
+      getValue: (stats) => getNamedCropMetric(stats, "rice", "yield"),
+    },
+    {
+      key: "crops-maize-yield",
+      category: "식량 · 가축",
+      label: "옥수수 단위 면적당 생산량",
+      aggregation: "mean",
+      formatter: (value) => formatCropYield(value),
+      getValue: (stats) => getNamedCropMetric(stats, "maize", "yield"),
+    },
+    {
       key: "crops-wheat-export-ratio",
       category: "식량 · 가축",
       label: "밀 생산 대비 수출 비율",
@@ -7889,7 +7953,7 @@ function getMetricExplorerDefinitions() {
 }
 
 function getMetricExplorerDefinition(definitions = getMetricExplorerDefinitions()) {
-  return definitions.find((definition) => definition.key === state.metricExplorerMetricKey) ?? definitions[0];
+  return definitions.find((definition) => definition.key === state.metricExplorerMetricKey) ?? null;
 }
 
 function getMetricExplorerDefinitionByKey(definitions, key) {
@@ -7897,6 +7961,10 @@ function getMetricExplorerDefinitionByKey(definitions, key) {
 }
 
 function getMetricExplorerResults(definition = getMetricExplorerDefinition(), grouping = state.metricExplorerGrouping) {
+  if (!definition) {
+    return [];
+  }
+
   const selectedIdSet = new Set(state.selected.map((country) => country.id));
   const useSelectedScope = selectedIdSet.size > 0;
   const countryEntries = Object.entries(countryStatsById)
@@ -7999,12 +8067,12 @@ function renderCountryStatsPanel() {
     buildEnergyStatsSection(
       stats?.energy?.consumption,
       "에너지 소비 구조",
-      "최신 가용연도 기준 1차 에너지 소비량과 화석·재생·원자력 비중을 함께 정리했습니다.",
+      "수능특강의 2023년 기준에 맞춰 1차 에너지 소비량과 화석·재생·원자력 비중을 함께 정리했습니다.",
     ),
     buildEnergyStatsSection(
       stats?.energy?.electricity,
       "발전 구조",
-      "최신 가용연도 기준 발전량과 발전원별 비중을 함께 정리했습니다.",
+      "수능특강의 2023년 기준에 맞춰 발전량과 발전원별 비중을 함께 정리했습니다.",
     ),
     buildFossilProductionStatsSection(stats?.energy?.fossilProduction),
   );
@@ -8070,7 +8138,7 @@ function buildCountryStatsHeader(activeCountry, stats) {
 
   const note = document.createElement("div");
   note.className = "country-stats-source";
-  note.innerHTML = `<strong>자료 기준</strong><br />${countryStatsMeta.generatedAt ?? "알 수 없음"} · 최신 가용연도 기준`;
+  note.innerHTML = `<strong>자료 기준</strong><br />${countryStatsMeta.generatedAt ?? "알 수 없음"} · 수능특강 기준 연도 우선`;
 
   header.append(copy, note);
   return header;
@@ -8129,6 +8197,8 @@ function buildCountryStatsMetaText(stats) {
 
   const faostatYears = [
     ...getOrderedMetricEntries(stats.agriculture?.crops?.production, countryStatsCropOrder).map((entry) => entry.year),
+    ...getOrderedMetricEntries(stats.agriculture?.crops?.areaHarvested, countryStatsCropOrder).map((entry) => entry.year),
+    ...getOrderedMetricEntries(stats.agriculture?.crops?.yield, countryStatsCropOrder).map((entry) => entry.year),
     ...countryStatsCropOrder.flatMap((key) => {
       const entry = stats.agriculture?.crops?.trade?.[key];
       return [entry?.import?.year, entry?.export?.year];
@@ -8228,7 +8298,7 @@ function buildCountryStatsSummaryGrid(stats) {
     createCountryStatsSummaryCard(
       "3대 곡물 생산",
       cropTotals.productionTotal > 0 ? formatTonAmount(cropTotals.productionTotal) : "자료 없음",
-      cropTotals.topCropLabel ? `${cropTotals.topCropLabel} 비중 ${formatPercent(cropTotals.topCropShare)}` : "FAOSTAT 최신 가용연도",
+      cropTotals.topCropLabel ? `${cropTotals.topCropLabel} 비중 ${formatPercent(cropTotals.topCropShare)}` : "FAOSTAT 2023년 기준",
     ),
     createCountryStatsSummaryCard(
       "에너지 소비",
@@ -8380,12 +8450,14 @@ function buildPopulationStatsSection(population) {
 function buildCropStatsSection(crops) {
   const section = createCountryStatsSection(
     "주요 곡물 생산 · 무역",
-    "FAOSTAT 최신 가용연도를 기준으로 밀·쌀·옥수수의 생산량, 생산 비중, 수출·수입량을 함께 정리했습니다.",
+    "수능특강의 FAOSTAT 2023년 기준에 맞춰 밀·쌀·옥수수의 생산량, 생산 비중, 수출·수입량을 함께 정리했습니다.",
   );
 
   const productionEntries = getOrderedMetricEntries(crops?.production, countryStatsCropOrder);
+  const areaEntries = getOrderedMetricEntries(crops?.areaHarvested, countryStatsCropOrder);
+  const yieldEntries = getOrderedMetricEntries(crops?.yield, countryStatsCropOrder);
   const tradeEntries = buildCropTradeChartEntries(crops?.trade);
-  if (!productionEntries.length && !tradeEntries.length) {
+  if (!productionEntries.length && !areaEntries.length && !yieldEntries.length && !tradeEntries.length) {
     section.appendChild(createCountryStatsUnavailable("표시할 곡물 생산·무역 자료가 없습니다."));
     return section;
   }
@@ -8414,10 +8486,10 @@ function buildCropStatsSection(crops) {
 
   const chartGrid = document.createElement("div");
   chartGrid.className = "country-stats-chart-grid";
-  chartGrid.append(
+  const chartCards = [
     buildAmountBarChartCard({
       title: "곡물별 생산량",
-      description: "밀·쌀·옥수수의 최신 생산량입니다.",
+      description: "밀·쌀·옥수수의 2023년 생산량입니다.",
       entries: productionEntries.map((entry) => ({
         label: entry.label,
         value: entry.value,
@@ -8426,6 +8498,38 @@ function buildCropStatsSection(crops) {
       })),
       valueFormatter: (value) => formatTonAmount(value),
     }),
+  ];
+  if (areaEntries.length) {
+    chartCards.push(
+      buildAmountBarChartCard({
+        title: "곡물별 재배 면적",
+        description: "수능특강에서 생산량과 함께 비교하는 2023년 재배 면적입니다.",
+        entries: areaEntries.map((entry) => ({
+          label: entry.label,
+          value: entry.value,
+          detail: `${entry.year}년 · ${formatHectareAmount(entry.value)}`,
+          color: getCountryStatsColor(entry.key),
+        })),
+        valueFormatter: (value) => formatHectareAmount(value),
+      }),
+    );
+  }
+  if (yieldEntries.length) {
+    chartCards.push(
+      buildAmountBarChartCard({
+        title: "단위 면적당 생산량",
+        description: "FAOSTAT Yield를 t/ha로 환산했습니다.",
+        entries: yieldEntries.map((entry) => ({
+          label: entry.label,
+          value: entry.value,
+          detail: `${entry.year}년 · ${formatCropYield(entry.value)}`,
+          color: getCountryStatsColor(entry.key),
+        })),
+        valueFormatter: (value) => formatCropYield(value),
+      }),
+    );
+  }
+  chartCards.push(
     buildShareCompositionCard({
       title: "3대 곡물 생산 비중",
       description: "세 곡물 내부에서 어느 품목 비중이 큰지 바로 볼 수 있습니다.",
@@ -8439,11 +8543,12 @@ function buildCropStatsSection(crops) {
     }),
     buildAmountBarChartCard({
       title: "곡물별 수입·수출량",
-      description: "Detailed Trade Matrix에서 집계한 최신 수입량과 수출량입니다.",
+      description: "Detailed Trade Matrix에서 집계한 2023년 기준 수입량과 수출량입니다.",
       entries: tradeEntries,
       valueFormatter: (value) => formatTonAmount(value),
     }),
   );
+  chartGrid.append(...chartCards);
   section.appendChild(chartGrid);
   return section;
 }
@@ -8451,7 +8556,7 @@ function buildCropStatsSection(crops) {
 function buildLivestockStatsSection(livestock) {
   const section = createCountryStatsSection(
     "주요 가축 사육 · 육류 생산",
-    "소·돼지·양의 사육 두수와 대응하는 육류 생산량을 최신 가용연도로 정리했습니다.",
+    "수능특강의 FAOSTAT 2023년 기준에 맞춰 소·돼지·양의 사육 두수와 대응하는 육류 생산량을 정리했습니다.",
   );
 
   const stockEntries = getOrderedMetricEntries(livestock?.stocks, countryStatsLivestockOrder);
@@ -8499,7 +8604,7 @@ function buildLivestockStatsSection(livestock) {
     }),
     buildAmountBarChartCard({
       title: "육류 생산량",
-      description: "소고기·돼지고기·양고기의 최신 생산량입니다.",
+      description: "소고기·돼지고기·양고기의 2023년 생산량입니다.",
       entries: meatEntries.map((entry) => ({
         label: entry.label,
         value: entry.value,
@@ -8947,7 +9052,7 @@ function buildEnergyStatsSection(entry, title, description) {
 function buildFossilProductionStatsSection(entry) {
   const section = createCountryStatsSection(
     "화석연료 생산",
-    "석유·가스·석탄 생산량과 생산 내부 비중을 최신 가용연도로 정리했습니다.",
+    "수능특강의 2023년 기준에 맞춰 석유·가스·석탄 생산량과 생산 내부 비중을 정리했습니다.",
   );
 
   if (!entry) {
@@ -8993,7 +9098,7 @@ function buildFossilProductionStatsSection(entry) {
     }),
     buildAmountBarChartCard({
       title: "화석연료별 생산량",
-      description: "최신 가용연도의 생산량을 TWh 환산 기준으로 비교합니다.",
+      description: "2023년 생산량을 TWh 환산 기준으로 비교합니다.",
       entries: breakdownEntries.map((item) => ({
         label: item.label,
         value: item.amount,
@@ -9274,17 +9379,18 @@ function getCropAggregateMetric(stats, key) {
 }
 
 function getNamedCropMetric(stats, cropKey, metricKey) {
-  const entry = metricKey === "production"
-    ? stats?.agriculture?.crops?.production?.[cropKey]
-    : stats?.agriculture?.crops?.trade?.[cropKey]?.[metricKey];
-  if (!Number.isFinite(Number(entry?.value))) {
+  const cropMetrics = stats?.agriculture?.crops;
+  const sourceEntry = ["production", "areaHarvested", "yield"].includes(metricKey)
+    ? cropMetrics?.[metricKey]?.[cropKey]
+    : cropMetrics?.trade?.[cropKey]?.[metricKey];
+  if (!Number.isFinite(Number(sourceEntry?.value))) {
     return null;
   }
 
   return {
-    value: Number(entry.value),
-    year: entry.year ?? null,
-    detail: entry.label ?? cropKey,
+    value: Number(sourceEntry.value),
+    year: sourceEntry.year ?? null,
+    detail: sourceEntry.label ?? cropKey,
   };
 }
 
@@ -9509,6 +9615,22 @@ function formatTonAmount(value) {
   }
 
   return `${formatCompactStatNumber(value)}t`;
+}
+
+function formatHectareAmount(value) {
+  if (value == null || !Number.isFinite(Number(value))) {
+    return "자료 없음";
+  }
+
+  return `${formatCompactStatNumber(value)}ha`;
+}
+
+function formatCropYield(value) {
+  if (value == null || !Number.isFinite(Number(value))) {
+    return "자료 없음";
+  }
+
+  return `${(Number(value) / 1000).toLocaleString("ko-KR", { maximumFractionDigits: 2 })}t/ha`;
 }
 
 function formatCurrencyAmount(value) {
@@ -10487,10 +10609,6 @@ function renderExamGraphPanel() {
   const sideColumn = document.createElement("div");
   sideColumn.className = "exam-graph-side-column";
   sideColumn.appendChild(buildExamGraphValueCard(model));
-  const guideCard = buildExamGraphGuideCard(model);
-  if (guideCard) {
-    sideColumn.appendChild(guideCard);
-  }
   if (model.answerRows?.length) {
     sideColumn.appendChild(buildExamGraphAnswerCard(model.answerRows));
   }
@@ -13234,12 +13352,7 @@ function buildExamGraphValueCard(model) {
   const title = document.createElement("h5");
   title.className = "metric-explorer-table__title";
   title.textContent = "값 정리";
-  const description = document.createElement("p");
-  description.className = "metric-explorer-table__meta";
-  description.textContent = state.examGraphAliasMode
-    ? "왼쪽은 그래프 라벨, 오른쪽은 실제 지역입니다."
-    : "실제 지역 이름과 그래프에 쓰인 비중/값을 바로 확인합니다.";
-  card.append(title, description);
+  card.appendChild(title);
 
   const list = document.createElement("div");
   list.className = "country-stats-breakdown-list";
@@ -13275,10 +13388,7 @@ function buildExamGraphAnswerCard(answerRows) {
   const title = document.createElement("h5");
   title.className = "metric-explorer-table__title";
   title.textContent = "가명 정답표";
-  const description = document.createElement("p");
-  description.className = "metric-explorer-table__meta";
-  description.textContent = "문항에는 가명을 쓰고, 실제 지역은 여기서 확인합니다.";
-  card.append(title, description);
+  card.appendChild(title);
 
   const list = document.createElement("div");
   list.className = "country-stats-breakdown-list";
@@ -13304,253 +13414,6 @@ function buildExamGraphAnswerCard(answerRows) {
   card.appendChild(list);
 
   return card;
-}
-
-function buildExamGraphGuideCard(model) {
-  const guideRows = getExamGraphGuideRows(model);
-  if (!guideRows.length) {
-    return null;
-  }
-
-  const card = document.createElement("div");
-  card.className = "exam-graph-data-card";
-
-  const title = document.createElement("h5");
-  title.className = "metric-explorer-table__title";
-  title.textContent = "출제 확장";
-  const description = document.createElement("p");
-  description.className = "metric-explorer-table__meta";
-  description.textContent = "지금 그래프를 문항으로 이어 붙일 때 바로 쓸 수 있는 판별 포인트와 후속 통계입니다.";
-  card.append(title, description);
-
-  const list = document.createElement("div");
-  list.className = "country-stats-breakdown-list";
-  guideRows.forEach((row) => {
-    const item = document.createElement("div");
-    item.className = "country-stats-breakdown-row";
-    const head = document.createElement("div");
-    head.className = "country-stats-breakdown-row__head";
-
-    const label = document.createElement("span");
-    label.textContent = row.label;
-    const value = document.createElement("strong");
-    value.textContent = row.value;
-    head.append(label, value);
-    item.appendChild(head);
-
-    const detail = document.createElement("small");
-    detail.className = "country-stats-breakdown-row__detail";
-    detail.textContent = row.detail;
-    item.appendChild(detail);
-
-    list.appendChild(item);
-  });
-  card.appendChild(list);
-
-  return card;
-}
-
-function getExamGraphGuideRows(model) {
-  if (model.presetKey === "stacked100") {
-    const guideByMetric = {
-      "urban-rural": {
-        point: "도시화 단계",
-        detail: "도시 비중이 높은 지역과 촌락 비중이 큰 지역을 바로 대비할 수 있어 개발 수준, 대도시 집중, 농촌 인구 비중을 함께 묻기 좋습니다.",
-        related: "총인구 · 도시화율 · 산업 구조",
-      },
-      "age-structure": {
-        point: "인구 피라미드 추론",
-        detail: "유소년 비중과 고령 비중의 대비가 뚜렷해서 선진국형·개도국형 인구 구조를 빠르게 가려내는 문항에 잘 맞습니다.",
-        related: "총인구 · 도시화율 · 국제이주민 비중",
-      },
-      "industry-structure": {
-        point: "산업 발달 단계",
-        detail: "1·2·3차 산업의 무게 중심을 비교하기 쉬워 제조업 중심 국가, 서비스업 중심 국가, 농업 비중이 큰 국가를 묶어 내기 좋습니다.",
-        related: "수출액 · 도시화율 · 1차 에너지 소비 구조",
-      },
-      "religion-major": {
-        point: "문화권 판별",
-        detail: "크리스트교·이슬람교·힌두교·불교의 대비가 뚜렷한 국가를 고르면 문화권, 이민 유입, 역사적 배경까지 연결하는 추론형 문항으로 확장하기 쉽습니다.",
-        related: "국제이주민 비중 · 총인구 · 도시화율",
-      },
-      "energy-summary": {
-        point: "에너지 체제 구분",
-        detail: "화석, 재생, 원자력 비중으로 자원 부국·원전 의존국·재생 중심 국가를 한 번에 가를 수 있습니다.",
-        related: "발전원 구성 · 화석연료 생산 구조 · 수출액",
-      },
-      "electricity-breakdown": {
-        point: "발전 방식 판별",
-        detail: "석탄·가스·원자력·재생의 조합이 분명해서 산유국, 원전 국가, 수력 중심 국가를 섞어 제시하기 좋습니다.",
-        related: "재생에너지 발전량 · 화석연료 생산량 · 1차 에너지 소비량",
-      },
-      "fossil-production": {
-        point: "자원 편중도",
-        detail: "석유·가스·석탄 가운데 어느 자원이 중심인지 드러나므로 자원 구조와 수출 구조를 연결하는 문항에 잘 맞습니다.",
-        related: "수출액 · 1차 에너지 소비 구조 · 발전원 구성",
-      },
-      "crops-production": {
-        point: "농업 전문화",
-        detail: "밀·쌀·옥수수 비중만으로도 온대 곡물 지대와 몬순 아시아형 농업을 비교하는 데 효과적입니다.",
-        related: "곡물 수입·수출 · 가축 사육 구성 · 수출액",
-      },
-      "livestock-stocks": {
-        point: "목축 구조",
-        detail: "소·돼지·양 비중의 차이가 커서 온대 목축, 이슬람권, 초지 활용 유형을 비교하기 좋습니다.",
-        related: "육류 생산 구성 · 곡물 생산 구성 · 수출액",
-      },
-      "livestock-meat": {
-        point: "식문화·사육 방식",
-        detail: "육류 생산 구조는 식문화와 사육 환경을 함께 읽을 수 있어 가축 사육량과 짝지어 제시하기 좋습니다.",
-        related: "가축 사육 구성 · 수출액 · 도시화율",
-      },
-    };
-    const guide = guideByMetric[model.metricKey] ?? {
-      point: "구성 차이",
-      detail: `${model.metricLabel}의 구성 차이를 이용해 ${model.groupLabel} 비교 문항을 만들기 좋습니다.`,
-      related: "총인구 · 도시화율 · 수출액",
-    };
-    return [
-      { label: "판별 포인트", value: guide.point, detail: guide.detail },
-      {
-        label: "같이 붙일 통계",
-        value: guide.related,
-        detail: "아래 지표 탐색기에서 같은 범위를 다시 뽑아 두 장짜리 세트 문항으로 바로 확장할 수 있습니다.",
-      },
-      {
-        label: "변형 아이디어",
-        value: `${model.groupLabel} 전환`,
-        detail: "같은 지표를 국가별과 대륙별로 각각 한 장씩 뽑으면, 개별 국가 판별과 대권역 구조 비교를 한 세트로 묶기 쉽습니다.",
-      },
-    ];
-  }
-
-  if (model.presetKey === "timeCompare") {
-    const relatedByMetric = {
-      "population-total": "도시 인구 · 연령 구조 · 국제이주민 비중",
-      "population-urban-total": "총인구 · 도시화율 · 산업 구조",
-      "population-rural-total": "총인구 · 도시화율 · 산업 구조",
-      "population-urban-share": "총인구 · 도시 인구 · 촌락 인구",
-    };
-    return [
-      {
-        label: "판별 포인트",
-        value: `${model.startYear}년 → ${model.endYear}년`,
-        detail: "막대 길이 자체와 증가 폭을 함께 읽게 할 수 있어서 단순 순위보다 변화 과정에 초점을 둔 문항에 유리합니다.",
-      },
-      {
-        label: "같이 붙일 통계",
-        value: relatedByMetric[model.metricKey] ?? "총인구 · 도시화율 · 수출액",
-        detail: "같은 국가 묶음에 다른 지표를 한 장 더 붙이면 성장 규모와 구조 변화를 동시에 비교하는 문제가 됩니다.",
-      },
-      {
-        label: "변형 아이디어",
-        value: "시점 바꾸기",
-        detail: "1970년대와 최근, 1990년과 최근처럼 두 시점을 바꿔 산업화 초기와 성숙 단계의 차이를 드러내기 좋습니다.",
-      },
-    ];
-  }
-
-  if (model.presetKey === "rankBars") {
-    return [
-      {
-        label: "판별 포인트",
-        value: model.displayModeLabel,
-        detail: `${model.metricLabel}을 ${model.displayModeLabel.toLowerCase()} 기준으로 정렬한 그래프라서 상위권 집중, 하위권 격차, 음수/양수 전환 여부를 빠르게 읽게 할 수 있습니다.`,
-      },
-      {
-        label: "같이 붙일 통계",
-        value: `${model.metricLabel} 구성 · 관련 보조 지표`,
-        detail: "같은 국가 묶음에 구성 누적막대나 짝막대를 붙이면 단순 순위가 왜 나왔는지까지 설명하는 세트 문항으로 확장됩니다.",
-      },
-      {
-        label: "변형 아이디어",
-        value: "양 ↔ 비율 ↔ 상댓값100",
-        detail: "같은 통계를 세 방식으로 바꾸면 절대 규모, 전체 비중, 최댓값 기준 상대 격차를 각각 묻는 변형 문제를 만들 수 있습니다.",
-      },
-    ];
-  }
-
-  if (model.presetKey === "pairedBars") {
-    return [
-      {
-        label: "판별 포인트",
-        value: "두 축의 우세 비교",
-        detail: "같은 행 안에서 어느 값이 더 큰지, 격차가 어느 정도인지 한 번에 읽게 할 수 있어 국가 유형 분류에 유리합니다.",
-      },
-      {
-        label: "같이 붙일 통계",
-        value: `${model.metricLabel}와 연결된 제3지표`,
-        detail: "예를 들어 수출/수입 짝막대 뒤에 순수출량이나 생산량 순위표를 붙이면 추론 단서가 더 또렷해집니다.",
-      },
-      {
-        label: "변형 아이디어",
-        value: "행내 비율 또는 상댓값",
-        detail: "같은 자료를 행내 비율로 바꾸면 구조 비교가 되고, 상댓값100으로 바꾸면 각 지표의 최댓값 대비 격차를 묻는 문항이 됩니다.",
-      },
-    ];
-  }
-
-  if (model.presetKey === "scatter") {
-    return [
-      {
-        label: "판별 포인트",
-        value: "사분면 해석",
-        detail: `${model.xLabel}과 ${model.yLabel}의 고저를 사분면으로 읽게 하고, 버블 크기 ${model.sizeLabel}로 최종 판별을 강화하면 변별력이 높습니다.`,
-      },
-      {
-        label: "같이 붙일 통계",
-        value: `${model.xLabel} 순위 · ${model.yLabel} 순위`,
-        detail: "같은 범위를 막대그래프로 한 장 더 붙이면 산포도에서 애매한 국가를 추가 단서로 구분하기 좋습니다.",
-      },
-      {
-        label: "변형 아이디어",
-        value: "축 성격 바꾸기",
-        detail: "한 축은 비율, 다른 축은 절댓값으로 바꾸면 대국과 소국, 선진국과 개도국의 차이가 더 또렷하게 드러납니다.",
-      },
-    ];
-  }
-
-  if (model.presetKey === "trendLine") {
-    return [
-      {
-        label: "판별 포인트",
-        value: "시계열 방향과 교차",
-        detail: "증가·감소 추세와 시점별 교차 여부를 함께 읽게 할 수 있어 단순 순위보다 변화 과정 자체를 묻는 문제에 잘 맞습니다.",
-      },
-      {
-        label: "같이 붙일 통계",
-        value: `${model.metricLabel} 2시점 비교 · 구성 그래프`,
-        detail: "같은 국가 묶음에 2시점 막대 또는 구성 그래프를 한 장 더 붙이면 변화 원인과 결과를 같이 묻게 됩니다.",
-      },
-      {
-        label: "변형 아이디어",
-        value: "종점 비교 또는 증감률 비교",
-        detail: "같은 선그래프에서 마지막 시점만 잘라 순위막대로 바꾸거나, 시작 대비 증감폭만 다시 정리하면 후속 문항 만들기가 쉽습니다.",
-      },
-    ];
-  }
-
-  if (model.presetKey === "top3share") {
-    return [
-      {
-        label: "판별 포인트",
-        value: "집중도 비교",
-        detail: `${model.metricLabel}이 몇 개 국가에 몰려 있는지, 아니면 여러 국가로 분산되는지를 대륙별로 한 번에 읽게 할 수 있습니다.`,
-      },
-      {
-        label: "같이 붙일 통계",
-        value: `${model.metricLabel} 국가 순위 · 수출액`,
-        detail: "A·B·C 실제 국가를 추론시키려면 같은 지표의 국가 순위표나 수출 구조를 함께 제시하는 구성이 잘 맞습니다.",
-      },
-      {
-        label: "변형 아이디어",
-        value: "A·B·C 정체 찾기",
-        detail: "상위 3개국 비중 그래프를 먼저 제시하고, 뒤에 100% 구성 그래프나 산포도를 붙여 A·B·C의 실제 국가를 맞히게 만들 수 있습니다.",
-      },
-    ];
-  }
-
-  return [];
 }
 
 function buildExamGraphFileName(parts) {
@@ -13759,7 +13622,7 @@ function appendExamGraphXAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, t
     setExamGraphCoordinate(label, "x", x);
     setExamGraphCoordinate(label, "y", plotTop + plotHeight + examGraphTheme.layout.xTickGap);
     label.setAttribute("text-anchor", Math.abs(tick - minimum) < 0.000001 ? "start" : Math.abs(tick - maximum) < 0.000001 ? "end" : "middle");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
     label.textContent = formatTick(tick);
     svg.appendChild(label);
   });
@@ -13787,7 +13650,7 @@ function appendExamGraphYAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, t
     setExamGraphCoordinate(label, "x", plotLeft - examGraphTheme.layout.yTickGap);
     setExamGraphCoordinate(label, "y", y + 2.5);
     label.setAttribute("text-anchor", "end");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
     label.textContent = formatTick(tick);
     svg.appendChild(label);
   });
@@ -13928,7 +13791,7 @@ function appendExamGraphLineLegend(svg, rows, centerX, y, maxLegendWidth = examG
         cursorX + 2 * theme.marker.trendRadius + examGraphTheme.legend.lineLabelGap,
       );
       setExamGraphCoordinate(label, "y", rowY + 2.8);
-      applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.legend, fontWeight: 700 });
+      applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.legend, fontWeight: 600 });
       label.textContent = row.displayLabel;
       svg.appendChild(label);
 
@@ -13945,9 +13808,9 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
   }
 
   const width = examGraphTheme.layout.width;
-  const plotLeft = 48;
+  const plotLeft = 88;
   const plotTop = examGraphTheme.layout.plotTop;
-  const plotWidth = width - plotLeft - 9;
+  const plotWidth = width - plotLeft - 24;
   const barHeight = 12.5;
   const rowGap = examGraphTheme.layout.blockGap;
   const plotHeight = rows.length * (barHeight + rowGap) - rowGap;
@@ -13984,7 +13847,7 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
     setExamGraphCoordinate(label, "y", y + barHeight / 2 + 1);
     label.setAttribute("text-anchor", "end");
     label.setAttribute("dominant-baseline", "middle");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabel, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabel, fontWeight: 600 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
 
@@ -14062,7 +13925,7 @@ function buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendI
     label.setAttribute("y", String(plot.top + plotHeight + 13));
     label.setAttribute("text-anchor", "end");
     label.setAttribute("transform", `rotate(-55 ${x + columnWidth / 2} ${plot.top + plotHeight + 13})`);
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
@@ -14079,9 +13942,9 @@ function buildExamSingleBarSvg({ title, subtitle, rows, valueFormatter, axisForm
   }
 
   const width = examGraphTheme.layout.width;
-  const plotLeft = 50;
+  const plotLeft = 88;
   const plotTop = examGraphTheme.layout.plotTop;
-  const plotWidth = width - plotLeft - 9;
+  const plotWidth = width - plotLeft - 24;
   const barHeight = 9.5;
   const rowGap = examGraphTheme.layout.blockGap;
   const plotHeight = rows.length * (barHeight + rowGap) - rowGap;
@@ -14120,7 +13983,7 @@ function buildExamSingleBarSvg({ title, subtitle, rows, valueFormatter, axisForm
     setExamGraphCoordinate(label, "y", y + barHeight / 2);
     label.setAttribute("text-anchor", "end");
     label.setAttribute("dominant-baseline", "middle");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabelCompact, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabelCompact, fontWeight: 600 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
 
@@ -14178,7 +14041,7 @@ function buildExamSingleBarSvgPortrait({ title, subtitle, rows, valueFormatter, 
     label.setAttribute("y", String(plot.top + plotHeight + 13));
     label.setAttribute("text-anchor", "end");
     label.setAttribute("transform", `rotate(-55 ${x + columnWidth / 2} ${plot.top + plotHeight + 13})`);
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
@@ -14193,9 +14056,9 @@ function buildExamPairedBarSvg({ title, subtitle, rows, legendItems, valueFormat
   }
 
   const width = examGraphTheme.layout.width;
-  const plotLeft = 52;
+  const plotLeft = 88;
   const plotTop = examGraphTheme.layout.plotTop;
-  const plotWidth = width - plotLeft - 9;
+  const plotWidth = width - plotLeft - 24;
   const barHeight = 7;
   const groupGap = examGraphTheme.layout.blockGap;
   const groupHeight = barHeight * 2 + 4;
@@ -14233,7 +14096,7 @@ function buildExamPairedBarSvg({ title, subtitle, rows, legendItems, valueFormat
     setExamGraphCoordinate(label, "y", y + groupHeight / 2);
     label.setAttribute("text-anchor", "end");
     label.setAttribute("dominant-baseline", "middle");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabel, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabel, fontWeight: 600 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
 
@@ -14308,7 +14171,7 @@ function buildExamPairedBarSvgPortrait({ title, subtitle, rows, legendItems, val
     label.setAttribute("y", String(plot.top + plotHeight + 13));
     label.setAttribute("text-anchor", "end");
     label.setAttribute("transform", `rotate(-55 ${x + groupWidth / 2} ${plot.top + plotHeight + 13})`);
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
@@ -14326,9 +14189,9 @@ function buildExamTimeCompareSvg({ title, subtitle, rows, startYear, endYear, va
   }
 
   const width = examGraphTheme.layout.width;
-  const plotLeft = 52;
+  const plotLeft = 88;
   const plotTop = examGraphTheme.layout.plotTop;
-  const plotWidth = width - plotLeft - 9;
+  const plotWidth = width - plotLeft - 24;
   const barHeight = 7;
   const rowGap = examGraphTheme.layout.blockGap;
   const groupHeight = barHeight * 2 + 4;
@@ -14369,7 +14232,7 @@ function buildExamTimeCompareSvg({ title, subtitle, rows, startYear, endYear, va
     setExamGraphCoordinate(label, "y", y + groupHeight / 2);
     label.setAttribute("text-anchor", "end");
     label.setAttribute("dominant-baseline", "middle");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabel, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.rowLabel, fontWeight: 600 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
 

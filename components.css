@@ -117,10 +117,12 @@
   top: calc(100% + 8px);
   right: 0;
   display: grid;
+  box-sizing: border-box;
   width: min(280px, calc(100vw - 32px));
-  border: var(--tw-border);
+  border: 0;
   background: #ffffff;
-  box-shadow: 0 12px 0 rgba(0, 0, 0, 0.04);
+  box-shadow: inset 0 0 0 1px var(--tw-ink), 0 12px 0 rgba(0, 0, 0, 0.04);
+  overflow: hidden;
 }
 
 .app-context-menu-panel a {
