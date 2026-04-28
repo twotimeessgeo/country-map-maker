@@ -950,6 +950,18 @@ output {
   gap: 8px;
 }
 
+.annotation-action-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.annotation-style-button {
+  min-height: 32px;
+  padding: 6px 8px;
+  font-size: 0.78rem;
+}
+
 .annotation-list--dock .compact-field {
   gap: 6px;
 }
@@ -960,6 +972,11 @@ output {
   min-height: 36px;
   padding: 8px 10px;
   font-size: 0.84rem;
+}
+
+.annotation-list--dock .compact-field input[type="color"] {
+  min-height: 36px;
+  padding: 3px;
 }
 
 .tw-button:disabled,

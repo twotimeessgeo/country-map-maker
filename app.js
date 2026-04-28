@@ -19,6 +19,11 @@ const markerStyleOptions = [
   { value: "point", label: "점 표시" },
   { value: "filledDot", label: "검은 점" },
 ];
+const annotationStrokeStyleOptions = [
+  { value: "solid", label: "실선" },
+  { value: "dashed", label: "긴 점선" },
+  { value: "dotted", label: "짧은 점선" },
+];
 
 const EARTH_RADIUS_KM = 6371.0088;
 const SITE_GRAPH_FONT_FAMILY = '"Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif';
@@ -16620,6 +16625,43 @@ function renderMarkerList() {
       renderMap();
     });
 
+    const strokeColorInput = buildColorInput(getAnnotationStrokeColor(marker), "마커 테두리 색 변경", (value) => {
+      marker.strokeColor = value;
+      renderMap();
+    });
+    const strokeWidthInput = buildNumberInput(
+      getAnnotationStrokeWidthPt(marker),
+      0,
+      4,
+      0.1,
+      "마커 테두리 두께 변경",
+      (value) => {
+        marker.strokeWidthPt = normalizeAnnotationStrokeWidthPt(value);
+        renderMap();
+      },
+    );
+    const strokeStyleSelect = buildAnnotationStrokeStyleSelect(getAnnotationStrokeStyle(marker));
+    strokeStyleSelect.addEventListener("change", () => {
+      beginHistoryStep("마커 선 스타일 변경");
+      marker.strokeStyle = strokeStyleSelect.value;
+      renderMap();
+    });
+    const fillColorInput = buildColorInput(getAnnotationFillColor(marker), "마커 채우기 색 변경", (value) => {
+      marker.fillColor = value;
+      renderMap();
+    });
+    const fillOpacityInput = buildNumberInput(
+      Math.round(getAnnotationFillOpacity(marker, marker.style === "filledDot" ? 1 : 0) * 100),
+      0,
+      100,
+      5,
+      "마커 채우기 투명도 변경",
+      (value) => {
+        marker.fillOpacity = clamp(value / 100, 0, 1);
+        renderMap();
+      },
+    );
+
     const fieldGrid = document.createElement("div");
     fieldGrid.className = "annotation-grid";
     fieldGrid.append(
@@ -16627,13 +16669,54 @@ function renderMarkerList() {
       createField("크기", sizeInput),
       createField("세로비", aspectInput),
       createField("회전", rotationInput),
+      createField("테두리", strokeColorInput),
+      createField("두께 pt", strokeWidthInput),
+      createField("선", strokeStyleSelect),
+      createField("채우기", fillColorInput),
+      createField("채움 %", fillOpacityInput),
+    );
+
+    const actionRow = buildAnnotationStyleActions(
+      [
+        {
+          label: "채우기 없음",
+          historyLabel: "마커 채우기 없음",
+          apply: () => {
+            marker.fillOpacity = 0;
+          },
+        },
+        {
+          label: "선 없음",
+          historyLabel: "마커 선 없음",
+          apply: () => {
+            marker.strokeWidthPt = 0;
+          },
+        },
+        {
+          label: "기본값",
+          historyLabel: "마커 스타일 초기화",
+          apply: () => {
+            Object.assign(marker, markerDefaults(marker.style), {
+              lon: marker.lon,
+              lat: marker.lat,
+              id: marker.id,
+              style: marker.style,
+              viewZoom: marker.viewZoom,
+            });
+          },
+        },
+      ],
+      () => {
+        renderAnnotations();
+        renderMap();
+      },
     );
 
     const meta = document.createElement("div");
     meta.className = "annotation-meta";
     meta.textContent = `${formatCoordinate(marker.lat, "lat")} · ${formatCoordinate(marker.lon, "lon")} · 캔버스 핸들로 이동/크기 조절`;
 
-    item.append(head, fieldGrid, meta);
+    item.append(head, fieldGrid, actionRow, meta);
     elements.markerList.appendChild(item);
   });
 }
@@ -16718,6 +16801,47 @@ function renderInsetList() {
       },
     );
 
+    const strokeColorInput = buildColorInput(getAnnotationStrokeColor(inset), "인셋 테두리 색 변경", (value) => {
+      inset.strokeColor = value;
+      renderMap();
+      renderAnnotations();
+    });
+    const strokeWidthInput = buildNumberInput(
+      getAnnotationStrokeWidthPt(inset),
+      0,
+      4,
+      0.1,
+      "인셋 테두리 두께 변경",
+      (value) => {
+        inset.strokeWidthPt = normalizeAnnotationStrokeWidthPt(value);
+        renderMap();
+      },
+    );
+    const strokeStyleSelect = buildAnnotationStrokeStyleSelect(getAnnotationStrokeStyle(inset));
+    strokeStyleSelect.addEventListener("change", () => {
+      beginHistoryStep("인셋 선 스타일 변경");
+      inset.strokeStyle = strokeStyleSelect.value;
+      renderMap();
+      renderAnnotations();
+    });
+    const fillColorInput = buildColorInput(getAnnotationFillColor(inset, state.oceanColor), "인셋 채우기 색 변경", (value) => {
+      inset.fillColor = value;
+      renderMap();
+      renderAnnotations();
+    });
+    const fillOpacityInput = buildNumberInput(
+      Math.round(getAnnotationFillOpacity(inset, 1) * 100),
+      0,
+      100,
+      5,
+      "인셋 채우기 투명도 변경",
+      (value) => {
+        inset.fillOpacity = clamp(value / 100, 0, 1);
+        renderMap();
+        renderAnnotations();
+      },
+    );
+
     const fieldGrid = document.createElement("div");
     fieldGrid.className = "annotation-grid";
     fieldGrid.append(
@@ -16727,6 +16851,41 @@ function renderInsetList() {
       createField("너비", widthInput),
       createField("높이", heightInput),
       createField("확대 %", zoomInput),
+      createField("테두리", strokeColorInput),
+      createField("두께 pt", strokeWidthInput),
+      createField("선", strokeStyleSelect),
+      createField("채우기", fillColorInput),
+      createField("채움 %", fillOpacityInput),
+    );
+
+    const actionRow = buildAnnotationStyleActions(
+      [
+        {
+          label: "채우기 없음",
+          historyLabel: "인셋 채우기 없음",
+          apply: () => {
+            inset.fillOpacity = 0;
+          },
+        },
+        {
+          label: "선 없음",
+          historyLabel: "인셋 선 없음",
+          apply: () => {
+            inset.strokeWidthPt = 0;
+          },
+        },
+        {
+          label: "기본값",
+          historyLabel: "인셋 스타일 초기화",
+          apply: () => {
+            Object.assign(inset, getDefaultInsetStyle());
+          },
+        },
+      ],
+      () => {
+        renderAnnotations();
+        renderMap();
+      },
     );
 
     const meta = document.createElement("div");
@@ -16735,7 +16894,7 @@ function renderInsetList() {
       `확대 ${Math.round(getInsetZoomScale(inset) * 100)}% · 샘플 점 ${inset.focusPoints.length}개 기준 · ` +
       `캔버스 핸들로 위치/크기 조절`;
 
-    item.append(head, fieldGrid, meta);
+    item.append(head, fieldGrid, actionRow, meta);
     elements.insetList.appendChild(item);
   });
 }
@@ -16768,6 +16927,29 @@ function buildMarkerStyleSelect(currentValue) {
   return select;
 }
 
+function buildAnnotationStrokeStyleSelect(currentValue) {
+  const select = document.createElement("select");
+  annotationStrokeStyleOptions.forEach((optionData) => {
+    const option = document.createElement("option");
+    option.value = optionData.value;
+    option.textContent = optionData.label;
+    option.selected = optionData.value === currentValue;
+    select.appendChild(option);
+  });
+  return select;
+}
+
+function buildColorInput(value, historyLabel, onInput) {
+  const input = document.createElement("input");
+  input.type = "color";
+  input.value = normalizeHexColor(value, state.borderColor);
+  input.addEventListener("input", () => {
+    beginHistoryStep(historyLabel);
+    onInput(input.value);
+  });
+  return input;
+}
+
 function buildNumberInput(value, min, max, step, historyLabel, onInput) {
   const input = document.createElement("input");
   input.type = "number";
@@ -16784,6 +16966,120 @@ function buildNumberInput(value, min, max, step, historyLabel, onInput) {
     onInput(parsed);
   });
   return input;
+}
+
+function buildAnnotationStyleActions(actions, afterApply) {
+  const row = document.createElement("div");
+  row.className = "annotation-action-row";
+  actions.forEach((action) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "tw-chip annotation-style-button";
+    button.textContent = action.label;
+    button.addEventListener("click", () => {
+      beginHistoryStep(action.historyLabel);
+      action.apply();
+      afterApply();
+    });
+    row.appendChild(button);
+  });
+  return row;
+}
+
+function normalizeHexColor(value, fallback = "#101010") {
+  const text = String(value || "").trim();
+  if (/^#[0-9a-f]{6}$/iu.test(text)) {
+    return text;
+  }
+  if (/^#[0-9a-f]{3}$/iu.test(text)) {
+    return `#${[...text.slice(1)].map((letter) => `${letter}${letter}`).join("")}`;
+  }
+  return /^#[0-9a-f]{6}$/iu.test(fallback) ? fallback : "#101010";
+}
+
+function normalizeAnnotationStrokeWidthPt(value, fallback = 0.3) {
+  const parsed = Number(value);
+  return clamp(Number.isFinite(parsed) ? parsed : fallback, 0, 4);
+}
+
+function getAnnotationStrokeWidthPt(item, fallback = 0.3) {
+  return normalizeAnnotationStrokeWidthPt(item?.strokeWidthPt, fallback);
+}
+
+function formatAnnotationStrokeWidth(item, fallback = 0.3) {
+  const width = getAnnotationStrokeWidthPt(item, fallback);
+  return `${Number(width.toFixed(2))}pt`;
+}
+
+function getAnnotationStrokeColor(item, fallback = state.borderColor) {
+  return normalizeHexColor(item?.strokeColor, fallback);
+}
+
+function getAnnotationFillColor(item, fallback = "#ffffff") {
+  return normalizeHexColor(item?.fillColor, fallback);
+}
+
+function getAnnotationFillOpacity(item, fallback = 0) {
+  const parsed = Number(item?.fillOpacity);
+  return clamp(Number.isFinite(parsed) ? parsed : fallback, 0, 1);
+}
+
+function getAnnotationStrokeStyle(item, fallback = "solid") {
+  const value = String(item?.strokeStyle || "").trim();
+  return annotationStrokeStyleOptions.some((option) => option.value === value) ? value : fallback;
+}
+
+function getAnnotationDasharray(style, strokeWidthPt = 0.3) {
+  const width = Math.max(0.1, Number(strokeWidthPt) || 0.3);
+  if (style === "dashed") {
+    return `${Number((width * 10).toFixed(2))}pt ${Number((width * 7).toFixed(2))}pt`;
+  }
+  if (style === "dotted") {
+    return `${Number((width * 1.4).toFixed(2))}pt ${Number((width * 5).toFixed(2))}pt`;
+  }
+  return "";
+}
+
+function getCssAnnotationStrokeStyle(item) {
+  const style = getAnnotationStrokeStyle(item);
+  if (style === "dotted") {
+    return "dotted";
+  }
+  if (style === "dashed") {
+    return "dashed";
+  }
+  return "solid";
+}
+
+function applyAnnotationStroke(selection, item, options = {}) {
+  const width = getAnnotationStrokeWidthPt(item, options.widthFallback ?? 0.3);
+  if (width <= 0) {
+    selection.attr("stroke", "none").attr("stroke-width", 0).attr("stroke-dasharray", null);
+    return selection;
+  }
+
+  const style = getAnnotationStrokeStyle(item, options.styleFallback ?? "solid");
+  const dasharray = getAnnotationDasharray(style, width);
+  selection
+    .attr("stroke", getAnnotationStrokeColor(item, options.colorFallback ?? state.borderColor))
+    .attr("stroke-width", formatAnnotationStrokeWidth(item, options.widthFallback ?? 0.3))
+    .attr("stroke-dasharray", dasharray || null)
+    .attr("stroke-linecap", style === "dotted" ? "round" : "butt")
+    .attr("vector-effect", "non-scaling-stroke");
+  return selection;
+}
+
+function applyAnnotationFill(selection, item, options = {}) {
+  const opacity = getAnnotationFillOpacity(item, options.opacityFallback ?? 0);
+  if (opacity <= 0) {
+    selection.attr("fill", "none").attr("fill-opacity", null);
+    return selection;
+  }
+
+  selection
+    .attr("fill", getAnnotationFillColor(item, options.colorFallback ?? "#ffffff"))
+    .attr("fill-opacity", opacity);
+  return selection;
 }
 
 function removeSelectionEntry(regionId) {
@@ -18550,48 +18846,40 @@ function renderMarkerLayer(root, projection) {
 }
 
 function drawMarkerShape(group, marker, point) {
-  const strokeWidth = marker.style === "filledDot" ? 0 : OUTLINE_STROKE_WIDTH;
   const scale = getMarkerRenderScale(marker);
 
   if (marker.style === "ring") {
-    group
+    const shape = group
       .append("circle")
       .attr("cx", point.x)
       .attr("cy", point.y)
-      .attr("r", Math.max(7, marker.size * scale))
-      .attr("fill", "none")
-      .attr("stroke", state.borderColor)
-      .attr("stroke-width", strokeWidth)
-      .attr("vector-effect", "non-scaling-stroke");
+      .attr("r", Math.max(7, marker.size * scale));
+    applyAnnotationFill(shape, marker);
+    applyAnnotationStroke(shape, marker);
     return;
   }
 
   if (marker.style === "dashedOval") {
-    group
+    const shape = group
       .append("ellipse")
       .attr("cx", point.x)
       .attr("cy", point.y)
       .attr("rx", Math.max(9, marker.size * scale))
       .attr("ry", Math.max(7, marker.size * marker.aspect * scale))
-      .attr("fill", "none")
-      .attr("stroke", state.borderColor)
-      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
-      .attr("stroke-dasharray", "5pt 4pt")
-      .attr("transform", `rotate(${marker.rotation} ${point.x} ${point.y})`)
-      .attr("vector-effect", "non-scaling-stroke");
+      .attr("transform", `rotate(${marker.rotation} ${point.x} ${point.y})`);
+    applyAnnotationFill(shape, marker);
+    applyAnnotationStroke(shape, marker, { styleFallback: "dashed" });
     return;
   }
 
   if (marker.style === "point") {
-    group
+    const shape = group
       .append("circle")
       .attr("cx", point.x)
       .attr("cy", point.y)
-      .attr("r", Math.max(4.5, marker.size * 0.62 * scale))
-      .attr("fill", "none")
-      .attr("stroke", state.borderColor)
-      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
-      .attr("vector-effect", "non-scaling-stroke");
+      .attr("r", Math.max(4.5, marker.size * 0.62 * scale));
+    applyAnnotationFill(shape, marker);
+    applyAnnotationStroke(shape, marker);
     return;
   }
 
@@ -18600,7 +18888,8 @@ function drawMarkerShape(group, marker, point) {
     .attr("cx", point.x)
     .attr("cy", point.y)
     .attr("r", clampMarkerSize(marker, marker.size))
-    .attr("fill", state.borderColor)
+    .attr("fill", getAnnotationFillColor(marker, state.borderColor))
+    .attr("fill-opacity", getAnnotationFillOpacity(marker, 1))
     .attr("stroke", "none");
 }
 
@@ -18636,8 +18925,10 @@ function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById
 
   if (sourceFrame) {
     renderDashedFrame(layer, sourceFrame, {
-      stroke: state.borderColor,
-      dasharray: "4.5pt 3.2pt",
+      stroke: getAnnotationStrokeColor(inset),
+      strokeWidth: formatAnnotationStrokeWidth(inset),
+      dasharray: getAnnotationDasharray(getAnnotationStrokeStyle(inset, "dashed"), getAnnotationStrokeWidthPt(inset)),
+      opacity: getAnnotationStrokeWidthPt(inset) > 0 ? 0.76 : 0,
     });
   }
 
@@ -18658,16 +18949,14 @@ function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById
     .attr("width", frame.width)
     .attr("height", frame.height);
 
-  panelGroup
+  const panelRect = panelGroup
     .append("rect")
     .attr("x", frame.x)
     .attr("y", frame.y)
     .attr("width", frame.width)
-    .attr("height", frame.height)
-      .attr("fill", state.oceanColor)
-      .attr("stroke", state.borderColor)
-      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
-      .attr("vector-effect", "non-scaling-stroke");
+    .attr("height", frame.height);
+  applyAnnotationFill(panelRect, inset, { colorFallback: state.oceanColor, opacityFallback: 1 });
+  applyAnnotationStroke(panelRect, inset);
 
   const insetGroup = panelGroup.append("g").attr("clip-path", `url(#${clipId})`);
   renderInsetMapContent(insetGroup, mainProjection, frame, sourceFrame, selectedColorById, inset, options);
@@ -18678,12 +18967,12 @@ function renderSingleInset(layer, defs, mainProjection, inset, selectedColorById
       y: frame.y + 22,
       text: inset.label.trim(),
       anchor: "start",
-      fill: state.borderColor,
+      fill: getAnnotationStrokeColor(inset),
     });
   }
 
   if (sourceFrame) {
-    renderInsetConnectors(layer, frame, sourceFrame);
+    renderInsetConnectors(layer, frame, sourceFrame, inset);
   }
 }
 
@@ -18803,7 +19092,11 @@ function buildInsetSourceFrame(mainProjection, inset, panelFrame = null) {
   return scaleRectFromCenter(aspectFrame, 1 / getInsetZoomScale(inset));
 }
 
-function renderInsetConnectors(layer, frame, sourceFrame) {
+function renderInsetConnectors(layer, frame, sourceFrame, inset = null) {
+  if (inset && getAnnotationStrokeWidthPt(inset) <= 0) {
+    return;
+  }
+
   const sourceCenter = {
     x: sourceFrame.x + sourceFrame.width / 2,
     y: sourceFrame.y + sourceFrame.height / 2,
@@ -18840,8 +19133,7 @@ function renderInsetConnectors(layer, frame, sourceFrame) {
       .append("path")
       .attr("d", `M ${sourceAnchor.x} ${sourceAnchor.y} L ${panelAnchor.x} ${panelAnchor.y}`)
       .attr("fill", "none")
-      .attr("stroke", state.borderColor)
-      .attr("stroke-width", OUTLINE_STROKE_WIDTH)
+      .call((path) => applyAnnotationStroke(path, inset ?? {}, { styleFallback: "solid" }))
       .attr("opacity", 0.76)
       .attr("vector-effect", "non-scaling-stroke");
   });
@@ -19060,16 +19352,18 @@ function renderDashedFrame(container, frame, options = {}) {
   ];
 
   edges.forEach(([start, end]) => {
-    group
+    const path = group
       .append("path")
       .attr("d", `M ${start.x} ${start.y} L ${end.x} ${end.y}`)
       .attr("fill", "none")
       .attr("stroke", stroke)
       .attr("stroke-width", strokeWidth)
-      .attr("stroke-dasharray", dasharray)
       .attr("stroke-linecap", "butt")
       .attr("opacity", opacity)
       .attr("vector-effect", "non-scaling-stroke");
+    if (dasharray) {
+      path.attr("stroke-dasharray", dasharray);
+    }
   });
 }
 
@@ -19840,6 +20134,8 @@ function mountInsetEditor(editorLayer, shell, inset) {
   const editor = document.createElement("div");
   editor.className = "annotation-editor inset-editor";
   editor.title = "드래그해 인셋 위치 이동";
+  editor.style.borderColor = getAnnotationStrokeColor(inset);
+  editor.style.borderStyle = getCssAnnotationStrokeStyle(inset);
 
   if (inset.label.trim()) {
     const tag = document.createElement("span");
@@ -20702,6 +20998,7 @@ function addInsetFromRect(rect) {
   const frame = getDefaultInsetFrame(state.insets.length, aspectRatio);
   beginHistoryStep("인셋 추가");
   state.insets.push({
+    ...getDefaultInsetStyle(),
     id: makeId("inset"),
     label: "",
     panelX: frame.x,
@@ -20918,18 +21215,54 @@ function normalizeRect(startPoint, endPoint) {
 
 function markerDefaults(style) {
   if (style === "dashedOval") {
-    return { label: "", size: 24, aspect: 0.62, rotation: 0, offsetX: 0, offsetY: 0 };
+    return {
+      ...getDefaultAnnotationStyle({ strokeStyle: "dashed", fillOpacity: 0 }),
+      label: "",
+      size: 24,
+      aspect: 0.62,
+      rotation: 0,
+      offsetX: 0,
+      offsetY: 0,
+    };
   }
 
   if (style === "point") {
-    return { label: "", size: 10, aspect: 1, rotation: 0, offsetX: 0, offsetY: 0 };
+    return {
+      ...getDefaultAnnotationStyle({ fillOpacity: 0 }),
+      label: "",
+      size: 10,
+      aspect: 1,
+      rotation: 0,
+      offsetX: 0,
+      offsetY: 0,
+    };
   }
 
   if (style === "filledDot") {
-    return { label: "", size: 4, aspect: 1, rotation: 0, offsetX: 0, offsetY: 0 };
+    return {
+      ...getDefaultAnnotationStyle({
+        strokeWidthPt: 0,
+        fillColor: state.borderColor,
+        fillOpacity: 1,
+      }),
+      label: "",
+      size: 4,
+      aspect: 1,
+      rotation: 0,
+      offsetX: 0,
+      offsetY: 0,
+    };
   }
 
-  return { label: "", size: 16, aspect: 1, rotation: 0, offsetX: 0, offsetY: 0 };
+  return {
+    ...getDefaultAnnotationStyle({ fillOpacity: 0 }),
+    label: "",
+    size: 16,
+    aspect: 1,
+    rotation: 0,
+    offsetX: 0,
+    offsetY: 0,
+  };
 }
 
 function applyMarkerDefaultsIfNeeded(marker) {
@@ -20940,6 +21273,24 @@ function applyMarkerDefaultsIfNeeded(marker) {
   marker.offsetX = defaults.offsetX;
   marker.offsetY = defaults.offsetY;
   marker.viewZoom = state.viewZoom;
+}
+
+function getDefaultAnnotationStyle(overrides = {}) {
+  return {
+    strokeColor: state.borderColor,
+    strokeWidthPt: 0.3,
+    strokeStyle: "solid",
+    fillColor: "#ffffff",
+    fillOpacity: 0,
+    ...overrides,
+  };
+}
+
+function getDefaultInsetStyle() {
+  return getDefaultAnnotationStyle({
+    fillColor: state.oceanColor,
+    fillOpacity: 1,
+  });
 }
 
 function getMarkerSizeRange(style) {
