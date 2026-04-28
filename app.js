@@ -1680,6 +1680,9 @@ const previewInteraction = {
   translateY: 0,
   commitTimer: null,
 };
+const ANNOTATION_ZOOM_RENDER_DELAY_MS = 48;
+let annotationZoomRenderTimer = null;
+let annotationZoomRenderFrame = null;
 const interactionState = {
   temporaryViewMode: null,
 };
@@ -20147,8 +20150,8 @@ function handleCanvasWheel(event) {
   const actualFactor = clampPreviewScaleFactor(desiredFactor);
   if (hasMapAnnotations()) {
     applyRelativeZoom(actualFactor, point, point, { recordHistory: false });
-    renderMap();
     setStatus(`보기 ${Math.round(state.viewZoom * 100)}%`);
+    scheduleAnnotationZoomRender();
     return;
   }
 
@@ -20180,7 +20183,8 @@ function handleCanvasGestureChange(event) {
   activeGestureScale = nextScale;
   if (hasMapAnnotations()) {
     applyRelativeZoom(factor, point, point, { recordHistory: false });
-    renderMap();
+    setStatus(`보기 ${Math.round(state.viewZoom * 100)}%`);
+    scheduleAnnotationZoomRender();
     return;
   }
 
@@ -20231,6 +20235,20 @@ function queuePreviewCommit() {
   previewInteraction.commitTimer = window.setTimeout(() => {
     commitPreviewInteraction();
   }, 120);
+}
+
+function scheduleAnnotationZoomRender() {
+  if (annotationZoomRenderTimer !== null || annotationZoomRenderFrame !== null) {
+    return;
+  }
+
+  annotationZoomRenderTimer = window.setTimeout(() => {
+    annotationZoomRenderTimer = null;
+    annotationZoomRenderFrame = window.requestAnimationFrame(() => {
+      annotationZoomRenderFrame = null;
+      renderMap();
+    });
+  }, ANNOTATION_ZOOM_RENDER_DELAY_MS);
 }
 
 function commitPreviewInteraction() {
