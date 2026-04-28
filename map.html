@@ -26,7 +26,6 @@
             <span>Menu</span>
           </summary>
           <div class="app-context-menu-panel">
-            <a href="./index.html">Promenade</a>
             <a class="is-active" href="./map.html">Map Editor</a>
             <a href="./tools/climate/index.html">Climate Database</a>
             <a href="./tools/cut/index.html">Exam Simulator</a>
@@ -230,9 +229,9 @@
                   <button class="tw-chip preset-button" type="button" data-width="310" data-height="310">1:1</button>
                   <button class="tw-chip preset-button" type="button" data-width="310" data-height="233">4:3</button>
                   <button class="tw-chip preset-button" type="button" data-width="310" data-height="174">16:9</button>
-                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="413">세로형</button>
-                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="233">가로형</button>
-                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="440">A4 세로</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="413">3:4</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="551">9:16</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="440">A4</button>
                 </div>
                 <div class="number-grid">
                   <label class="tw-field">
@@ -244,6 +243,13 @@
                     <input id="heightInput" type="number" min="120" max="3200" step="5" value="310" />
                   </label>
                 </div>
+                <label class="range-field canvas-ratio-field">
+                  <span>높이 빠른 조절</span>
+                  <div class="range-row">
+                    <input id="heightSlider" type="range" min="120" max="620" step="1" value="310" />
+                    <strong id="heightSliderValue">310px</strong>
+                  </div>
+                </label>
               </article>
 
               <article class="tw-data-card app-control-card world-only" hidden>

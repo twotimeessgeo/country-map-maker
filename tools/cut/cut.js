@@ -543,10 +543,9 @@ function renderHistorySelect(selectedId = lastLoadedHistoryId) {
   elements.history.disabled = false;
   elements.loadHistory.disabled = false;
   for (const exam of subjectExams) {
-    const inferred = exam.inferred_count ? ` · 보충 ${exam.inferred_count}문항` : "";
     const option = document.createElement("option");
     option.value = exam.id;
-    option.textContent = `${exam.label} · ${exam.cuts["1"]}/${exam.cuts["2"]}/${exam.cuts["3"]}${inferred}`;
+    option.textContent = exam.label;
     elements.history.appendChild(option);
   }
   if (selectedId && subjectExams.some((exam) => exam.id === selectedId)) {
@@ -1252,16 +1251,15 @@ function renderResult(data, resultMode = "prediction") {
     data.historical_matches.map((row) => ({ ...row, className: row.id === lastLoadedHistoryId ? "is-cut" : "" })),
   );
 
-  renderTable(
-    elements.rateTable,
-    [
-      { label: "문항", value: (row) => row.question, width: "0.6fr" },
-      { label: "배점", value: (row) => formatFixed(row.points, 0), width: "0.6fr" },
-      { label: "전국", value: (row) => `${formatFixed(row.national_rate)}%`, width: "0.8fr" },
-      { label: "시대인재N 환산", value: (row) => row.academy_rate_label, width: "1fr" },
-    ],
-    data.conversion_rows,
-  );
+  const rateColumns = [
+    { label: "문항", value: (row) => row.question, width: "0.6fr" },
+    { label: "배점", value: (row) => formatFixed(row.points, 0), width: "0.6fr" },
+    { label: "전국", value: (row) => `${formatFixed(row.national_rate)}%`, width: "0.8fr" },
+  ];
+  if (!isHistoryActualMode) {
+    rateColumns.push({ label: "시대인재N 환산", value: (row) => row.academy_rate_label, width: "1fr" });
+  }
+  renderTable(elements.rateTable, rateColumns, data.conversion_rows);
   setStatus("완료", true);
   refreshIcons();
 }
@@ -1308,11 +1306,9 @@ function renderQuestionExamSelect(selectedKey = elements.questionExam.value) {
   const exams = questionAvailableExams.filter((exam) => !subject || exam.subject === subject);
   elements.questionExam.innerHTML = '<option value="">시험 전체</option>';
   for (const exam of exams) {
-    const inferred = exam.inferred_count ? ` · ${exam.inferred_count}보충` : "";
-    const unmatched = exam.unmatched_count ? ` · ${exam.unmatched_count}정보없음` : "";
     const option = document.createElement("option");
     option.value = exam.key;
-    option.textContent = `${exam.label} · ${exam.exact_count}실측${inferred}${unmatched}`;
+    option.textContent = exam.label;
     elements.questionExam.appendChild(option);
   }
   if (selectedKey && exams.some((exam) => exam.key === selectedKey)) {

@@ -39,13 +39,14 @@ const MAX_INSET_PANEL_WIDTH = 310;
 const MAIN_CANVAS_WIDTH = 310;
 const MIN_CANVAS_WIDTH = 140;
 const MIN_CANVAS_HEIGHT = 120;
+const MAX_CANVAS_WIDTH = MAIN_CANVAS_WIDTH;
 const MIN_ZOOM_DRAG_SIZE = 20;
 const MIN_INSET_DRAG_SIZE = 2;
 const MAP_RENDER_CLIP_PADDING = 24;
 const INSET_RENDER_CLIP_PADDING = 18;
 const COASTLINE_FRAGMENT_MAX_POINTS = 160;
 const MIN_INSET_ZOOM_SCALE = 0.2;
-const MAX_INSET_ZOOM_SCALE = 2.4;
+const MAX_INSET_ZOOM_SCALE = 4;
 const MAX_STABLE_SPHERICAL_FILL_AREA = 2 * Math.PI;
 const PNG_EXPORT_DPI = 500;
 const CSS_PIXEL_DPI = 96;
@@ -108,9 +109,9 @@ const viewModeDetails = {
     tips: ["클릭: 기본 크기", "드래그: 크기 지정", "핸들: 이동/리사이즈", "3: 마커 모드"],
   },
   inset: {
-    description: "확대하고 싶은 범위를 드래그하면 인셋이 생기고, 생성 뒤에는 패널 위치와 크기를 바로 조정할 수 있습니다.",
-    hint: "인셋 추가 모드에서는 확대하고 싶은 범위를 드래그해 작은 확대 지도 박스를 만들 수 있고, 만들어진 인셋 패널도 미리보기에서 바로 끌어 조정할 수 있습니다.",
-    tips: ["드래그: 인셋 만들기", "핸들: 크기 조절", "패널: 위치 이동", "4: 인셋 모드"],
+    description: "클릭하면 기본 크기, 드래그하면 지정한 범위로 인셋을 만들고 위치와 크기를 바로 조정합니다.",
+    hint: "인셋 추가 모드에서는 클릭으로 기본 크기의 확대 지도 박스를 만들거나, 드래그로 원하는 범위를 잡을 수 있습니다. 만들어진 인셋 패널은 미리보기에서 바로 끌어 조정할 수 있습니다.",
+    tips: ["클릭: 기본 인셋", "드래그: 범위 지정", "핸들: 크기 조절", "4: 인셋 모드"],
   },
 };
 
@@ -1595,6 +1596,8 @@ const elements = {
   statusMessage: document.querySelector("#statusMessage"),
   widthInput: document.querySelector("#widthInput"),
   heightInput: document.querySelector("#heightInput"),
+  heightSlider: document.querySelector("#heightSlider"),
+  heightSliderValue: document.querySelector("#heightSliderValue"),
   paddingInput: document.querySelector("#paddingInput"),
   paddingValue: document.querySelector("#paddingValue"),
   centerLongitudeInput: document.querySelector("#centerLongitudeInput"),
@@ -1753,6 +1756,14 @@ function attachEventListeners() {
   elements.heightInput.addEventListener("input", () => {
     beginHistoryStep("캔버스 크기 변경");
     state.height = clampCanvasHeight(elements.heightInput.value, state.height);
+    syncDimensionInputs();
+    syncPresetButtons();
+    renderMap();
+  });
+
+  elements.heightSlider?.addEventListener("input", () => {
+    beginHistoryStep("캔버스 비율 변경");
+    state.height = clampCanvasHeight(elements.heightSlider.value, state.height);
     syncDimensionInputs();
     syncPresetButtons();
     renderMap();
@@ -2814,6 +2825,14 @@ function syncControls() {
 function syncDimensionInputs() {
   elements.widthInput.value = String(clampCanvasWidth(state.width));
   elements.heightInput.value = String(clampCanvasHeight(state.height));
+  if (elements.heightSlider) {
+    const sliderMin = Number(elements.heightSlider.min);
+    const sliderMax = Number(elements.heightSlider.max);
+    elements.heightSlider.value = String(clamp(state.height, sliderMin, sliderMax));
+  }
+  if (elements.heightSliderValue) {
+    elements.heightSliderValue.textContent = `${clampCanvasHeight(state.height)}px`;
+  }
 }
 
 function syncPresetButtons() {
@@ -19842,7 +19861,8 @@ function mountPreviewCanvas() {
   const resizeHandle = document.createElement("button");
   resizeHandle.type = "button";
   resizeHandle.className = "resize-handle";
-  resizeHandle.title = "드래그해 지도 비율 조절";
+  resizeHandle.title = "드래그해 캔버스 크기 조절";
+  resizeHandle.setAttribute("aria-label", "캔버스 크기 조절");
   resizeHandle.addEventListener("pointerdown", startArtboardResize);
   canvasShell.append(resizeHandle);
 
@@ -19867,6 +19887,7 @@ function mountInsetEditor(editorLayer, shell, inset) {
   const frame = normalizeInsetFrame(inset);
   const editor = document.createElement("div");
   editor.className = "annotation-editor inset-editor";
+  editor.title = "드래그해 인셋 위치 이동";
 
   if (inset.label.trim()) {
     const tag = document.createElement("span");
@@ -19879,6 +19900,7 @@ function mountInsetEditor(editorLayer, shell, inset) {
   handle.type = "button";
   handle.className = "annotation-editor__handle";
   handle.setAttribute("aria-label", "인셋 크기 조절");
+  handle.title = "인셋 크기 조절";
   editor.appendChild(handle);
 
   positionEditorFrame(editor, frame);
@@ -19905,6 +19927,7 @@ function mountMarkerEditor(editorLayer, shell, marker) {
 
   const editor = document.createElement("div");
   editor.className = `annotation-editor marker-editor marker-editor--${marker.style}`;
+  editor.title = "드래그해 마커 위치 이동";
 
   const tag = document.createElement("span");
   tag.className = "annotation-editor__tag";
@@ -19915,6 +19938,7 @@ function mountMarkerEditor(editorLayer, shell, marker) {
   handle.type = "button";
   handle.className = "annotation-editor__handle";
   handle.setAttribute("aria-label", "마커 크기 조절");
+  handle.title = "마커 크기 조절";
   editor.appendChild(handle);
 
   positionEditorFrame(editor, buildMarkerEditorFrame(point, marker));
@@ -19936,6 +19960,8 @@ function mountMarkerEditor(editorLayer, shell, marker) {
 function startInsetEditorDrag(event, shell, inset, editor) {
   event.preventDefault();
   event.stopPropagation();
+  event.currentTarget.setPointerCapture?.(event.pointerId);
+  editor.classList.add("is-dragging");
   if (!previewTransformIsIdentity()) {
     commitPreviewInteraction();
   }
@@ -19960,6 +19986,7 @@ function startInsetEditorDrag(event, shell, inset, editor) {
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", stop);
     window.removeEventListener("pointercancel", stop);
+    editor.classList.remove("is-dragging");
 
     const deltaX = (upEvent.clientX - startX) / (currentPreviewScale || 1);
     const deltaY = (upEvent.clientY - startY) / (currentPreviewScale || 1);
@@ -19978,6 +20005,8 @@ function startInsetEditorDrag(event, shell, inset, editor) {
 function startInsetEditorResize(event, shell, inset, editor) {
   event.preventDefault();
   event.stopPropagation();
+  event.currentTarget.setPointerCapture?.(event.pointerId);
+  editor.classList.add("is-dragging");
   if (!previewTransformIsIdentity()) {
     commitPreviewInteraction();
   }
@@ -19997,6 +20026,7 @@ function startInsetEditorResize(event, shell, inset, editor) {
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", stop);
     window.removeEventListener("pointercancel", stop);
+    editor.classList.remove("is-dragging");
 
     const deltaX = (upEvent.clientX - startX) / (currentPreviewScale || 1);
     const deltaY = (upEvent.clientY - startY) / (currentPreviewScale || 1);
@@ -20016,6 +20046,8 @@ function startInsetEditorResize(event, shell, inset, editor) {
 function startMarkerEditorDrag(event, shell, marker, editor) {
   event.preventDefault();
   event.stopPropagation();
+  event.currentTarget.setPointerCapture?.(event.pointerId);
+  editor.classList.add("is-dragging");
   if (!previewTransformIsIdentity()) {
     commitPreviewInteraction();
   }
@@ -20032,6 +20064,7 @@ function startMarkerEditorDrag(event, shell, marker, editor) {
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", stop);
     window.removeEventListener("pointercancel", stop);
+    editor.classList.remove("is-dragging");
 
     const point = getCanvasPointFromEvent(upEvent, shell);
     const coordinate = point ? invertCanvasPoint(point) : null;
@@ -20052,6 +20085,8 @@ function startMarkerEditorDrag(event, shell, marker, editor) {
 function startMarkerEditorResize(event, shell, marker, editor) {
   event.preventDefault();
   event.stopPropagation();
+  event.currentTarget.setPointerCapture?.(event.pointerId);
+  editor.classList.add("is-dragging");
   if (!previewTransformIsIdentity()) {
     commitPreviewInteraction();
   }
@@ -20081,7 +20116,7 @@ function startMarkerEditorResize(event, shell, marker, editor) {
       return;
     }
 
-    const nextSize = clamp(startSize + Math.max(deltaX, deltaY) / 2, 4, 180);
+    const nextSize = clamp(startSize + getUniformResizeDelta(deltaX, deltaY), 4, 180);
     positionEditorFrame(editor, buildMarkerEditorFrame(startPoint, { ...marker, size: nextSize }));
   };
 
@@ -20089,6 +20124,7 @@ function startMarkerEditorResize(event, shell, marker, editor) {
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", stop);
     window.removeEventListener("pointercancel", stop);
+    editor.classList.remove("is-dragging");
 
     const deltaX = (upEvent.clientX - startX) / (currentPreviewScale || 1);
     const deltaY = (upEvent.clientY - startY) / (currentPreviewScale || 1);
@@ -20099,7 +20135,7 @@ function startMarkerEditorResize(event, shell, marker, editor) {
       marker.size = width / 2;
       marker.aspect = clamp(height / Math.max(width, 1), 0.2, 3);
     } else {
-      marker.size = clamp(startSize + Math.max(deltaX, deltaY) / 2, 4, 180);
+      marker.size = clamp(startSize + getUniformResizeDelta(deltaX, deltaY), 4, 180);
     }
     renderAnnotations();
     renderMap();
@@ -20108,6 +20144,10 @@ function startMarkerEditorResize(event, shell, marker, editor) {
   window.addEventListener("pointermove", onPointerMove);
   window.addEventListener("pointerup", stop);
   window.addEventListener("pointercancel", stop);
+}
+
+function getUniformResizeDelta(deltaX, deltaY) {
+  return (deltaX + deltaY) / 1.6;
 }
 
 function positionEditorFrame(editor, frame) {
@@ -20294,6 +20334,7 @@ function previewTransformIsIdentity() {
 function startArtboardResize(event) {
   event.preventDefault();
   event.stopPropagation();
+  event.currentTarget.setPointerCapture?.(event.pointerId);
 
   const shell = event.currentTarget.parentElement;
   if (!shell) {
@@ -20310,11 +20351,16 @@ function startArtboardResize(event) {
   const onPointerMove = (moveEvent) => {
     const deltaWidth = (moveEvent.clientX - startX) / (currentPreviewScale || 1);
     const deltaHeight = (moveEvent.clientY - startY) / (currentPreviewScale || 1);
-    const nextWidth = clampCanvasWidth(startWidth + deltaWidth, startWidth);
-    const nextHeight = clampCanvasHeight(startHeight + deltaHeight, startHeight);
+    const { width: nextWidth, height: nextHeight } = getArtboardResizeFrame(
+      startWidth,
+      startHeight,
+      deltaWidth,
+      deltaHeight,
+    );
 
     shell.style.width = `${Math.round(nextWidth * currentPreviewScale)}px`;
     shell.style.height = `${Math.round(nextHeight * currentPreviewScale)}px`;
+    setStatus(`${nextWidth} × ${nextHeight}px`);
   };
 
   const stopResize = (upEvent) => {
@@ -20325,9 +20371,10 @@ function startArtboardResize(event) {
 
     const deltaWidth = (upEvent.clientX - startX) / (currentPreviewScale || 1);
     const deltaHeight = (upEvent.clientY - startY) / (currentPreviewScale || 1);
+    const nextFrame = getArtboardResizeFrame(startWidth, startHeight, deltaWidth, deltaHeight);
     beginHistoryStep("캔버스 크기 변경");
-    state.width = clampCanvasWidth(startWidth + deltaWidth, startWidth);
-    state.height = clampCanvasHeight(startHeight + deltaHeight, startHeight);
+    state.width = nextFrame.width;
+    state.height = nextFrame.height;
     syncDimensionInputs();
     syncPresetButtons();
     renderMap();
@@ -20337,6 +20384,16 @@ function startArtboardResize(event) {
   window.addEventListener("pointermove", onPointerMove);
   window.addEventListener("pointerup", stopResize);
   window.addEventListener("pointercancel", stopResize);
+}
+
+function getArtboardResizeFrame(startWidth, startHeight, deltaWidth, deltaHeight) {
+  const width = clampCanvasWidth(startWidth + deltaWidth, startWidth);
+  const maxedWidth = startWidth >= MAX_CANVAS_WIDTH - 0.5 && deltaWidth > Math.abs(deltaHeight) * 1.15;
+  const heightDelta = maxedWidth ? -deltaWidth : deltaHeight;
+  return {
+    width,
+    height: clampCanvasHeight(startHeight + heightDelta, startHeight),
+  };
 }
 
 function handleCanvasPointerDown(event) {
@@ -20548,7 +20605,7 @@ function startBoxInteraction(shell, startPoint, mode) {
         return;
       }
 
-      setStatus("인셋 영역이 너무 작습니다. 조금 더 넓게 드래그해 주세요.", true);
+      addInsetFromRect(buildDefaultInsetSourceRect(endPoint));
       return;
     }
 
@@ -20565,6 +20622,18 @@ function startBoxInteraction(shell, startPoint, mode) {
   window.addEventListener("pointermove", onPointerMove);
   window.addEventListener("pointerup", stop);
   window.addEventListener("pointercancel", stop);
+}
+
+function buildDefaultInsetSourceRect(centerPoint) {
+  const shorterSide = Math.max(1, Math.min(state.width, state.height));
+  const width = clamp(Math.round(shorterSide * 0.28), 48, Math.min(180, state.width));
+  const height = clamp(Math.round(shorterSide * 0.22), 42, Math.min(150, state.height));
+  return {
+    x: clamp(centerPoint.x - width / 2, 0, Math.max(0, state.width - width)),
+    y: clamp(centerPoint.y - height / 2, 0, Math.max(0, state.height - height)),
+    width,
+    height,
+  };
 }
 
 function addMarkerAtCanvasPoint(point) {
@@ -20656,7 +20725,7 @@ function addInsetFromRect(rect) {
     panelWidth: frame.width,
     panelHeight: frame.height,
     aspectRatio,
-    zoomScale: 0.7,
+    zoomScale: 1,
     outline: sample.outline,
     focusPoints: sample.focusPoints,
     geoBounds: sample.geoBounds,
@@ -20820,7 +20889,7 @@ function resetViewWindow() {
 }
 
 function clampViewZoom(value) {
-  return clamp(value, 0.35, 24);
+  return clamp(value, 0.35, 48);
 }
 
 function getCanvasPointFromEvent(event, shell = event.currentTarget ?? elements.previewStage.firstElementChild) {
@@ -21016,7 +21085,7 @@ function clampCanvasWidth(value, fallback = MAIN_CANVAS_WIDTH) {
     return fallback;
   }
 
-  return clamp(Math.round(parsed), MIN_CANVAS_WIDTH, MAIN_CANVAS_WIDTH);
+  return clamp(Math.round(parsed), MIN_CANVAS_WIDTH, MAX_CANVAS_WIDTH);
 }
 
 function clampCanvasHeight(value, fallback = 310) {

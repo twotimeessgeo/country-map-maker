@@ -360,6 +360,19 @@ body[data-map-version="korea"] .app-detail-card--selection {
   font-weight: 700;
 }
 
+.canvas-ratio-field {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--tw-line-faint);
+}
+
+.canvas-ratio-field strong {
+  min-width: 52px;
+  color: var(--tw-muted);
+  font-size: 0.84rem;
+  text-align: right;
+}
+
 .range-row {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
@@ -1019,6 +1032,7 @@ kbd {
   max-height: 100%;
   background: #ffffff;
   border: var(--tw-border);
+  box-shadow: 0 12px 30px rgba(17, 17, 17, 0.08);
   flex: 0 0 auto;
   touch-action: none;
   user-select: none;
@@ -1026,6 +1040,8 @@ kbd {
 
 .canvas-shell.is-resizing {
   cursor: nwse-resize;
+  outline: 2px solid rgba(17, 17, 17, 0.14);
+  outline-offset: 5px;
 }
 
 .canvas-shell.mode-zoom,
@@ -1070,35 +1086,48 @@ kbd {
 
 .annotation-editor {
   position: absolute;
-  border: 1px dashed rgba(16, 16, 16, 0.72);
-  background: transparent;
+  border: 1.5px solid rgba(16, 16, 16, 0.82);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.58);
   pointer-events: auto;
   cursor: move;
+  transition: border-color 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.annotation-editor:hover,
+.annotation-editor.is-dragging {
+  border-color: #111111;
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.82),
+    0 6px 18px rgba(17, 17, 17, 0.12);
 }
 
 .annotation-editor__tag {
   position: absolute;
-  top: -20px;
+  top: -24px;
   left: 0;
-  padding: 2px 8px;
+  padding: 3px 8px;
   font-size: 11px;
   line-height: 1.2;
   color: #ffffff;
-  background: rgba(17, 17, 17, 0.82);
+  background: rgba(17, 17, 17, 0.9);
   white-space: nowrap;
 }
 
 .annotation-editor__handle {
   position: absolute;
-  right: -8px;
-  bottom: -8px;
-  width: 14px;
-  height: 14px;
+  right: -10px;
+  bottom: -10px;
+  width: 20px;
+  height: 20px;
   padding: 0;
   border-radius: 0;
   background: #111111;
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.64);
   cursor: nwse-resize;
+  touch-action: none;
 }
 
 .marker-editor {
@@ -1122,8 +1151,9 @@ kbd {
 .marker-draft {
   position: absolute;
   opacity: 0;
-  border: 1px solid rgba(16, 16, 16, 0.78);
-  background: rgba(17, 17, 17, 0.05);
+  border: 1.5px solid rgba(16, 16, 16, 0.86);
+  background: rgba(17, 17, 17, 0.07);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.68);
 }
 
 .marker-draft--ring,
@@ -1139,31 +1169,37 @@ kbd {
 
 .selection-box {
   position: absolute;
-  border: 1px solid var(--tw-line);
+  border: 1.5px solid rgba(17, 17, 17, 0.86);
   background: rgba(17, 17, 17, 0.08);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.62);
 }
 
 .resize-handle {
   position: absolute;
-  right: 8px;
-  bottom: 8px;
-  width: 18px;
-  height: 18px;
+  right: 10px;
+  bottom: 10px;
+  width: 28px;
+  height: 28px;
   padding: 0;
   border-radius: 0;
   background: #111111;
+  border: 2px solid #ffffff;
+  box-shadow:
+    0 0 0 1px rgba(17, 17, 17, 0.72),
+    0 4px 12px rgba(17, 17, 17, 0.16);
   cursor: nwse-resize;
   z-index: 3;
+  touch-action: none;
 }
 
 .resize-handle::before,
 .resize-handle::after {
   content: "";
   position: absolute;
-  right: 6px;
-  bottom: 6px;
-  width: 9px;
-  height: 1.4px;
+  right: 8px;
+  bottom: 9px;
+  width: 12px;
+  height: 1.5px;
   background: rgba(255, 255, 255, 0.92);
   transform-origin: right center;
 }
@@ -1173,9 +1209,9 @@ kbd {
 }
 
 .resize-handle::after {
-  right: 3px;
-  bottom: 9px;
-  width: 13px;
+  right: 8px;
+  bottom: 14px;
+  width: 18px;
   transform: rotate(-45deg);
 }
 
