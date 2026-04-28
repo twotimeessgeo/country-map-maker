@@ -233,7 +233,7 @@
   display: grid;
   gap: 8px;
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .tw-field input,
@@ -246,6 +246,24 @@
   border-radius: 0;
   background: #ffffff;
   color: var(--tw-ink);
+  font: inherit;
+  font-weight: 500;
+  line-height: 1.25;
+  box-shadow: none;
+}
+
+.tw-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 38px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--tw-ink) 50%),
+    linear-gradient(135deg, var(--tw-ink) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
 }
 
 .tw-field input:focus,

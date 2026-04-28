@@ -20,6 +20,7 @@ OUTPUT_PATH = DATA_DIR / "country-stats.js"
 
 FAOSTAT_PRODUCTION_CACHE_PATH = Path(tempfile.gettempdir()) / "faostat-production-crops-livestock.zip"
 FAOSTAT_TRADE_CACHE_PATH = Path(tempfile.gettempdir()) / "faostat-trade-detailed-matrix.zip"
+FAOSTAT_FOOD_BALANCE_CACHE_PATH = Path(tempfile.gettempdir()) / "faostat-food-balance-sheets.zip"
 
 FAOSTAT_PRODUCTION_BULK_URL = (
     "https://fenixservices.fao.org/faostat/static/bulkdownloads/"
@@ -28,6 +29,10 @@ FAOSTAT_PRODUCTION_BULK_URL = (
 FAOSTAT_TRADE_BULK_URL = (
     "https://bulks-faostat.fao.org/production/"
     "Trade_DetailedTradeMatrix_E_All_Data_(Normalized).zip"
+)
+FAOSTAT_FOOD_BALANCE_BULK_URL = (
+    "https://fenixservices.fao.org/faostat/static/bulkdownloads/"
+    "FoodBalanceSheets_E_All_Data_(Normalized).zip"
 )
 POPULATION_UN_WPP_URL = (
     "https://ourworldindata.org/grapher/population-unwpp.csv"
@@ -83,10 +88,49 @@ UNHCR_POPULATION_API_URL_TEMPLATE = (
 )
 
 EXAM_REFERENCE_YEARS = {
+    "population": 2023,
     "agriculture": 2023,
     "energy": 2023,
     "populationStructure": 2023,
     "refugees": 2024,
+}
+
+URBAN_REFERENCE_SUMMARIES = {
+    "citySizeCounts": [
+        {"sizeClass": "50~100만 명", "values": {"1975": 223, "2025": 659}},
+        {"sizeClass": "100~500만 명", "values": {"1975": 145, "2025": 558}},
+        {"sizeClass": "500~1,000만 명", "values": {"1975": 14, "2025": 58}},
+        {"sizeClass": "1,000만 명 이상", "values": {"1975": 4, "2025": 37}},
+    ],
+    "megaCityRegionalShares": {
+        "1975": {"asia": 50.0, "latinAmerica": 25.0, "northAmerica": 25.0},
+        "2025": {"asia": 62.2, "latinAmerica": 16.2, "africa": 10.8, "northAmerica": 5.4, "europe": 5.4},
+    },
+    "oneToFiveMillionCityRegionalShares": {
+        "1975": {
+            "asia": 37.3,
+            "europe": 24.1,
+            "northAmerica": 19.3,
+            "latinAmerica": 11.7,
+            "africa": 5.5,
+            "oceania": 2.1,
+        },
+        "2025": {
+            "asia": 55.2,
+            "africa": 13.1,
+            "latinAmerica": 12.7,
+            "europe": 9.7,
+            "northAmerica": 8.6,
+            "oceania": 0.7,
+        },
+    },
+    "urbanPopulationIncreaseMillions": {
+        "northAmerica": 140,
+        "latinAmerica": 370,
+        "europe": 120,
+        "asia": 1990,
+        "africa": 590,
+    },
 }
 
 WORLD_BANK_EXPORT_INDICATORS = {
@@ -212,6 +256,80 @@ FAOSTAT_TRADE_ITEMS = {
 FAOSTAT_TRADE_ELEMENT_MAP = {
     "import quantity": "import",
     "export quantity": "export",
+}
+
+FAOSTAT_FOOD_BALANCE_ITEMS = {
+    "Wheat and products": {"key": "wheat", "label": "밀"},
+    "Rice and products": {"key": "rice", "label": "쌀"},
+    "Maize and products": {"key": "maize", "label": "옥수수"},
+}
+
+FAOSTAT_FOOD_BALANCE_USE_ELEMENTS = {
+    "Food": "food",
+    "Feed": "feed",
+    "Other uses (non-food)": "bioenergy",
+    "Processing": "other",
+    "Seed": "other",
+    "Losses": "other",
+    "Residuals": "other",
+    "Tourist consumption": "other",
+}
+
+FOSSIL_TRADE_SHARE_ENTRIES_2023 = {
+    "coal": {
+        "label": "석탄",
+        "source": "EI",
+        "exports": [
+            ("IDN", "인도네시아", 28.2),
+            ("AUS", "오스트레일리아", 25.4),
+            ("RUS", "러시아", 15.2),
+            ("USA", "미국", 7.0),
+            ("MNG", "몽골", 5.5),
+            ("ZAF", "남아프리카 공화국", 4.9),
+        ],
+        "imports": [
+            ("CHN", "중국", 28.7),
+            ("IND", "인도", 15.1),
+            ("JPN", "일본", 12.4),
+            ("KOR", "대한민국", 9.0),
+        ],
+    },
+    "oil": {
+        "label": "석유",
+        "source": "EI",
+        "exports": [
+            ("USA", "미국", 13.4),
+            ("SAU", "사우디아라비아", 12.2),
+            ("RUS", "러시아", 9.9),
+            ("CAN", "캐나다", 7.1),
+        ],
+        "imports": [
+            ("CHN", "중국", 20.1),
+            ("USA", "미국", 12.5),
+            ("IND", "인도", 8.5),
+            ("JPN", "일본", 4.9),
+        ],
+    },
+    "gas": {
+        "label": "천연가스",
+        "source": "OPEC",
+        "exports": [
+            ("USA", "미국", 15.9),
+            ("QAT", "카타르", 11.9),
+            ("RUS", "러시아", 10.1),
+            ("NOR", "노르웨이", 8.5),
+            ("AUS", "오스트레일리아", 7.8),
+            ("CAN", "캐나다", 6.1),
+        ],
+        "imports": [
+            ("CHN", "중국", 12.6),
+            ("DEU", "독일", 7.1),
+            ("JPN", "일본", 6.8),
+            ("USA", "미국", 6.4),
+            ("MEX", "멕시코", 5.0),
+            ("ITA", "이탈리아", 4.8),
+        ],
+    },
 }
 
 RELIGION_COLUMN_MAP = {
@@ -374,6 +492,10 @@ def download_faostat_production_zip() -> Path:
 
 def download_faostat_trade_zip() -> Path:
     return download_zip(FAOSTAT_TRADE_BULK_URL, FAOSTAT_TRADE_CACHE_PATH, 100_000_000)
+
+
+def download_faostat_food_balance_zip() -> Path:
+    return download_zip(FAOSTAT_FOOD_BALANCE_BULK_URL, FAOSTAT_FOOD_BALANCE_CACHE_PATH, 10_000_000)
 
 
 def fetch_json(url: str, user_agent: str) -> object:
@@ -616,6 +738,50 @@ def get_latest_series_value_at_or_before(series: dict[int, float] | None, year: 
     return series[valid_years[-1]]
 
 
+def build_versioned_value_entry(
+    series: dict[int, float] | None,
+    *,
+    label: str,
+    unit: str,
+    digits: int = 2,
+    reference_year: int | None = None,
+) -> dict[str, object] | None:
+    reference_entry = get_latest_series_entry(series, digits=digits, max_year=reference_year)
+    latest_entry = get_latest_series_entry(series, digits=digits)
+    base_entry = reference_entry or latest_entry
+    if not base_entry:
+        return None
+
+    entry = {
+        **base_entry,
+        "label": label,
+        "unit": unit,
+    }
+    if latest_entry and (
+        latest_entry.get("year") != entry.get("year")
+        or latest_entry.get("value") != entry.get("value")
+    ):
+        entry["latest"] = {
+            **latest_entry,
+            "label": label,
+            "unit": unit,
+        }
+    return entry
+
+
+def attach_latest_payload(
+    reference_payload: dict[str, object] | None,
+    latest_payload: dict[str, object] | None,
+) -> dict[str, object] | None:
+    payload = reference_payload or latest_payload
+    if not payload:
+        return None
+    if latest_payload and latest_payload.get("year") != payload.get("year"):
+        payload = dict(payload)
+        payload["latest"] = latest_payload
+    return payload
+
+
 def get_latest_structured_entry(
     series_map: dict[str, dict[str, dict[int, float]]],
     digits_map: dict[str, int],
@@ -742,7 +908,7 @@ def build_population_entry(country_series: dict[str, dict[int, float]] | None) -
 
 def build_faostat_production_entries() -> dict[str, dict[str, object]]:
     cache_path = download_faostat_production_zip()
-    stats_by_area_id: dict[str, dict[str, object]] = {}
+    series_by_area_id: dict[str, dict[str, object]] = {}
 
     with zipfile.ZipFile(cache_path) as archive:
         filename = "Production_Crops_Livestock_E_All_Data_(Normalized).csv"
@@ -763,10 +929,8 @@ def build_faostat_production_entries() -> dict[str, dict[str, object]]:
                     year = int(row["Year"])
                 except (KeyError, TypeError, ValueError):
                     continue
-                if year > EXAM_REFERENCE_YEARS["agriculture"]:
-                    continue
 
-                country_stats = stats_by_area_id.setdefault(
+                country_stats = series_by_area_id.setdefault(
                     area_id,
                     {
                         "crops": {"production": {}, "areaHarvested": {}, "yield": {}, "trade": {}},
@@ -774,16 +938,36 @@ def build_faostat_production_entries() -> dict[str, dict[str, object]]:
                     },
                 )
                 bucket = country_stats[target["section"]][target["metric"]]
-                current_entry = bucket.get(target["key"])
-                if current_entry and year < current_entry["year"]:
-                    continue
-
-                bucket[target["key"]] = {
+                series_entry = bucket.setdefault(target["key"], {
                     "label": target["label"],
-                    "year": year,
-                    "value": compact_number(value, 2),
                     "unit": row["Unit"],
-                }
+                    "values": {},
+                })
+                series_entry["values"][year] = value
+
+    stats_by_area_id: dict[str, dict[str, object]] = {}
+    for area_id, country_stats in series_by_area_id.items():
+        area_entry = {
+            "crops": {"production": {}, "areaHarvested": {}, "yield": {}, "trade": {}},
+            "livestock": {"stocks": {}, "meat": {}},
+        }
+        for section_key, section in country_stats.items():
+            for metric_key, metric in section.items():
+                for item_key, series_entry in metric.items():
+                    entry = build_versioned_value_entry(
+                        series_entry.get("values"),
+                        label=series_entry["label"],
+                        unit=series_entry["unit"],
+                        digits=2,
+                        reference_year=EXAM_REFERENCE_YEARS["agriculture"],
+                    )
+                    if entry:
+                        area_entry[section_key][metric_key][item_key] = entry
+        if any(
+            area_entry["crops"][metric_key]
+            for metric_key in ("production", "areaHarvested", "yield")
+        ) or any(area_entry["livestock"][metric_key] for metric_key in ("stocks", "meat")):
+            stats_by_area_id[area_id] = area_entry
 
     return stats_by_area_id
 
@@ -819,8 +1003,6 @@ def build_faostat_trade_entries() -> dict[str, dict[str, object]]:
                     year = int(row["Year"])
                 except (KeyError, TypeError, ValueError):
                     continue
-                if year > EXAM_REFERENCE_YEARS["agriculture"]:
-                    continue
 
                 country_bucket = aggregated_by_area_id.setdefault(reporter_area_id, {})
                 item_bucket = country_bucket.setdefault(
@@ -837,15 +1019,15 @@ def build_faostat_trade_entries() -> dict[str, dict[str, object]]:
             trade_entry = {"label": item_bucket["label"]}
             for element_key in ("import", "export"):
                 yearly_totals = item_bucket[element_key]
-                valid_years = [year for year, value in yearly_totals.items() if value > 0]
-                if not valid_years:
-                    continue
-                latest_year = max(valid_years)
-                trade_entry[element_key] = {
-                    "year": latest_year,
-                    "value": compact_number(yearly_totals[latest_year], 2),
-                    "unit": "t",
-                }
+                entry = build_versioned_value_entry(
+                    {year: value for year, value in yearly_totals.items() if value > 0},
+                    label=item_bucket["label"],
+                    unit="t",
+                    digits=2,
+                    reference_year=EXAM_REFERENCE_YEARS["agriculture"],
+                )
+                if entry:
+                    trade_entry[element_key] = entry
             if any(key in trade_entry for key in ("import", "export")):
                 trade_bucket[item_key] = trade_entry
 
@@ -853,6 +1035,83 @@ def build_faostat_trade_entries() -> dict[str, dict[str, object]]:
             trade_entries_by_area_id[area_id] = trade_bucket
 
     return trade_entries_by_area_id
+
+
+def build_crop_use_payload(yearly_uses: dict[int, dict[str, float]], year: int, label: str) -> dict[str, object] | None:
+    uses = {
+        key: value
+        for key, value in (yearly_uses.get(year) or {}).items()
+        if value is not None and value > 0
+    }
+    total = sum(uses.values())
+    if total <= 0:
+        return None
+
+    return {
+        "label": label,
+        "year": year,
+        "total": compact_number(total, 2),
+        "unit": "t",
+        "amounts": {key: compact_number(value, 2) for key, value in uses.items()},
+        "shares": {key: compact_number(value / total * 100, 2) for key, value in uses.items()},
+    }
+
+
+def build_faostat_crop_use_entries() -> dict[str, dict[str, object]]:
+    cache_path = download_faostat_food_balance_zip()
+    yearly_uses_by_area_id: dict[str, dict[str, dict[int, dict[str, float]]]] = {}
+
+    with zipfile.ZipFile(cache_path) as archive:
+        filename = "FoodBalanceSheets_E_All_Data_(Normalized).csv"
+        with archive.open(filename) as raw_file:
+            reader = csv.DictReader(io.TextIOWrapper(raw_file, encoding="latin1", newline=""))
+
+            for row in reader:
+                item = FAOSTAT_FOOD_BALANCE_ITEMS.get(row.get("Item", ""))
+                use_key = FAOSTAT_FOOD_BALANCE_USE_ELEMENTS.get(row.get("Element", ""))
+                if not item or not use_key:
+                    continue
+
+                area_id = normalize_m49_code(row.get("Area Code (M49)", ""))
+                value = parse_number(row.get("Value"))
+                if not area_id or value is None:
+                    continue
+
+                try:
+                    year = int(row["Year"])
+                except (KeyError, TypeError, ValueError):
+                    continue
+
+                # Food Balance Sheets values are in 1000 t; keep app-facing crop amounts in t.
+                amount = value * 1000
+                if amount <= 0:
+                    continue
+
+                country_bucket = yearly_uses_by_area_id.setdefault(area_id, {})
+                crop_bucket = country_bucket.setdefault(item["key"], {})
+                use_bucket = crop_bucket.setdefault(year, {})
+                use_bucket[use_key] = use_bucket.get(use_key, 0.0) + amount
+
+    entries_by_area_id: dict[str, dict[str, object]] = {}
+    for area_id, country_bucket in yearly_uses_by_area_id.items():
+        crop_entries: dict[str, object] = {}
+        for crop_key, yearly_uses in country_bucket.items():
+            item = next(config for config in FAOSTAT_FOOD_BALANCE_ITEMS.values() if config["key"] == crop_key)
+            valid_years = sorted(year for year, uses in yearly_uses.items() if sum(uses.values()) > 0)
+            if not valid_years:
+                continue
+            reference_years = [year for year in valid_years if year <= EXAM_REFERENCE_YEARS["agriculture"]]
+            reference_year = max(reference_years) if reference_years else valid_years[-1]
+            latest_year = valid_years[-1]
+            reference_payload = build_crop_use_payload(yearly_uses, reference_year, item["label"])
+            latest_payload = build_crop_use_payload(yearly_uses, latest_year, item["label"])
+            payload = attach_latest_payload(reference_payload, latest_payload)
+            if payload:
+                crop_entries[crop_key] = payload
+        if crop_entries:
+            entries_by_area_id[area_id] = crop_entries
+
+    return entries_by_area_id
 
 
 def build_religion_entries(demography_series: dict[str, dict[str, dict[int, float]]]) -> dict[str, dict[str, object]]:
@@ -891,7 +1150,8 @@ def build_energy_mix_entries(
     renewable_keys: set[str],
 ) -> dict[str, dict[str, object]]:
     text = fetch_text(url, "Country stats builder/1.0")
-    entries_by_iso3: dict[str, dict[str, object]] = {}
+    reference_entries_by_iso3: dict[str, dict[str, object]] = {}
+    latest_entries_by_iso3: dict[str, dict[str, object]] = {}
 
     for row in csv.DictReader(io.StringIO(text)):
         iso3_code = row.get("Code", "")
@@ -910,18 +1170,12 @@ def build_energy_mix_entries(
             year = int(row["Year"])
         except (KeyError, TypeError, ValueError):
             continue
-        if year > EXAM_REFERENCE_YEARS["energy"]:
-            continue
-
-        current_entry = entries_by_iso3.get(iso3_code)
-        if current_entry and year < current_entry["year"]:
-            continue
 
         fossil_amount = (values.get("coal") or 0) + (values.get("oil") or 0) + (values.get("gas") or 0)
         renewable_amount = sum((values.get(key) or 0) for key in renewable_keys)
         nuclear_amount = values.get("nuclear") or 0
 
-        entries_by_iso3[iso3_code] = {
+        entry = {
             "year": year,
             "totalTWh": compact_number(total, 2),
             "summaryShares": {
@@ -946,6 +1200,24 @@ def build_energy_mix_entries(
             },
         }
 
+        latest_entry = latest_entries_by_iso3.get(iso3_code)
+        if not latest_entry or year > latest_entry["year"]:
+            latest_entries_by_iso3[iso3_code] = entry
+
+        if year <= EXAM_REFERENCE_YEARS["energy"]:
+            reference_entry = reference_entries_by_iso3.get(iso3_code)
+            if not reference_entry or year > reference_entry["year"]:
+                reference_entries_by_iso3[iso3_code] = entry
+
+    entries_by_iso3: dict[str, dict[str, object]] = {}
+    for iso3_code in sorted(set(reference_entries_by_iso3) | set(latest_entries_by_iso3)):
+        payload = attach_latest_payload(
+            reference_entries_by_iso3.get(iso3_code),
+            latest_entries_by_iso3.get(iso3_code),
+        )
+        if payload:
+            entries_by_iso3[iso3_code] = payload
+
     return entries_by_iso3
 
 
@@ -967,41 +1239,69 @@ def build_fossil_production_entries() -> dict[str, dict[str, object]]:
                 year = int(row["Year"])
             except (KeyError, TypeError, ValueError):
                 continue
-            if year > EXAM_REFERENCE_YEARS["energy"]:
-                continue
 
             yearly_values = series_by_iso3.setdefault(iso3_code, {}).setdefault(year, {})
             yearly_values[key] = value
 
     entries_by_iso3: dict[str, dict[str, object]] = {}
     for iso3_code, yearly_values in series_by_iso3.items():
-        valid_years = [year for year, values in yearly_values.items() if sum(values.values()) > 0]
+        valid_years = sorted(year for year, values in yearly_values.items() if sum(values.values()) > 0)
         if not valid_years:
             continue
 
-        latest_year = max(valid_years)
-        values = {
-            key: yearly_values[latest_year].get(key, 0.0)
-            for key in FOSSIL_PRODUCTION_COLUMNS
-        }
-        total = sum(values.values())
-        if total <= 0:
-            continue
+        reference_years = [year for year in valid_years if year <= EXAM_REFERENCE_YEARS["energy"]]
+        reference_year = max(reference_years) if reference_years else valid_years[-1]
+        latest_year = valid_years[-1]
 
-        entries_by_iso3[iso3_code] = {
-            "year": latest_year,
-            "totalTWh": compact_number(total, 2),
-            "shareBreakdown": {
-                key: compact_number((value / total) * 100, 2)
-                for key, value in values.items()
-                if value > 0
-            },
-            "amountBreakdownTWh": {
-                key: compact_number(value, 2)
-                for key, value in values.items()
-                if value > 0
-            },
-        }
+        def build_payload(year: int) -> dict[str, object] | None:
+            values = {
+                key: yearly_values[year].get(key, 0.0)
+                for key in FOSSIL_PRODUCTION_COLUMNS
+            }
+            total = sum(values.values())
+            if total <= 0:
+                return None
+            return {
+                "year": year,
+                "totalTWh": compact_number(total, 2),
+                "shareBreakdown": {
+                    key: compact_number((value / total) * 100, 2)
+                    for key, value in values.items()
+                    if value > 0
+                },
+                "amountBreakdownTWh": {
+                    key: compact_number(value, 2)
+                    for key, value in values.items()
+                    if value > 0
+                },
+            }
+
+        payload = attach_latest_payload(build_payload(reference_year), build_payload(latest_year))
+        if payload:
+            entries_by_iso3[iso3_code] = payload
+
+    return entries_by_iso3
+
+
+def build_fossil_trade_entries() -> dict[str, dict[str, object]]:
+    entries_by_iso3: dict[str, dict[str, object]] = {}
+
+    for resource_key, resource in FOSSIL_TRADE_SHARE_ENTRIES_2023.items():
+        for direction_key, label_suffix, unit in (
+            ("exports", "수출 비율", "% of world exports"),
+            ("imports", "수입 비율", "% of world imports"),
+        ):
+            for iso3_code, country_label, share in resource.get(direction_key, []):
+                country_entry = entries_by_iso3.setdefault(iso3_code, {})
+                resource_entry = country_entry.setdefault(resource_key, {"label": resource["label"]})
+                resource_entry[direction_key[:-1]] = {
+                    "year": 2023,
+                    "value": share,
+                    "label": f"{resource['label']} {label_suffix}",
+                    "countryLabel": country_label,
+                    "unit": unit,
+                    "source": resource["source"],
+                }
 
     return entries_by_iso3
 
@@ -1070,63 +1370,81 @@ def build_population_structure_entries(
         digits_map={key: config["digits"] for key, config in WORLD_BANK_AGE_INDICATORS.items()},
         max_year=EXAM_REFERENCE_YEARS["populationStructure"],
     )
+    latest_age_entries = get_latest_structured_entry(
+        age_series,
+        digits_map={key: config["digits"] for key, config in WORLD_BANK_AGE_INDICATORS.items()},
+    )
     population_context_series = {
         key: fetch_world_bank_indicator_series(config["indicator_code"])
         for key, config in WORLD_BANK_POPULATION_CONTEXT_INDICATORS.items()
     }
 
     entries_by_iso3: dict[str, dict[str, object]] = {}
-    for iso3_code, age_entry in age_entries.items():
+    for iso3_code in sorted(set(age_entries) | set(latest_age_entries)):
+        age_entry = age_entries.get(iso3_code) or latest_age_entries.get(iso3_code)
+        if not age_entry:
+            continue
         year = age_entry["year"]
-        total_population = (
-            get_latest_series_value_at_or_before(population_context_series["populationTotal"].get(iso3_code), year)
-            or demography_series.get(iso3_code, {}).get("populationTotal", {}).get(year)
-        )
-        working_age_share = age_entry["values"].get("age15To64")
-        dependency_ratios = None
-        if working_age_share not in (None, 0):
-            youth_share = age_entry["values"].get("age0To14")
-            old_age_share = age_entry["values"].get("age65Plus")
-            if youth_share is not None and old_age_share is not None:
-                youth_dependency = youth_share / working_age_share * 100
-                old_age_dependency = old_age_share / working_age_share * 100
-                dependency_ratios = {
-                    "youth": compact_number(youth_dependency, 2),
-                    "oldAge": compact_number(old_age_dependency, 2),
-                    "total": compact_number(youth_dependency + old_age_dependency, 2),
-                }
 
-        density_entry = get_latest_series_entry(
+        def build_structure_payload(structure_entry: dict[str, object]) -> dict[str, object]:
+            structure_year = structure_entry["year"]
+            total_population = (
+                get_latest_series_value_at_or_before(population_context_series["populationTotal"].get(iso3_code), structure_year)
+                or demography_series.get(iso3_code, {}).get("populationTotal", {}).get(structure_year)
+            )
+            working_age_share = structure_entry["values"].get("age15To64")
+            dependency_ratios = None
+            if working_age_share not in (None, 0):
+                youth_share = structure_entry["values"].get("age0To14")
+                old_age_share = structure_entry["values"].get("age65Plus")
+                if youth_share is not None and old_age_share is not None:
+                    youth_dependency = youth_share / working_age_share * 100
+                    old_age_dependency = old_age_share / working_age_share * 100
+                    dependency_ratios = {
+                        "youth": compact_number(youth_dependency, 2),
+                        "oldAge": compact_number(old_age_dependency, 2),
+                        "total": compact_number(youth_dependency + old_age_dependency, 2),
+                    }
+
+            counts = {
+                key: compact_number(total_population * value / 100, 0) if total_population is not None else None
+                for key, value in structure_entry["values"].items()
+            }
+            return {
+                "year": structure_year,
+                "shares": structure_entry["values"],
+                "counts": counts,
+                "totalPopulation": compact_number(total_population, 0),
+                "dependencyRatios": dependency_ratios,
+            }
+
+        payload = build_structure_payload(age_entry)
+        latest_age_entry = latest_age_entries.get(iso3_code)
+        if latest_age_entry and latest_age_entry.get("year") != payload.get("year"):
+            payload["latest"] = build_structure_payload(latest_age_entry)
+
+        density_entry = build_versioned_value_entry(
             population_context_series["density"].get(iso3_code),
+            label=WORLD_BANK_POPULATION_CONTEXT_INDICATORS["density"]["label"],
+            unit=WORLD_BANK_POPULATION_CONTEXT_INDICATORS["density"]["unit"],
             digits=WORLD_BANK_POPULATION_CONTEXT_INDICATORS["density"]["digits"],
-            max_year=EXAM_REFERENCE_YEARS["populationStructure"],
+            reference_year=EXAM_REFERENCE_YEARS["populationStructure"],
         )
-        counts = {
-            key: compact_number(total_population * value / 100, 0) if total_population is not None else None
-            for key, value in age_entry["values"].items()
-        }
-        entries_by_iso3[iso3_code] = {
-            "year": year,
-            "shares": age_entry["values"],
-            "counts": counts,
-            "totalPopulation": compact_number(total_population, 0),
-            "dependencyRatios": dependency_ratios,
-            "density": (
+        payload["density"] = (
                 {
                     **density_entry,
-                    "label": WORLD_BANK_POPULATION_CONTEXT_INDICATORS["density"]["label"],
-                    "unit": WORLD_BANK_POPULATION_CONTEXT_INDICATORS["density"]["unit"],
                 }
                 if density_entry
                 else None
-            ),
-        }
+            )
+        entries_by_iso3[iso3_code] = payload
 
     return entries_by_iso3
 
 
-def get_latest_unhcr_population_year() -> int | None:
-    for year in range(EXAM_REFERENCE_YEARS["refugees"], 2019, -1):
+def get_latest_unhcr_population_year(max_year: int | None = None) -> int | None:
+    start_year = max_year or date.today().year
+    for year in range(start_year, 2019, -1):
         try:
             payload = fetch_json(
                 UNHCR_POPULATION_API_URL_TEMPLATE.format(limit=1, page=1, year=year, dimension="coo"),
@@ -1172,11 +1490,7 @@ def fetch_unhcr_population_rows(year: int, dimension: str) -> list[dict[str, obj
     return rows
 
 
-def build_refugee_entries() -> dict[str, dict[str, object]]:
-    latest_year = get_latest_unhcr_population_year()
-    if latest_year is None:
-        return {}
-
+def build_refugee_entries_for_year(latest_year: int) -> dict[str, dict[str, object]]:
     entries_by_iso3: dict[str, dict[str, object]] = {}
 
     for row in fetch_unhcr_population_rows(latest_year, "coo"):
@@ -1212,6 +1526,35 @@ def build_refugee_entries() -> dict[str, dict[str, object]]:
             "label": "난민 수용 수",
             "unit": "people",
         }
+
+    return entries_by_iso3
+
+
+def build_refugee_entries() -> dict[str, dict[str, object]]:
+    reference_year = get_latest_unhcr_population_year(EXAM_REFERENCE_YEARS["refugees"])
+    latest_year = get_latest_unhcr_population_year()
+    if reference_year is None and latest_year is None:
+        return {}
+
+    reference_entries = build_refugee_entries_for_year(reference_year) if reference_year else {}
+    latest_entries = (
+        build_refugee_entries_for_year(latest_year)
+        if latest_year and latest_year != reference_year
+        else {}
+    )
+
+    entries_by_iso3: dict[str, dict[str, object]] = {}
+    for iso3_code in sorted(set(reference_entries) | set(latest_entries)):
+        entry = dict(reference_entries.get(iso3_code) or latest_entries.get(iso3_code) or {})
+        latest_entry = latest_entries.get(iso3_code, {})
+        for metric_key, latest_metric in latest_entry.items():
+            if metric_key in entry:
+                entry[metric_key] = dict(entry[metric_key])
+                entry[metric_key]["latest"] = latest_metric
+            else:
+                entry[metric_key] = latest_metric
+        if entry:
+            entries_by_iso3[iso3_code] = entry
 
     return entries_by_iso3
 
@@ -1282,6 +1625,7 @@ def build_migration_entries(
 def merge_agriculture_entries(
     production_entry: dict[str, object] | None,
     trade_entry: dict[str, object] | None,
+    crop_use_entry: dict[str, object] | None,
 ) -> dict[str, object] | None:
     crops_production = ((production_entry or {}).get("crops") or {}).get("production", {})
     crops_area_harvested = ((production_entry or {}).get("crops") or {}).get("areaHarvested", {})
@@ -1289,8 +1633,9 @@ def merge_agriculture_entries(
     livestock_stocks = ((production_entry or {}).get("livestock") or {}).get("stocks", {})
     livestock_meat = ((production_entry or {}).get("livestock") or {}).get("meat", {})
     crops_trade = trade_entry or {}
+    crops_use = crop_use_entry or {}
 
-    if not any((crops_production, crops_area_harvested, crops_yield, crops_trade, livestock_stocks, livestock_meat)):
+    if not any((crops_production, crops_area_harvested, crops_yield, crops_trade, crops_use, livestock_stocks, livestock_meat)):
         return None
 
     return {
@@ -1299,6 +1644,7 @@ def merge_agriculture_entries(
             "areaHarvested": crops_area_harvested,
             "yield": crops_yield,
             "trade": crops_trade,
+            "use": crops_use,
         },
         "livestock": {
             "stocks": livestock_stocks,
@@ -1314,6 +1660,7 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
     continent_entries = build_continent_entries()
     faostat_production_entries = build_faostat_production_entries()
     faostat_trade_entries = build_faostat_trade_entries()
+    faostat_crop_use_entries = build_faostat_crop_use_entries()
     religion_entries = build_religion_entries(demography_series)
     primary_energy_entries = build_energy_mix_entries(
         PRIMARY_ENERGY_URL,
@@ -1326,6 +1673,7 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
         renewable_keys={"hydropower", "wind", "solar", "bioenergy", "otherRenewables"},
     )
     fossil_production_entries = build_fossil_production_entries()
+    fossil_trade_entries = build_fossil_trade_entries()
     economy_entries = build_economy_entries()
     population_structure_entries = build_population_structure_entries(demography_series)
     migration_entries = build_migration_entries(demography_series)
@@ -1340,11 +1688,13 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
         agriculture_entry = merge_agriculture_entries(
             faostat_production_entries.get(atlas_id),
             faostat_trade_entries.get(atlas_id),
+            faostat_crop_use_entries.get(atlas_id),
         )
         religion_entry = religion_entries.get(iso3_code) if iso3_code else None
         primary_energy_entry = primary_energy_entries.get(iso3_code) if iso3_code else None
         electricity_entry = electricity_entries.get(iso3_code) if iso3_code else None
         fossil_production_entry = fossil_production_entries.get(iso3_code) if iso3_code else None
+        fossil_trade_entry = fossil_trade_entries.get(iso3_code) if iso3_code else None
         continent_entry = continent_entries.get(iso3_code) if iso3_code else None
         economy_entry = economy_entries.get(iso3_code) if iso3_code else None
         population_structure_entry = population_structure_entries.get(iso3_code) if iso3_code else None
@@ -1358,6 +1708,7 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
                 primary_energy_entry,
                 electricity_entry,
                 fossil_production_entry,
+                fossil_trade_entry,
                 economy_entry,
                 population_structure_entry,
                 migration_entry,
@@ -1380,12 +1731,18 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
                 "consumption": primary_energy_entry,
                 "electricity": electricity_entry,
                 "fossilProduction": fossil_production_entry,
+                "fossilTrade": fossil_trade_entry,
             },
         }
 
     meta = {
         "generatedAt": date.today().isoformat(),
         "examReferenceYears": EXAM_REFERENCE_YEARS,
+        "referenceSummaries": {
+            "urbanization": URBAN_REFERENCE_SUMMARIES,
+            "cropUse": faostat_crop_use_entries.get("1"),
+            "fossilTrade": FOSSIL_TRADE_SHARE_ENTRIES_2023,
+        },
         "coverage": {
             "atlasCountries": len(atlas_rows),
             "matchedIso3": len(atlas_id_to_iso3),
@@ -1402,7 +1759,7 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
                 "url": CRUDE_BIRTH_RATE_URL,
             },
             "urbanization": {
-                "label": "UN World Urbanization Prospects 도시화율 (OWID CSV mirror)",
+                "label": "World Bank 도시화율 + UN 2018 도시화 전망 교재 요약",
                 "url": URBAN_SHARE_URL,
             },
             "faostatProduction": {
@@ -1412,6 +1769,10 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
             "faostatTrade": {
                 "label": "FAOSTAT Trade Detailed Trade Matrix bulk download, 수능특강 기준 2023년",
                 "url": FAOSTAT_TRADE_BULK_URL,
+            },
+            "faostatFoodBalance": {
+                "label": "FAOSTAT Food Balance Sheets food/feed/other use, 수능특강 기준 2023년",
+                "url": FAOSTAT_FOOD_BALANCE_BULK_URL,
             },
             "religion": {
                 "label": "Pew Research Center 2020 종교 추정치 (OWID CSV mirror)",
@@ -1428,6 +1789,10 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
             "fossilProduction": {
                 "label": "Our World in Data fossil fuel production by source, 수능특강 기준 2023년",
                 "url": OIL_PRODUCTION_URL,
+            },
+            "fossilTrade": {
+                "label": "수능특강 2027 화석 에너지 수출입 비율 표(EI/OPEC 2023)",
+                "url": "",
             },
             "continents": {
                 "label": "Our World in Data continents by country",

@@ -278,11 +278,29 @@ const countryStatsCropLabels = {
   rice: "쌀",
   maize: "옥수수",
 };
+const countryStatsCropUseLabels = {
+  food: "식용",
+  feed: "사료용",
+  bioenergy: "바이오에너지·비식용",
+  other: "기타",
+};
 const countryStatsDependencyLabels = {
   youth: "유소년 부양비",
   oldAge: "노년 부양비",
   total: "총부양비",
 };
+const countryStatsRegionLabels = {
+  asia: "아시아",
+  africa: "아프리카",
+  europe: "유럽",
+  latinAmerica: "라틴 아메리카",
+  northAmerica: "앵글로아메리카",
+  oceania: "오세아니아",
+};
+const countryStatsYearModeDefinitions = [
+  { key: "exam", label: "수능특강 기준", detail: "교재 표와 맞춘 기준연도" },
+  { key: "latest", label: "최신 가용", detail: "원천 데이터의 최신연도" },
+];
 const metricExplorerRankPalette = [
   "#111111",
   "#2f3136",
@@ -302,7 +320,7 @@ const metricExplorerCategoryDefinitions = [
   {
     key: "agriculture",
     label: "식량 · 가축",
-    description: "밀·쌀·옥수수 생산·교역, 3대 가축 사육과 육류 생산",
+    description: "밀·쌀·옥수수 생산·교역·용도, 3대 가축 사육과 육류 생산",
   },
   {
     key: "religion",
@@ -317,7 +335,7 @@ const metricExplorerCategoryDefinitions = [
   {
     key: "energy",
     label: "에너지 · 자원",
-    description: "1차 에너지 소비, 발전 구조, 화석연료 생산",
+    description: "1차 에너지 소비, 발전 구조, 화석연료 생산과 국제 이동",
   },
 ];
 const metricExplorerDisplayModeDefinitions = [
@@ -548,6 +566,8 @@ const countryStatsChartColors = {
   wheat: "#5d5d5d",
   rice: "#7f7f7f",
   maize: "#9b9b9b",
+  food: "#3f3f3f",
+  feed: "#6f6f6f",
   cattle: "#4e4e4e",
   pigs: "#6c6c6c",
   sheep: "#8d8d8d",
@@ -637,6 +657,7 @@ const examGraphTheme = {
     legendSidePadding: 10,
     bottomPadding: 14,
     blockGap: 10,
+    axisRangePadding: 10,
     spacingUnit: 2,
   },
   marker: {
@@ -917,21 +938,21 @@ const examGraphTimeMetricDefinitions = [
   {
     key: "population-total",
     label: "총인구",
-    formatter: (value) => formatCompactStatNumber(value),
+    formatter: (value) => formatPeopleAmount(value),
     getYearValue: (stats, year) => getExamGraphPopulationMetricValue(stats, year, "population"),
     aggregate: "sum",
   },
   {
     key: "population-urban-total",
     label: "도시 인구",
-    formatter: (value) => formatCompactStatNumber(value),
+    formatter: (value) => formatPeopleAmount(value),
     getYearValue: (stats, year) => getExamGraphPopulationMetricValue(stats, year, "urbanPopulation"),
     aggregate: "sum",
   },
   {
     key: "population-rural-total",
     label: "촌락 인구",
-    formatter: (value) => formatCompactStatNumber(value),
+    formatter: (value) => formatPeopleAmount(value),
     getYearValue: (stats, year) => getExamGraphPopulationMetricValue(stats, year, "ruralPopulation"),
     aggregate: "sum",
   },
@@ -968,7 +989,7 @@ const examGraphTopShareMetricDefinitions = [
   {
     key: "population-total",
     label: "총인구",
-    formatter: (value) => formatCompactStatNumber(value),
+    formatter: (value) => formatPeopleAmount(value),
     getValue: (stats) => getMetricFromPopulation(stats, "population"),
   },
   {
@@ -998,7 +1019,7 @@ const examGraphTopShareMetricDefinitions = [
   {
     key: "livestock-stock-total",
     label: "3대 가축 사육 두수 합",
-    formatter: (value) => formatCompactStatNumber(value),
+    formatter: (value) => formatHeadCountAmount(value),
     getValue: (stats) => getLivestockAggregateMetric(stats, "stockTotal"),
   },
   {
@@ -1478,6 +1499,7 @@ const state = {
   metricExplorerScatterYKey: "exports-share",
   metricExplorerScatterSizeKey: "energy-consumption-total",
   metricExplorerOptionsExpanded: false,
+  worldStatsYearMode: "exam",
   koreaGeoStatsCategoryKey: "demography",
   koreaGeoStatsDisplayMode: "overview",
   koreaGeoStatsMetricKey: "population-estimate",
@@ -1491,7 +1513,7 @@ const state = {
   koreaGeoStatsTrendStartPeriodKey: "",
   koreaGeoStatsTrendEndPeriodKey: "",
   koreaGeoStatsActionsExpanded: false,
-  examGraphPresetKey: "stacked100",
+  examGraphPresetKey: "",
   examGraphMetricKey: "population-total",
   examGraphPairKey: "urban-rural-total",
   examGraphCompositionKey: "urban-rural",
@@ -3480,6 +3502,72 @@ function getMetricExplorerTopN() {
   return clamp(Math.round(Number(state.metricExplorerTopN) || 5), 1, 30);
 }
 
+function getWorldStatsYearMode() {
+  return state.worldStatsYearMode === "latest" ? "latest" : "exam";
+}
+
+function getWorldStatsYearModeMeta() {
+  return (
+    countryStatsYearModeDefinitions.find((definition) => definition.key === getWorldStatsYearMode()) ??
+    countryStatsYearModeDefinitions[0]
+  );
+}
+
+function getVersionedStatEntry(entry) {
+  if (!entry) {
+    return null;
+  }
+  if (getWorldStatsYearMode() === "latest" && entry.latest) {
+    return { ...entry, ...entry.latest };
+  }
+  return entry;
+}
+
+function getVersionedStatValue(entry) {
+  return getVersionedStatEntry(entry)?.value;
+}
+
+function getVersionedEnergyEntry(entry) {
+  return getWorldStatsYearMode() === "latest" && entry?.latest ? entry.latest : entry;
+}
+
+function getVersionedPopulationStructure(entry) {
+  if (!entry) {
+    return null;
+  }
+  const selected = getWorldStatsYearMode() === "latest" && entry.latest ? { ...entry, ...entry.latest } : entry;
+  return {
+    ...selected,
+    density: getVersionedStatEntry(entry.density),
+  };
+}
+
+function getSelectedPopulationRow(population) {
+  if (!population?.rows?.length) {
+    return null;
+  }
+  if (getWorldStatsYearMode() === "latest") {
+    return population.rows[population.rows.length - 1];
+  }
+  const referenceYear = countryStatsMeta.examReferenceYears?.population ?? 2023;
+  return [...population.rows].reverse().find((row) => Number(row.year) <= referenceYear) ?? population.rows[0];
+}
+
+function getSelectedPopulationRateRow(population) {
+  if (!population?.rates?.rows?.length) {
+    return null;
+  }
+  if (getWorldStatsYearMode() === "latest") {
+    return population.rates.rows[population.rates.rows.length - 1];
+  }
+  const referenceYear = countryStatsMeta.examReferenceYears?.population ?? 2023;
+  return [...population.rates.rows].reverse().find((row) => Number(row.year) <= referenceYear) ?? population.rates.rows[0];
+}
+
+function formatWorldStatsYearModeLabel() {
+  return getWorldStatsYearModeMeta().label;
+}
+
 function buildMetricExplorerHighlightColorById() {
   if (state.mapVersion !== "world" || !state.metricExplorerMapHighlightEnabled) {
     return new Map();
@@ -3588,6 +3676,18 @@ function getMetricExplorerDefinitionBaseMode(definitionOrKey) {
   const key = typeof definitionOrKey === "string" ? definitionOrKey : definitionOrKey?.key ?? "";
 
   if (
+    key.includes("imports") ||
+    key.includes("exports") ||
+    key.includes("-import-") ||
+    key.includes("-export-") ||
+    key.startsWith("exports-") ||
+    key.startsWith("migration-") ||
+    key.startsWith("refugee-")
+  ) {
+    return "flow";
+  }
+
+  if (
     key.includes("-share") ||
     key.startsWith("religion-") ||
     key.startsWith("age-") ||
@@ -3596,16 +3696,6 @@ function getMetricExplorerDefinitionBaseMode(definitionOrKey) {
     key.includes("-rate")
   ) {
     return "share";
-  }
-
-  if (
-    key.includes("imports") ||
-    key.includes("exports") ||
-    key.startsWith("exports-") ||
-    key.startsWith("migration-") ||
-    key.startsWith("refugee-")
-  ) {
-    return "flow";
   }
 
   return "amount";
@@ -3895,7 +3985,7 @@ function renderMetricExplorerPanel() {
     createMetricExplorerSummaryCard(
       "대분류",
       categoryMeta.label,
-      `${displayModeMeta.label} · ${scopeLabel}`,
+      `${displayModeMeta.label} · ${scopeLabel} · ${formatWorldStatsYearModeLabel()}`,
     ),
     createMetricExplorerSummaryCard(
       "활성 지표",
@@ -5515,7 +5605,7 @@ function getKoreaGeoStatsGuideText(levelKey = getKoreaGeoStatsLevelKey()) {
   if (levelKey === "cities" && state.koreaCityScopeCodes.length) {
     return `${getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 })} 범위 ${regionNoun}을 같은 축으로 묶어 비교합니다. 세트 랜덤은 이 범위 안에서 출제용 조합을 다시 골라 줍니다.${trendHint}${cityPopulationBoundaryHint}`;
   }
-  return `선택이 없으면 전국 ${getKoreaGeoStatsRegionOrder(levelKey).length}개 ${compactRegionNoun}를 같은 축으로 펼쳐 시험형 비교 자료처럼 정리합니다. 랜덤 버튼은 출제 포인트가 살아 있는 지역·지표 조합을 추천합니다.${trendHint}${cityPopulationBoundaryHint}`;
+  return `선택이 없으면 전국 ${getKoreaGeoStatsRegionOrder(levelKey).length}개 ${compactRegionNoun}를 같은 축으로 펼쳐 비교 그래프로 정리합니다. 랜덤 버튼은 출제 포인트가 살아 있는 지역·지표 조합을 추천합니다.${trendHint}${cityPopulationBoundaryHint}`;
 }
 
 function getProgramGraphPlotBox(width, height, margin) {
@@ -6080,7 +6170,7 @@ function buildKoreaGeoStatsProvinceAgeStructureCompareCard(
     description:
       selectedCount > 1
         ? "선택한 시도를 같은 100% 축에 놓고 유소년층·생산연령층·고령층 구성비를 비교합니다."
-        : "인구 규모가 큰 시도부터 연령층 구성비를 같은 100% 축에 놓아 시험형 구조 비교처럼 읽습니다.",
+        : "인구 규모가 큰 시도부터 연령층 구성비를 같은 100% 축에 놓아 구성 비교 그래프로 읽습니다.",
     totalLabel,
     rows,
     legendSegments: rows[0]?.segments ?? [],
@@ -6472,7 +6562,7 @@ function renderKoreaGeoStatsPanel() {
               description:
                 selectedCount > 1
                   ? "선택한 시도의 주민등록인구를 합쳐 100으로 두고 비중을 읽습니다."
-                  : "전국 주민등록인구를 시도 비중으로 다시 묶어 출제형 구조 그래프처럼 정리했습니다.",
+                  : "전국 주민등록인구를 시도 비중으로 다시 묶어 구조 비교 그래프로 정리했습니다.",
               levelKey,
               maxSegments: selectedCount > 1 ? provincePopulationEntries.length : Math.min(topN, 8),
             }),
@@ -6987,6 +7077,28 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
   });
   groupingField.append(groupingLabel, groupingSelect);
 
+  const yearModeField = document.createElement("div");
+  yearModeField.className = "metric-explorer-control";
+  const yearModeLabel = document.createElement("label");
+  yearModeLabel.setAttribute("for", "worldStatsYearModeSelect");
+  yearModeLabel.textContent = "통계 연도";
+  const yearModeSelect = document.createElement("select");
+  yearModeSelect.id = "worldStatsYearModeSelect";
+  countryStatsYearModeDefinitions.forEach((optionConfig) => {
+    const option = document.createElement("option");
+    option.value = optionConfig.key;
+    option.textContent = optionConfig.label;
+    option.selected = getWorldStatsYearMode() === optionConfig.key;
+    yearModeSelect.appendChild(option);
+  });
+  yearModeSelect.addEventListener("change", () => {
+    beginHistoryStep("지표 탐색기 변경");
+    state.worldStatsYearMode = yearModeSelect.value;
+    renderSelectionViews();
+    renderMap();
+  });
+  yearModeField.append(yearModeLabel, yearModeSelect);
+
   const topNField = document.createElement("div");
   topNField.className = "metric-explorer-control";
   const topNLabel = document.createElement("label");
@@ -7022,7 +7134,7 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
   highlightText.textContent = "지도에서 상위 N 강조";
   highlightField.append(highlightCheckbox, highlightText);
 
-  controls.append(groupingField, topNField, highlightField);
+  controls.append(groupingField, yearModeField, topNField, highlightField);
 
   if (state.metricExplorerDisplayMode === "scatter") {
     const categoryDefinitions = getMetricExplorerCategoryDefinitionsFiltered(definitions);
@@ -7079,10 +7191,10 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
       title: "비교 범위와 표시 옵션",
       detail:
         state.metricExplorerDisplayMode === "scatter"
-          ? `${state.metricExplorerGrouping === "continents" ? "대륙" : "국가"} · 상위 ${getMetricExplorerTopN()}개 · 산포도 축`
+          ? `${state.metricExplorerGrouping === "continents" ? "대륙" : "국가"} · 상위 ${getMetricExplorerTopN()}개 · ${formatWorldStatsYearModeLabel()} · 산포도 축`
           : `${state.metricExplorerGrouping === "continents" ? "대륙" : "국가"} · 상위 ${getMetricExplorerTopN()}개${
               state.metricExplorerMapHighlightEnabled ? " · 지도 강조" : ""
-            }`,
+            } · ${formatWorldStatsYearModeLabel()}`,
       contentNode: controls,
       open: state.metricExplorerOptionsExpanded,
       onToggle: (nextOpen) => {
@@ -7410,7 +7522,7 @@ function getMetricExplorerDefinitions() {
       category: "인구 변천 · 도시 · 이동",
       label: "총인구",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatPeopleAmount(value),
       getValue: (stats) => getMetricFromPopulation(stats, "population"),
     },
     {
@@ -7458,7 +7570,7 @@ function getMetricExplorerDefinitions() {
       category: "인구 변천 · 도시 · 이동",
       label: "도시 인구",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatPeopleAmount(value),
       getValue: (stats) => getMetricFromPopulation(stats, "urbanPopulation"),
     },
     {
@@ -7466,7 +7578,7 @@ function getMetricExplorerDefinitions() {
       category: "인구 변천 · 도시 · 이동",
       label: "촌락 인구",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatPeopleAmount(value),
       getValue: (stats) => getMetricFromPopulation(stats, "ruralPopulation"),
     },
     {
@@ -7522,7 +7634,7 @@ function getMetricExplorerDefinitions() {
       category: "인구 변천 · 도시 · 이동",
       label: "순이동",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatPeopleAmount(value),
       getValue: (stats) => getMigrationMetric(stats, "netMigration"),
     },
     {
@@ -7530,7 +7642,7 @@ function getMetricExplorerDefinitions() {
       category: "인구 변천 · 도시 · 이동",
       label: "난민 발생 수",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatPeopleAmount(value),
       getValue: (stats) => getRefugeeMetric(stats, "refugeeOriginTotal"),
     },
     {
@@ -7538,7 +7650,7 @@ function getMetricExplorerDefinitions() {
       category: "인구 변천 · 도시 · 이동",
       label: "난민 수용 수",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatPeopleAmount(value),
       getValue: (stats) => getRefugeeMetric(stats, "refugeeHostedTotal"),
     },
     {
@@ -7620,6 +7732,38 @@ function getMetricExplorerDefinitions() {
       aggregation: "mean",
       formatter: (value) => formatCropYield(value),
       getValue: (stats) => getNamedCropMetric(stats, "maize", "yield"),
+    },
+    {
+      key: "crops-wheat-food-share",
+      category: "식량 · 가축",
+      label: "밀 식용 비중",
+      aggregation: "mean",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getCropUseMetric(stats, "wheat", "food"),
+    },
+    {
+      key: "crops-rice-food-share",
+      category: "식량 · 가축",
+      label: "쌀 식용 비중",
+      aggregation: "mean",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getCropUseMetric(stats, "rice", "food"),
+    },
+    {
+      key: "crops-maize-feed-share",
+      category: "식량 · 가축",
+      label: "옥수수 사료용 비중",
+      aggregation: "mean",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getCropUseMetric(stats, "maize", "feed"),
+    },
+    {
+      key: "crops-maize-bioenergy-share",
+      category: "식량 · 가축",
+      label: "옥수수 바이오에너지·비식용 비중",
+      aggregation: "mean",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getCropUseMetric(stats, "maize", "bioenergy"),
     },
     {
       key: "crops-wheat-export-ratio",
@@ -7714,7 +7858,7 @@ function getMetricExplorerDefinitions() {
       category: "식량 · 가축",
       label: "3대 가축 사육 두수 합",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatHeadCountAmount(value),
       getValue: (stats) => getLivestockAggregateMetric(stats, "stockTotal"),
     },
     {
@@ -7730,7 +7874,7 @@ function getMetricExplorerDefinitions() {
       category: "식량 · 가축",
       label: "소 사육 두수",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatHeadCountAmount(value),
       getValue: (stats) => getNamedLivestockMetric(stats, "cattle", "stocks"),
     },
     {
@@ -7738,7 +7882,7 @@ function getMetricExplorerDefinitions() {
       category: "식량 · 가축",
       label: "돼지 사육 두수",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatHeadCountAmount(value),
       getValue: (stats) => getNamedLivestockMetric(stats, "pigs", "stocks"),
     },
     {
@@ -7746,7 +7890,7 @@ function getMetricExplorerDefinitions() {
       category: "식량 · 가축",
       label: "양 사육 두수",
       aggregation: "sum",
-      formatter: (value) => formatCompactStatNumber(value),
+      formatter: (value) => formatHeadCountAmount(value),
       getValue: (stats) => getNamedLivestockMetric(stats, "sheep", "stocks"),
     },
     {
@@ -7910,6 +8054,54 @@ function getMetricExplorerDefinitions() {
       getValue: (stats) => getEnergyMetric(stats, "fossilProduction", "amountBreakdownTWh.coal"),
     },
     {
+      key: "fossil-coal-export-share",
+      category: "에너지 · 자원",
+      label: "석탄 세계 수출 비율",
+      aggregation: "sum",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getFossilTradeMetric(stats, "coal", "export"),
+    },
+    {
+      key: "fossil-coal-import-share",
+      category: "에너지 · 자원",
+      label: "석탄 세계 수입 비율",
+      aggregation: "sum",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getFossilTradeMetric(stats, "coal", "import"),
+    },
+    {
+      key: "fossil-oil-export-share",
+      category: "에너지 · 자원",
+      label: "석유 세계 수출 비율",
+      aggregation: "sum",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getFossilTradeMetric(stats, "oil", "export"),
+    },
+    {
+      key: "fossil-oil-import-share",
+      category: "에너지 · 자원",
+      label: "석유 세계 수입 비율",
+      aggregation: "sum",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getFossilTradeMetric(stats, "oil", "import"),
+    },
+    {
+      key: "fossil-gas-export-share",
+      category: "에너지 · 자원",
+      label: "천연가스 세계 수출 비율",
+      aggregation: "sum",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getFossilTradeMetric(stats, "gas", "export"),
+    },
+    {
+      key: "fossil-gas-import-share",
+      category: "에너지 · 자원",
+      label: "천연가스 세계 수입 비율",
+      aggregation: "sum",
+      formatter: (value) => formatPercent(value),
+      getValue: (stats) => getFossilTradeMetric(stats, "gas", "import"),
+    },
+    {
       key: "exports-value",
       category: "산업 · 무역",
       label: "수출액",
@@ -8051,6 +8243,7 @@ function renderCountryStatsPanel() {
 
   shell.appendChild(buildCountryStatsHeader(activeCountry, stats));
   shell.appendChild(buildCountryStatsSummaryGrid(stats));
+  shell.appendChild(buildSuneungReferenceSummarySection());
 
   const sectionGrid = document.createElement("div");
   sectionGrid.className = "country-stats-section-grid";
@@ -8067,14 +8260,15 @@ function renderCountryStatsPanel() {
     buildEnergyStatsSection(
       stats?.energy?.consumption,
       "에너지 소비 구조",
-      "수능특강의 2023년 기준에 맞춰 1차 에너지 소비량과 화석·재생·원자력 비중을 함께 정리했습니다.",
+      "선택한 통계 연도 기준으로 1차 에너지 소비량과 화석·재생·원자력 비중을 함께 정리했습니다.",
     ),
     buildEnergyStatsSection(
       stats?.energy?.electricity,
       "발전 구조",
-      "수능특강의 2023년 기준에 맞춰 발전량과 발전원별 비중을 함께 정리했습니다.",
+      "선택한 통계 연도 기준으로 발전량과 발전원별 비중을 함께 정리했습니다.",
     ),
     buildFossilProductionStatsSection(stats?.energy?.fossilProduction),
+    buildFossilTradeStatsSection(stats?.energy?.fossilTrade),
   );
   shell.appendChild(sectionGrid);
   shell.appendChild(buildCountryStatsSourceRow());
@@ -8137,11 +8331,40 @@ function buildCountryStatsHeader(activeCountry, stats) {
   copy.append(description);
 
   const note = document.createElement("div");
-  note.className = "country-stats-source";
-  note.innerHTML = `<strong>자료 기준</strong><br />${countryStatsMeta.generatedAt ?? "알 수 없음"} · 수능특강 기준 연도 우선`;
+  note.className = "country-stats-source country-stats-year-mode";
+  const noteTitle = document.createElement("strong");
+  noteTitle.textContent = "자료 기준";
+  const noteMeta = document.createElement("span");
+  noteMeta.textContent = `${countryStatsMeta.generatedAt ?? "알 수 없음"} · ${getWorldStatsYearModeMeta().detail}`;
+  note.append(noteTitle, noteMeta, buildCountryStatsYearModeControl());
 
   header.append(copy, note);
   return header;
+}
+
+function buildCountryStatsYearModeControl() {
+  const field = document.createElement("label");
+  field.className = "metric-explorer-control country-stats-year-mode__control";
+  field.setAttribute("for", "countryStatsYearModeSelect");
+  const label = document.createElement("span");
+  label.textContent = "보기";
+  const select = document.createElement("select");
+  select.id = "countryStatsYearModeSelect";
+  countryStatsYearModeDefinitions.forEach((optionConfig) => {
+    const option = document.createElement("option");
+    option.value = optionConfig.key;
+    option.textContent = optionConfig.label;
+    option.selected = getWorldStatsYearMode() === optionConfig.key;
+    select.appendChild(option);
+  });
+  select.addEventListener("change", () => {
+    beginHistoryStep("세계 통계 기준 변경");
+    state.worldStatsYearMode = select.value;
+    renderSelectionViews();
+    renderMap();
+  });
+  field.append(label, select);
+  return field;
 }
 
 function buildCountryStatsHeaderTags(stats) {
@@ -8179,7 +8402,7 @@ function buildCountryStatsHeaderTags(stats) {
     tags.push(`${topReligion.label} 우세`);
   }
 
-  const renewablePowerShare = stats.energy?.electricity?.summaryShares?.renewables;
+  const renewablePowerShare = getVersionedEnergyEntry(stats.energy?.electricity)?.summaryShares?.renewables;
   if (renewablePowerShare != null) {
     tags.push(`재생전력 ${formatPercent(renewablePowerShare)}`);
   }
@@ -8190,7 +8413,7 @@ function buildCountryStatsHeaderTags(stats) {
 function buildCountryStatsMetaText(stats) {
   const parts = [];
 
-  const populationYears = [stats.population?.latestYear, stats.population?.rates?.latestYear].filter(Boolean);
+  const populationYears = [getLatestPopulationRow(stats.population)?.year, getLatestPopulationRateRow(stats.population)?.year].filter(Boolean);
   if (populationYears.length) {
     parts.push(`인구 ${Math.max(...populationYears)}`);
   }
@@ -8201,7 +8424,7 @@ function buildCountryStatsMetaText(stats) {
     ...getOrderedMetricEntries(stats.agriculture?.crops?.yield, countryStatsCropOrder).map((entry) => entry.year),
     ...countryStatsCropOrder.flatMap((key) => {
       const entry = stats.agriculture?.crops?.trade?.[key];
-      return [entry?.import?.year, entry?.export?.year];
+      return [getVersionedStatEntry(entry?.import)?.year, getVersionedStatEntry(entry?.export)?.year];
     }),
     ...getOrderedMetricEntries(stats.agriculture?.livestock?.stocks, countryStatsLivestockOrder).map((entry) => entry.year),
     ...getOrderedMetricEntries(stats.agriculture?.livestock?.meat, countryStatsLivestockOrder).map((entry) => entry.year),
@@ -8225,10 +8448,11 @@ function buildCountryStatsMetaText(stats) {
     }
   }
 
-  if (stats.populationStructure?.year || stats.populationStructure?.density?.year) {
+  const populationStructure = getVersionedPopulationStructure(stats.populationStructure);
+  if (populationStructure?.year || populationStructure?.density?.year) {
     const structureYear = Math.max(
-      stats.populationStructure?.year || 0,
-      stats.populationStructure?.density?.year || 0,
+      populationStructure?.year || 0,
+      populationStructure?.density?.year || 0,
     );
     if (structureYear) {
       parts.push(`구조 ${structureYear}`);
@@ -8242,28 +8466,30 @@ function buildCountryStatsMetaText(stats) {
     stats.migration?.refugeeHostedTotal?.year
   ) {
     const migrationYear = Math.max(
-      stats.migration?.migrantStockShare?.year || 0,
-      stats.migration?.netMigration?.year || 0,
-      stats.migration?.refugeeOriginTotal?.year || 0,
-      stats.migration?.refugeeHostedTotal?.year || 0,
+      getVersionedStatEntry(stats.migration?.migrantStockShare)?.year || 0,
+      getVersionedStatEntry(stats.migration?.netMigration)?.year || 0,
+      getVersionedStatEntry(stats.migration?.refugeeOriginTotal)?.year || 0,
+      getVersionedStatEntry(stats.migration?.refugeeHostedTotal)?.year || 0,
     );
     if (migrationYear) {
       parts.push(`이동 ${migrationYear}`);
     }
   }
 
-  if (stats.energy?.consumption?.year) {
-    parts.push(`에너지 ${stats.energy.consumption.year}`);
+  const energyConsumption = getVersionedEnergyEntry(stats.energy?.consumption);
+  const fossilProduction = getVersionedEnergyEntry(stats.energy?.fossilProduction);
+  if (energyConsumption?.year) {
+    parts.push(`에너지 ${energyConsumption.year}`);
   }
-  if (stats.energy?.fossilProduction?.year) {
-    parts.push(`생산 ${stats.energy.fossilProduction.year}`);
+  if (fossilProduction?.year) {
+    parts.push(`생산 ${fossilProduction.year}`);
   }
 
   if (!parts.length) {
     return "선택 국가의 세부 통계가 아직 준비되지 않았습니다.";
   }
 
-  return `${parts.join(" · ")} 기준으로 묶은 통계입니다. 시계열·양·비중 그래프를 함께 보여주고, 여러 국가를 선택하면 비교 카드도 추가됩니다.`;
+  return `${parts.join(" · ")} 기준으로 묶은 ${formatWorldStatsYearModeLabel()} 통계입니다. 시계열·양·비중 그래프를 함께 보여주고, 여러 국가를 선택하면 비교 카드도 추가됩니다.`;
 }
 
 function buildCountryStatsSummaryGrid(stats) {
@@ -8273,11 +8499,12 @@ function buildCountryStatsSummaryGrid(stats) {
   const latestPopulationRow = getLatestPopulationRow(stats?.population);
   const latestRateRow = getLatestPopulationRateRow(stats?.population);
   const cropTotals = getCropTotals(stats?.agriculture?.crops);
-  const energySummary = stats?.energy?.consumption?.summaryShares ?? null;
+  const energyConsumption = getVersionedEnergyEntry(stats?.energy?.consumption);
+  const energySummary = energyConsumption?.summaryShares ?? null;
 
   grid.append(
     createCountryStatsSummaryCard(
-      "최신 인구",
+      getWorldStatsYearMode() === "latest" ? "최신 인구" : "기준 인구",
       latestPopulationRow ? formatStatNumber(latestPopulationRow.population) : "자료 없음",
       latestPopulationRow ? `${latestPopulationRow.year}년` : "UN 최신 가용연도",
     ),
@@ -8298,7 +8525,7 @@ function buildCountryStatsSummaryGrid(stats) {
     createCountryStatsSummaryCard(
       "3대 곡물 생산",
       cropTotals.productionTotal > 0 ? formatTonAmount(cropTotals.productionTotal) : "자료 없음",
-      cropTotals.topCropLabel ? `${cropTotals.topCropLabel} 비중 ${formatPercent(cropTotals.topCropShare)}` : "FAOSTAT 2023년 기준",
+      cropTotals.topCropLabel ? `${cropTotals.topCropLabel} 비중 ${formatPercent(cropTotals.topCropShare)}` : "FAOSTAT 기준",
     ),
     createCountryStatsSummaryCard(
       "에너지 소비",
@@ -8308,6 +8535,87 @@ function buildCountryStatsSummaryGrid(stats) {
   );
 
   return grid;
+}
+
+function buildSuneungReferenceSummarySection() {
+  const section = createCountryStatsSection(
+    "교재 전세계 기준표",
+    "국가별 프로필에 직접 귀속되지 않는 도시화 전망, 곡물 용도, 화석연료 이동 표를 함께 보관합니다.",
+  );
+  const summaries = countryStatsMeta.referenceSummaries ?? {};
+  const chartGrid = document.createElement("div");
+  chartGrid.className = "country-stats-chart-grid";
+
+  const cityCounts = summaries.urbanization?.citySizeCounts ?? [];
+  if (cityCounts.length) {
+    chartGrid.append(
+      buildAmountBarChartCard({
+        title: "도시 규모별 도시 수 증가",
+        description: "UN 2018 도시화 전망의 1975년 대비 2025년 도시 수 증가분입니다.",
+        entries: cityCounts.map((entry) => {
+          const startValue = Number(entry.values?.["1975"]) || 0;
+          const endValue = Number(entry.values?.["2025"]) || 0;
+          return {
+            label: entry.sizeClass,
+            value: Math.max(0, endValue - startValue),
+            detail: `1975년 ${startValue}개 · 2025년 ${endValue}개`,
+            color: "#111111",
+          };
+        }),
+        valueFormatter: (value) => `${formatStatNumber(value)}개`,
+      }),
+    );
+  }
+
+  const cropUse = summaries.cropUse ?? {};
+  const cropUseEntries = countryStatsCropOrder
+    .map((key) => {
+      const entry = getVersionedEnergyEntry(cropUse[key]);
+      return entry ? { key, ...entry } : null;
+    })
+    .filter(Boolean);
+  chartGrid.append(
+    ...cropUseEntries.map((entry) =>
+      buildShareCompositionCard({
+        title: `세계 ${entry.label} 용도별 소비`,
+        description: "FAOSTAT Food Balance Sheets 기준으로 식용·사료용·비식용·기타를 나눴습니다.",
+        totalLabel: entry.total != null ? `${entry.year}년 세계 공급 ${formatTonAmount(entry.total)}` : `${entry.year}년 기준`,
+        segments: Object.entries(entry.shares ?? {}).map(([key, share]) => ({
+          label: countryStatsCropUseLabels[key] ?? key,
+          share,
+          amountLabel: entry.amounts?.[key] != null ? formatTonAmount(entry.amounts[key]) : null,
+          color: getCountryStatsColor(key),
+        })),
+      }),
+    ),
+  );
+
+  const fossilTradeRows = Object.entries(summaries.fossilTrade ?? {}).flatMap(([resourceKey, resource]) =>
+    ["exports", "imports"].flatMap((directionKey) =>
+      (resource?.[directionKey] ?? []).slice(0, 3).map(([iso3, countryLabel, share]) => ({
+        label: `${resource.label} ${directionKey === "exports" ? "수출" : "수입"} · ${countryLabel}`,
+        value: formatPercent(share),
+        detail: `${resource.source} 2023 · ${iso3}`,
+      })),
+    ),
+  );
+  if (fossilTradeRows.length) {
+    chartGrid.append(
+      buildStatListCard({
+        title: "화석연료 수출입 상위국",
+        description: "교재 표의 상위 국가를 자원별로 3개씩 요약했습니다.",
+        rows: fossilTradeRows,
+      }),
+    );
+  }
+
+  if (!chartGrid.childNodes.length) {
+    section.appendChild(createCountryStatsUnavailable("표시할 교재 기준표가 아직 없습니다."));
+    return section;
+  }
+
+  section.appendChild(chartGrid);
+  return section;
 }
 
 function createCountryStatsSummaryCard(label, value, detail) {
@@ -8344,12 +8652,12 @@ function buildPopulationStatsSection(population) {
   metricGrid.className = "country-stats-metric-grid";
   metricGrid.append(
     createCountryStatsMetric(
-      "최신 도시 인구",
+      getWorldStatsYearMode() === "latest" ? "최신 도시 인구" : "기준 도시 인구",
       latestRow?.urbanPopulation != null ? formatStatNumber(latestRow.urbanPopulation) : "자료 없음",
       latestRow?.urbanShare != null ? `${latestRow.year}년 · ${formatPercent(latestRow.urbanShare)}` : "최신 가용연도",
     ),
     createCountryStatsMetric(
-      "최신 촌락 인구",
+      getWorldStatsYearMode() === "latest" ? "최신 촌락 인구" : "기준 촌락 인구",
       latestRow?.ruralPopulation != null ? formatStatNumber(latestRow.ruralPopulation) : "자료 없음",
       latestRow?.ruralShare != null ? `${latestRow.year}년 · ${formatPercent(latestRow.ruralShare)}` : "최신 가용연도",
     ),
@@ -8395,8 +8703,8 @@ function buildPopulationStatsSection(population) {
       valueFormatter: (value) => formatCompactStatNumber(value),
     }),
     buildShareCompositionCard({
-      title: "최신 도시·촌락 구성",
-      description: "최신 가용연도의 도시화율과 촌락 인구 비중입니다.",
+      title: getWorldStatsYearMode() === "latest" ? "최신 도시·촌락 구성" : "기준 도시·촌락 구성",
+      description: "선택한 통계 연도의 도시화율과 촌락 인구 비중입니다.",
       totalLabel: latestRow?.population != null ? `${latestRow.year}년 총인구 ${formatStatNumber(latestRow.population)}명` : null,
       segments: [
         {
@@ -8450,14 +8758,20 @@ function buildPopulationStatsSection(population) {
 function buildCropStatsSection(crops) {
   const section = createCountryStatsSection(
     "주요 곡물 생산 · 무역",
-    "수능특강의 FAOSTAT 2023년 기준에 맞춰 밀·쌀·옥수수의 생산량, 생산 비중, 수출·수입량을 함께 정리했습니다.",
+    "수능특강의 기준연도에 맞춰 밀·쌀·옥수수의 생산량, 용도별 소비 구조, 수출·수입량을 함께 정리했습니다.",
   );
 
   const productionEntries = getOrderedMetricEntries(crops?.production, countryStatsCropOrder);
   const areaEntries = getOrderedMetricEntries(crops?.areaHarvested, countryStatsCropOrder);
   const yieldEntries = getOrderedMetricEntries(crops?.yield, countryStatsCropOrder);
+  const useEntries = countryStatsCropOrder
+    .map((key) => {
+      const entry = getVersionedEnergyEntry(crops?.use?.[key]);
+      return entry ? { key, ...entry } : null;
+    })
+    .filter(Boolean);
   const tradeEntries = buildCropTradeChartEntries(crops?.trade);
-  if (!productionEntries.length && !areaEntries.length && !yieldEntries.length && !tradeEntries.length) {
+  if (!productionEntries.length && !areaEntries.length && !yieldEntries.length && !useEntries.length && !tradeEntries.length) {
     section.appendChild(createCountryStatsUnavailable("표시할 곡물 생산·무역 자료가 없습니다."));
     return section;
   }
@@ -8481,6 +8795,15 @@ function buildCropStatsSection(crops) {
       totals.exportTotal > 0 ? formatTonAmount(totals.exportTotal) : "자료 없음",
       totals.tradeYear ? `${totals.tradeYear}년 기준` : "최신 가용연도",
     ),
+    createCountryStatsMetric(
+      "옥수수 사료용",
+      useEntries.find((entry) => entry.key === "maize")?.shares?.feed != null
+        ? formatPercent(useEntries.find((entry) => entry.key === "maize").shares.feed)
+        : "자료 없음",
+      useEntries.find((entry) => entry.key === "maize")?.year
+        ? `${useEntries.find((entry) => entry.key === "maize").year}년 용도별 소비`
+        : "Food Balance Sheets",
+    ),
   );
   section.appendChild(metricGrid);
 
@@ -8489,7 +8812,7 @@ function buildCropStatsSection(crops) {
   const chartCards = [
     buildAmountBarChartCard({
       title: "곡물별 생산량",
-      description: "밀·쌀·옥수수의 2023년 생산량입니다.",
+      description: "선택한 통계 연도의 밀·쌀·옥수수 생산량입니다.",
       entries: productionEntries.map((entry) => ({
         label: entry.label,
         value: entry.value,
@@ -8503,7 +8826,7 @@ function buildCropStatsSection(crops) {
     chartCards.push(
       buildAmountBarChartCard({
         title: "곡물별 재배 면적",
-        description: "수능특강에서 생산량과 함께 비교하는 2023년 재배 면적입니다.",
+        description: "수능특강에서 생산량과 함께 비교하는 재배 면적입니다.",
         entries: areaEntries.map((entry) => ({
           label: entry.label,
           value: entry.value,
@@ -8529,6 +8852,23 @@ function buildCropStatsSection(crops) {
       }),
     );
   }
+  if (useEntries.length) {
+    chartCards.push(
+      ...useEntries.map((entry) =>
+        buildShareCompositionCard({
+          title: `${entry.label} 용도별 소비 구조`,
+          description: "식용·사료용·바이오에너지 및 기타 비식용 용도를 나눠 봅니다.",
+          totalLabel: entry.total != null ? `${entry.year}년 국내 공급 ${formatTonAmount(entry.total)}` : `${entry.year}년 기준`,
+          segments: Object.entries(entry.shares ?? {}).map(([key, share]) => ({
+            label: countryStatsCropUseLabels[key] ?? key,
+            share,
+            amountLabel: entry.amounts?.[key] != null ? formatTonAmount(entry.amounts[key]) : null,
+            color: getCountryStatsColor(key),
+          })),
+        }),
+      ),
+    );
+  }
   chartCards.push(
     buildShareCompositionCard({
       title: "3대 곡물 생산 비중",
@@ -8543,7 +8883,7 @@ function buildCropStatsSection(crops) {
     }),
     buildAmountBarChartCard({
       title: "곡물별 수입·수출량",
-      description: "Detailed Trade Matrix에서 집계한 2023년 기준 수입량과 수출량입니다.",
+      description: "Detailed Trade Matrix에서 집계한 수입량과 수출량입니다.",
       entries: tradeEntries,
       valueFormatter: (value) => formatTonAmount(value),
     }),
@@ -8556,7 +8896,7 @@ function buildCropStatsSection(crops) {
 function buildLivestockStatsSection(livestock) {
   const section = createCountryStatsSection(
     "주요 가축 사육 · 육류 생산",
-    "수능특강의 FAOSTAT 2023년 기준에 맞춰 소·돼지·양의 사육 두수와 대응하는 육류 생산량을 정리했습니다.",
+    "선택한 통계 연도 기준으로 소·돼지·양의 사육 두수와 대응하는 육류 생산량을 정리했습니다.",
   );
 
   const stockEntries = getOrderedMetricEntries(livestock?.stocks, countryStatsLivestockOrder);
@@ -8604,7 +8944,7 @@ function buildLivestockStatsSection(livestock) {
     }),
     buildAmountBarChartCard({
       title: "육류 생산량",
-      description: "소고기·돼지고기·양고기의 2023년 생산량입니다.",
+      description: "소고기·돼지고기·양고기의 생산량입니다.",
       entries: meatEntries.map((entry) => ({
         label: entry.label,
         value: entry.value,
@@ -8815,6 +9155,7 @@ function buildPopulationStructureStatsSection(populationStructure, migration, po
     "인구 구조 · 이동",
     "연령 구조, 부양비, 인구 밀도, 국제이주민과 난민 관련 지표를 함께 보여줍니다.",
   );
+  populationStructure = getVersionedPopulationStructure(populationStructure);
 
   const totalPopulationForAgeCounts =
     Number(populationStructure?.totalPopulation) || Number(getLatestPopulationRow(population)?.population) || 0;
@@ -8859,13 +9200,13 @@ function buildPopulationStructureStatsSection(populationStructure, migration, po
     ),
     createCountryStatsMetric(
       "국제이주민 비중",
-      migration?.migrantStockShare?.value != null ? formatPercent(migration.migrantStockShare.value) : "자료 없음",
-      migration?.migrantStockShare?.year ? `${migration.migrantStockShare.year}년` : "최신 가용연도",
+      getVersionedStatValue(migration?.migrantStockShare) != null ? formatPercent(getVersionedStatValue(migration.migrantStockShare)) : "자료 없음",
+      getVersionedStatEntry(migration?.migrantStockShare)?.year ? `${getVersionedStatEntry(migration.migrantStockShare).year}년` : "최신 가용연도",
     ),
     createCountryStatsMetric(
       "순이동",
-      migration?.netMigration?.value != null ? formatCompactStatNumber(migration.netMigration.value) : "자료 없음",
-      migration?.netMigration?.year ? `${migration.netMigration.year}년` : "최신 가용연도",
+      getVersionedStatValue(migration?.netMigration) != null ? formatCompactStatNumber(getVersionedStatValue(migration.netMigration)) : "자료 없음",
+      getVersionedStatEntry(migration?.netMigration)?.year ? `${getVersionedStatEntry(migration.netMigration).year}년` : "최신 가용연도",
     ),
   );
   section.appendChild(metricGrid);
@@ -8931,34 +9272,34 @@ function buildPopulationStructureStatsSection(populationStructure, migration, po
       title: "이동·난민 지표",
       description: "국제이주민, 순이동, 난민 발생·수용 규모를 함께 봅니다.",
       rows: [
-        migration?.migrantStockShare
+        getVersionedStatEntry(migration?.migrantStockShare)
           ? {
               label: "국제이주민 비중",
-              value: formatPercent(migration.migrantStockShare.value),
+              value: formatPercent(getVersionedStatEntry(migration.migrantStockShare).value),
               detail: migration.migrantStockTotal?.value != null
-                ? `${formatStatNumber(migration.migrantStockTotal.value)}명 · ${migration.migrantStockShare.year}년`
-                : `${migration.migrantStockShare.year}년`,
+                ? `${formatStatNumber(migration.migrantStockTotal.value)}명 · ${getVersionedStatEntry(migration.migrantStockShare).year}년`
+                : `${getVersionedStatEntry(migration.migrantStockShare).year}년`,
             }
           : null,
-        migration?.netMigration
+        getVersionedStatEntry(migration?.netMigration)
           ? {
               label: "순이동",
-              value: formatCompactStatNumber(migration.netMigration.value),
-              detail: migration.netMigration.year ? `${migration.netMigration.year}년` : "최신값",
+              value: formatCompactStatNumber(getVersionedStatEntry(migration.netMigration).value),
+              detail: getVersionedStatEntry(migration.netMigration).year ? `${getVersionedStatEntry(migration.netMigration).year}년` : "최신값",
             }
           : null,
-        migration?.refugeeOriginTotal
+        getVersionedStatEntry(migration?.refugeeOriginTotal)
           ? {
               label: "난민 발생 수",
-              value: formatCompactStatNumber(migration.refugeeOriginTotal.value),
-              detail: migration.refugeeOriginTotal.year ? `${migration.refugeeOriginTotal.year}년` : "최신값",
+              value: formatCompactStatNumber(getVersionedStatEntry(migration.refugeeOriginTotal).value),
+              detail: getVersionedStatEntry(migration.refugeeOriginTotal).year ? `${getVersionedStatEntry(migration.refugeeOriginTotal).year}년` : "최신값",
             }
           : null,
-        migration?.refugeeHostedTotal
+        getVersionedStatEntry(migration?.refugeeHostedTotal)
           ? {
               label: "난민 수용 수",
-              value: formatCompactStatNumber(migration.refugeeHostedTotal.value),
-              detail: migration.refugeeHostedTotal.year ? `${migration.refugeeHostedTotal.year}년` : "최신값",
+              value: formatCompactStatNumber(getVersionedStatEntry(migration.refugeeHostedTotal).value),
+              detail: getVersionedStatEntry(migration.refugeeHostedTotal).year ? `${getVersionedStatEntry(migration.refugeeHostedTotal).year}년` : "최신값",
             }
           : null,
       ].filter(Boolean),
@@ -8970,6 +9311,7 @@ function buildPopulationStructureStatsSection(populationStructure, migration, po
 
 function buildEnergyStatsSection(entry, title, description) {
   const section = createCountryStatsSection(title, description);
+  entry = getVersionedEnergyEntry(entry);
 
   if (!entry) {
     section.appendChild(createCountryStatsUnavailable("표시할 최신 에너지 자료가 없습니다."));
@@ -9052,8 +9394,9 @@ function buildEnergyStatsSection(entry, title, description) {
 function buildFossilProductionStatsSection(entry) {
   const section = createCountryStatsSection(
     "화석연료 생산",
-    "수능특강의 2023년 기준에 맞춰 석유·가스·석탄 생산량과 생산 내부 비중을 정리했습니다.",
+    "수능특강 기준연도와 최신 가용연도 중 선택한 기준에 맞춰 석유·가스·석탄 생산량과 생산 내부 비중을 정리했습니다.",
   );
+  entry = getVersionedEnergyEntry(entry);
 
   if (!entry) {
     section.appendChild(createCountryStatsUnavailable("표시할 화석연료 생산 자료가 없습니다."));
@@ -9098,7 +9441,7 @@ function buildFossilProductionStatsSection(entry) {
     }),
     buildAmountBarChartCard({
       title: "화석연료별 생산량",
-      description: "2023년 생산량을 TWh 환산 기준으로 비교합니다.",
+      description: "선택한 통계 연도 생산량을 TWh 환산 기준으로 비교합니다.",
       entries: breakdownEntries.map((item) => ({
         label: item.label,
         value: item.amount,
@@ -9106,6 +9449,75 @@ function buildFossilProductionStatsSection(entry) {
         color: getCountryStatsColor(item.key),
       })),
       valueFormatter: (value) => formatEnergyAmount(value),
+    }),
+  );
+  section.appendChild(chartGrid);
+  return section;
+}
+
+function buildFossilTradeStatsSection(trade) {
+  const section = createCountryStatsSection(
+    "화석연료 국제 이동",
+    "교재의 EI/OPEC 2023년 표에 나온 석탄·석유·천연가스 수출입 비율을 국가별로 붙였습니다.",
+  );
+
+  const rows = ["coal", "oil", "gas"].flatMap((resourceKey) => {
+    const entry = trade?.[resourceKey];
+    if (!entry) {
+      return [];
+    }
+    return ["export", "import"]
+      .map((directionKey) => {
+        const directionEntry = getVersionedStatEntry(entry[directionKey]);
+        if (!Number.isFinite(Number(directionEntry?.value))) {
+          return null;
+        }
+        return {
+          resourceKey,
+          directionKey,
+          label: `${countryStatsEnergyLabels[resourceKey] ?? resourceKey} ${directionKey === "export" ? "수출" : "수입"}`,
+          value: Number(directionEntry.value),
+          detail: `${directionEntry.year}년 · 세계 ${directionKey === "export" ? "수출" : "수입"} 중 ${formatPercent(directionEntry.value)} · ${directionEntry.source ?? "교재"}`,
+          color: getCountryStatsColor(resourceKey),
+        };
+      })
+      .filter(Boolean);
+  });
+
+  if (!rows.length) {
+    section.appendChild(createCountryStatsUnavailable("이 국가는 교재의 화석연료 수출입 상위 표에 포함되지 않았습니다."));
+    return section;
+  }
+
+  const metricGrid = document.createElement("div");
+  metricGrid.className = "country-stats-metric-grid";
+  const topRow = [...rows].sort((a, b) => b.value - a.value)[0];
+  metricGrid.append(
+    createCountryStatsMetric(
+      "최대 수출입 항목",
+      topRow ? `${topRow.label} ${formatPercent(topRow.value)}` : "자료 없음",
+      topRow?.detail ?? "교재 기준",
+    ),
+  );
+  section.appendChild(metricGrid);
+
+  const chartGrid = document.createElement("div");
+  chartGrid.className = "country-stats-chart-grid";
+  chartGrid.append(
+    buildAmountBarChartCard({
+      title: "세계 수출입 비율",
+      description: "각 자원의 세계 수출량 또는 수입량에서 이 국가가 차지하는 비율입니다.",
+      entries: rows,
+      valueFormatter: (value) => formatPercent(value),
+    }),
+    buildStatListCard({
+      title: "교재 표 원천",
+      description: "석탄·석유는 EI, 천연가스 수출입은 OPEC 표를 반영했습니다.",
+      rows: rows.map((row) => ({
+        label: row.label,
+        value: formatPercent(row.value),
+        detail: row.detail,
+      })),
     }),
   );
   section.appendChild(chartGrid);
@@ -9234,8 +9646,9 @@ function buildSelectedCountriesComparisonSection(selectedStatsRows) {
       description: "에너지 소비 구조에서 화석 비중만 뽑아 비교합니다.",
       entries: selectedStatsRows
         .map(({ country, stats }) => {
-          const share = stats?.energy?.consumption?.summaryShares?.fossil;
-          const year = stats?.energy?.consumption?.year;
+          const energy = getVersionedEnergyEntry(stats?.energy?.consumption);
+          const share = energy?.summaryShares?.fossil;
+          const year = energy?.year;
           return share != null
             ? {
                 label: country.name,
@@ -9254,8 +9667,9 @@ function buildSelectedCountriesComparisonSection(selectedStatsRows) {
       description: "최신 가용연도 기준 총발전량 비교입니다.",
       entries: selectedStatsRows
         .map(({ country, stats }) => {
-          const total = stats?.energy?.electricity?.totalTWh;
-          const year = stats?.energy?.electricity?.year;
+          const electricity = getVersionedEnergyEntry(stats?.energy?.electricity);
+          const total = electricity?.totalTWh;
+          const year = electricity?.year;
           return total != null
             ? {
                 label: country.name,
@@ -9285,6 +9699,7 @@ function buildCountryStatsSourceRow() {
     "urbanization",
     "faostatProduction",
     "faostatTrade",
+    "faostatFoodBalance",
     "religion",
     "continents",
     "worldBankExports",
@@ -9296,20 +9711,25 @@ function buildCountryStatsSourceRow() {
     "primaryEnergy",
     "electricityMix",
     "fossilProduction",
+    "fossilTrade",
   ].forEach((key) => {
     const source = countryStatsMeta.sources?.[key];
-    if (!source?.url) {
+    if (!source?.label) {
       return;
     }
 
     const card = document.createElement("div");
     card.className = "country-stats-source";
-    const link = document.createElement("a");
-    link.href = source.url;
-    link.target = "_blank";
-    link.rel = "noreferrer";
-    link.textContent = source.label;
-    card.appendChild(link);
+    if (source.url) {
+      const link = document.createElement("a");
+      link.href = source.url;
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      link.textContent = source.label;
+      card.appendChild(link);
+    } else {
+      card.textContent = source.label;
+    }
     row.appendChild(card);
   });
 
@@ -9317,11 +9737,7 @@ function buildCountryStatsSourceRow() {
 }
 
 function getLatestPopulationRow(population) {
-  if (!population?.rows?.length) {
-    return null;
-  }
-
-  return population.rows[population.rows.length - 1];
+  return getSelectedPopulationRow(population);
 }
 
 function getPopulationRateRow(population, year) {
@@ -9329,11 +9745,7 @@ function getPopulationRateRow(population, year) {
 }
 
 function getLatestPopulationRateRow(population) {
-  if (!population?.rates?.rows?.length) {
-    return null;
-  }
-
-  return population.rates.rows[population.rates.rows.length - 1];
+  return getSelectedPopulationRateRow(population);
 }
 
 function getMetricFromPopulation(stats, key) {
@@ -9380,9 +9792,10 @@ function getCropAggregateMetric(stats, key) {
 
 function getNamedCropMetric(stats, cropKey, metricKey) {
   const cropMetrics = stats?.agriculture?.crops;
-  const sourceEntry = ["production", "areaHarvested", "yield"].includes(metricKey)
+  const rawEntry = ["production", "areaHarvested", "yield"].includes(metricKey)
     ? cropMetrics?.[metricKey]?.[cropKey]
     : cropMetrics?.trade?.[cropKey]?.[metricKey];
+  const sourceEntry = getVersionedStatEntry(rawEntry);
   if (!Number.isFinite(Number(sourceEntry?.value))) {
     return null;
   }
@@ -9395,8 +9808,10 @@ function getNamedCropMetric(stats, cropKey, metricKey) {
 }
 
 function getCropExportRatioMetric(stats, cropKey) {
-  const productionValue = Number(stats?.agriculture?.crops?.production?.[cropKey]?.value);
-  const exportValue = Number(stats?.agriculture?.crops?.trade?.[cropKey]?.export?.value);
+  const productionEntry = getVersionedStatEntry(stats?.agriculture?.crops?.production?.[cropKey]);
+  const exportEntry = getVersionedStatEntry(stats?.agriculture?.crops?.trade?.[cropKey]?.export);
+  const productionValue = Number(productionEntry?.value);
+  const exportValue = Number(exportEntry?.value);
   if (!Number.isFinite(productionValue) || productionValue <= 0 || !Number.isFinite(exportValue)) {
     return null;
   }
@@ -9404,10 +9819,24 @@ function getCropExportRatioMetric(stats, cropKey) {
   return {
     value: exportValue / productionValue * 100,
     year: Math.max(
-      stats?.agriculture?.crops?.production?.[cropKey]?.year || 0,
-      stats?.agriculture?.crops?.trade?.[cropKey]?.export?.year || 0,
+      productionEntry?.year || 0,
+      exportEntry?.year || 0,
     ) || null,
     detail: `${countryStatsCropLabels[cropKey] ?? cropKey} 생산 대비 수출`,
+  };
+}
+
+function getCropUseMetric(stats, cropKey, useKey) {
+  const entry = getVersionedEnergyEntry(stats?.agriculture?.crops?.use?.[cropKey]);
+  const value = entry?.shares?.[useKey];
+  if (!Number.isFinite(Number(value))) {
+    return null;
+  }
+
+  return {
+    value: Number(value),
+    year: entry.year ?? null,
+    detail: `${countryStatsCropLabels[cropKey] ?? cropKey} ${countryStatsCropUseLabels[useKey] ?? useKey}`,
   };
 }
 
@@ -9426,7 +9855,7 @@ function getLivestockAggregateMetric(stats, key) {
 }
 
 function getNamedLivestockMetric(stats, livestockKey, metricKey) {
-  const entry = stats?.agriculture?.livestock?.[metricKey]?.[livestockKey];
+  const entry = getVersionedStatEntry(stats?.agriculture?.livestock?.[metricKey]?.[livestockKey]);
   if (!Number.isFinite(Number(entry?.value))) {
     return null;
   }
@@ -9456,7 +9885,8 @@ function getNestedMetricValue(source, path) {
 }
 
 function getEnergyMetric(stats, bucketKey, path) {
-  const source = bucketKey === "fossilProduction" ? stats?.energy?.fossilProduction : stats?.energy?.[bucketKey];
+  const rawSource = bucketKey === "fossilProduction" ? stats?.energy?.fossilProduction : stats?.energy?.[bucketKey];
+  const source = getVersionedEnergyEntry(rawSource);
   const value = getNestedMetricValue(source, path);
   if (!Number.isFinite(Number(value))) {
     return null;
@@ -9466,6 +9896,19 @@ function getEnergyMetric(stats, bucketKey, path) {
     value: Number(value),
     year: source?.year ?? null,
     detail: source?.year ? `${source.year}년` : "최신 에너지 자료",
+  };
+}
+
+function getFossilTradeMetric(stats, resourceKey, directionKey) {
+  const entry = getVersionedStatEntry(stats?.energy?.fossilTrade?.[resourceKey]?.[directionKey]);
+  if (!Number.isFinite(Number(entry?.value))) {
+    return null;
+  }
+
+  return {
+    value: Number(entry.value),
+    year: entry.year ?? null,
+    detail: `${countryStatsEnergyLabels[resourceKey] ?? resourceKey} ${directionKey === "export" ? "수출" : "수입"}`,
   };
 }
 
@@ -9497,7 +9940,7 @@ function getIndustryMetric(stats, key) {
 }
 
 function getPopulationStructureMetric(stats, key) {
-  const entry = stats?.populationStructure;
+  const entry = getVersionedPopulationStructure(stats?.populationStructure);
   const value = entry?.shares?.[key];
   if (!Number.isFinite(Number(value))) {
     return null;
@@ -9511,7 +9954,7 @@ function getPopulationStructureMetric(stats, key) {
 }
 
 function getPopulationDensityMetric(stats) {
-  const entry = stats?.populationStructure?.density;
+  const entry = getVersionedStatEntry(stats?.populationStructure?.density);
   if (!Number.isFinite(Number(entry?.value))) {
     return null;
   }
@@ -9524,7 +9967,7 @@ function getPopulationDensityMetric(stats) {
 }
 
 function getPopulationDependencyMetric(stats, key) {
-  const entry = stats?.populationStructure;
+  const entry = getVersionedPopulationStructure(stats?.populationStructure);
   const value = entry?.dependencyRatios?.[key];
   if (!Number.isFinite(Number(value))) {
     return null;
@@ -9538,7 +9981,7 @@ function getPopulationDependencyMetric(stats, key) {
 }
 
 function getMigrationMetric(stats, key) {
-  const entry = stats?.migration?.[key];
+  const entry = getVersionedStatEntry(stats?.migration?.[key]);
   if (!Number.isFinite(Number(entry?.value))) {
     return null;
   }
@@ -9551,7 +9994,7 @@ function getMigrationMetric(stats, key) {
 }
 
 function getRefugeeMetric(stats, key) {
-  const entry = stats?.migration?.[key];
+  const entry = getVersionedStatEntry(stats?.migration?.[key]);
   if (!Number.isFinite(Number(entry?.value))) {
     return null;
   }
@@ -9564,7 +10007,7 @@ function getRefugeeMetric(stats, key) {
 }
 
 function getEnergyPerCapitaMetric(stats, bucketKey = "consumption") {
-  const energyEntry = bucketKey === "electricity" ? stats?.energy?.electricity : stats?.energy?.consumption;
+  const energyEntry = getVersionedEnergyEntry(bucketKey === "electricity" ? stats?.energy?.electricity : stats?.energy?.consumption);
   const populationRow = getLatestPopulationRow(stats?.population);
   const total = Number(energyEntry?.totalTWh);
   const population = Number(populationRow?.population);
@@ -9713,6 +10156,19 @@ function formatCompactStatNumber(value, maximumFractionDigits = 1) {
   return numericValue.toLocaleString("ko-KR", { maximumFractionDigits });
 }
 
+function formatCompactStatNumberWithUnit(value, unit, maximumFractionDigits = 1) {
+  const formattedValue = formatCompactStatNumber(value, maximumFractionDigits);
+  return formattedValue === "자료 없음" ? formattedValue : `${formattedValue} ${unit}`;
+}
+
+function formatPeopleAmount(value) {
+  return formatCompactStatNumberWithUnit(value, "명");
+}
+
+function formatHeadCountAmount(value) {
+  return formatCompactStatNumberWithUnit(value, "두");
+}
+
 function formatSignedDelta(value) {
   if (value == null || !Number.isFinite(Number(value))) {
     return "자료 없음";
@@ -9744,7 +10200,7 @@ function applyCountryStatsPatternStyle(node, visual) {
 function getOrderedMetricEntries(map, order) {
   return order
     .map((key) => {
-      const entry = map?.[key];
+      const entry = getVersionedStatEntry(map?.[key]);
       return entry ? { key, ...entry } : null;
     })
     .filter(Boolean);
@@ -9760,7 +10216,20 @@ function computeChangePercent(start, end) {
 
 function getCropTotals(crops) {
   const productionEntries = getOrderedMetricEntries(crops?.production, countryStatsCropOrder);
-  const tradeEntries = countryStatsCropOrder.map((key) => ({ key, ...crops?.trade?.[key] })).filter((entry) => entry.label);
+  const tradeEntries = countryStatsCropOrder
+    .map((key) => {
+      const entry = crops?.trade?.[key];
+      if (!entry?.label) {
+        return null;
+      }
+      return {
+        key,
+        label: entry.label,
+        import: getVersionedStatEntry(entry.import),
+        export: getVersionedStatEntry(entry.export),
+      };
+    })
+    .filter(Boolean);
   const productionTotal = productionEntries.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
   const importTotal = tradeEntries.reduce((sum, entry) => sum + (Number(entry.import?.value) || 0), 0);
   const exportTotal = tradeEntries.reduce((sum, entry) => sum + (Number(entry.export?.value) || 0), 0);
@@ -9821,19 +10290,21 @@ function buildCropTradeChartEntries(tradeMap) {
 
     const color = getCountryStatsColor(key);
     const rows = [];
-    if (entry.import?.value != null) {
+    const importEntry = getVersionedStatEntry(entry.import);
+    const exportEntry = getVersionedStatEntry(entry.export);
+    if (importEntry?.value != null) {
       rows.push({
         label: `${entry.label} 수입`,
-        value: entry.import.value,
-        detail: `${entry.import.year}년`,
+        value: importEntry.value,
+        detail: `${importEntry.year}년`,
         color,
       });
     }
-    if (entry.export?.value != null) {
+    if (exportEntry?.value != null) {
       rows.push({
         label: `${entry.label} 수출`,
-        value: entry.export.value,
-        detail: `${entry.export.year}년`,
+        value: exportEntry.value,
+        detail: `${exportEntry.year}년`,
         color,
       });
     }
@@ -10250,8 +10721,8 @@ function getExamGraphAlias(index) {
   return `(${token})`;
 }
 
-function getExamGraphPresetDefinition() {
-  return examGraphPresetDefinitions.find((definition) => definition.key === state.examGraphPresetKey) ?? examGraphPresetDefinitions[0];
+function getExamGraphPresetDefinition(presetKey = state.examGraphPresetKey) {
+  return examGraphPresetDefinitions.find((definition) => definition.key === presetKey) ?? null;
 }
 
 function getExamGraphValueModeDefinition() {
@@ -10283,7 +10754,7 @@ function getExamGraphTopShareMetricDefinition() {
 }
 
 function getExamGraphAllowedValueModes(presetKey = state.examGraphPresetKey) {
-  const preset = examGraphPresetDefinitions.find((definition) => definition.key === presetKey) ?? examGraphPresetDefinitions[0];
+  const preset = getExamGraphPresetDefinition(presetKey);
   return preset.allowedValueModes ?? [];
 }
 
@@ -10496,7 +10967,7 @@ function isExamGraphNormalizedModeAllowedForMetric(metricDefinition) {
 
 function ensureExamGraphState() {
   if (!examGraphPresetDefinitions.some((definition) => definition.key === state.examGraphPresetKey)) {
-    state.examGraphPresetKey = examGraphPresetDefinitions[0].key;
+    state.examGraphPresetKey = "";
   }
   const metricDefinitions = getMetricExplorerDefinitions();
   const metricKeys = new Set(metricDefinitions.map((definition) => definition.key));
@@ -10534,9 +11005,11 @@ function ensureExamGraphState() {
   state.examGraphPreviewCount = getExamGraphPreviewCount();
   state.examGraphFontSizePt = getExamGraphFontSizePt();
 
-  const allowedValueModes = getExamGraphAllowedValueModes(state.examGraphPresetKey);
-  if (!allowedValueModes.includes(state.examGraphValueMode)) {
-    state.examGraphValueMode = allowedValueModes[0] ?? "amount";
+  if (state.examGraphPresetKey) {
+    const allowedValueModes = getExamGraphAllowedValueModes(state.examGraphPresetKey);
+    if (!allowedValueModes.includes(state.examGraphValueMode)) {
+      state.examGraphValueMode = allowedValueModes[0] ?? "amount";
+    }
   }
 
   const availableYears = examGraphPopulationYears.length ? examGraphPopulationYears : [1970, 2023];
@@ -10587,7 +11060,13 @@ function renderExamGraphPanel() {
   shell.appendChild(buildExamGraphControls());
 
   if (!model) {
-    shell.appendChild(createEmptyState("출제형 그래프에 쓸 수 있는 통계가 아직 부족합니다. 다른 프리셋이나 국가 조합을 골라 보세요."));
+    shell.appendChild(
+      createEmptyState(
+        state.examGraphPresetKey
+          ? "비교 그래프에 쓸 수 있는 통계가 아직 부족합니다. 다른 그래프 종류나 국가 조합을 골라 보세요."
+          : "그래프 종류와 지표를 선택하면 비교 그래프가 표시됩니다.",
+      ),
+    );
     elements.examGraphPanel.appendChild(shell);
     return;
   }
@@ -10631,7 +11110,7 @@ function buildExamGraphControls() {
     button.classList.toggle("is-active", definition.key === state.examGraphPresetKey);
     button.textContent = definition.label;
     button.addEventListener("click", () => {
-      updateExamGraphState("출제형 그래프 변경", () => {
+      updateExamGraphState("비교 그래프 변경", () => {
         state.examGraphPresetKey = definition.key;
       });
     });
@@ -10646,11 +11125,11 @@ function buildExamGraphControls() {
       label: "지도 선택 사용",
       active: getExamGraphScopeMode() !== "focus",
       handler: () => {
-        updateExamGraphState("출제형 그래프 대상 복귀", () => {
+        updateExamGraphState("비교 그래프 대상 복귀", () => {
           state.examGraphFocusCountryIds = [];
           state.examGraphFocusLabel = "";
         });
-        setStatus("출제형 그래프 대상을 지도 선택 또는 자동 상위 추출 기준으로 되돌렸습니다.");
+        setStatus("비교 그래프 대상을 지도 선택 또는 자동 상위 추출 기준으로 되돌렸습니다.");
       },
     },
     {
@@ -10694,6 +11173,10 @@ function buildExamGraphControls() {
   guide.textContent = getExamGraphGuideText();
   wrapper.appendChild(guide);
 
+  if (!getExamGraphPresetDefinition()) {
+    return wrapper;
+  }
+
   const coreControls = document.createElement("div");
   coreControls.className = "exam-graph-controls";
   const designControls = document.createElement("div");
@@ -10701,13 +11184,13 @@ function buildExamGraphControls() {
   const valueModeOptions = getExamGraphValueModeOptionsForCurrentPreset();
 
   const aliasField = buildExamGraphToggleField("가명 처리", state.examGraphAliasMode, (checked) => {
-    updateExamGraphState("출제형 그래프 변경", () => {
+    updateExamGraphState("비교 그래프 변경", () => {
       state.examGraphAliasMode = checked;
     });
   });
 
   const topNField = buildExamGraphNumberField("표시 개수", getExamGraphTopN(), 2, 12, (value) => {
-    updateExamGraphState("출제형 그래프 변경", () => {
+    updateExamGraphState("비교 그래프 변경", () => {
       state.examGraphTopN = value;
     });
   });
@@ -10716,7 +11199,7 @@ function buildExamGraphControls() {
     examGraphOrientationDefinitions,
     state.examGraphOrientation,
     (value) => {
-      updateExamGraphState("출제형 그래프 변경", () => {
+      updateExamGraphState("비교 그래프 변경", () => {
         state.examGraphOrientation = value;
       });
     },
@@ -10726,7 +11209,7 @@ function buildExamGraphControls() {
     examGraphPreviewCountDefinitions,
     String(getExamGraphPreviewCount()),
     (value) => {
-      updateExamGraphState("출제형 그래프 변경", () => {
+      updateExamGraphState("비교 그래프 변경", () => {
         state.examGraphPreviewCount = Number(value);
       });
     },
@@ -10737,7 +11220,7 @@ function buildExamGraphControls() {
     7,
     9,
     (value) => {
-      updateExamGraphState("출제형 그래프 변경", () => {
+      updateExamGraphState("비교 그래프 변경", () => {
         state.examGraphFontSizePt = value;
       });
     },
@@ -10752,13 +11235,13 @@ function buildExamGraphControls() {
     ],
     state.examGraphGrouping,
     (value) => {
-      updateExamGraphState("출제형 그래프 변경", () => {
+      updateExamGraphState("비교 그래프 변경", () => {
         state.examGraphGrouping = value;
       });
     },
   );
   const mergeAmericasField = buildExamGraphToggleField("아메리카 통합", state.examGraphMergeAmericas, (checked) => {
-    updateExamGraphState("출제형 그래프 변경", () => {
+    updateExamGraphState("비교 그래프 변경", () => {
       state.examGraphMergeAmericas = checked;
     });
   });
@@ -10766,7 +11249,7 @@ function buildExamGraphControls() {
   const valueModeField =
     valueModeOptions.length > 1
       ? buildExamGraphSelectField("표시 방식", valueModeOptions, state.examGraphValueMode, (value) => {
-          updateExamGraphState("출제형 그래프 변경", () => {
+          updateExamGraphState("비교 그래프 변경", () => {
             state.examGraphValueMode = value;
           });
         })
@@ -10785,7 +11268,7 @@ function buildExamGraphControls() {
         examGraphCompositionDefinitions,
         state.examGraphCompositionKey,
         (value) => {
-          updateExamGraphState("출제형 그래프 변경", () => {
+          updateExamGraphState("비교 그래프 변경", () => {
             state.examGraphCompositionKey = value;
           });
         },
@@ -10797,7 +11280,7 @@ function buildExamGraphControls() {
   } else if (state.examGraphPresetKey === "rankBars") {
     coreControls.append(
       buildExamGraphSelectField("기준 지표", getMetricExplorerDefinitions(), state.examGraphMetricKey, (value) => {
-        updateExamGraphState("출제형 그래프 변경", () => {
+        updateExamGraphState("비교 그래프 변경", () => {
           state.examGraphMetricKey = value;
         });
       }),
@@ -10808,7 +11291,7 @@ function buildExamGraphControls() {
   } else if (state.examGraphPresetKey === "pairedBars") {
     coreControls.append(
       buildExamGraphSelectField("지표 쌍", examGraphPairMetricDefinitions, state.examGraphPairKey, (value) => {
-        updateExamGraphState("출제형 그래프 변경", () => {
+        updateExamGraphState("비교 그래프 변경", () => {
           state.examGraphPairKey = value;
         });
       }),
@@ -10823,7 +11306,7 @@ function buildExamGraphControls() {
         examGraphTimeMetricDefinitions,
         state.examGraphTimeMetricKey,
         (value) => {
-          updateExamGraphState("출제형 그래프 변경", () => {
+          updateExamGraphState("비교 그래프 변경", () => {
             state.examGraphTimeMetricKey = value;
           });
         },
@@ -10835,7 +11318,7 @@ function buildExamGraphControls() {
         examGraphPopulationYears.map((year) => ({ key: String(year), label: `${year}년` })),
         String(state.examGraphYearStart),
         (value) => {
-          updateExamGraphState("출제형 그래프 변경", () => {
+          updateExamGraphState("비교 그래프 변경", () => {
             state.examGraphYearStart = Number(value);
           });
         },
@@ -10845,7 +11328,7 @@ function buildExamGraphControls() {
         examGraphPopulationYears.map((year) => ({ key: String(year), label: `${year}년` })),
         String(state.examGraphYearEnd),
         (value) => {
-          updateExamGraphState("출제형 그래프 변경", () => {
+          updateExamGraphState("비교 그래프 변경", () => {
             state.examGraphYearEnd = Number(value);
           });
         },
@@ -10859,7 +11342,7 @@ function buildExamGraphControls() {
         examGraphTimeMetricDefinitions,
         state.examGraphTimeMetricKey,
         (value) => {
-          updateExamGraphState("출제형 그래프 변경", () => {
+          updateExamGraphState("비교 그래프 변경", () => {
             state.examGraphTimeMetricKey = value;
           });
         },
@@ -10871,7 +11354,7 @@ function buildExamGraphControls() {
         examGraphPopulationYears.map((year) => ({ key: String(year), label: `${year}년` })),
         String(state.examGraphYearStart),
         (value) => {
-          updateExamGraphState("출제형 그래프 변경", () => {
+          updateExamGraphState("비교 그래프 변경", () => {
             state.examGraphYearStart = Number(value);
           });
         },
@@ -10881,7 +11364,7 @@ function buildExamGraphControls() {
         examGraphPopulationYears.map((year) => ({ key: String(year), label: `${year}년` })),
         String(state.examGraphYearEnd),
         (value) => {
-          updateExamGraphState("출제형 그래프 변경", () => {
+          updateExamGraphState("비교 그래프 변경", () => {
             state.examGraphYearEnd = Number(value);
           });
         },
@@ -10893,17 +11376,17 @@ function buildExamGraphControls() {
     coreControls.append(
       groupingField,
       buildExamGraphSelectField("산포도 X축", metricDefinitions, state.examGraphScatterXKey, (value) => {
-        updateExamGraphState("출제형 그래프 변경", () => {
+        updateExamGraphState("비교 그래프 변경", () => {
           state.examGraphScatterXKey = value;
         });
       }),
       buildExamGraphSelectField("산포도 Y축", metricDefinitions, state.examGraphScatterYKey, (value) => {
-        updateExamGraphState("출제형 그래프 변경", () => {
+        updateExamGraphState("비교 그래프 변경", () => {
           state.examGraphScatterYKey = value;
         });
       }),
       buildExamGraphSelectField("버블 크기", metricDefinitions, state.examGraphScatterSizeKey, (value) => {
-        updateExamGraphState("출제형 그래프 변경", () => {
+        updateExamGraphState("비교 그래프 변경", () => {
           state.examGraphScatterSizeKey = value;
         });
       }),
@@ -10916,7 +11399,7 @@ function buildExamGraphControls() {
         examGraphTopShareMetricDefinitions,
         state.examGraphTopShareMetricKey,
         (value) => {
-          updateExamGraphState("출제형 그래프 변경", () => {
+          updateExamGraphState("비교 그래프 변경", () => {
             state.examGraphTopShareMetricKey = value;
           });
         },
@@ -10941,6 +11424,9 @@ function buildExamGraphControls() {
 }
 
 function getExamGraphGuideText() {
+  if (!getExamGraphPresetDefinition()) {
+    return "위에서 그래프 종류를 먼저 선택하세요. 선택 전에는 자동 추천 그래프를 만들지 않습니다.";
+  }
   const scopeMode = getExamGraphScopeMode();
   if (scopeMode === "focus") {
     return `${getExamGraphScopeSourceText()} 기준 추천 대상을 우선 사용합니다. 랜덤 추천은 수능특강에 실제로 자주 등장하는 국가를 먼저 고릅니다. '지도 선택 사용'을 누르면 다시 지도 선택 또는 자동 상위 추출 기준으로 돌아갑니다.`;
@@ -10954,6 +11440,9 @@ function getExamGraphGuideText() {
 function getExamGraphValueModeOptionsForCurrentPreset() {
   const allowedKeys = getExamGraphAllowedValueModes(state.examGraphPresetKey);
   let options = examGraphValueModeDefinitions.filter((definition) => allowedKeys.includes(definition.key));
+  if (!options.length) {
+    return [];
+  }
 
   if (state.examGraphPresetKey === "rankBars") {
     if (!isExamGraphNormalizedModeAllowedForMetric(getExamGraphMetricDefinition())) {
@@ -11747,7 +12236,7 @@ function applyExamGraphRandomCountries() {
     return;
   }
 
-  updateExamGraphState("출제형 그래프 국가 추천", () => {
+  updateExamGraphState("비교 그래프 국가 추천", () => {
     state.examGraphFocusCountryIds = recommendation.ids;
     state.examGraphFocusLabel = recommendation.label;
   });
@@ -11761,7 +12250,7 @@ function applyExamGraphRandomScenario({ graphOnly = false } = {}) {
     return;
   }
 
-  updateExamGraphState(graphOnly ? "출제형 그래프 통계 추천" : "출제형 그래프 세트 추천", () => {
+  updateExamGraphState(graphOnly ? "비교 그래프 통계 추천" : "비교 그래프 세트 추천", () => {
     applyExamGraphScenarioConfig(result.scenario);
     if (!graphOnly && result.recommendation?.ids?.length) {
       state.examGraphFocusCountryIds = result.recommendation.ids;
@@ -11778,6 +12267,9 @@ function applyExamGraphRandomScenario({ graphOnly = false } = {}) {
 
 function buildExamGraphModel() {
   const preset = getExamGraphPresetDefinition();
+  if (!preset) {
+    return null;
+  }
   let model = null;
   if (preset.key === "stacked100") {
     model = buildExamStackedGraphModel();
@@ -11817,25 +12309,10 @@ function buildExamStackedGraphModel() {
   const legendItems = buildExamLegendItemsFromRows(rows);
   const valueMode = state.examGraphValueMode === "amount" ? "amount" : "share";
   const amountFormatter = buildExamGraphAmountFormatter(rows, definition.key);
-  const svgNode = buildExamStackedCompositionSvg({
-    title: definition.label,
-    subtitle: definition.description,
-    rows,
-    legendItems,
-    mode: valueMode,
-    valueFormatter: valueMode === "amount" ? amountFormatter : (value) => formatPercent(value),
-    footnote:
-      valueMode === "amount"
-        ? state.examGraphGrouping === "continents"
-          ? `* ${result.scopeLabel} 기준으로 묶은 실제 양입니다.`
-          : "* 각 행의 실제 값을 같은 눈금에서 비교한 값입니다."
-        : state.examGraphGrouping === "continents"
-          ? `* ${result.scopeLabel} 기준으로 묶은 합 또는 평균 비중입니다.`
-          : "* 각 행의 합을 100%로 환산한 값입니다.",
-  });
 
   return {
     presetKey: getExamGraphPresetDefinition().key,
+    chartKind: "stacked",
     metricKey: definition.key,
     presetLabel: getExamGraphPresetDefinition().label,
     title: definition.label,
@@ -11850,7 +12327,9 @@ function buildExamStackedGraphModel() {
     displayModeDetail:
       valueMode === "amount" ? "구성 요소의 실제 양을 누적막대로 비교" : "각 행의 합을 100으로 환산",
     rows,
-    svgNode,
+    legendItems,
+    chartMode: valueMode,
+    valueFormatter: valueMode === "amount" ? amountFormatter : (value) => formatPercent(value),
     exportName: buildExamGraphFileName(["stacked", definition.key, state.examGraphGrouping, valueMode]),
     valueRows: buildExamGraphValueRows(
       rows,
@@ -11889,15 +12368,10 @@ function buildExamRankBarGraphModel() {
     state.examGraphValueMode,
   );
   const rows = applyExamGraphDisplayLabels(transformed.rows);
-  const svgNode = buildExamSingleBarSvg({
-    title: definition.label,
-    subtitle: definition.category,
-    rows,
-    valueFormatter: transformed.valueFormatter,
-  });
 
   return {
     presetKey: getExamGraphPresetDefinition().key,
+    chartKind: "singleBar",
     metricKey: definition.key,
     presetLabel: getExamGraphPresetDefinition().label,
     title: definition.label,
@@ -11911,7 +12385,7 @@ function buildExamRankBarGraphModel() {
     displayModeLabel: transformed.displayModeLabel,
     displayModeDetail: transformed.displayModeDetail,
     rows,
-    svgNode,
+    valueFormatter: transformed.valueFormatter,
     exportName: buildExamGraphFileName(["rank", definition.key, state.examGraphGrouping, state.examGraphValueMode]),
     valueRows: buildExamGraphValueRows(
       rows,
@@ -11948,19 +12422,14 @@ function buildExamPairedBarGraphModel() {
     secondDefinition,
   );
   const rows = applyExamGraphDisplayLabels(transformed.rows);
-  const svgNode = buildExamPairedBarSvg({
-    title: pairDefinition.label,
-    subtitle: pairDefinition.description,
-    rows,
-    legendItems: [
-      { label: firstDefinition.label, fill: getExamGraphFill(0) },
-      { label: secondDefinition.label, fill: getExamGraphFill(1) },
-    ],
-    valueFormatter: transformed.valueFormatter,
-  });
+  const legendItems = [
+    { label: firstDefinition.label },
+    { label: secondDefinition.label },
+  ];
 
   return {
     presetKey: getExamGraphPresetDefinition().key,
+    chartKind: "pairedBar",
     metricKey: pairDefinition.key,
     presetLabel: getExamGraphPresetDefinition().label,
     title: pairDefinition.label,
@@ -11974,7 +12443,8 @@ function buildExamPairedBarGraphModel() {
     displayModeLabel: transformed.displayModeLabel,
     displayModeDetail: transformed.displayModeDetail,
     rows,
-    svgNode,
+    legendItems,
+    valueFormatter: transformed.valueFormatter,
     exportName: buildExamGraphFileName(["pair", pairDefinition.key, state.examGraphGrouping, state.examGraphValueMode]),
     valueRows: buildExamGraphValueRows(
       rows,
@@ -12005,17 +12475,14 @@ function buildExamTimeCompareModel() {
 
   const transformedRows = transformExamGraphTimeRowsByMode(result.rows, state.examGraphValueMode, definition.formatter);
   const rows = applyExamGraphDisplayLabels(transformedRows.rows);
-  const svgNode = buildExamTimeCompareSvg({
-    title: `${definition.label} 변화`,
-    subtitle: `${state.examGraphYearStart}년과 ${state.examGraphYearEnd}년 값을 같은 눈금으로 비교합니다.`,
-    rows,
-    startYear: state.examGraphYearStart,
-    endYear: state.examGraphYearEnd,
-    valueFormatter: transformedRows.valueFormatter,
-  });
+  const legendItems = [
+    { label: `${state.examGraphYearStart}년` },
+    { label: `${state.examGraphYearEnd}년` },
+  ];
 
   return {
     presetKey: getExamGraphPresetDefinition().key,
+    chartKind: "timeCompare",
     metricKey: definition.key,
     presetLabel: getExamGraphPresetDefinition().label,
     title: `${definition.label} 변화`,
@@ -12029,7 +12496,8 @@ function buildExamTimeCompareModel() {
     displayModeLabel: transformedRows.displayModeLabel,
     displayModeDetail: transformedRows.displayModeDetail,
     rows,
-    svgNode,
+    legendItems,
+    valueFormatter: transformedRows.valueFormatter,
     exportName: buildExamGraphFileName(["time", definition.key, state.examGraphYearStart, state.examGraphYearEnd, state.examGraphValueMode]),
     startYear: state.examGraphYearStart,
     endYear: state.examGraphYearEnd,
@@ -12060,16 +12528,10 @@ function buildExamTrendLineGraphModel() {
 
   const transformed = transformExamGraphTrendRowsByMode(result.rows, result.years, state.examGraphValueMode, definition.formatter);
   const rows = applyExamGraphDisplayLabels(transformed.rows);
-  const svgNode = buildExamTrendLineSvg({
-    title: `${definition.label} 추이`,
-    subtitle: `${state.examGraphYearStart}년~${state.examGraphYearEnd}년`,
-    rows,
-    years: result.years,
-    valueFormatter: transformed.valueFormatter,
-  });
 
   return {
     presetKey: getExamGraphPresetDefinition().key,
+    chartKind: "trendLine",
     metricKey: definition.key,
     presetLabel: getExamGraphPresetDefinition().label,
     title: `${definition.label} 추이`,
@@ -12083,7 +12545,8 @@ function buildExamTrendLineGraphModel() {
     displayModeLabel: transformed.displayModeLabel,
     displayModeDetail: transformed.displayModeDetail,
     rows,
-    svgNode,
+    years: result.years,
+    valueFormatter: transformed.valueFormatter,
     exportName: buildExamGraphFileName(["trend", definition.key, state.examGraphYearStart, state.examGraphYearEnd, state.examGraphValueMode]),
     valueRows: buildExamGraphValueRows(
       rows,
@@ -12136,19 +12599,10 @@ function buildExamScatterGraphModel() {
     actualLabel: row.label,
     displayLabel: state.examGraphAliasMode ? getExamGraphAlias(index) : row.label,
   }));
-  const svgNode = buildExamScatterSvg({
-    title: `${xDefinition.label}와 ${yDefinition.label}`,
-    subtitle: `버블 크기: ${sizeDefinition.label}`,
-    rows: displayRows,
-    xLabel: xDefinition.label,
-    yLabel: yDefinition.label,
-    xFormatter: xDefinition.formatter,
-    yFormatter: yDefinition.formatter,
-    sizeFormatter: sizeDefinition.formatter,
-  });
 
   return {
     presetKey: getExamGraphPresetDefinition().key,
+    chartKind: "scatter",
     metricKey: `${xDefinition.key}:${yDefinition.key}:${sizeDefinition.key}`,
     presetLabel: getExamGraphPresetDefinition().label,
     title: `${xDefinition.label}와 ${yDefinition.label}`,
@@ -12165,7 +12619,9 @@ function buildExamScatterGraphModel() {
           : `전체 자료 상위 ${displayRows.length}개국`,
     rowCountText: `${displayRows.length}개 점`,
     rows: displayRows,
-    svgNode,
+    xFormatter: xDefinition.formatter,
+    yFormatter: yDefinition.formatter,
+    sizeFormatter: sizeDefinition.formatter,
     exportName: buildExamGraphFileName(["scatter", xDefinition.key, yDefinition.key, sizeDefinition.key]),
     xLabel: xDefinition.label,
     yLabel: yDefinition.label,
@@ -12247,21 +12703,16 @@ function buildExamTopShareGraphModel() {
   }
 
   const displayRows = applyExamGraphDisplayLabels(rows);
-  const svgNode = buildExamStackedCompositionSvg({
-    title: `${definition.label} 상위 3개국 비중`,
-    subtitle: `대륙별 상위 3개국과 기타 비중${getExamGraphContinentScopeSuffix("continents", "top3share")}`,
-    rows: displayRows,
-    legendItems: [
-      { label: "A" },
-      { label: "B" },
-      { label: "C" },
-      { label: "기타" },
-    ],
-    footnote: `* 각 대륙 내부에서 해당 지표 상위 3개국이 차지하는 비율입니다.${shouldExamGraphMergeAmericas("continents", "top3share") ? " 아메리카는 북·남아메리카를 합산했습니다." : ""}`,
-  });
+  const legendItems = [
+    { label: "A" },
+    { label: "B" },
+    { label: "C" },
+    { label: "기타" },
+  ];
 
   return {
     presetKey: getExamGraphPresetDefinition().key,
+    chartKind: "stacked",
     metricKey: definition.key,
     presetLabel: getExamGraphPresetDefinition().label,
     title: `${definition.label} 상위 3개국 비중`,
@@ -12275,7 +12726,9 @@ function buildExamTopShareGraphModel() {
     displayModeLabel: "비율",
     displayModeDetail: "각 대륙 내부 합을 100으로 환산",
     rows: displayRows,
-    svgNode,
+    legendItems,
+    chartMode: "share",
+    valueFormatter: (value) => formatPercent(value),
     exportName: buildExamGraphFileName(["top3", definition.key]),
     valueRows: buildExamGraphValueRows(
       displayRows,
@@ -12994,10 +13447,30 @@ function buildExamGraphAmountFormatter(rows, metricKey = "") {
   return (value) => formatStatNumber(value, 1);
 }
 
+const examGraphReadableLabelMap = new Map([
+  ["Bolivia, Plurinational State of", "Bolivia"],
+  ["Congo, the Democratic Republic of the", "DR Congo"],
+  ["Congo, the Republic of", "Congo"],
+  ["Iran, Islamic Republic of", "Iran"],
+  ["Korea, Democratic People's Republic of", "North Korea"],
+  ["Korea, Republic of", "South Korea"],
+  ["Lao People's Democratic Republic", "Laos"],
+  ["Moldova, Republic of", "Moldova"],
+  ["Russian Federation", "Russia"],
+  ["Syrian Arab Republic", "Syria"],
+  ["Tanzania, United Republic of", "Tanzania"],
+  ["Venezuela, Bolivarian Republic of", "Venezuela"],
+]);
+
+function getExamGraphReadableLabel(label) {
+  const normalized = String(label ?? "").trim();
+  return examGraphReadableLabelMap.get(normalized) ?? normalized;
+}
+
 function applyExamGraphDisplayLabels(rows) {
   return rows.map((row, index) => ({
     ...row,
-    displayLabel: state.examGraphAliasMode ? getExamGraphAlias(index) : row.label,
+    displayLabel: state.examGraphAliasMode ? getExamGraphAlias(index) : getExamGraphReadableLabel(row.label),
   }));
 }
 
@@ -13041,7 +13514,11 @@ function buildExamGraphPreviewExportName(filename, suffix) {
   if (!suffix) {
     return filename;
   }
-  return filename.replace(/\.svg$/i, `-${suffix}.svg`);
+  const extensionMatch = String(filename).match(/(\.[a-z0-9]+)$/i);
+  if (!extensionMatch) {
+    return `${filename}-${suffix}`;
+  }
+  return String(filename).replace(extensionMatch[1], `-${suffix}${extensionMatch[1]}`);
 }
 
 function getExamGraphDefinitionCycleDistance(index, currentIndex, length) {
@@ -13330,7 +13807,6 @@ function buildExamGraphPreviewGallery(model) {
 
 function buildExamGraphPreviewCard(preview) {
   const model = preview.model;
-  ensureSvgFontStyle(model.svgNode, { includeExamGraph: false });
   const card = document.createElement("div");
   card.className = "exam-graph-preview-card country-stats-chart-card";
   card.dataset.examGraphStyle = model.styleMode ?? getExamGraphStyleMode();
@@ -13339,20 +13815,453 @@ function buildExamGraphPreviewCard(preview) {
   stage.className = "exam-graph-stage";
   stage.dataset.orientation = model.orientation ?? "landscape";
   stage.dataset.style = model.styleMode ?? getExamGraphStyleMode();
-  stage.appendChild(model.svgNode);
+  stage.appendChild(buildExamGraphNativeChart(model));
   card.appendChild(stage);
 
   return card;
+}
+
+function createExamGraphNativeNode(className, textContent = "") {
+  const node = document.createElement("div");
+  node.className = className;
+  if (textContent) {
+    node.textContent = textContent;
+  }
+  return node;
+}
+
+let examGraphNativeLineLayoutScheduled = false;
+let examGraphNativeLineResizeBound = false;
+
+function layoutExamGraphNativeLineSegments(plot) {
+  if (!plot?.querySelectorAll) {
+    return;
+  }
+  const width = plot.clientWidth;
+  const height = plot.clientHeight;
+  if (!width || !height) {
+    return;
+  }
+
+  plot.querySelectorAll(".exam-graph-native-line-segment").forEach((segment) => {
+    const x1 = (Number(segment.dataset.x1) / 100) * width;
+    const y1 = (Number(segment.dataset.y1) / 100) * height;
+    const x2 = (Number(segment.dataset.x2) / 100) * width;
+    const y2 = (Number(segment.dataset.y2) / 100) * height;
+    if (![x1, y1, x2, y2].every(Number.isFinite)) {
+      return;
+    }
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    segment.style.left = `${x1}px`;
+    segment.style.top = `${y1}px`;
+    segment.style.width = `${Math.hypot(dx, dy)}px`;
+    segment.style.transform = `rotate(${Math.atan2(dy, dx)}rad)`;
+  });
+}
+
+function scheduleExamGraphNativeLineLayout() {
+  if (typeof window === "undefined" || typeof document === "undefined" || examGraphNativeLineLayoutScheduled) {
+    return;
+  }
+  examGraphNativeLineLayoutScheduled = true;
+  window.requestAnimationFrame(() => {
+    examGraphNativeLineLayoutScheduled = false;
+    document.querySelectorAll(".exam-graph-native-line-plot").forEach((plot) => {
+      layoutExamGraphNativeLineSegments(plot);
+    });
+  });
+}
+
+function ensureExamGraphNativeLineLayoutEvents() {
+  if (typeof window === "undefined" || examGraphNativeLineResizeBound) {
+    return;
+  }
+  examGraphNativeLineResizeBound = true;
+  window.addEventListener("resize", scheduleExamGraphNativeLineLayout, { passive: true });
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(scheduleExamGraphNativeLineLayout).catch(() => {});
+  }
+}
+
+function getExamGraphNativeAxis(values, valueFormatter, options = {}) {
+  const { minimum, maximum } = getExamGraphAxisDomain(values, options);
+  const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const tickFormat = buildExamGraphAxisTickFormatter([...ticks, ...(values ?? [])], valueFormatter ?? ((value) => String(value)));
+  return {
+    minimum,
+    maximum,
+    ticks,
+    formatTick: tickFormat.formatTick,
+    unitLabel: tickFormat.unitLabel,
+    toPercent: (value) => {
+      const rangePadding = Number(options.rangePadding ?? 7);
+      if (Math.abs(maximum - minimum) < 0.000001) {
+        return 50;
+      }
+      return rangePadding + ((Number(value) - minimum) / (maximum - minimum)) * (100 - rangePadding * 2);
+    },
+  };
+}
+
+function appendExamGraphNativeGrid(plot, axis, direction = "x") {
+  axis.ticks.forEach((tick) => {
+    const line = createExamGraphNativeNode(`exam-graph-native-grid-line exam-graph-native-grid-line--${direction}`);
+    line.classList.toggle("is-zero", Math.abs(Number(tick)) < 0.000001);
+    if (direction === "x") {
+      line.style.left = `${axis.toPercent(tick)}%`;
+    } else {
+      line.style.top = `${axis.toPercent(tick)}%`;
+    }
+    plot.appendChild(line);
+  });
+}
+
+function appendExamGraphNativeXAxis(chart, axis) {
+  const axisRow = createExamGraphNativeNode("exam-graph-native-axis-row");
+  axisRow.appendChild(createExamGraphNativeNode("exam-graph-native-axis-spacer"));
+  const plotAxis = createExamGraphNativeNode("exam-graph-native-axis-plot");
+  axis.ticks.forEach((tick, index) => {
+    const label = createExamGraphNativeNode("exam-graph-native-axis-tick", axis.formatTick(tick));
+    if (index === 0) {
+      label.classList.add("is-edge-start");
+    }
+    if (index === axis.ticks.length - 1) {
+      label.classList.add("is-edge-end");
+    }
+    label.style.left = `${axis.toPercent(tick)}%`;
+    plotAxis.appendChild(label);
+  });
+  if (axis.unitLabel) {
+    const unit = createExamGraphNativeNode("exam-graph-native-axis-unit", axis.unitLabel);
+    plotAxis.appendChild(unit);
+  }
+  axisRow.appendChild(plotAxis);
+  chart.appendChild(axisRow);
+}
+
+function appendExamGraphNativeLegend(chart, legendItems = []) {
+  if (!legendItems.length) {
+    return;
+  }
+  const legend = createExamGraphNativeNode("exam-graph-native-legend");
+  legendItems.forEach((item, index) => {
+    const legendItem = createExamGraphNativeNode("exam-graph-native-legend-item");
+    const swatch = createExamGraphNativeNode("exam-graph-native-swatch");
+    swatch.dataset.series = String(index);
+    const label = document.createElement("span");
+    label.textContent = item.label;
+    legendItem.append(swatch, label);
+    legend.appendChild(legendItem);
+  });
+  chart.appendChild(legend);
+}
+
+function buildExamGraphNativeChart(model) {
+  if (model.chartKind === "trendLine") {
+    return buildExamGraphNativeTrendChart(model);
+  }
+  if (model.chartKind === "scatter") {
+    return buildExamGraphNativeScatterChart(model);
+  }
+  if (model.chartKind === "stacked") {
+    return buildExamGraphNativeStackedChart(model);
+  }
+  if (model.chartKind === "pairedBar" || model.chartKind === "timeCompare") {
+    return buildExamGraphNativePairedChart(model);
+  }
+  return buildExamGraphNativeSingleBarChart(model);
+}
+
+function buildExamGraphNativeSingleBarChart(model) {
+  const rows = model.rows ?? [];
+  const values = rows.map((row) => Number(row.displayValue ?? row.value));
+  const axis = getExamGraphNativeAxis(values, model.valueFormatter, { paddingRatio: 0.04 });
+  const chart = createExamGraphNativeNode("exam-graph-native-chart exam-graph-native-chart--bars");
+  const rowsNode = createExamGraphNativeNode("exam-graph-native-rows");
+  const zeroPosition = axis.toPercent(0);
+
+  rows.forEach((row, rowIndex) => {
+    const value = Number(row.displayValue ?? row.value) || 0;
+    const valuePosition = axis.toPercent(value);
+    const item = createExamGraphNativeNode("exam-graph-native-row");
+    const label = createExamGraphNativeNode("exam-graph-native-row-label", row.displayLabel ?? row.label ?? "");
+    const plot = createExamGraphNativeNode("exam-graph-native-plot");
+    appendExamGraphNativeGrid(plot, axis, "x");
+
+    const bar = createExamGraphNativeNode("exam-graph-native-bar");
+    bar.dataset.series = String(rowIndex % 4);
+    bar.style.left = `${Math.min(zeroPosition, valuePosition)}%`;
+    bar.style.width = `${Math.max(0.7, Math.abs(valuePosition - zeroPosition))}%`;
+    plot.appendChild(bar);
+    item.append(label, plot);
+    rowsNode.appendChild(item);
+  });
+
+  chart.appendChild(rowsNode);
+  appendExamGraphNativeXAxis(chart, axis);
+  return chart;
+}
+
+function buildExamGraphNativeStackedChart(model) {
+  const rows = model.rows ?? [];
+  const mode = model.chartMode === "amount" ? "amount" : "share";
+  const values = mode === "amount" ? rows.map((row) => Number(row.total) || 0) : [0, 100];
+  const axis = mode === "amount"
+    ? getExamGraphNativeAxis(values, model.valueFormatter, { forceZeroStart: true, paddingRatio: 0.04 })
+    : {
+        minimum: 0,
+        maximum: 100,
+        ticks: [0, 20, 40, 60, 80, 100],
+        formatTick: (value) => String(value),
+        unitLabel: "(%)",
+        toPercent: (value) => 6 + (Number(value) / 100) * 88,
+      };
+  const chart = createExamGraphNativeNode("exam-graph-native-chart exam-graph-native-chart--stacked");
+  const rowsNode = createExamGraphNativeNode("exam-graph-native-rows");
+
+  rows.forEach((row) => {
+    const item = createExamGraphNativeNode("exam-graph-native-row");
+    const label = createExamGraphNativeNode("exam-graph-native-row-label", row.displayLabel ?? row.label ?? "");
+    const plot = createExamGraphNativeNode("exam-graph-native-plot");
+    appendExamGraphNativeGrid(plot, axis, "x");
+    let cumulativeValue = 0;
+    (row.segments ?? []).forEach((segment, segmentIndex) => {
+      const segmentValue = mode === "amount" ? Number(segment.value) || 0 : clamp(Number(segment.share) || 0, 0, 100);
+      const startPosition = axis.toPercent(cumulativeValue);
+      cumulativeValue += segmentValue;
+      const endPosition = axis.toPercent(cumulativeValue);
+      const block = createExamGraphNativeNode("exam-graph-native-bar exam-graph-native-bar--segment");
+      block.dataset.series = String(segmentIndex % 4);
+      block.title = `${segment.label} ${model.valueFormatter ? model.valueFormatter(segmentValue) : segmentValue}`;
+      block.style.left = `${Math.min(startPosition, endPosition)}%`;
+      block.style.width = `${Math.max(0.7, Math.abs(endPosition - startPosition))}%`;
+      plot.appendChild(block);
+    });
+    item.append(label, plot);
+    rowsNode.appendChild(item);
+  });
+
+  chart.appendChild(rowsNode);
+  appendExamGraphNativeXAxis(chart, axis);
+  appendExamGraphNativeLegend(chart, model.legendItems ?? []);
+  return chart;
+}
+
+function buildExamGraphNativePairedChart(model) {
+  const rows = model.rows ?? [];
+  const values = rows.flatMap((row) =>
+    model.chartKind === "timeCompare"
+      ? [Number(row.displayStartValue ?? row.startValue), Number(row.displayEndValue ?? row.endValue)]
+      : [Number(row.displayFirstValue), Number(row.displaySecondValue)],
+  );
+  const axis = getExamGraphNativeAxis(values, model.valueFormatter, { forceZeroStart: true, paddingRatio: 0.04 });
+  const chart = createExamGraphNativeNode("exam-graph-native-chart exam-graph-native-chart--paired");
+  const rowsNode = createExamGraphNativeNode("exam-graph-native-rows");
+  const zeroPosition = axis.toPercent(0);
+
+  rows.forEach((row) => {
+    const item = createExamGraphNativeNode("exam-graph-native-row exam-graph-native-row--paired");
+    const label = createExamGraphNativeNode("exam-graph-native-row-label", row.displayLabel ?? row.label ?? "");
+    const plot = createExamGraphNativeNode("exam-graph-native-plot exam-graph-native-plot--paired");
+    appendExamGraphNativeGrid(plot, axis, "x");
+    const pairValues = model.chartKind === "timeCompare"
+      ? [row.displayStartValue ?? row.startValue, row.displayEndValue ?? row.endValue]
+      : [row.displayFirstValue, row.displaySecondValue];
+    pairValues.forEach((value, valueIndex) => {
+      const valuePosition = axis.toPercent(Number(value) || 0);
+      const bar = createExamGraphNativeNode("exam-graph-native-bar exam-graph-native-bar--paired");
+      bar.dataset.series = String(valueIndex);
+      bar.style.left = `${Math.min(zeroPosition, valuePosition)}%`;
+      bar.style.width = `${Math.max(0.7, Math.abs(valuePosition - zeroPosition))}%`;
+      bar.style.top = valueIndex === 0 ? "10px" : "28px";
+      plot.appendChild(bar);
+    });
+    item.append(label, plot);
+    rowsNode.appendChild(item);
+  });
+
+  chart.appendChild(rowsNode);
+  appendExamGraphNativeXAxis(chart, axis);
+  appendExamGraphNativeLegend(chart, model.legendItems ?? []);
+  return chart;
+}
+
+function buildExamGraphNativeTrendChart(model) {
+  const rows = model.rows ?? [];
+  const years = model.years ?? [];
+  const values = rows.flatMap((row) => (row.points ?? []).map((point) => Number(point.displayValue ?? point.value)));
+  const axis = getExamGraphNativeAxis(values, model.valueFormatter, { paddingRatio: 0.08 });
+  const chart = createExamGraphNativeNode("exam-graph-native-chart exam-graph-native-chart--trend");
+  const body = createExamGraphNativeNode("exam-graph-native-chart-body");
+  const yAxis = createExamGraphNativeNode("exam-graph-native-y-axis");
+  const plot = createExamGraphNativeNode("exam-graph-native-line-plot");
+  const yearIndex = new Map(years.map((year, index) => [year, index]));
+  const xForYear = (year) => {
+    const index = yearIndex.get(year) ?? 0;
+    return years.length > 1 ? 4 + (index / (years.length - 1)) * 92 : 50;
+  };
+  const yForValue = (value) => 4 + (1 - (Number(value) - axis.minimum) / (axis.maximum - axis.minimum)) * 92;
+
+  axis.ticks.forEach((tick) => {
+    const y = yForValue(tick);
+    const line = createExamGraphNativeNode("exam-graph-native-grid-line exam-graph-native-grid-line--y");
+    line.classList.toggle("is-zero", Math.abs(Number(tick)) < 0.000001);
+    line.style.top = `${y}%`;
+    plot.appendChild(line);
+    const label = createExamGraphNativeNode("exam-graph-native-y-tick", axis.formatTick(tick));
+    label.style.top = `${y}%`;
+    yAxis.appendChild(label);
+  });
+  if (axis.unitLabel) {
+    const unit = createExamGraphNativeNode("exam-graph-native-y-unit", axis.unitLabel);
+    yAxis.appendChild(unit);
+  }
+
+  years.forEach((year) => {
+    const x = xForYear(year);
+    const line = createExamGraphNativeNode("exam-graph-native-grid-line exam-graph-native-grid-line--x");
+    line.style.left = `${x}%`;
+    plot.appendChild(line);
+  });
+
+  rows.forEach((row, rowIndex) => {
+    const points = (row.points ?? [])
+      .map((point) => ({
+        x: xForYear(point.year),
+        y: yForValue(point.displayValue ?? point.value),
+        year: point.year,
+      }))
+      .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+    points.forEach((point, pointIndex) => {
+      if (pointIndex > 0) {
+        const previous = points[pointIndex - 1];
+        const segment = createExamGraphNativeNode("exam-graph-native-line-segment");
+        segment.dataset.series = String(rowIndex % 4);
+        segment.dataset.x1 = String(previous.x);
+        segment.dataset.y1 = String(previous.y);
+        segment.dataset.x2 = String(point.x);
+        segment.dataset.y2 = String(point.y);
+        plot.appendChild(segment);
+      }
+      const dot = createExamGraphNativeNode("exam-graph-native-dot");
+      dot.dataset.series = String(rowIndex % 4);
+      dot.style.left = `${point.x}%`;
+      dot.style.top = `${point.y}%`;
+      plot.appendChild(dot);
+    });
+  });
+
+  body.append(yAxis, plot);
+  chart.appendChild(body);
+  const xAxis = createExamGraphNativeNode("exam-graph-native-trend-x-axis");
+  years.forEach((year, index) => {
+    if (index !== 0 && index !== years.length - 1 && years.length > 8 && index % Math.ceil(years.length / 6) !== 0) {
+      return;
+    }
+    const label = createExamGraphNativeNode("exam-graph-native-axis-tick", String(year));
+    if (index === 0) {
+      label.classList.add("is-edge-start");
+    }
+    if (index === years.length - 1) {
+      label.classList.add("is-edge-end");
+    }
+    label.style.left = `${xForYear(year)}%`;
+    xAxis.appendChild(label);
+  });
+  chart.appendChild(xAxis);
+  appendExamGraphNativeLegend(chart, rows.map((row) => ({ label: row.displayLabel })));
+  ensureExamGraphNativeLineLayoutEvents();
+  scheduleExamGraphNativeLineLayout();
+  return chart;
+}
+
+function buildExamGraphNativeScatterChart(model) {
+  const rows = model.rows ?? [];
+  const xValues = rows.map((row) => Number(row.xValue));
+  const yValues = rows.map((row) => Number(row.yValue));
+  const sizeValues = rows.map((row) => Number(row.sizeValue) || 0);
+  const xAxis = getExamGraphNativeAxis(xValues, model.xFormatter, { paddingRatio: 0.08 });
+  const yAxis = getExamGraphNativeAxis(yValues, model.yFormatter, { paddingRatio: 0.08 });
+  const yToPercent = (value) => 100 - yAxis.toPercent(value);
+  const maxSize = Math.max(...sizeValues, 1);
+  const chart = createExamGraphNativeNode("exam-graph-native-chart exam-graph-native-chart--scatter");
+  const body = createExamGraphNativeNode("exam-graph-native-chart-body");
+  const yAxisNode = createExamGraphNativeNode("exam-graph-native-y-axis");
+  const plot = createExamGraphNativeNode("exam-graph-native-line-plot");
+
+  yAxis.ticks.forEach((tick) => {
+    const y = yToPercent(tick);
+    const line = createExamGraphNativeNode("exam-graph-native-grid-line exam-graph-native-grid-line--y");
+    line.classList.toggle("is-zero", Math.abs(Number(tick)) < 0.000001);
+    line.style.top = `${y}%`;
+    plot.appendChild(line);
+    const label = createExamGraphNativeNode("exam-graph-native-y-tick", yAxis.formatTick(tick));
+    label.style.top = `${y}%`;
+    yAxisNode.appendChild(label);
+  });
+  if (yAxis.unitLabel) {
+    yAxisNode.appendChild(createExamGraphNativeNode("exam-graph-native-y-unit", yAxis.unitLabel));
+  }
+  xAxis.ticks.forEach((tick) => {
+    const x = xAxis.toPercent(tick);
+    const line = createExamGraphNativeNode("exam-graph-native-grid-line exam-graph-native-grid-line--x");
+    line.classList.toggle("is-zero", Math.abs(Number(tick)) < 0.000001);
+    line.style.left = `${x}%`;
+    plot.appendChild(line);
+  });
+
+  rows.forEach((row, rowIndex) => {
+    const point = createExamGraphNativeNode("exam-graph-native-scatter-point");
+    point.dataset.series = String(rowIndex % 4);
+    point.style.left = `${xAxis.toPercent(row.xValue)}%`;
+    point.style.top = `${yToPercent(row.yValue)}%`;
+    point.style.width = `${8 + Math.sqrt(Math.max(0, Number(row.sizeValue) || 0) / maxSize) * 16}px`;
+    point.style.height = point.style.width;
+    point.title = `${row.displayLabel}`;
+    const label = createExamGraphNativeNode("exam-graph-native-point-label", row.displayLabel);
+    label.style.left = `${xAxis.toPercent(row.xValue)}%`;
+    label.style.top = `${yToPercent(row.yValue)}%`;
+    plot.append(point, label);
+  });
+
+  body.append(yAxisNode, plot);
+  chart.appendChild(body);
+  const xAxisNode = createExamGraphNativeNode("exam-graph-native-trend-x-axis");
+  xAxis.ticks.forEach((tick, index) => {
+    const label = createExamGraphNativeNode("exam-graph-native-axis-tick", xAxis.formatTick(tick));
+    if (index === 0) {
+      label.classList.add("is-edge-start");
+    }
+    if (index === xAxis.ticks.length - 1) {
+      label.classList.add("is-edge-end");
+    }
+    label.style.left = `${xAxis.toPercent(tick)}%`;
+    xAxisNode.appendChild(label);
+  });
+  if (xAxis.unitLabel) {
+    xAxisNode.appendChild(createExamGraphNativeNode("exam-graph-native-axis-unit", xAxis.unitLabel));
+  }
+  chart.appendChild(xAxisNode);
+  return chart;
 }
 
 function buildExamGraphValueCard(model) {
   const card = document.createElement("div");
   card.className = "exam-graph-data-card";
 
+  const head = document.createElement("div");
+  head.className = "exam-graph-data-card__head";
   const title = document.createElement("h5");
   title.className = "metric-explorer-table__title";
   title.textContent = "값 정리";
-  card.appendChild(title);
+  const downloadButton = document.createElement("button");
+  downloadButton.type = "button";
+  downloadButton.className = "exam-graph-download-button";
+  downloadButton.textContent = "CSV 다운로드";
+  downloadButton.addEventListener("click", () => downloadExamGraphCsv(model));
+  head.append(title, downloadButton);
+  card.appendChild(head);
 
   const list = document.createElement("div");
   list.className = "country-stats-breakdown-list";
@@ -13379,6 +14288,133 @@ function buildExamGraphValueCard(model) {
   card.appendChild(list);
 
   return card;
+}
+
+function normalizeExamGraphCsvValue(value) {
+  if (value == null) {
+    return "";
+  }
+  if (Number.isFinite(Number(value))) {
+    return Number(value);
+  }
+  return String(value);
+}
+
+function buildExamGraphCsvRows(model) {
+  const rows = Array.isArray(model?.rows) ? model.rows : [];
+  if (!rows.length) {
+    return [["항목", "값"]];
+  }
+
+  if (rows.some((row) => Array.isArray(row.segments))) {
+    const segmentLabels = [
+      ...new Set(rows.flatMap((row) => (row.segments ?? []).map((segment) => segment.label))),
+    ];
+    return [
+      ["표시명", "실제명", ...segmentLabels.flatMap((label) => [`${label} 값`, `${label} 비율(%)`])],
+      ...rows.map((row) => {
+        const segmentMap = new Map((row.segments ?? []).map((segment) => [segment.label, segment]));
+        return [
+          row.displayLabel ?? row.label,
+          row.actualLabel ?? row.label,
+          ...segmentLabels.flatMap((label) => {
+            const segment = segmentMap.get(label);
+            return [
+              normalizeExamGraphCsvValue(segment?.value),
+              normalizeExamGraphCsvValue(segment?.share),
+            ];
+          }),
+        ];
+      }),
+    ];
+  }
+
+  if (rows.some((row) => row.firstValue != null || row.secondValue != null)) {
+    return [
+      ["표시명", "실제명", "첫 번째 원값", "두 번째 원값", "첫 번째 그래프값", "두 번째 그래프값", "상세"],
+      ...rows.map((row) => [
+        row.displayLabel ?? row.label,
+        row.actualLabel ?? row.label,
+        normalizeExamGraphCsvValue(row.firstValue),
+        normalizeExamGraphCsvValue(row.secondValue),
+        normalizeExamGraphCsvValue(row.displayFirstValue),
+        normalizeExamGraphCsvValue(row.displaySecondValue),
+        row.detail ?? "",
+      ]),
+    ];
+  }
+
+  if (rows.some((row) => row.startValue != null || row.endValue != null)) {
+    return [
+      ["표시명", "실제명", `${model.startYear ?? "시작"} 원값`, `${model.endYear ?? "종료"} 원값`, "시작 그래프값", "종료 그래프값"],
+      ...rows.map((row) => [
+        row.displayLabel ?? row.label,
+        row.actualLabel ?? row.label,
+        normalizeExamGraphCsvValue(row.startValue),
+        normalizeExamGraphCsvValue(row.endValue),
+        normalizeExamGraphCsvValue(row.displayStartValue),
+        normalizeExamGraphCsvValue(row.displayEndValue),
+      ]),
+    ];
+  }
+
+  if (rows.some((row) => Array.isArray(row.points))) {
+    const years = [
+      ...new Set(rows.flatMap((row) => (row.points ?? []).map((point) => point.year))),
+    ].sort((left, right) => Number(left) - Number(right));
+    return [
+      ["표시명", "실제명", ...years.map((year) => `${year}년`)],
+      ...rows.map((row) => {
+        const pointMap = new Map((row.points ?? []).map((point) => [point.year, point]));
+        return [
+          row.displayLabel ?? row.label,
+          row.actualLabel ?? row.label,
+          ...years.map((year) => normalizeExamGraphCsvValue(pointMap.get(year)?.value)),
+        ];
+      }),
+    ];
+  }
+
+  if (rows.some((row) => row.xValue != null || row.yValue != null)) {
+    return [
+      ["표시명", "실제명", model.xLabel ?? "X", model.yLabel ?? "Y", model.sizeLabel ?? "크기"],
+      ...rows.map((row) => [
+        row.displayLabel ?? row.label,
+        row.actualLabel ?? row.label,
+        normalizeExamGraphCsvValue(row.xValue),
+        normalizeExamGraphCsvValue(row.yValue),
+        normalizeExamGraphCsvValue(row.sizeValue),
+      ]),
+    ];
+  }
+
+  return [
+    ["표시명", "실제명", "원값", "그래프값", "상세"],
+    ...rows.map((row) => [
+      row.displayLabel ?? row.label,
+      row.actualLabel ?? row.label,
+      normalizeExamGraphCsvValue(row.value),
+      normalizeExamGraphCsvValue(row.displayValue),
+      row.detail ?? "",
+    ]),
+  ];
+}
+
+function buildExamGraphCsvLine(values) {
+  return values
+    .map((value) => {
+      const text = value == null ? "" : String(value);
+      return /[",\n]/u.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    })
+    .join(",");
+}
+
+function downloadExamGraphCsv(model) {
+  const csvRows = buildExamGraphCsvRows(model).map(buildExamGraphCsvLine);
+  const blob = new Blob(["\uFEFF" + csvRows.join("\n")], {
+    type: "text/csv;charset=utf-8",
+  });
+  downloadBlob(blob, String(model?.exportName ?? "exam-graph.csv").replace(/\.[a-z0-9]+$/iu, ".csv"));
 }
 
 function buildExamGraphAnswerCard(answerRows) {
@@ -13424,27 +14460,7 @@ function buildExamGraphFileName(parts) {
     .replace(/[^a-z0-9\-]+/g, "-")
     .replace(/-+/g, "-")
     .replace(/(^-|-$)/g, "");
-  return `exam-graph-${filename || "chart"}.svg`;
-}
-
-function downloadStandaloneSvgNode(svgNode, filename) {
-  const exportNode = svgNode.cloneNode(true);
-  ensureSvgFontStyle(exportNode, { includeExamGraph: false });
-
-  const serializer = new XMLSerializer();
-  const serialized = serializer.serializeToString(exportNode);
-  const blob = new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n${serialized}`], {
-    type: "image/svg+xml;charset=utf-8",
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.style.display = "none";
-  document.body.append(link);
-  link.click();
-  link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return `exam-graph-${filename || "chart"}.csv`;
 }
 
 function getExamGraphAxisDomain(values, { forceZeroStart = false, paddingRatio = 0.06, niceCount = 5 } = {}) {
@@ -13453,7 +14469,8 @@ function getExamGraphAxisDomain(values, { forceZeroStart = false, paddingRatio =
     return { minimum: 0, maximum: 1 };
   }
 
-  let minimum = Math.min(...validValues);
+  const sourceMinimum = Math.min(...validValues);
+  let minimum = sourceMinimum;
   let maximum = Math.max(...validValues);
   if (forceZeroStart || minimum > 0) {
     minimum = 0;
@@ -13474,17 +14491,20 @@ function getExamGraphAxisDomain(values, { forceZeroStart = false, paddingRatio =
 
   const span = maximum - minimum;
   if (span > 0 && paddingRatio > 0) {
-    if (!(forceZeroStart && Math.abs(minimum) < 0.000001)) {
+    if (!((forceZeroStart || sourceMinimum >= 0) && Math.abs(minimum) < 0.000001)) {
       minimum -= span * paddingRatio;
     }
     maximum += span * paddingRatio;
   }
-  if (forceZeroStart && minimum > 0) {
+  if ((forceZeroStart || sourceMinimum >= 0) && minimum > 0) {
     minimum = 0;
   }
 
   const [niceMinimum, niceMaximum] = d3.scaleLinear().domain([minimum, maximum]).nice(niceCount).domain();
-  return { minimum: niceMinimum, maximum: niceMaximum };
+  return {
+    minimum: forceZeroStart || sourceMinimum >= 0 ? Math.max(0, niceMinimum) : niceMinimum,
+    maximum: niceMaximum,
+  };
 }
 
 function getExamGraphAxisTicks(minimum, maximum, count = 5) {
@@ -13496,67 +14516,88 @@ function getExamGraphAxisTicks(minimum, maximum, count = 5) {
   return [...new Set(allTicks.map((value) => Number(value.toFixed(6))))].sort((a, b) => a - b);
 }
 
-function snapExamGraphCoordinate(value) {
-  const numericValue = Number(value);
-  if (!Number.isFinite(numericValue)) {
-    return 0;
+function inferExamGraphAxisUnit(valueFormatter, referenceValue) {
+  if (typeof valueFormatter !== "function") {
+    return "";
   }
-  return Math.round(numericValue * 2) / 2;
-}
-
-function formatExamGraphCoordinate(value) {
-  const snappedValue = snapExamGraphCoordinate(value);
-  return Number.isInteger(snappedValue) ? String(snappedValue) : snappedValue.toFixed(1);
-}
-
-function setExamGraphCoordinate(node, attribute, value) {
-  node.setAttribute(attribute, formatExamGraphCoordinate(value));
-}
-
-function setExamGraphBox(node, { x, y, width, height }) {
-  setExamGraphCoordinate(node, "x", x);
-  setExamGraphCoordinate(node, "y", y);
-  setExamGraphCoordinate(node, "width", width);
-  setExamGraphCoordinate(node, "height", height);
-}
-
-function applyExamGraphStrokeStyle(node) {
-  node.setAttribute("vector-effect", "non-scaling-stroke");
-  node.setAttribute("shape-rendering", "geometricPrecision");
-}
-
-function buildExamGraphPositionScale(minimum, maximum, plotLeft, plotWidth) {
-  return (value) => snapExamGraphCoordinate(plotLeft + ((Number(value) - minimum) / (maximum - minimum)) * plotWidth);
-}
-
-function createExamGraphSvg(width, height, title) {
-  const svg = createSvgElement("svg");
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-  svg.setAttribute("width", String(width));
-  svg.setAttribute("height", String(height));
-  svg.setAttribute("role", "img");
-  svg.setAttribute("aria-label", title);
-  svg.setAttribute("class", `exam-graph-svg exam-graph-svg--${getExamGraphStyleMode()}`);
-  svg.setAttribute("data-exam-graph-style", getExamGraphStyleMode());
-  return svg;
-}
-
-function formatExamGraphAxisTick(value, maximumAbsolute = 0) {
-  const numericValue = Number(value);
-  const absMaximum = Math.abs(Number(maximumAbsolute) || 0);
-  if (absMaximum >= 10_000) {
-    return formatCompactStatNumber(numericValue, 0);
+  const sample = String(valueFormatter(referenceValue) ?? "");
+  if (sample.includes("%")) {
+    return "%";
   }
-  if (absMaximum >= 1_000) {
-    return numericValue.toLocaleString("ko-KR", { maximumFractionDigits: 0 });
+  if (sample.includes("\u2030")) {
+    return "\u2030";
   }
-  if (absMaximum >= 100) {
-    return numericValue.toLocaleString("ko-KR", { maximumFractionDigits: 0 });
+  if (sample.includes("MWh/명")) {
+    return "MWh/명";
   }
-  if (absMaximum >= 10) {
-    return numericValue.toLocaleString("ko-KR", { maximumFractionDigits: 1 });
+  if (sample.includes("명/km")) {
+    return "명/km²";
   }
-  return numericValue.toLocaleString("ko-KR", { maximumFractionDigits: 2 });
+  if (sample.includes("t/ha")) {
+    return "t/ha";
+  }
+  if (sample.includes("TWh")) {
+    return "TWh";
+  }
+  if (sample.includes("ha")) {
+    return "ha";
+  }
+  if (sample.includes("t")) {
+    return "t";
+  }
+  if (sample.includes("명")) {
+    return "명";
+  }
+  if (sample.includes("$")) {
+    return "달러";
+  }
+  return "";
+}
+
+function buildExamGraphAxisTickFormatter(values, valueFormatter) {
+  const validValues = (values ?? []).filter((value) => Number.isFinite(Number(value))).map(Number);
+  const maximumAbsolute = Math.max(...validValues.map((value) => Math.abs(value)), 0);
+  const unit = inferExamGraphAxisUnit(valueFormatter, validValues.find((value) => Math.abs(value) === maximumAbsolute) ?? maximumAbsolute);
+  const isPercentLike = unit === "%" || unit === "\u2030";
+  const divisor = isPercentLike
+    ? 1
+    : maximumAbsolute >= 100_000_000
+      ? 100_000_000
+      : maximumAbsolute >= 10_000
+        ? 10_000
+        : 1;
+  const compactUnit =
+    divisor === 100_000_000
+      ? "억"
+      : divisor === 10_000
+        ? "만"
+        : "";
+  const unitLabel = compactUnit ? `${compactUnit}${unit ? ` ${unit}` : ""}` : unit;
+
+  return {
+    unitLabel: unitLabel ? `(${unitLabel})` : "",
+    formatTick: (value) => {
+      const scaledValue = Number(value) / divisor;
+      const absoluteScaledValue = Math.abs(scaledValue);
+      const maximumFractionDigits = absoluteScaledValue >= 100 ? 0 : absoluteScaledValue >= 10 ? 1 : 2;
+      return scaledValue.toLocaleString("ko-KR", { maximumFractionDigits });
+    },
+  };
+}
+
+function appendExamGraphAxisUnitLabel(svg, { text, x, y, anchor = "start" }) {
+  if (!text) {
+    return null;
+  }
+  const label = createSvgElement("text");
+  setExamGraphCoordinate(label, "x", x);
+  setExamGraphCoordinate(label, "y", y);
+  label.setAttribute("text-anchor", anchor);
+  applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 500 });
+  label.setAttribute("fill", getActiveExamGraphVisualTheme().colors.mutedInk);
+  label.textContent = text;
+  svg.appendChild(label);
+  return label;
 }
 
 function appendExamGraphPlotFrame(svg, { x, y, width, height }) {
@@ -13601,8 +14642,22 @@ function styleExamGraphDataRect(rect, fill) {
   applyExamGraphStrokeStyle(rect);
 }
 
-function appendExamGraphXAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, ticks, minimum, maximum, valueFormatter, axisFormatter = null }) {
-  const valueToX = buildExamGraphPositionScale(minimum, maximum, plotLeft, plotWidth);
+function appendExamGraphXAxis(svg, {
+  plotLeft,
+  plotTop,
+  plotWidth,
+  plotHeight,
+  ticks,
+  minimum,
+  maximum,
+  valueFormatter,
+  axisFormatter = null,
+  axisUnitLabel = "",
+  rangePadding = 0,
+}) {
+  const scaleLeft = plotLeft + rangePadding;
+  const scaleWidth = Math.max(1, plotWidth - rangePadding * 2);
+  const valueToX = buildExamGraphPositionScale(minimum, maximum, scaleLeft, scaleWidth);
   const formatTick = axisFormatter ?? ((tick) => valueFormatter(tick));
   ticks.forEach((tick) => {
     const x = valueToX(tick);
@@ -13626,11 +14681,31 @@ function appendExamGraphXAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, t
     label.textContent = formatTick(tick);
     svg.appendChild(label);
   });
+  appendExamGraphAxisUnitLabel(svg, {
+    text: axisUnitLabel,
+    x: plotLeft + plotWidth,
+    y: plotTop + plotHeight + examGraphTheme.layout.xTickGap + examGraphTheme.type.axisTick + 6,
+    anchor: "end",
+  });
   return valueToX;
 }
 
-function appendExamGraphYAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, ticks, minimum, maximum, valueFormatter, axisFormatter = null }) {
-  const valueToY = (value) => snapExamGraphCoordinate(plotTop + (1 - (Number(value) - minimum) / (maximum - minimum)) * plotHeight);
+function appendExamGraphYAxis(svg, {
+  plotLeft,
+  plotTop,
+  plotWidth,
+  plotHeight,
+  ticks,
+  minimum,
+  maximum,
+  valueFormatter,
+  axisFormatter = null,
+  axisUnitLabel = "",
+  rangePadding = 0,
+}) {
+  const scaleTop = plotTop + rangePadding;
+  const scaleHeight = Math.max(1, plotHeight - rangePadding * 2);
+  const valueToY = (value) => snapExamGraphCoordinate(scaleTop + (1 - (Number(value) - minimum) / (maximum - minimum)) * scaleHeight);
   const formatTick = axisFormatter ?? ((tick) => valueFormatter(tick));
   ticks.forEach((tick) => {
     const y = valueToY(tick);
@@ -13653,6 +14728,12 @@ function appendExamGraphYAxis(svg, { plotLeft, plotTop, plotWidth, plotHeight, t
     applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
     label.textContent = formatTick(tick);
     svg.appendChild(label);
+  });
+  appendExamGraphAxisUnitLabel(svg, {
+    text: axisUnitLabel,
+    x: plotLeft + 4,
+    y: plotTop + 8,
+    anchor: "start",
   });
   return valueToY;
 }
@@ -13825,10 +14906,14 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
   const domainMinimum = mode === "amount" ? amountDomain.minimum : 0;
   const domainMaximum = mode === "amount" ? amountDomain.maximum : 100;
   const ticks = mode === "amount" ? getExamGraphAxisTicks(domainMinimum, domainMaximum, 5) : [0, 20, 40, 60, 80, 100];
+  const axisTickFormat = buildExamGraphAxisTickFormatter(
+    mode === "amount" ? [...ticks, ...rows.map((row) => Number(row.total) || 0)] : ticks,
+    mode === "amount" ? valueFormatter : (tick) => `${tick}%`,
+  );
 
   appendExamGraphPlotFrame(svg, { x: plotLeft, y: plotTop, width: plotWidth, height: plotHeight });
 
-  appendExamGraphXAxis(svg, {
+  const valueToX = appendExamGraphXAxis(svg, {
     plotLeft,
     plotTop,
     plotWidth,
@@ -13837,7 +14922,9 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
     minimum: domainMinimum,
     maximum: domainMaximum,
     valueFormatter: mode === "amount" ? valueFormatter : (tick) => (tick === 100 ? "100(%)" : String(tick)),
-    axisFormatter: mode === "amount" ? (tick) => formatExamGraphAxisTick(tick, domainMaximum) : null,
+    axisFormatter: axisTickFormat.formatTick,
+    axisUnitLabel: axisTickFormat.unitLabel,
+    rangePadding: getExamGraphAxisRangePadding(),
   });
 
   rows.forEach((row, rowIndex) => {
@@ -13851,15 +14938,18 @@ function buildExamStackedCompositionSvg({ title, subtitle, rows, legendItems, fo
     label.textContent = row.displayLabel;
     svg.appendChild(label);
 
-    let cursorX = plotLeft;
+    let cumulativeValue = 0;
+    let cursorX = valueToX(0);
     row.segments.forEach((segment, segmentIndex) => {
       const rect = createSvgElement("rect");
       const segmentValue = mode === "amount" ? Number(segment.value) || 0 : clamp(Number(segment.share) || 0, 0, 100);
-      const segmentWidth = domainMaximum > 0 ? (plotWidth * segmentValue) / domainMaximum : 0;
+      const nextValue = cumulativeValue + segmentValue;
+      const segmentWidth = Math.max(1, Math.abs(valueToX(nextValue) - valueToX(cumulativeValue)));
       setExamGraphBox(rect, { x: cursorX, y, width: segmentWidth, height: barHeight });
       styleExamGraphDataRect(rect, getExamGraphFill(segmentIndex));
       svg.appendChild(rect);
       cursorX += segmentWidth;
+      cumulativeValue = nextValue;
     });
   });
 
@@ -13883,6 +14973,10 @@ function buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendI
   const domainMinimum = mode === "amount" ? amountDomain.minimum : 0;
   const domainMaximum = mode === "amount" ? amountDomain.maximum : 100;
   const ticks = mode === "amount" ? getExamGraphAxisTicks(domainMinimum, domainMaximum, 5) : [0, 20, 40, 60, 80, 100];
+  const axisTickFormat = buildExamGraphAxisTickFormatter(
+    mode === "amount" ? [...ticks, ...rows.map((row) => Number(row.total) || 0)] : ticks,
+    mode === "amount" ? valueFormatter : (tick) => `${tick}%`,
+  );
   const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
@@ -13898,7 +14992,9 @@ function buildExamStackedCompositionSvgPortrait({ title, subtitle, rows, legendI
     minimum: domainMinimum,
     maximum: domainMaximum,
     valueFormatter: mode === "amount" ? valueFormatter : (tick) => (tick === 100 ? "100(%)" : String(tick)),
-    axisFormatter: mode === "amount" ? (tick) => formatExamGraphAxisTick(tick, domainMaximum) : null,
+    axisFormatter: axisTickFormat.formatTick,
+    axisUnitLabel: axisTickFormat.unitLabel,
+    rangePadding: getExamGraphAxisRangePadding(),
   });
   const baselineY = valueToY(domainMinimum);
 
@@ -13952,6 +15048,7 @@ function buildExamSingleBarSvg({ title, subtitle, rows, valueFormatter, axisForm
   const values = rows.map((row) => Number(row.displayValue ?? row.value));
   const { minimum, maximum } = getExamGraphAxisDomain(values, { paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const axisTickFormat = buildExamGraphAxisTickFormatter([...ticks, ...values], valueFormatter);
 
   const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
@@ -13968,7 +15065,9 @@ function buildExamSingleBarSvg({ title, subtitle, rows, valueFormatter, axisForm
     minimum,
     maximum,
     valueFormatter,
-    axisFormatter: axisFormatter ?? ((tick) => formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)))),
+    axisFormatter: axisFormatter ?? axisTickFormat.formatTick,
+    axisUnitLabel: axisTickFormat.unitLabel,
+    rangePadding: getExamGraphAxisRangePadding(),
   });
   const zeroX = valueToX(0);
 
@@ -14006,6 +15105,7 @@ function buildExamSingleBarSvgPortrait({ title, subtitle, rows, valueFormatter, 
   const values = rows.map((row) => Number(row.displayValue ?? row.value));
   const { minimum, maximum } = getExamGraphAxisDomain(values, { paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const axisTickFormat = buildExamGraphAxisTickFormatter([...ticks, ...values], valueFormatter);
   const step = plotWidth / rows.length;
   const columnWidth = Math.min(16, step * 0.7);
   const svg = createExamGraphSvg(width, height, title);
@@ -14023,7 +15123,9 @@ function buildExamSingleBarSvgPortrait({ title, subtitle, rows, valueFormatter, 
     minimum,
     maximum,
     valueFormatter,
-    axisFormatter: axisFormatter ?? ((tick) => formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)))),
+    axisFormatter: axisFormatter ?? axisTickFormat.formatTick,
+    axisUnitLabel: axisTickFormat.unitLabel,
+    rangePadding: getExamGraphAxisRangePadding(),
   });
   const zeroY = valueToY(0);
 
@@ -14069,6 +15171,7 @@ function buildExamPairedBarSvg({ title, subtitle, rows, legendItems, valueFormat
   const values = rows.flatMap((row) => [Number(row.displayFirstValue), Number(row.displaySecondValue)]);
   const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const axisTickFormat = buildExamGraphAxisTickFormatter([...ticks, ...values], valueFormatter);
 
   const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
@@ -14085,7 +15188,9 @@ function buildExamPairedBarSvg({ title, subtitle, rows, legendItems, valueFormat
     minimum,
     maximum,
     valueFormatter,
-    axisFormatter: axisFormatter ?? ((tick) => formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)))),
+    axisFormatter: axisFormatter ?? axisTickFormat.formatTick,
+    axisUnitLabel: axisTickFormat.unitLabel,
+    rangePadding: getExamGraphAxisRangePadding(),
   });
   const zeroX = valueToX(0);
 
@@ -14126,6 +15231,7 @@ function buildExamPairedBarSvgPortrait({ title, subtitle, rows, legendItems, val
   const values = rows.flatMap((row) => [Number(row.displayFirstValue), Number(row.displaySecondValue)]);
   const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const axisTickFormat = buildExamGraphAxisTickFormatter([...ticks, ...values], valueFormatter);
   const step = plotWidth / rows.length;
   const groupWidth = Math.min(20, step * 0.78);
   const barGap = Math.min(3, groupWidth * 0.12);
@@ -14146,7 +15252,9 @@ function buildExamPairedBarSvgPortrait({ title, subtitle, rows, legendItems, val
     minimum,
     maximum,
     valueFormatter,
-    axisFormatter: axisFormatter ?? ((tick) => formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)))),
+    axisFormatter: axisFormatter ?? axisTickFormat.formatTick,
+    axisUnitLabel: axisTickFormat.unitLabel,
+    rangePadding: getExamGraphAxisRangePadding(),
   });
   const zeroY = valueToY(0);
 
@@ -14206,6 +15314,7 @@ function buildExamTimeCompareSvg({ title, subtitle, rows, startYear, endYear, va
   const values = rows.flatMap((row) => [Number(row.displayStartValue ?? row.startValue), Number(row.displayEndValue ?? row.endValue)]);
   const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const axisTickFormat = buildExamGraphAxisTickFormatter([...ticks, ...values], valueFormatter);
   const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
   appendExamGraphTitle(svg, title, subtitle, width);
@@ -14221,7 +15330,9 @@ function buildExamTimeCompareSvg({ title, subtitle, rows, startYear, endYear, va
     minimum,
     maximum,
     valueFormatter,
-    axisFormatter: axisFormatter ?? ((tick) => formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)))),
+    axisFormatter: axisFormatter ?? axisTickFormat.formatTick,
+    axisUnitLabel: axisTickFormat.unitLabel,
+    rangePadding: getExamGraphAxisRangePadding(),
   });
   const zeroX = valueToX(0);
 
@@ -14267,6 +15378,7 @@ function buildExamTimeCompareSvgPortrait({ title, subtitle, rows, startYear, end
   const values = rows.flatMap((row) => [Number(row.displayStartValue ?? row.startValue), Number(row.displayEndValue ?? row.endValue)]);
   const { minimum, maximum } = getExamGraphAxisDomain(values, { forceZeroStart: true, paddingRatio: 0.04 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
+  const axisTickFormat = buildExamGraphAxisTickFormatter([...ticks, ...values], valueFormatter);
   const step = plotWidth / rows.length;
   const groupWidth = Math.min(20, step * 0.78);
   const barGap = Math.min(3, groupWidth * 0.12);
@@ -14286,7 +15398,9 @@ function buildExamTimeCompareSvgPortrait({ title, subtitle, rows, startYear, end
     minimum,
     maximum,
     valueFormatter,
-    axisFormatter: axisFormatter ?? ((tick) => formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)))),
+    axisFormatter: axisFormatter ?? axisTickFormat.formatTick,
+    axisUnitLabel: axisTickFormat.unitLabel,
+    rangePadding: getExamGraphAxisRangePadding(),
   });
   const zeroY = valueToY(0);
 
@@ -14311,7 +15425,7 @@ function buildExamTimeCompareSvgPortrait({ title, subtitle, rows, startYear, end
     label.setAttribute("y", String(plot.top + plotHeight + 13));
     label.setAttribute("text-anchor", "end");
     label.setAttribute("transform", `rotate(-55 ${x + groupWidth / 2} ${plot.top + plotHeight + 13})`);
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
@@ -14342,9 +15456,15 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
   const values = rows.flatMap((row) => row.points.map((point) => Number(point.displayValue ?? point.value)));
   const { minimum, maximum } = getExamGraphAxisDomain(values, { paddingRatio: 0.08 });
   const ticks = getExamGraphAxisTicks(minimum, maximum, 5);
-  const xStep = years.length > 1 ? plotWidth / (years.length - 1) : 0;
-  const yearToX = new Map(years.map((year, index) => [year, snapExamGraphCoordinate(plot.left + xStep * index)]));
-  const valueToY = (value) => snapExamGraphCoordinate(plot.top + (1 - (Number(value) - minimum) / (maximum - minimum)) * plotHeight);
+  const axisTickFormat = buildExamGraphAxisTickFormatter([...ticks, ...values], valueFormatter);
+  const rangePadding = getExamGraphAxisRangePadding();
+  const scaleLeft = plot.left + rangePadding;
+  const scaleWidth = Math.max(1, plotWidth - rangePadding * 2);
+  const scaleTop = plot.top + rangePadding;
+  const scaleHeight = Math.max(1, plotHeight - rangePadding * 2);
+  const xStep = years.length > 1 ? scaleWidth / (years.length - 1) : 0;
+  const yearToX = new Map(years.map((year, index) => [year, snapExamGraphCoordinate(scaleLeft + xStep * index)]));
+  const valueToY = (value) => snapExamGraphCoordinate(scaleTop + (1 - (Number(value) - minimum) / (maximum - minimum)) * scaleHeight);
 
   const svg = createExamGraphSvg(width, height, title);
   appendExamGraphPatternDefs(svg);
@@ -14366,9 +15486,15 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
     setExamGraphCoordinate(label, "x", plot.left - examGraphTheme.layout.yTickGap);
     setExamGraphCoordinate(label, "y", y + 2.5);
     label.setAttribute("text-anchor", "end");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
-    label.textContent = axisFormatter ? axisFormatter(tick) : formatExamGraphAxisTick(tick, Math.max(Math.abs(minimum), Math.abs(maximum)));
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
+    label.textContent = axisFormatter ? axisFormatter(tick) : axisTickFormat.formatTick(tick);
     svg.appendChild(label);
+  });
+  appendExamGraphAxisUnitLabel(svg, {
+    text: axisTickFormat.unitLabel,
+    x: plot.left + 4,
+    y: plot.top + 8,
+    anchor: "start",
   });
 
   const tickStep = years.length > 8 ? Math.ceil(years.length / 6) : 1;
@@ -14389,7 +15515,7 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
     setExamGraphCoordinate(label, "x", x);
     setExamGraphCoordinate(label, "y", plot.top + plotHeight + examGraphTheme.layout.xTickGap);
     label.setAttribute("text-anchor", "middle");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
     label.textContent = `${year}`;
     svg.appendChild(label);
   });
@@ -14397,6 +15523,29 @@ function buildExamTrendLineSvg({ title, subtitle, rows, years, valueFormatter, a
   rows.forEach((row, rowIndex) => {
     const theme = getActiveExamGraphVisualTheme();
     const style = getExamGraphLineStyle(rowIndex);
+    const points = row.points
+      .map((point) => ({
+        x: yearToX.get(point.year),
+        y: valueToY(point.displayValue ?? point.value),
+      }))
+      .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+    if (points.length > 1) {
+      const path = createSvgElement("path");
+      path.setAttribute(
+        "d",
+        points.map((point, index) => `${index ? "L" : "M"} ${formatExamGraphCoordinate(point.x)} ${formatExamGraphCoordinate(point.y)}`).join(" "),
+      );
+      path.setAttribute("fill", "none");
+      path.setAttribute("stroke", style.stroke);
+      path.setAttribute("stroke-width", theme.strokes.line);
+      path.setAttribute("stroke-linecap", "round");
+      path.setAttribute("stroke-linejoin", "round");
+      if (style.dasharray) {
+        path.setAttribute("stroke-dasharray", style.dasharray);
+      }
+      applyExamGraphStrokeStyle(path);
+      svg.appendChild(path);
+    }
     row.points.forEach((point) => {
       const dot = createSvgElement("circle");
       setExamGraphCoordinate(dot, "cx", yearToX.get(point.year));
@@ -14438,10 +15587,17 @@ function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter
   const maxY = yDomain.maximum;
   const xTicks = getExamGraphAxisTicks(minX, maxX, 5);
   const yTicks = getExamGraphAxisTicks(minY, maxY, 5);
+  const xAxisTickFormat = buildExamGraphAxisTickFormatter([...xTicks, ...rows.map((row) => Number(row.xValue))], xFormatter);
+  const yAxisTickFormat = buildExamGraphAxisTickFormatter([...yTicks, ...rows.map((row) => Number(row.yValue))], yFormatter);
+  const rangePadding = getExamGraphAxisRangePadding();
+  const scaleLeft = plot.left + rangePadding;
+  const scaleWidth = Math.max(1, plotWidth - rangePadding * 2);
+  const scaleTop = plot.top + rangePadding;
+  const scaleHeight = Math.max(1, plotHeight - rangePadding * 2);
 
   const maximumBubbleValue = Math.max(...rows.map((row) => Number(row.sizeValue) || 0), 1);
-  const xToPosition = (value) => snapExamGraphCoordinate(plot.left + ((Number(value) - minX) / (maxX - minX)) * plotWidth);
-  const yToPosition = (value) => snapExamGraphCoordinate(plot.top + (1 - (Number(value) - minY) / (maxY - minY)) * plotHeight);
+  const xToPosition = (value) => snapExamGraphCoordinate(scaleLeft + ((Number(value) - minX) / (maxX - minX)) * scaleWidth);
+  const yToPosition = (value) => snapExamGraphCoordinate(scaleTop + (1 - (Number(value) - minY) / (maxY - minY)) * scaleHeight);
   const radiusForValue = (value) =>
     theme.marker.scatterMinRadius +
     Math.sqrt(Math.max(0, Number(value)) / maximumBubbleValue) *
@@ -14467,9 +15623,15 @@ function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter
     setExamGraphCoordinate(label, "x", x);
     setExamGraphCoordinate(label, "y", plot.top + plotHeight + examGraphTheme.layout.xTickGap);
     label.setAttribute("text-anchor", Math.abs(tick - minX) < 0.000001 ? "start" : Math.abs(tick - maxX) < 0.000001 ? "end" : "middle");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
-    label.textContent = xFormatter(tick);
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
+    label.textContent = xAxisTickFormat.formatTick(tick);
     svg.appendChild(label);
+  });
+  appendExamGraphAxisUnitLabel(svg, {
+    text: xAxisTickFormat.unitLabel,
+    x: plot.left + plotWidth,
+    y: plot.top + plotHeight + examGraphTheme.layout.xTickGap + examGraphTheme.type.axisTick + 6,
+    anchor: "end",
   });
 
   yTicks.forEach((tick) => {
@@ -14490,9 +15652,15 @@ function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter
     setExamGraphCoordinate(label, "x", plot.left - examGraphTheme.layout.yTickGap);
     setExamGraphCoordinate(label, "y", y + 2.5);
     label.setAttribute("text-anchor", "end");
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 700 });
-    label.textContent = yFormatter(tick);
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.axisTick, fontWeight: 600 });
+    label.textContent = yAxisTickFormat.formatTick(tick);
     svg.appendChild(label);
+  });
+  appendExamGraphAxisUnitLabel(svg, {
+    text: yAxisTickFormat.unitLabel,
+    x: plot.left + 4,
+    y: plot.top + 8,
+    anchor: "start",
   });
 
   rows.forEach((row) => {
@@ -14509,7 +15677,7 @@ function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter
     const label = createSvgElement("text");
     setExamGraphCoordinate(label, "x", xToPosition(row.xValue) + radiusForValue(row.sizeValue) + 2.5);
     setExamGraphCoordinate(label, "y", yToPosition(row.yValue) - 1.5);
-    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.pointLabel, fontWeight: 700 });
+    applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.pointLabel, fontWeight: 600 });
     label.textContent = row.displayLabel;
     svg.appendChild(label);
   });
@@ -14518,7 +15686,7 @@ function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter
   setExamGraphCoordinate(xAxisLabel, "x", plot.left + plotWidth / 2);
   setExamGraphCoordinate(xAxisLabel, "y", height - 8);
   xAxisLabel.setAttribute("text-anchor", "middle");
-  applyExamGraphTextStyle(xAxisLabel, { fontSize: examGraphTheme.type.axisTitle, fontWeight: 700 });
+  applyExamGraphTextStyle(xAxisLabel, { fontSize: examGraphTheme.type.axisTitle, fontWeight: 600 });
   xAxisLabel.textContent = `${xLabel} · 버블 ${sizeFormatter(maximumBubbleValue)}`;
   svg.appendChild(xAxisLabel);
 
@@ -14527,7 +15695,7 @@ function buildExamScatterSvg({ title, subtitle, rows, xLabel, yLabel, xFormatter
   setExamGraphCoordinate(yAxisLabel, "y", plot.top + plotHeight / 2);
   yAxisLabel.setAttribute("text-anchor", "middle");
   yAxisLabel.setAttribute("transform", `rotate(-90 9 ${plot.top + plotHeight / 2})`);
-  applyExamGraphTextStyle(yAxisLabel, { fontSize: examGraphTheme.type.axisTitle, fontWeight: 700 });
+  applyExamGraphTextStyle(yAxisLabel, { fontSize: examGraphTheme.type.axisTitle, fontWeight: 600 });
   yAxisLabel.textContent = yLabel;
   svg.appendChild(yAxisLabel);
 
@@ -14652,7 +15820,7 @@ function appendExamGraphLegend(svg, items, centerX, y, maxLegendWidth = examGrap
       const label = createSvgElement("text");
       setExamGraphCoordinate(label, "x", cursorX + examGraphTheme.legend.swatchGap);
       setExamGraphCoordinate(label, "y", rowY + 2.8);
-      applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.legend, fontWeight: 700 });
+      applyExamGraphTextStyle(label, { fontSize: examGraphTheme.type.legend, fontWeight: 600 });
       label.textContent = item.label;
       svg.appendChild(label);
 
@@ -17842,14 +19010,6 @@ function buildSvgFontStyle({ includeExamGraph = true } = {}) {
   const rules = [
     `.map-output-text, .map-output-text text, .map-output-text tspan { font-family: ${MAP_FONT_FAMILY}; font-stretch: ${mapFontStretch}%; }`,
   ];
-
-  if (includeExamGraph) {
-    const examGraphFont = getActiveExamGraphVisualTheme().font.family;
-    const examGraphFontStretch = getActiveExamGraphVisualTheme().font.stretchPercent;
-    rules.push(
-      `.exam-graph-svg, .exam-graph-svg text, .exam-graph-svg tspan { font-family: ${examGraphFont}; font-stretch: ${examGraphFontStretch}%; }`,
-    );
-  }
 
   return rules.join("\n");
 }
