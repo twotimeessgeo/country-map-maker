@@ -742,6 +742,7 @@ const examGraphValueModeDefinitions = [
   { key: "relative", label: "상댓값100" },
 ];
 const examGraphOrientationDefinitions = [
+  { key: "auto", label: "자동 구도" },
   { key: "landscape", label: "가로형" },
   { key: "portrait", label: "세로형" },
 ];
@@ -1527,7 +1528,7 @@ const state = {
   examGraphYearEnd: 2023,
   examGraphAliasMode: false,
   examGraphStyleMode: "basic",
-  examGraphOrientation: "landscape",
+  examGraphOrientation: "auto",
   examGraphPreviewCount: 1,
   examGraphFontSizePt: 8,
   examGraphScatterXKey: "population-urban-share",
@@ -5623,6 +5624,38 @@ function getProgramGraphPlotBox(width, height, margin) {
   };
 }
 
+function getProgramGraphLayout({
+  stepCount = 5,
+  seriesCount = 1,
+  yLabelMaxLength = 4,
+  xLabelMaxLength = 4,
+  scatter = false,
+} = {}) {
+  const safeStepCount = Math.max(1, Number(stepCount) || 1);
+  const safeSeriesCount = Math.max(1, Number(seriesCount) || 1);
+  const left = clamp(Math.round(34 + Math.max(4, yLabelMaxLength) * 4.8), 54, 98);
+  const right = scatter ? 30 : 22;
+  const top = scatter ? 28 : 24;
+  const bottom = clamp(Math.round(40 + Math.max(0, xLabelMaxLength - 4) * 2), scatter ? 54 : 44, 70);
+  const plotWidth = clamp(
+    Math.round((scatter ? 328 : 318) + safeStepCount * (scatter ? 20 : 24) + Math.min(safeSeriesCount, 8) * 10),
+    scatter ? 360 : 344,
+    scatter ? 620 : 600,
+  );
+  const plotHeight = clamp(
+    Math.round((scatter ? 192 : 172) + Math.min(safeSeriesCount, 8) * 13 + Math.max(0, safeStepCount - 6) * 4),
+    scatter ? 210 : 190,
+    scatter ? 330 : 304,
+  );
+  const width = left + plotWidth + right;
+  const height = top + plotHeight + bottom;
+  return {
+    width,
+    height,
+    plot: getProgramGraphPlotBox(width, height, { left, right, top, bottom }),
+  };
+}
+
 function getProgramGraphAxisDomain(values, { forceZeroStart = false, paddingRatio = 0.08, niceCount = 5 } = {}) {
   const validValues = (values ?? []).filter((value) => Number.isFinite(Number(value))).map(Number);
   if (!validValues.length) {
@@ -5773,10 +5806,13 @@ function buildTimelineLineChartCard({ title, description, series, valueFormatter
   const minimumValue = domain.minimum;
   const maximumValue = domain.maximum;
   const yTicks = getProgramGraphAxisTicks(minimumValue, maximumValue, 5);
-
-  const width = 428;
-  const height = 248;
-  const plot = getProgramGraphPlotBox(width, height, { left: 58, right: 18, top: 24, bottom: 42 });
+  const layout = getProgramGraphLayout({
+    stepCount: periods.length,
+    seriesCount: validSeries.length,
+    yLabelMaxLength: Math.max(...yTicks.map((tick) => String(valueFormatter(tick)).length), 4),
+    xLabelMaxLength: Math.max(...periods.map((period) => String(periodLabelByKey.get(period) ?? period).length), 4),
+  });
+  const { width, height, plot } = layout;
   const step = periods.length > 1 ? plot.width / (periods.length - 1) : 0;
 
   const periodToX = new Map(periods.map((period, index) => [period, plot.left + step * index]));
@@ -10353,10 +10389,13 @@ function buildLineChartCard({ title, description, series, valueFormatter }) {
   const minimumValue = domain.minimum;
   const maximumValue = domain.maximum;
   const yTicks = getProgramGraphAxisTicks(minimumValue, maximumValue, 5);
-
-  const width = 428;
-  const height = 248;
-  const plot = getProgramGraphPlotBox(width, height, { left: 58, right: 18, top: 24, bottom: 42 });
+  const layout = getProgramGraphLayout({
+    stepCount: years.length,
+    seriesCount: validSeries.length,
+    yLabelMaxLength: Math.max(...yTicks.map((tick) => String(valueFormatter(tick)).length), 4),
+    xLabelMaxLength: Math.max(...years.map((year) => String(year).length), 4),
+  });
+  const { width, height, plot } = layout;
   const yearStep = years.length > 1 ? plot.width / (years.length - 1) : 0;
 
   const yearToX = new Map(years.map((year, index) => [year, plot.left + yearStep * index]));
@@ -10585,9 +10624,14 @@ function buildScatterChartCard({ title, description, entries, xLabel, yLabel, xF
   const xTicks = getProgramGraphAxisTicks(minX, maxX, 5);
   const yTicks = getProgramGraphAxisTicks(minY, maxY, 5);
   const maximumBubbleValue = Math.max(...validEntries.map((entry) => Number(entry.sizeValue)), 1);
-  const width = 430;
-  const height = 292;
-  const plot = getProgramGraphPlotBox(width, height, { left: 64, right: 24, top: 26, bottom: 50 });
+  const layout = getProgramGraphLayout({
+    stepCount: xTicks.length,
+    seriesCount: validEntries.length,
+    yLabelMaxLength: Math.max(...yTicks.map((tick) => String(yFormatter(tick)).length), 4),
+    xLabelMaxLength: Math.max(...xTicks.map((tick) => String(xFormatter(tick)).length), 4),
+    scatter: true,
+  });
+  const { width, height, plot } = layout;
   const xToPosition = (value) => plot.left + ((Number(value) - minX) / (maxX - minX)) * plot.width;
   const yToPosition = (value) => plot.top + (1 - (Number(value) - minY) / (maxY - minY)) * plot.height;
   const radiusForValue = (value) => {
@@ -10893,11 +10937,43 @@ function roundToStep(value, step = 1) {
 function getExamGraphOrientation() {
   return examGraphOrientationDefinitions.some((definition) => definition.key === state.examGraphOrientation)
     ? state.examGraphOrientation
-    : "landscape";
+    : "auto";
 }
 
 function getExamGraphOrientationLabel(orientation = state.examGraphOrientation) {
+  if (orientation === "auto") {
+    return "자동 구도";
+  }
   return examGraphOrientationDefinitions.find((definition) => definition.key === orientation)?.label ?? "가로형";
+}
+
+function getExamGraphAutoOrientation(model) {
+  if (!model) {
+    return "landscape";
+  }
+  if (model.chartKind === "trendLine" || model.chartKind === "scatter") {
+    return "landscape";
+  }
+  const rows = Array.isArray(model.rows) ? model.rows : [];
+  const longestLabel = Math.max(0, ...rows.map((row) => String(row.displayLabel ?? row.label ?? "").length));
+  if (model.chartKind === "pairedBar" || model.chartKind === "timeCompare" || model.chartKind === "stacked") {
+    return rows.length >= 4 || longestLabel >= 14 ? "portrait" : "landscape";
+  }
+  return rows.length >= 6 || longestLabel >= 16 ? "portrait" : "landscape";
+}
+
+function resolveExamGraphOrientation(model, orientation = getExamGraphOrientation()) {
+  if (orientation === "portrait" || orientation === "landscape") {
+    return orientation;
+  }
+  return getExamGraphAutoOrientation(model);
+}
+
+function getExamGraphResolvedOrientationLabel(model) {
+  const orientation = getExamGraphOrientation();
+  const resolvedOrientation = resolveExamGraphOrientation(model, orientation);
+  const resolvedLabel = getExamGraphOrientationLabel(resolvedOrientation);
+  return orientation === "auto" ? `자동 구도(${resolvedLabel})` : resolvedLabel;
 }
 
 function getExamGraphStyleMode() {
@@ -10999,7 +11075,7 @@ function ensureExamGraphState() {
   state.examGraphTopN = getExamGraphTopN();
   state.examGraphAliasMode = Boolean(state.examGraphAliasMode);
   if (!examGraphOrientationDefinitions.some((definition) => definition.key === state.examGraphOrientation)) {
-    state.examGraphOrientation = "landscape";
+    state.examGraphOrientation = "auto";
   }
   state.examGraphStyleMode = "basic";
   state.examGraphPreviewCount = getExamGraphPreviewCount();
@@ -11197,7 +11273,7 @@ function buildExamGraphControls() {
   const orientationField = buildExamGraphSelectField(
     "그래프 방향",
     examGraphOrientationDefinitions,
-    state.examGraphOrientation,
+    getExamGraphOrientation(),
     (value) => {
       updateExamGraphState("비교 그래프 변경", () => {
         state.examGraphOrientation = value;
@@ -12289,8 +12365,9 @@ function buildExamGraphModel() {
   if (!model) {
     return null;
   }
-  model.orientation = getExamGraphOrientation();
-  model.orientationLabel = getExamGraphOrientationLabel(model.orientation);
+  model.orientationPreference = getExamGraphOrientation();
+  model.orientation = resolveExamGraphOrientation(model, model.orientationPreference);
+  model.orientationLabel = getExamGraphResolvedOrientationLabel(model);
   model.styleMode = getExamGraphStyleMode();
   model.styleModeLabel = getExamGraphStyleModeDefinition(model.styleMode).label;
   model.fontSizePt = getExamGraphFontSizePt();
@@ -13754,10 +13831,10 @@ function buildExamGraphPreviewEntries(model) {
     {
       key: "current",
       badge: "현재 통계",
-      description: `${model.styleModeLabel} · ${getExamGraphOrientationLabel(model.orientation)} · ${formatExamGraphPtLabel(model.fontSizePt)} · ${model.displayModeLabel ?? "기본"}`,
+      description: `${model.styleModeLabel} · ${model.orientationLabel} · ${formatExamGraphPtLabel(model.fontSizePt)} · ${model.displayModeLabel ?? "기본"}`,
       exportName: buildExamGraphPreviewExportName(
         model.exportName,
-        `${model.styleMode}-${model.orientation}-${String(model.fontSizePt).replace(".", "_")}pt`,
+        `${model.styleMode}-${model.orientationPreference}-${model.orientation}-${String(model.fontSizePt).replace(".", "_")}pt`,
       ),
       model,
     },
@@ -13957,20 +14034,640 @@ function appendExamGraphNativeLegend(chart, legendItems = []) {
   chart.appendChild(legend);
 }
 
+const EXAM_GRAPH_CLIMATE_SERIES = ["#111111", "#666666", "#a9a9a9", "#dedede"];
+const EXAM_GRAPH_CLIMATE_LINE_STYLES = [
+  { marker: "circle", dasharray: "" },
+  { marker: "square", dasharray: "10 7" },
+  { marker: "triangle", dasharray: "5 7" },
+  { marker: "diamond", dasharray: "2 6" },
+];
+
+function setExamGraphClimateSvgAttributes(node, attributes = {}) {
+  Object.entries(attributes).forEach(([key, value]) => {
+    if (value == null) {
+      return;
+    }
+    node.setAttribute(key, String(value));
+  });
+  return node;
+}
+
+function createExamGraphClimateSvgElement(tagName, attributes = {}, textContent = null) {
+  const node = createSvgElement(tagName);
+  setExamGraphClimateSvgAttributes(node, attributes);
+  if (textContent != null) {
+    node.textContent = String(textContent);
+  }
+  return node;
+}
+
+function appendExamGraphClimateSvgElement(parent, tagName, attributes = {}, textContent = null) {
+  const node = createExamGraphClimateSvgElement(tagName, attributes, textContent);
+  parent.appendChild(node);
+  return node;
+}
+
+function getExamGraphClimateSeriesColor(index) {
+  return EXAM_GRAPH_CLIMATE_SERIES[index % EXAM_GRAPH_CLIMATE_SERIES.length];
+}
+
+function createExamGraphClimateSvg(width, height, ariaLabel, modifier = "") {
+  const svg = createExamGraphClimateSvgElement("svg", {
+    class: `exam-graph-climate-svg${modifier ? ` exam-graph-climate-svg--${modifier}` : ""}`,
+    viewBox: `0 0 ${width} ${height}`,
+    role: "img",
+    "aria-label": ariaLabel || "인문지리 통계 그래프",
+  });
+  return svg;
+}
+
+function getExamGraphClimateScale(domainStart, domainEnd, rangeStart, rangeEnd) {
+  const start = Number(domainStart);
+  const end = Number(domainEnd);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || Math.abs(end - start) < 0.000001) {
+    return () => (rangeStart + rangeEnd) / 2;
+  }
+  return (value) => rangeStart + ((Number(value) - start) / (end - start)) * (rangeEnd - rangeStart);
+}
+
+function getExamGraphClimateYScale(domainStart, domainEnd, plotTop, plotBottom) {
+  const scale = getExamGraphClimateScale(domainStart, domainEnd, plotBottom, plotTop);
+  return (value) => scale(value);
+}
+
+function getExamGraphClimateHorizontalLayout(rows, { legend = false, paired = false, orientation = "landscape" } = {}) {
+  const rowCount = rows?.length || 1;
+  const longestLabel = Math.max(0, ...(rows ?? []).map((row) => String(row.displayLabel ?? row.label ?? "").length));
+  const isPortrait = orientation === "portrait";
+  const left = clamp(Math.round(86 + longestLabel * 5.5), 118, 232);
+  const top = 24;
+  const right = isPortrait ? 28 : 36;
+  const bottom = legend ? (isPortrait ? 88 : 78) : (isPortrait ? 58 : 52);
+  const plotWidth = isPortrait
+    ? clamp(292 + rowCount * 16 + (paired ? 40 : 0), 340, 470)
+    : clamp(438 + rowCount * 24 + (paired ? 64 : 0), 520, 720);
+  const width = left + plotWidth + right;
+  const rowHeight = isPortrait
+    ? paired ? 66 : rowCount >= 8 ? 50 : rowCount >= 6 ? 54 : 58
+    : paired ? 58 : rowCount >= 8 ? 43 : rowCount >= 6 ? 46 : 50;
+  const plotHeight = Math.max(paired ? 190 : 156, rowCount * rowHeight);
+  const height = top + plotHeight + bottom;
+  return {
+    width,
+    height,
+    margin: { top, right, bottom, left },
+    plotLeft: left,
+    plotRight: left + plotWidth,
+    plotTop: top,
+    plotBottom: top + plotHeight,
+    plotWidth,
+    plotHeight,
+  };
+}
+
+function getExamGraphClimateCartesianLayout({
+  legend = false,
+  steps = 6,
+  series = 1,
+  scatter = false,
+  orientation = "landscape",
+} = {}) {
+  const isPortrait = orientation === "portrait";
+  const width = isPortrait
+    ? clamp(430 + Number(steps || 0) * 12 + (scatter ? 28 : 0), 500, 640)
+    : clamp(620 + Number(steps || 0) * 18 + (scatter ? 56 : 0), 720, 900);
+  const plotHeight = isPortrait
+    ? clamp((scatter ? 302 : 286) + Number(series || 1) * 16, 320, 470)
+    : clamp((scatter ? 232 : 214) + Number(series || 1) * 12, 232, 320);
+  const margin = {
+    top: 26,
+    right: scatter ? (isPortrait ? 34 : 42) : (isPortrait ? 26 : 32),
+    bottom: legend ? (isPortrait ? 92 : 86) : (isPortrait ? 66 : 60),
+    left: isPortrait ? 64 : 60,
+  };
+  const height = margin.top + plotHeight + margin.bottom;
+  return {
+    width,
+    height,
+    margin,
+    plotLeft: margin.left,
+    plotRight: width - margin.right,
+    plotTop: margin.top,
+    plotBottom: height - margin.bottom,
+    plotWidth: width - margin.left - margin.right,
+    plotHeight,
+  };
+}
+
+function appendExamGraphClimateFrame(svg, layout) {
+  appendExamGraphClimateSvgElement(svg, "rect", {
+    class: "exam-graph-svg-frame",
+    x: layout.plotLeft,
+    y: layout.plotTop,
+    width: layout.plotWidth,
+    height: layout.plotHeight,
+  });
+}
+
+function appendExamGraphClimateXAxis(svg, axis, layout, xScale) {
+  axis.ticks.forEach((tick, index) => {
+    const x = xScale(tick);
+    appendExamGraphClimateSvgElement(svg, "line", {
+      class: `exam-graph-svg-grid exam-graph-svg-grid--x${Math.abs(Number(tick)) < 0.000001 ? " is-zero" : ""}`,
+      x1: x,
+      y1: layout.plotTop,
+      x2: x,
+      y2: layout.plotBottom,
+    });
+    const label = appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-tick",
+      x,
+      y: layout.plotBottom + 24,
+      "text-anchor": index === 0 ? "start" : index === axis.ticks.length - 1 ? "end" : "middle",
+    }, axis.formatTick(tick));
+    if (index === 0) {
+      label.setAttribute("dx", "1");
+    }
+  });
+  if (axis.unitLabel) {
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-unit",
+      x: layout.plotRight,
+      y: layout.height - 16,
+      "text-anchor": "end",
+    }, axis.unitLabel);
+  }
+}
+
+function appendExamGraphClimateYAxis(svg, axis, layout, yScale) {
+  axis.ticks.forEach((tick) => {
+    const y = yScale(tick);
+    appendExamGraphClimateSvgElement(svg, "line", {
+      class: `exam-graph-svg-grid exam-graph-svg-grid--y${Math.abs(Number(tick)) < 0.000001 ? " is-zero" : ""}`,
+      x1: layout.plotLeft,
+      y1: y,
+      x2: layout.plotRight,
+      y2: y,
+    });
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-tick",
+      x: layout.plotLeft - 12,
+      y: y + 4,
+      "text-anchor": "end",
+    }, axis.formatTick(tick));
+  });
+  if (axis.unitLabel) {
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-unit exam-graph-svg-unit--y",
+      x: layout.plotLeft,
+      y: 16,
+      "text-anchor": "start",
+    }, axis.unitLabel);
+  }
+}
+
+function appendExamGraphClimateLegend(svg, items = [], layout, { line = false } = {}) {
+  if (!items.length) {
+    return;
+  }
+  const gap = 18;
+  const rowGap = 21;
+  const maxRowWidth = layout.width - 36;
+  const itemWidths = items.map((item) => clamp(34 + String(item.label ?? "").length * 8.4, 60, maxRowWidth));
+  const rows = [];
+  items.forEach((item, index) => {
+    const currentRow = rows[rows.length - 1];
+    const nextWidth = itemWidths[index];
+    if (!currentRow || currentRow.width + gap + nextWidth > maxRowWidth) {
+      rows.push({ items: [{ item, index, width: nextWidth }], width: nextWidth });
+      return;
+    }
+    currentRow.items.push({ item, index, width: nextWidth });
+    currentRow.width += gap + nextWidth;
+  });
+  const firstY = layout.height - 18 - Math.max(0, rows.length - 1) * rowGap;
+  rows.forEach((row, rowIndex) => {
+    let x = Math.max(18, (layout.width - row.width) / 2);
+    const y = firstY + rowIndex * rowGap;
+    row.items.forEach(({ item, index, width }) => {
+      const color = item.color ?? getExamGraphClimateSeriesColor(index);
+      const group = appendExamGraphClimateSvgElement(svg, "g", {
+        class: "exam-graph-svg-legend-item",
+        transform: `translate(${x} ${y})`,
+      });
+      if (line) {
+        const style = EXAM_GRAPH_CLIMATE_LINE_STYLES[index % EXAM_GRAPH_CLIMATE_LINE_STYLES.length];
+        appendExamGraphClimateSvgElement(group, "line", {
+          class: "exam-graph-svg-legend-line",
+          x1: 0,
+          y1: -5,
+          x2: 26,
+          y2: -5,
+          stroke: color,
+          "stroke-dasharray": style.dasharray,
+        });
+        appendExamGraphClimateMarker(group, 13, -5, style.marker, color, index);
+        appendExamGraphClimateSvgElement(group, "text", {
+          class: "exam-graph-svg-legend-text",
+          x: 36,
+          y: 0,
+        }, item.label);
+      } else {
+        appendExamGraphClimateSvgElement(group, "rect", {
+          class: "exam-graph-svg-legend-swatch",
+          x: 0,
+          y: -13,
+          width: 18,
+          height: 10,
+          fill: color,
+        });
+        appendExamGraphClimateSvgElement(group, "text", {
+          class: "exam-graph-svg-legend-text",
+          x: 26,
+          y: -4,
+        }, item.label);
+      }
+      x += width + gap;
+    });
+  });
+}
+
+function appendExamGraphClimateMarker(parent, x, y, marker, color, seriesIndex = 0) {
+  const markerClass = "exam-graph-svg-marker";
+  if (marker === "square") {
+    return appendExamGraphClimateSvgElement(parent, "rect", {
+      class: markerClass,
+      "data-series": seriesIndex,
+      x: x - 4,
+      y: y - 4,
+      width: 8,
+      height: 8,
+      fill: "#ffffff",
+      stroke: color,
+      "stroke-width": 1.5,
+    });
+  }
+  if (marker === "triangle") {
+    return appendExamGraphClimateSvgElement(parent, "path", {
+      class: markerClass,
+      "data-series": seriesIndex,
+      d: `M ${x} ${y - 5} L ${x + 5} ${y + 4.2} L ${x - 5} ${y + 4.2} Z`,
+      fill: color,
+      stroke: color,
+      "stroke-width": 1,
+    });
+  }
+  if (marker === "diamond") {
+    return appendExamGraphClimateSvgElement(parent, "path", {
+      class: markerClass,
+      "data-series": seriesIndex,
+      d: `M ${x} ${y - 5} L ${x + 5} ${y} L ${x} ${y + 5} L ${x - 5} ${y} Z`,
+      fill: "#ffffff",
+      stroke: color,
+      "stroke-width": 1.5,
+    });
+  }
+  return appendExamGraphClimateSvgElement(parent, "circle", {
+    class: markerClass,
+    "data-series": seriesIndex,
+    cx: x,
+    cy: y,
+    r: 4,
+    fill: color,
+    stroke: "#ffffff",
+    "stroke-width": 1.5,
+  });
+}
+
+function appendExamGraphClimateBar(svg, { xScale, zeroX, value, y, height, color, seriesIndex = 0, title = "" }) {
+  const valueX = xScale(value);
+  const x = Math.min(zeroX, valueX);
+  const width = Math.max(1, Math.abs(valueX - zeroX));
+  const bar = appendExamGraphClimateSvgElement(svg, "rect", {
+    class: "exam-graph-svg-bar",
+    "data-series": seriesIndex,
+    x,
+    y,
+    width,
+    height,
+    fill: color,
+  });
+  if (title) {
+    appendExamGraphClimateSvgElement(bar, "title", {}, title);
+  }
+  return bar;
+}
+
+function buildExamGraphClimateEmptyChart() {
+  const width = 760;
+  const height = 248;
+  const svg = createExamGraphClimateSvg(width, height, "인문지리 그래프 입력 대기", "empty");
+  appendExamGraphClimateSvgElement(svg, "rect", {
+    class: "exam-graph-svg-frame",
+    x: 58,
+    y: 28,
+    width: width - 116,
+    height: height - 76,
+  });
+  appendExamGraphClimateSvgElement(svg, "text", {
+    class: "exam-graph-svg-empty-text",
+    x: width / 2,
+    y: height / 2,
+    "text-anchor": "middle",
+  }, "그래프를 만들 항목을 선택하세요");
+  return svg;
+}
+
+function buildExamGraphClimateSingleBarChart(model) {
+  const rows = model.rows ?? [];
+  if (!rows.length) {
+    return buildExamGraphClimateEmptyChart();
+  }
+  const values = rows.map((row) => Number(row.displayValue ?? row.value));
+  const axis = getExamGraphNativeAxis(values, model.valueFormatter, { paddingRatio: 0.04, rangePadding: 0 });
+  const layout = getExamGraphClimateHorizontalLayout(rows, { orientation: model.orientation });
+  const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 막대 그래프", "bar");
+  const xScale = getExamGraphClimateScale(axis.minimum, axis.maximum, layout.plotLeft, layout.plotRight);
+  const zeroX = xScale(0);
+  appendExamGraphClimateFrame(svg, layout);
+  appendExamGraphClimateXAxis(svg, axis, layout, xScale);
+
+  rows.forEach((row, rowIndex) => {
+    const centerY = layout.plotTop + ((rowIndex + 0.5) / rows.length) * layout.plotHeight;
+    const value = Number(row.displayValue ?? row.value) || 0;
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-label",
+      x: layout.plotLeft - 14,
+      y: centerY + 4,
+      "text-anchor": "end",
+    }, row.displayLabel ?? row.label ?? "");
+    appendExamGraphClimateBar(svg, {
+      xScale,
+      zeroX,
+      value,
+      y: centerY - 5,
+      height: 10,
+      color: getExamGraphClimateSeriesColor(rowIndex),
+      seriesIndex: rowIndex,
+    });
+  });
+  return svg;
+}
+
+function buildExamGraphClimateStackedChart(model) {
+  const rows = model.rows ?? [];
+  if (!rows.length) {
+    return buildExamGraphClimateEmptyChart();
+  }
+  const mode = model.chartMode === "amount" ? "amount" : "share";
+  const values = mode === "amount" ? rows.map((row) => Number(row.total) || 0) : [0, 100];
+  const axis = mode === "amount"
+    ? getExamGraphNativeAxis(values, model.valueFormatter, { forceZeroStart: true, paddingRatio: 0.04, rangePadding: 0 })
+    : {
+        minimum: 0,
+        maximum: 100,
+        ticks: [0, 20, 40, 60, 80, 100],
+        formatTick: (value) => String(value),
+        unitLabel: "(%)",
+      };
+  const layout = getExamGraphClimateHorizontalLayout(rows, { legend: true, orientation: model.orientation });
+  const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 누적 막대 그래프", "stacked");
+  const xScale = getExamGraphClimateScale(axis.minimum, axis.maximum, layout.plotLeft, layout.plotRight);
+  appendExamGraphClimateFrame(svg, layout);
+  appendExamGraphClimateXAxis(svg, axis, layout, xScale);
+
+  rows.forEach((row, rowIndex) => {
+    const centerY = layout.plotTop + ((rowIndex + 0.5) / rows.length) * layout.plotHeight;
+    let cumulativeValue = 0;
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-label",
+      x: layout.plotLeft - 14,
+      y: centerY + 4,
+      "text-anchor": "end",
+    }, row.displayLabel ?? row.label ?? "");
+    (row.segments ?? []).forEach((segment, segmentIndex) => {
+      const segmentValue = mode === "amount" ? Number(segment.value) || 0 : clamp(Number(segment.share) || 0, 0, 100);
+      const startX = xScale(cumulativeValue);
+      cumulativeValue += segmentValue;
+      const endX = xScale(cumulativeValue);
+      appendExamGraphClimateSvgElement(svg, "rect", {
+        class: "exam-graph-svg-bar exam-graph-svg-bar--stacked",
+        "data-series": segmentIndex,
+        x: Math.min(startX, endX),
+        y: centerY - 5.5,
+        width: Math.max(1, Math.abs(endX - startX)),
+        height: 11,
+        fill: getExamGraphClimateSeriesColor(segmentIndex),
+      });
+    });
+  });
+  appendExamGraphClimateLegend(svg, model.legendItems ?? [], layout);
+  return svg;
+}
+
+function buildExamGraphClimatePairedChart(model) {
+  const rows = model.rows ?? [];
+  if (!rows.length) {
+    return buildExamGraphClimateEmptyChart();
+  }
+  const values = rows.flatMap((row) =>
+    model.chartKind === "timeCompare"
+      ? [Number(row.displayStartValue ?? row.startValue), Number(row.displayEndValue ?? row.endValue)]
+      : [Number(row.displayFirstValue), Number(row.displaySecondValue)],
+  );
+  const axis = getExamGraphNativeAxis(values, model.valueFormatter, { paddingRatio: 0.04, rangePadding: 0 });
+  const layout = getExamGraphClimateHorizontalLayout(rows, { legend: true, paired: true, orientation: model.orientation });
+  const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 비교 막대 그래프", "paired");
+  const xScale = getExamGraphClimateScale(axis.minimum, axis.maximum, layout.plotLeft, layout.plotRight);
+  const zeroX = xScale(0);
+  appendExamGraphClimateFrame(svg, layout);
+  appendExamGraphClimateXAxis(svg, axis, layout, xScale);
+
+  rows.forEach((row, rowIndex) => {
+    const centerY = layout.plotTop + ((rowIndex + 0.5) / rows.length) * layout.plotHeight;
+    const pairValues = model.chartKind === "timeCompare"
+      ? [row.displayStartValue ?? row.startValue, row.displayEndValue ?? row.endValue]
+      : [row.displayFirstValue, row.displaySecondValue];
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-label",
+      x: layout.plotLeft - 14,
+      y: centerY + 4,
+      "text-anchor": "end",
+    }, row.displayLabel ?? row.label ?? "");
+    pairValues.forEach((value, valueIndex) => {
+      appendExamGraphClimateBar(svg, {
+        xScale,
+        zeroX,
+        value: Number(value) || 0,
+        y: centerY + (valueIndex === 0 ? -13 : 4),
+        height: 9,
+        color: getExamGraphClimateSeriesColor(valueIndex),
+        seriesIndex: valueIndex,
+      });
+    });
+  });
+  appendExamGraphClimateLegend(svg, model.legendItems ?? [], layout);
+  return svg;
+}
+
+function buildExamGraphClimateTrendChart(model) {
+  const rows = model.rows ?? [];
+  const years = model.years ?? [];
+  if (!rows.length || !years.length) {
+    return buildExamGraphClimateEmptyChart();
+  }
+  const values = rows.flatMap((row) => (row.points ?? []).map((point) => Number(point.displayValue ?? point.value)));
+  const axis = getExamGraphNativeAxis(values, model.valueFormatter, { paddingRatio: 0.08, rangePadding: 0 });
+  const layout = getExamGraphClimateCartesianLayout({
+    legend: true,
+    steps: years.length,
+    series: rows.length,
+    orientation: model.orientation,
+  });
+  const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 시계열 그래프", "trend");
+  const yScale = getExamGraphClimateYScale(axis.minimum, axis.maximum, layout.plotTop, layout.plotBottom);
+  const xPadding = years.length > 1 ? 12 : layout.plotWidth / 2;
+  const xScale = (year) => {
+    const index = years.indexOf(year);
+    if (years.length <= 1) {
+      return layout.plotLeft + layout.plotWidth / 2;
+    }
+    return layout.plotLeft + xPadding + (Math.max(0, index) / (years.length - 1)) * (layout.plotWidth - xPadding * 2);
+  };
+  appendExamGraphClimateFrame(svg, layout);
+  appendExamGraphClimateYAxis(svg, axis, layout, yScale);
+  years.forEach((year, index) => {
+    const x = xScale(year);
+    appendExamGraphClimateSvgElement(svg, "line", {
+      class: "exam-graph-svg-grid exam-graph-svg-grid--x",
+      x1: x,
+      y1: layout.plotTop,
+      x2: x,
+      y2: layout.plotBottom,
+    });
+    if (index === 0 || index === years.length - 1 || years.length <= 7 || index % Math.ceil(years.length / 6) === 0) {
+      appendExamGraphClimateSvgElement(svg, "text", {
+        class: "exam-graph-svg-tick",
+        x,
+        y: layout.plotBottom + 28,
+        "text-anchor": "middle",
+      }, year);
+    }
+  });
+
+  rows.forEach((row, rowIndex) => {
+    const color = getExamGraphClimateSeriesColor(rowIndex);
+    const style = EXAM_GRAPH_CLIMATE_LINE_STYLES[rowIndex % EXAM_GRAPH_CLIMATE_LINE_STYLES.length];
+    const points = (row.points ?? [])
+      .slice()
+      .filter((point) => years.includes(point.year))
+      .sort((left, right) => years.indexOf(left.year) - years.indexOf(right.year))
+      .map((point) => ({
+        x: xScale(point.year),
+        y: yScale(point.displayValue ?? point.value),
+      }))
+      .filter((point) => Number.isFinite(point.x) && Number.isFinite(point.y));
+    if (points.length) {
+      appendExamGraphClimateSvgElement(svg, "polyline", {
+        class: "exam-graph-svg-line",
+        "data-series": rowIndex,
+        fill: "none",
+        stroke: color,
+        "stroke-dasharray": style.dasharray,
+        points: points.map((point) => `${point.x},${point.y}`).join(" "),
+      });
+      points.forEach((point) => appendExamGraphClimateMarker(svg, point.x, point.y, style.marker, color, rowIndex));
+    }
+  });
+  appendExamGraphClimateLegend(svg, rows.map((row, index) => ({
+    label: row.displayLabel,
+    color: getExamGraphClimateSeriesColor(index),
+  })), layout, { line: true });
+  return svg;
+}
+
+function buildExamGraphClimateScatterChart(model) {
+  const rows = model.rows ?? [];
+  if (!rows.length) {
+    return buildExamGraphClimateEmptyChart();
+  }
+  const xValues = rows.map((row) => Number(row.xValue));
+  const yValues = rows.map((row) => Number(row.yValue));
+  const sizeValues = rows.map((row) => Number(row.sizeValue) || 0);
+  const xAxis = getExamGraphNativeAxis(xValues, model.xFormatter, { paddingRatio: 0.08, rangePadding: 0 });
+  const yAxis = getExamGraphNativeAxis(yValues, model.yFormatter, { paddingRatio: 0.08, rangePadding: 0 });
+  const layout = getExamGraphClimateCartesianLayout({
+    steps: 5,
+    series: rows.length,
+    scatter: true,
+    orientation: model.orientation,
+  });
+  const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 산포도", "scatter");
+  const xScale = getExamGraphClimateScale(xAxis.minimum, xAxis.maximum, layout.plotLeft, layout.plotRight);
+  const yScale = getExamGraphClimateYScale(yAxis.minimum, yAxis.maximum, layout.plotTop, layout.plotBottom);
+  const maxSize = Math.max(...sizeValues, 1);
+  appendExamGraphClimateFrame(svg, layout);
+  appendExamGraphClimateYAxis(svg, yAxis, layout, yScale);
+  xAxis.ticks.forEach((tick, index) => {
+    const x = xScale(tick);
+    appendExamGraphClimateSvgElement(svg, "line", {
+      class: `exam-graph-svg-grid exam-graph-svg-grid--x${Math.abs(Number(tick)) < 0.000001 ? " is-zero" : ""}`,
+      x1: x,
+      y1: layout.plotTop,
+      x2: x,
+      y2: layout.plotBottom,
+    });
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-tick",
+      x,
+      y: layout.plotBottom + 28,
+      "text-anchor": index === 0 ? "start" : index === xAxis.ticks.length - 1 ? "end" : "middle",
+    }, xAxis.formatTick(tick));
+  });
+  if (xAxis.unitLabel) {
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-unit",
+      x: layout.plotRight,
+      y: layout.height - 16,
+      "text-anchor": "end",
+    }, xAxis.unitLabel);
+  }
+  rows.forEach((row, rowIndex) => {
+    const radius = 4 + Math.sqrt(Math.max(0, Number(row.sizeValue) || 0) / maxSize) * 7;
+    const x = xScale(row.xValue);
+    const y = yScale(row.yValue);
+    const color = getExamGraphClimateSeriesColor(rowIndex);
+    appendExamGraphClimateSvgElement(svg, "circle", {
+      class: "exam-graph-svg-scatter-point",
+      "data-series": rowIndex,
+      cx: x,
+      cy: y,
+      r: radius,
+      fill: color,
+    });
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: "exam-graph-svg-point-label",
+      x: x + radius + 5,
+      y: y - radius,
+    }, row.displayLabel ?? row.label ?? "");
+  });
+  return svg;
+}
+
 function buildExamGraphNativeChart(model) {
   if (model.chartKind === "trendLine") {
-    return buildExamGraphNativeTrendChart(model);
+    return buildExamGraphClimateTrendChart(model);
   }
   if (model.chartKind === "scatter") {
-    return buildExamGraphNativeScatterChart(model);
+    return buildExamGraphClimateScatterChart(model);
   }
   if (model.chartKind === "stacked") {
-    return buildExamGraphNativeStackedChart(model);
+    return buildExamGraphClimateStackedChart(model);
   }
   if (model.chartKind === "pairedBar" || model.chartKind === "timeCompare") {
-    return buildExamGraphNativePairedChart(model);
+    return buildExamGraphClimatePairedChart(model);
   }
-  return buildExamGraphNativeSingleBarChart(model);
+  return buildExamGraphClimateSingleBarChart(model);
 }
 
 function buildExamGraphNativeSingleBarChart(model) {

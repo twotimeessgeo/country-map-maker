@@ -50,8 +50,8 @@
 
       <nav class="tw-switch cut-tool-tabs" aria-label="컷 도구 선택">
         <button class="tw-switch-item is-active" type="button" data-tool-tab="questions">기출 검색</button>
-        <button class="tw-switch-item" type="button" data-tool-tab="predict">컷 예측</button>
-        <button class="tw-switch-item" type="button" data-tool-tab="solutions">CSV 해설</button>
+        <button class="tw-switch-item" type="button" data-tool-tab="predict">컷 보기</button>
+        <button class="tw-switch-item" type="button" data-tool-tab="solutions">CSV 업로드</button>
       </nav>
 
       <main class="cut-tool-stack">
@@ -329,7 +329,7 @@
                   <i data-lucide="table"></i>
                 </span>
                 <span class="solution-upload-title" id="csvLabel">CSV 선택</span>
-                <span class="solution-upload-meta" id="csvMeta">문항 번호와 예상 정답률을 읽어 컷 예측에 반영합니다</span>
+                <span class="solution-upload-meta" id="csvMeta">문항 번호와 예상 정답률을 읽어 컷 보기에 반영합니다</span>
               </label>
               <div class="tw-row solution-actions">
                 <button class="tw-button is-primary" type="submit">
@@ -369,6 +369,7 @@
     </div>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="./data/cut-data.js"></script>
     <script src="./cut.js"></script>
   </body>
 </html>

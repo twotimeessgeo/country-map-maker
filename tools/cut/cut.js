@@ -1,6 +1,7 @@
 const MODEL_URL = "./data/geo_cut_model.json";
 const EBSI_URL = "./data/ebsi_geo_data.json";
 const IMAGE_MANIFEST_URL = "./data/question-image-manifest.json";
+const embeddedCutData = window.__PROMENADE_CUT_DATA__ || {};
 const GRADE_Z = {
   "1": 1.7506860712521692,
   "2": 1.2265281200366105,
@@ -281,7 +282,18 @@ function buildJsonUrlCandidates(url) {
   return [...new Set(candidates)];
 }
 
+function getEmbeddedJson(url) {
+  const normalized = String(url || "").replace(/^\.\//, "");
+  const filename = normalized.split("/").pop();
+  return embeddedCutData[normalized] ?? embeddedCutData[filename] ?? null;
+}
+
 async function loadJson(url) {
+  const embedded = getEmbeddedJson(url);
+  if (embedded) {
+    return embedded;
+  }
+
   const candidates = buildJsonUrlCandidates(url);
   const failures = [];
 
@@ -296,6 +308,11 @@ async function loadJson(url) {
     } catch (error) {
       failures.push(`${candidate} (${error instanceof Error ? error.message : "네트워크 오류"})`);
     }
+  }
+
+  const fallback = getEmbeddedJson(url);
+  if (fallback) {
+    return fallback;
   }
 
   throw new Error(`${url} 로드 실패: ${failures.join(", ")}`);
@@ -1816,7 +1833,7 @@ elements.solutionForm.addEventListener("submit", handleSolutionCsv);
 elements.csvInput.addEventListener("change", () => {
   const file = elements.csvInput.files?.[0];
   elements.csvLabel.textContent = file?.name || "CSV 선택";
-  elements.csvMeta.textContent = file ? `${formatFixed(file.size / 1024, 1)} KB` : "문항 번호와 예상 정답률을 읽어 컷 예측에 반영합니다";
+  elements.csvMeta.textContent = file ? `${formatFixed(file.size / 1024, 1)} KB` : "문항 번호와 예상 정답률을 읽어 컷 보기에 반영합니다";
   if (file) {
     void handleSolutionCsv(new Event("submit"));
   }

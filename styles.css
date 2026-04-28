@@ -529,7 +529,7 @@ button:focus-visible,
 input[type="color"]:focus-visible,
 input[type="checkbox"]:focus-visible,
 input[type="range"]:focus-visible {
-  outline: 2px solid rgba(0, 0, 0, 0.08);
+  outline: 2px solid rgba(17, 17, 17, 0.16);
   outline-offset: 1px;
 }
 
@@ -563,7 +563,23 @@ button {
 .tw-switch-item,
 .ghost-button,
 .remove-button {
-  transition: background-color 120ms ease, color 120ms ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease,
+    color 0.18s ease, border-color 0.18s ease;
+}
+
+.ghost-button:hover,
+.ghost-button:focus-visible,
+.remove-button:hover,
+.remove-button:focus-visible {
+  transform: translateY(-1px);
+  border-color: var(--tw-ink);
+  background: var(--tw-panel-soft);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.04);
+}
+
+.ghost-button:active,
+.remove-button:active {
+  transform: translateY(0.5px) scale(0.995);
 }
 
 .export-button {
@@ -1771,22 +1787,22 @@ kbd {
 }
 
 .country-stats-chart-axis-line {
-  stroke: #111111;
-  stroke-width: 1;
+  stroke: rgba(17, 17, 17, 0.62);
+  stroke-width: 0.75;
   vector-effect: non-scaling-stroke;
 }
 
 .country-stats-chart-frame {
   fill: none;
-  stroke: #111111;
-  stroke-width: 1;
+  stroke: rgba(17, 17, 17, 0.28);
+  stroke-width: 0.85;
   vector-effect: non-scaling-stroke;
 }
 
 .country-stats-chart-axis-label {
   fill: #555555;
   font-size: 7.5pt;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .country-stats-line-chart__path {
@@ -1794,7 +1810,7 @@ kbd {
   stroke: #111111;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 2;
+  stroke-width: 1.35;
   vector-effect: non-scaling-stroke;
 }
 
@@ -1806,7 +1822,7 @@ kbd {
 .country-stats-line-chart__year {
   fill: #555555;
   font-size: 7.5pt;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .country-stats-line-legend {
@@ -2022,6 +2038,116 @@ kbd {
   padding: 0;
   border: 0;
   background: #ffffff;
+}
+
+.exam-graph-climate-svg {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  overflow: visible;
+  background: #ffffff;
+  color: var(--tw-ink);
+  font-family: var(--tw-font-sans);
+}
+
+.exam-graph-svg-frame {
+  fill: #ffffff;
+  stroke: rgba(17, 17, 17, 0.22);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.exam-graph-svg-grid {
+  stroke: rgba(17, 17, 17, 0.13);
+  stroke-dasharray: 4 6;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.exam-graph-svg-grid.is-zero {
+  stroke: rgba(17, 17, 17, 0.62);
+  stroke-dasharray: none;
+  stroke-width: 1.15;
+}
+
+.exam-graph-svg-label {
+  fill: var(--tw-ink);
+  font-size: 12.4px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.exam-graph-svg-tick,
+.exam-graph-svg-unit {
+  fill: var(--tw-muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.exam-graph-svg-unit--y {
+  font-weight: 700;
+}
+
+.exam-graph-svg-bar {
+  vector-effect: non-scaling-stroke;
+}
+
+.exam-graph-svg-bar[data-series="2"],
+.exam-graph-svg-bar[data-series="3"],
+.exam-graph-svg-legend-swatch[fill="#dedede"] {
+  stroke: rgba(17, 17, 17, 0.35);
+  stroke-width: 1;
+}
+
+.exam-graph-svg-line,
+.exam-graph-svg-legend-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.exam-graph-svg-legend-line {
+  stroke-width: 1.8;
+}
+
+.exam-graph-svg-marker {
+  vector-effect: non-scaling-stroke;
+}
+
+.exam-graph-svg-scatter-point {
+  opacity: 0.84;
+  stroke: #ffffff;
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+
+.exam-graph-svg-point-label {
+  fill: var(--tw-ink);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.exam-graph-svg-legend-text {
+  fill: var(--tw-ink);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.exam-graph-svg-legend-swatch {
+  vector-effect: non-scaling-stroke;
+}
+
+.exam-graph-svg-empty-text {
+  fill: var(--tw-muted);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .exam-graph-native-chart {
@@ -2507,8 +2633,8 @@ kbd {
 }
 
 .country-stats-scatter-chart__axis-line {
-  stroke: #111111;
-  stroke-width: 1;
+  stroke: rgba(17, 17, 17, 0.62);
+  stroke-width: 0.75;
   vector-effect: non-scaling-stroke;
 }
 
@@ -2523,7 +2649,7 @@ kbd {
 .country-stats-scatter-chart__axis {
   fill: #555555;
   font-size: 7.5pt;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 code {
