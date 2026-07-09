@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="./components.css" />
     <link rel="stylesheet" href="./patterns.css" />
-    <link rel="stylesheet" href="./styles.css?v=20260428h" />
+    <link rel="stylesheet" href="./styles.css?v=20260710c" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
@@ -76,6 +76,16 @@
 
             <div id="statusMessage" class="status-message" aria-live="polite">
               지도를 클릭해서 바로 국가를 추가하거나 제거할 수도 있습니다.
+            </div>
+            <div class="workspace-persistence" aria-label="로컬 작업공간">
+              <div class="workspace-persistence__copy">
+                <p class="app-mini-label">로컬 작업공간</p>
+                <strong id="workspaceSaveStatus" aria-live="polite">자동 저장 준비 중</strong>
+                <span>선택·색상·캔버스와 보기 설정만 이 브라우저에 저장합니다.</span>
+              </div>
+              <button id="resetWorkspaceButton" class="tw-button ghost-button workspace-reset-button" type="button">
+                작업공간 초기화
+              </button>
             </div>
             <div class="workspace-projection-block world-only">
               <p class="app-mini-label">지도 시점</p>
@@ -681,6 +691,6 @@
     <script src="./data/world-lakes.js"></script>
     <script src="./data/country-stats.js?v=20260428a"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260710b"></script>
+    <script src="./app.js?v=20260710c"></script>
   </body>
 </html>

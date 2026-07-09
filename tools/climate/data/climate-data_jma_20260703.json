@@ -23,7 +23,7 @@
         "Kaduna"
       ],
       "continent": "아프리카",
-      "country": "",
+      "country": "Nigeria",
       "climateCode": "남Aw",
       "climateGroup": "Aw",
       "months": [
@@ -105,7 +105,7 @@
         "Khartoum"
       ],
       "continent": "아프리카",
-      "country": "",
+      "country": "Sudan",
       "climateCode": "북Bw",
       "climateGroup": "Bw",
       "months": [
@@ -188,7 +188,7 @@
         "Addis Ababa"
       ],
       "continent": "아프리카",
-      "country": "",
+      "country": "Ethiopia",
       "climateCode": "AH",
       "climateGroup": "H",
       "months": [
@@ -438,7 +438,7 @@
         "Cape Town"
       ],
       "continent": "아프리카",
-      "country": "",
+      "country": "South Africa",
       "climateCode": "남 Cs",
       "climateGroup": "Cs",
       "months": [
@@ -521,7 +521,7 @@
         "Caracas"
       ],
       "continent": "아메리카",
-      "country": "",
+      "country": "Venezuela",
       "climateCode": "북Aw",
       "climateGroup": "Aw",
       "months": [
@@ -855,7 +855,7 @@
         "San Francisco"
       ],
       "continent": "아메리카",
-      "country": "",
+      "country": "United States of America",
       "climateCode": "북 Cs",
       "climateGroup": "Cs",
       "months": [
@@ -939,7 +939,7 @@
         "Montréal"
       ],
       "continent": "아메리카",
-      "country": "",
+      "country": "Canada",
       "climateCode": "북 Df",
       "climateGroup": "Df",
       "months": [
@@ -1528,7 +1528,7 @@
         "Brasília"
       ],
       "continent": "아메리카",
-      "country": "",
+      "country": "Brazil",
       "climateCode": "남 Aw",
       "climateGroup": "Aw",
       "months": [
@@ -1695,7 +1695,7 @@
         "Lima"
       ],
       "continent": "아메리카",
-      "country": "",
+      "country": "Peru",
       "climateCode": "남 Bw",
       "climateGroup": "Bw",
       "months": [
@@ -1778,7 +1778,7 @@
         "Tocopilla"
       ],
       "continent": "아메리카",
-      "country": "",
+      "country": "Chile",
       "climateCode": "남 Bw",
       "climateGroup": "Bw",
       "months": [
@@ -1943,7 +1943,7 @@
         "Ushuaia"
       ],
       "continent": "아메리카",
-      "country": "",
+      "country": "Argentina",
       "climateCode": "남Cfb",
       "climateGroup": "Cfb",
       "months": [
@@ -2026,7 +2026,7 @@
         "Castro"
       ],
       "continent": "아메리카",
-      "country": "",
+      "country": "Chile",
       "climateCode": "남Cfb",
       "climateGroup": "Cfb",
       "months": [
@@ -2358,7 +2358,7 @@
         "Darwin"
       ],
       "continent": "오세아니아",
-      "country": "",
+      "country": "Australia",
       "climateCode": "남 Aw",
       "climateGroup": "Aw",
       "months": [
@@ -2441,7 +2441,7 @@
         "Auckland"
       ],
       "continent": "오세아니아",
-      "country": "",
+      "country": "New Zealand",
       "climateCode": "남 Cfb",
       "climateGroup": "Cfb",
       "months": [
@@ -2523,7 +2523,7 @@
         "Perth"
       ],
       "continent": "오세아니아",
-      "country": "",
+      "country": "Australia",
       "climateCode": "남 Cs",
       "climateGroup": "Cs",
       "months": [
@@ -2606,7 +2606,7 @@
         "Singapore"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "Singapore",
       "climateCode": "Af",
       "climateGroup": "Af",
       "months": [
@@ -2690,7 +2690,7 @@
         "Rangoon"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "Myanmar",
       "climateCode": "북 Am",
       "climateGroup": "Am",
       "months": [
@@ -2857,7 +2857,7 @@
         "Tehran"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "Iran",
       "climateCode": "북 BS",
       "climateGroup": "BS",
       "months": [
@@ -3023,7 +3023,7 @@
         "Shanghai"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "China",
       "climateCode": "북 Cfa",
       "climateGroup": "Cfa",
       "months": [
@@ -3106,7 +3106,7 @@
         "London"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "United Kingdom",
       "climateCode": "북 Cfb",
       "climateGroup": "Cfb",
       "months": [
@@ -3273,7 +3273,7 @@
         "Amsterdam"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "Netherlands",
       "climateCode": "북 Cfb",
       "climateGroup": "Cfb",
       "months": [
@@ -3356,7 +3356,7 @@
         "Paris"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "France",
       "climateCode": "북 Cfb",
       "climateGroup": "Cfb",
       "months": [
@@ -3440,7 +3440,7 @@
         "Roma"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "Italy",
       "climateCode": "북 Cs",
       "climateGroup": "Cs",
       "months": [
@@ -3522,7 +3522,7 @@
         "Marseille"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "France",
       "climateCode": "북Cs",
       "climateGroup": "Cs",
       "months": [
@@ -3688,7 +3688,7 @@
         "Athens"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "Greece",
       "climateCode": "북 Cs",
       "climateGroup": "Cs",
       "months": [
@@ -3772,7 +3772,7 @@
         "İstanbul"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "Turkey",
       "climateCode": "북 Cs",
       "climateGroup": "Cs",
       "months": [
@@ -3856,7 +3856,7 @@
         "Tsingtao"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "China",
       "climateCode": "북 Cw",
       "climateGroup": "Cw",
       "months": [
@@ -4022,7 +4022,7 @@
         "Moscow"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "Russian Federation",
       "climateCode": "북 Df",
       "climateGroup": "Df",
       "months": [
@@ -4190,7 +4190,7 @@
         "Peking"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "China",
       "climateCode": "북 Dw",
       "climateGroup": "Dw",
       "months": [
@@ -4523,7 +4523,7 @@
         "Habarovsk"
       ],
       "continent": "유라시아",
-      "country": "",
+      "country": "Russian Federation",
       "climateCode": "북 Dw",
       "climateGroup": "Dw",
       "months": [

@@ -13,7 +13,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260710b" />
+    <link rel="stylesheet" href="styles.css?v=20260710c" />
   </head>
   <body data-app-mode="world">
     <div class="page-shell">
@@ -39,12 +39,9 @@
           <nav class="app-switch" aria-label="버전 선택">
             <a class="app-switch-link is-active" href="./index.html">세계지리</a>
             <a class="app-switch-link" href="./korea.html">한국지리</a>
-            <button type="button" class="app-switch-link app-switch-button" disabled aria-disabled="true" title="준비 중">
-              경제지리 준비 중
-            </button>
           </nav>
           <h1>Climate Database and Graphics</h1>
-          <p class="hero-text" id="heroText">
+          <p class="hero-text">
             지역을 고르면 월별 기온과 강수량을 표와 기후 그래프로 확인하고,
             여러 지역을 함께 선택하면 1월과 7월의 편차를 예시 이미지처럼 한눈에 비교할 수 있습니다.
           </p>
@@ -93,6 +90,22 @@
               </button>
               <button type="button" class="ghost-button" id="clearSelectionButton">선택 해제</button>
             </div>
+          </div>
+
+          <div class="selection-utility-bar" aria-label="선택 결과 내보내기">
+            <div class="selection-utility-copy">
+              <strong>현재 비교 묶음</strong>
+              <span>고른 지역과 필터, 편차 기준을 그대로 공유하거나 한 파일로 저장합니다.</span>
+            </div>
+            <div class="selection-utility-actions">
+              <button type="button" class="ghost-button" id="downloadSelectedCsvButton" disabled>
+                선택 데이터 CSV
+              </button>
+              <button type="button" class="ghost-button utility-primary-button" id="copyShareLinkButton">
+                비교 링크 복사
+              </button>
+            </div>
+            <span class="selection-utility-status" id="selectionUtilityStatus" role="status" aria-live="polite" aria-atomic="true"></span>
           </div>
 
           <div class="filter-stack">
@@ -217,6 +230,6 @@
     <script src="data/world-countries-50m.js"></script>
     <script src="data/vendor-d3.min.js"></script>
     <script src="data/vendor-topojson-client.min.js"></script>
-    <script src="app.js?v=20260710b"></script>
+    <script src="app.js?v=20260710c"></script>
   </body>
 </html>

@@ -55,6 +55,48 @@ const MAX_INSET_ZOOM_SCALE = 4;
 const MAX_STABLE_SPHERICAL_FILL_AREA = 2 * Math.PI;
 const PNG_EXPORT_DPI = 500;
 const CSS_PIXEL_DPI = 96;
+const WORKSPACE_STORAGE_KEY = "promenade-map-editor-workspace";
+const WORKSPACE_SCHEMA_VERSION = 1;
+const WORKSPACE_SAVE_DELAY_MS = 520;
+const WORKSPACE_MAX_SERIALIZED_BYTES = 350_000;
+const WORKSPACE_PERSISTED_KEYS = [
+  "mapVersion",
+  "width",
+  "height",
+  "paddingPercent",
+  "centerLongitude",
+  "projectionMode",
+  "viewMode",
+  "viewZoom",
+  "viewOffsetX",
+  "viewOffsetY",
+  "oceanColor",
+  "landColor",
+  "borderColor",
+  "borderMode",
+  "coastlineDetail",
+  "showFrame",
+  "selectedBordersOnly",
+  "autoFocusOnSelection",
+  "unifySelectedCountryColors",
+  "unifiedSelectedCountryColor",
+  "showGuideLines",
+  "showLatitudeLabels",
+  "showScaleBar",
+  "mapFontSizePt",
+  "guides",
+  "selected",
+  "koreaLevel",
+  "koreaParentCode",
+  "koreaCityScopeCodes",
+  "koreaSelectedProvinces",
+  "koreaSelectedCities",
+  "koreaSelectedMetroDistricts",
+  "koreaComparedProvinces",
+  "koreaComparedCities",
+  "koreaComparedMetroDistricts",
+  "koreaRouteVisibility",
+];
 
 const projectionModeLabels = {
   rectangular: "평면",
@@ -1391,6 +1433,7 @@ function initializeKoreaMapRuntimeData() {
     cities: new Set(koreaParentOptionsByLevel.cities.map((option) => option.code)),
     metroDistricts: new Set(koreaParentOptionsByLevel.metroDistricts.map((option) => option.code)),
   };
+  canonicalizeRestoredKoreaSelections();
   koreaMapDataReady = true;
 }
 
@@ -1633,7 +1676,7 @@ const state = {
   paddingPercent: 10,
   centerLongitude: 0,
   projectionMode: "rectangular",
-  viewMode: "pan",
+  viewMode: "zoom",
   viewZoom: 1,
   viewOffsetX: 0,
   viewOffsetY: 0,
@@ -1732,6 +1775,8 @@ const state = {
   nextInsetSequence: 0,
 };
 
+const defaultEditorState = JSON.parse(JSON.stringify(state));
+
 const elements = {
   mapVersionButtons: [...document.querySelectorAll(".map-version-button")],
   worldSections: [...document.querySelectorAll(".world-only")],
@@ -1755,6 +1800,8 @@ const elements = {
   countryStatsPanel: document.querySelector("#countryStatsPanel"),
   koreaGeoStatsPanel: document.querySelector("#koreaGeoStatsPanel"),
   statusMessage: document.querySelector("#statusMessage"),
+  workspaceSaveStatus: document.querySelector("#workspaceSaveStatus"),
+  resetWorkspaceButton: document.querySelector("#resetWorkspaceButton"),
   widthInput: document.querySelector("#widthInput"),
   heightInput: document.querySelector("#heightInput"),
   heightSlider: document.querySelector("#heightSlider"),
@@ -1862,16 +1909,35 @@ const historyState = {
   maxEntries: 80,
 };
 
+const workspacePersistence = {
+  saveTimer: null,
+  isDirty: false,
+  isRestoring: false,
+  restoreRequestedMapVersion: null,
+  lastSavedAt: null,
+  lastEditorSerialized: "",
+};
+
+const initialWorkspaceRestore = restoreSavedWorkspace();
+if (!workspacePersistence.lastEditorSerialized) {
+  workspacePersistence.lastEditorSerialized = serializeWorkspaceEditorSnapshot();
+}
+
 normalizeKoreaState();
 buildCountryDatalist();
 buildKoreaParentRegionOptions();
 attachEventListeners();
 ensureDocumentMapFontStyle();
 syncControls();
-setStatus(getDefaultStatusMessage());
+setStatus(
+  initialWorkspaceRestore.restored
+    ? "저장된 로컬 작업공간을 복원했습니다."
+    : getDefaultStatusMessage(),
+);
 renderSelectionViews();
 renderAnnotations();
 renderMap();
+void finishInitialWorkspaceRestore(initialWorkspaceRestore);
 void loadEmbeddedMapFontData();
 
 function attachEventListeners() {
@@ -2181,6 +2247,8 @@ function attachEventListeners() {
     setStatus("마커와 인셋을 모두 지웠습니다.");
   });
 
+  elements.resetWorkspaceButton?.addEventListener("click", resetLocalWorkspace);
+
   elements.downloadSvgButton.addEventListener("click", () => {
     void exportCurrentSvg();
   });
@@ -2205,6 +2273,368 @@ function attachEventListeners() {
   window.addEventListener("keydown", handleWindowKeyDown);
   window.addEventListener("keyup", handleWindowKeyUp);
   window.addEventListener("blur", releaseTemporaryViewMode);
+  window.addEventListener("pagehide", () => {
+    flushPendingHistory();
+    persistWorkspaceNow();
+  });
+}
+
+function restoreSavedWorkspace() {
+  let serialized = "";
+  try {
+    serialized = window.localStorage.getItem(WORKSPACE_STORAGE_KEY) ?? "";
+  } catch (error) {
+    console.warn("로컬 작업공간을 읽지 못했습니다.", error);
+    return { restored: false, requestedMapVersion: "world", error: "브라우저 저장소를 사용할 수 없습니다." };
+  }
+
+  if (!serialized) {
+    return { restored: false, requestedMapVersion: "world" };
+  }
+
+  if (getSerializedByteLength(serialized) > WORKSPACE_MAX_SERIALIZED_BYTES) {
+    return { restored: false, requestedMapVersion: "world", error: "저장된 작업공간이 허용 크기를 넘었습니다." };
+  }
+
+  try {
+    const payload = JSON.parse(serialized);
+    if (
+      !payload ||
+      payload.schemaVersion !== WORKSPACE_SCHEMA_VERSION ||
+      !payload.editor ||
+      typeof payload.editor !== "object" ||
+      Array.isArray(payload.editor)
+    ) {
+      throw new Error("지원하지 않는 작업공간 형식입니다.");
+    }
+
+    const restoredEditor = sanitizeWorkspaceEditor(payload.editor);
+    const requestedMapVersion = restoredEditor.mapVersion;
+    Object.assign(state, restoredEditor);
+
+    // 한국 데이터는 초기 페이지 무게를 늘리지 않도록 기존처럼 필요할 때만 읽습니다.
+    // 복원 중에는 일단 세계 지도를 그린 뒤 lazy asset이 준비되면 한국 모드로 전환합니다.
+    if (requestedMapVersion === "korea") {
+      state.mapVersion = "world";
+    }
+
+    const savedAt = Number.isFinite(Date.parse(payload.savedAt)) ? payload.savedAt : null;
+    workspacePersistence.lastSavedAt = savedAt;
+    workspacePersistence.lastEditorSerialized = JSON.stringify(restoredEditor);
+    workspacePersistence.isDirty = false;
+    return { restored: true, requestedMapVersion, savedAt };
+  } catch (error) {
+    console.warn("저장된 로컬 작업공간을 복원하지 못했습니다.", error);
+    return { restored: false, requestedMapVersion: "world", error: "저장된 작업공간이 손상되어 새 작업으로 열었습니다." };
+  }
+}
+
+function sanitizeWorkspaceEditor(editor) {
+  const next = {};
+  WORKSPACE_PERSISTED_KEYS.forEach((key) => {
+    next[key] = cloneStateSnapshot(defaultEditorState[key]);
+  });
+
+  next.mapVersion = mapVersionLabels[editor.mapVersion] ? editor.mapVersion : "world";
+  next.width = clampCanvasWidth(editor.width, defaultEditorState.width);
+  next.height = clampCanvasHeight(editor.height, defaultEditorState.height);
+  next.paddingPercent = clampFiniteNumber(editor.paddingPercent, 4, 24, defaultEditorState.paddingPercent);
+  next.centerLongitude = clampFiniteNumber(editor.centerLongitude, -180, 180, defaultEditorState.centerLongitude);
+  next.projectionMode = projectionModeLabels[editor.projectionMode]
+    ? editor.projectionMode
+    : defaultEditorState.projectionMode;
+  next.viewMode = viewModeLabels[editor.viewMode] ? editor.viewMode : defaultEditorState.viewMode;
+  next.viewZoom = clampFiniteNumber(editor.viewZoom, 0.35, 48, defaultEditorState.viewZoom);
+  next.viewOffsetX = clampFiniteNumber(editor.viewOffsetX, -100000, 100000, 0);
+  next.viewOffsetY = clampFiniteNumber(editor.viewOffsetY, -100000, 100000, 0);
+
+  ["oceanColor", "landColor", "borderColor", "unifiedSelectedCountryColor"].forEach((key) => {
+    next[key] = normalizeHexColor(editor[key], defaultEditorState[key]);
+  });
+  next.borderMode = ["solid", "dashed", "none"].includes(editor.borderMode)
+    ? editor.borderMode
+    : defaultEditorState.borderMode;
+  next.coastlineDetail = ["performance", "auto", "detailed", "max"].includes(editor.coastlineDetail)
+    ? editor.coastlineDetail
+    : defaultEditorState.coastlineDetail;
+  [
+    "showFrame",
+    "selectedBordersOnly",
+    "autoFocusOnSelection",
+    "unifySelectedCountryColors",
+    "showGuideLines",
+    "showLatitudeLabels",
+    "showScaleBar",
+  ].forEach((key) => {
+    next[key] = typeof editor[key] === "boolean" ? editor[key] : defaultEditorState[key];
+  });
+  next.mapFontSizePt = clampFiniteNumber(editor.mapFontSizePt, 7, 9, defaultEditorState.mapFontSizePt);
+  next.guides = Object.fromEntries(
+    latitudeGuideDefinitions.map(({ key }) => [key, Boolean(editor.guides?.[key])]),
+  );
+
+  next.selected = sanitizeWorldSelections(editor.selected);
+  next.koreaLevel = koreaRegionLevelLabels[editor.koreaLevel] ? editor.koreaLevel : "provinces";
+  next.koreaParentCode = sanitizeShortText(editor.koreaParentCode, 24);
+  next.koreaCityScopeCodes = sanitizeStringList(editor.koreaCityScopeCodes, 40, 24);
+  next.koreaSelectedProvinces = sanitizeKoreaSelections(editor.koreaSelectedProvinces);
+  next.koreaSelectedCities = sanitizeKoreaSelections(editor.koreaSelectedCities);
+  next.koreaSelectedMetroDistricts = sanitizeKoreaSelections(editor.koreaSelectedMetroDistricts);
+  next.koreaComparedProvinces = sanitizeStringList(editor.koreaComparedProvinces, 1000, 40);
+  next.koreaComparedCities = sanitizeStringList(editor.koreaComparedCities, 1000, 40);
+  next.koreaComparedMetroDistricts = sanitizeStringList(editor.koreaComparedMetroDistricts, 1000, 40);
+  next.koreaRouteVisibility = Object.fromEntries(
+    Object.keys(defaultEditorState.koreaRouteVisibility).map((key) => [
+      key,
+      Boolean(editor.koreaRouteVisibility?.[key]),
+    ]),
+  );
+
+  return next;
+}
+
+function sanitizeWorldSelections(entries) {
+  const seen = new Set();
+  return (Array.isArray(entries) ? entries : [])
+    .map((entry) => {
+      const id = sanitizeShortText(entry?.id, 24);
+      const feature = countryById.get(id);
+      if (!feature || seen.has(id)) {
+        return null;
+      }
+      seen.add(id);
+      return {
+        id,
+        name: feature.properties.name,
+        color: normalizeHexColor(entry?.color, nextPaletteColor(seen.size - 1)),
+      };
+    })
+    .filter(Boolean);
+}
+
+function sanitizeKoreaSelections(entries) {
+  const seen = new Set();
+  return (Array.isArray(entries) ? entries : [])
+    .slice(0, 1000)
+    .map((entry, index) => {
+      const id = sanitizeShortText(entry?.id, 40);
+      const name = sanitizeShortText(entry?.name, 80);
+      if (!id || !name || seen.has(id)) {
+        return null;
+      }
+      seen.add(id);
+      return {
+        id,
+        name,
+        parentCode: sanitizeShortText(entry?.parentCode, 24),
+        color: normalizeHexColor(entry?.color, nextPaletteColor(index)),
+      };
+    })
+    .filter(Boolean);
+}
+
+function sanitizeStringList(values, maxEntries = 1000, maxLength = 40) {
+  return [...new Set(
+    (Array.isArray(values) ? values : [])
+      .slice(0, maxEntries)
+      .map((value) => sanitizeShortText(value, maxLength))
+      .filter(Boolean),
+  )];
+}
+
+function sanitizeShortText(value, maxLength = 80) {
+  return typeof value === "string" ? value.trim().slice(0, maxLength) : "";
+}
+
+function clampFiniteNumber(value, min, max, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? clamp(parsed, min, max) : fallback;
+}
+
+function buildWorkspaceEditorSnapshot() {
+  const editor = {};
+  WORKSPACE_PERSISTED_KEYS.forEach((key) => {
+    editor[key] = cloneStateSnapshot(state[key]);
+  });
+  if (
+    workspacePersistence.isRestoring &&
+    mapVersionLabels[workspacePersistence.restoreRequestedMapVersion]
+  ) {
+    editor.mapVersion = workspacePersistence.restoreRequestedMapVersion;
+  }
+  return editor;
+}
+
+function serializeWorkspaceEditorSnapshot() {
+  return JSON.stringify(buildWorkspaceEditorSnapshot());
+}
+
+function buildWorkspacePayload(editor = buildWorkspaceEditorSnapshot()) {
+  return {
+    schemaVersion: WORKSPACE_SCHEMA_VERSION,
+    savedAt: new Date().toISOString(),
+    editor,
+  };
+}
+
+function markWorkspaceDirty({ force = false } = {}) {
+  const currentEditorSerialized = serializeWorkspaceEditorSnapshot();
+  if (!force && currentEditorSerialized === workspacePersistence.lastEditorSerialized) {
+    if (workspacePersistence.isDirty || workspacePersistence.saveTimer) {
+      if (workspacePersistence.saveTimer) {
+        window.clearTimeout(workspacePersistence.saveTimer);
+        workspacePersistence.saveTimer = null;
+      }
+      workspacePersistence.isDirty = false;
+      updateWorkspaceSaveStatus(
+        workspacePersistence.lastSavedAt
+          ? `저장됨 · ${formatWorkspaceSavedAt(workspacePersistence.lastSavedAt)}`
+          : "새 작업 · 자동 저장 켜짐",
+      );
+    }
+    return;
+  }
+  workspacePersistence.isDirty = true;
+  scheduleWorkspaceSave();
+}
+
+function scheduleWorkspaceSave() {
+  if (workspacePersistence.saveTimer) {
+    window.clearTimeout(workspacePersistence.saveTimer);
+  }
+  updateWorkspaceSaveStatus("변경사항 저장 중…", "saving");
+  workspacePersistence.saveTimer = window.setTimeout(persistWorkspaceNow, WORKSPACE_SAVE_DELAY_MS);
+}
+
+function persistWorkspaceNow() {
+  if (workspacePersistence.saveTimer) {
+    window.clearTimeout(workspacePersistence.saveTimer);
+    workspacePersistence.saveTimer = null;
+  }
+  if (!workspacePersistence.isDirty) {
+    return;
+  }
+
+  try {
+    const editor = buildWorkspaceEditorSnapshot();
+    const editorSerialized = JSON.stringify(editor);
+    const payload = buildWorkspacePayload(editor);
+    const serialized = JSON.stringify(payload);
+    if (getSerializedByteLength(serialized) > WORKSPACE_MAX_SERIALIZED_BYTES) {
+      throw new Error("작업공간 저장 크기 제한을 초과했습니다.");
+    }
+    window.localStorage.setItem(WORKSPACE_STORAGE_KEY, serialized);
+    workspacePersistence.isDirty = false;
+    workspacePersistence.lastSavedAt = payload.savedAt;
+    workspacePersistence.lastEditorSerialized = editorSerialized;
+    updateWorkspaceSaveStatus(`저장됨 · ${formatWorkspaceSavedAt(payload.savedAt)}`);
+  } catch (error) {
+    console.warn("로컬 작업공간을 저장하지 못했습니다.", error);
+    updateWorkspaceSaveStatus("자동 저장 실패 · 브라우저 저장소 확인 필요", "error");
+  }
+}
+
+async function finishInitialWorkspaceRestore(result) {
+  if (!result.restored) {
+    updateWorkspaceSaveStatus(result.error ?? "새 작업 · 자동 저장 켜짐", result.error ? "error" : "");
+    return;
+  }
+
+  if (result.requestedMapVersion === "korea") {
+    workspacePersistence.isRestoring = true;
+    workspacePersistence.restoreRequestedMapVersion = "korea";
+    updateWorkspaceSaveStatus("대한민국 작업공간 복원 중…", "saving");
+    await setMapVersion("korea", { silent: true });
+    if (state.mapVersion !== "korea") {
+      const restoreWasCancelled =
+        !workspacePersistence.isRestoring ||
+        workspacePersistence.restoreRequestedMapVersion !== "korea";
+      persistWorkspaceNow();
+      workspacePersistence.isRestoring = false;
+      workspacePersistence.restoreRequestedMapVersion = null;
+      if (restoreWasCancelled) {
+        return;
+      }
+      updateWorkspaceSaveStatus("한국 지도 복원 실패 · 세계 지도에서 계속 작업 가능", "error");
+      return;
+    }
+    persistWorkspaceNow();
+    workspacePersistence.isRestoring = false;
+    workspacePersistence.restoreRequestedMapVersion = null;
+    // Lazy load 중에도 세계 지도 편집 UI는 사용할 수 있습니다. 복원이 끝난 뒤
+    // 저장 당시 snapshot과 현재 상태를 다시 비교해 그 사이 변경분을 놓치지 않습니다.
+    markWorkspaceDirty();
+    setStatus("저장된 대한민국 지도 작업공간을 복원했습니다.");
+  }
+
+  updateWorkspaceSaveStatus(`복원됨 · ${formatWorkspaceSavedAt(result.savedAt)}`);
+}
+
+function resetLocalWorkspace() {
+  const shouldReset = window.confirm(
+    "선택 국가·권역, 지도 스타일, 보기 설정, 마커와 인셋을 모두 초기화할까요? 이 작업은 되돌릴 수 없습니다.",
+  );
+  if (!shouldReset) {
+    return;
+  }
+
+  mapVersionRequestSequence += 1;
+  clearPendingHistoryStep();
+  historyState.undoStack = [];
+  historyState.redoStack = [];
+  if (workspacePersistence.saveTimer) {
+    window.clearTimeout(workspacePersistence.saveTimer);
+    workspacePersistence.saveTimer = null;
+  }
+
+  workspacePersistence.isRestoring = true;
+  workspacePersistence.restoreRequestedMapVersion = null;
+  Object.assign(state, cloneStateSnapshot(defaultEditorState));
+  normalizeKoreaState();
+  clearKoreaGroupingDraft();
+  resetContextualSearchInputs({ selection: true, koreaRegion: true });
+  resetPreviewInteractionState();
+  syncControls();
+  renderSelectionViews();
+  renderAnnotations();
+  renderMap();
+  workspacePersistence.isRestoring = false;
+  workspacePersistence.isDirty = false;
+  workspacePersistence.lastSavedAt = null;
+  workspacePersistence.lastEditorSerialized = serializeWorkspaceEditorSnapshot();
+
+  try {
+    window.localStorage.removeItem(WORKSPACE_STORAGE_KEY);
+    updateWorkspaceSaveStatus("초기화됨 · 새 편집부터 자동 저장");
+  } catch (error) {
+    console.warn("로컬 작업공간 기록을 지우지 못했습니다.", error);
+    updateWorkspaceSaveStatus("화면은 초기화됨 · 저장 기록 삭제 실패", "error");
+  }
+  setStatus("지도 작업공간을 초기 상태로 되돌렸습니다.");
+}
+
+function updateWorkspaceSaveStatus(message, kind = "") {
+  if (!elements.workspaceSaveStatus) {
+    return;
+  }
+  elements.workspaceSaveStatus.textContent = message;
+  elements.workspaceSaveStatus.classList.toggle("is-saving", kind === "saving");
+  elements.workspaceSaveStatus.classList.toggle("is-error", kind === "error");
+}
+
+function formatWorkspaceSavedAt(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || !Number.isFinite(date.getTime())) {
+    return "이전 작업";
+  }
+  return new Intl.DateTimeFormat("ko-KR", { hour: "2-digit", minute: "2-digit" }).format(date);
+}
+
+function getSerializedByteLength(value) {
+  if (typeof TextEncoder === "function") {
+    return new TextEncoder().encode(value).byteLength;
+  }
+  return value.length * 2;
 }
 
 function cloneStateSnapshot(source = state) {
@@ -2219,6 +2649,17 @@ function beginHistoryStep(label) {
   if (historyState.isApplying) {
     return;
   }
+
+  if (workspacePersistence.isRestoring) {
+    // 복원용 lazy load 중에는 히스토리 snapshot을 만들지 않지만, 이벤트 직후의
+    // 변경 상태는 타이머와 pagehide에서 저장할 수 있도록 예약합니다.
+    markWorkspaceDirty({ force: true });
+    return;
+  }
+
+  // 입력 이벤트가 state를 바꾸기 직전에 호출되므로, 현재 snapshot 비교로
+  // 건너뛰지 말고 변경 직후 저장할 타이머를 먼저 예약합니다.
+  markWorkspaceDirty({ force: true });
 
   if (!historyState.pendingSnapshot) {
     const snapshot = cloneStateSnapshot();
@@ -2280,6 +2721,7 @@ function commitPendingHistoryStep() {
     }
 
     historyState.redoStack = [];
+    markWorkspaceDirty();
   }
 
   clearPendingHistoryStep();
@@ -2301,8 +2743,8 @@ function flushPendingHistory() {
 }
 
 function syncHistoryButtons() {
-  elements.undoButton.disabled = false;
-  elements.redoButton.disabled = false;
+  elements.undoButton.disabled = !historyState.undoStack.length && !hasPendingHistoryChange();
+  elements.redoButton.disabled = !historyState.redoStack.length;
 }
 
 function applyStateSnapshot(snapshot) {
@@ -2323,6 +2765,7 @@ function applyStateSnapshot(snapshot) {
   renderMap();
 
   historyState.isApplying = false;
+  markWorkspaceDirty();
   syncHistoryButtons();
 }
 
@@ -2373,6 +2816,7 @@ function setViewMode(mode, { silent = false } = {}) {
   }
 
   state.viewMode = mode;
+  markWorkspaceDirty();
   interactionState.temporaryViewMode = null;
   keyboardState.temporaryPanSourceMode = null;
   refreshInteractionUi();
@@ -2648,6 +3092,52 @@ function normalizeKoreaSelectionEntries(entries = []) {
   }));
 }
 
+function canonicalizeRestoredKoreaSelections() {
+  state.koreaSelectedProvinces = canonicalizeKoreaSelectionEntries(
+    state.koreaSelectedProvinces,
+    koreaDatasets.provinces.featureById,
+  );
+  state.koreaSelectedCities = canonicalizeKoreaSelectionEntries(
+    state.koreaSelectedCities,
+    koreaCityFeatureById,
+  );
+  state.koreaSelectedMetroDistricts = canonicalizeKoreaSelectionEntries(
+    state.koreaSelectedMetroDistricts,
+    koreaDatasets.metroDistricts.featureById,
+  );
+  state.koreaComparedProvinces = normalizeComparedIds(
+    state.koreaComparedProvinces,
+    state.koreaSelectedProvinces,
+  );
+  state.koreaComparedCities = normalizeComparedIds(
+    state.koreaComparedCities,
+    state.koreaSelectedCities,
+  );
+  state.koreaComparedMetroDistricts = normalizeComparedIds(
+    state.koreaComparedMetroDistricts,
+    state.koreaSelectedMetroDistricts,
+  );
+}
+
+function canonicalizeKoreaSelectionEntries(entries, featureById) {
+  const seen = new Set();
+  return (Array.isArray(entries) ? entries : [])
+    .map((entry, index) => {
+      const id = String(entry?.id ?? "");
+      const feature = featureById.get(id);
+      if (!feature || seen.has(id)) return null;
+
+      seen.add(id);
+      return {
+        id,
+        name: String(feature.properties?.name ?? id),
+        parentCode: String(feature.properties?.parentCode ?? ""),
+        color: normalizeHexColor(entry?.color, nextPaletteColor(index)),
+      };
+    })
+    .filter(Boolean);
+}
+
 function clearKoreaGroupingDraft() {
   koreaGroupingSelectionIds.clear();
 }
@@ -2762,7 +3252,9 @@ function normalizeKoreaState() {
   state.koreaSelectedProvinces = normalizeKoreaSelectionEntries(state.koreaSelectedProvinces ?? []);
   state.koreaSelectedCities = normalizeKoreaSelectionEntries(state.koreaSelectedCities ?? []);
   state.koreaSelectedMetroDistricts = normalizeKoreaSelectionEntries(state.koreaSelectedMetroDistricts ?? []);
-  state.koreaCityScopeCodes = normalizeKoreaCityScopeCodes(state.koreaCityScopeCodes ?? []);
+  state.koreaCityScopeCodes = koreaMapDataReady
+    ? normalizeKoreaCityScopeCodes(state.koreaCityScopeCodes ?? [])
+    : sanitizeStringList(state.koreaCityScopeCodes ?? [], 40, 24);
   state.koreaCityScopeCollapsed = Boolean(state.koreaCityScopeCollapsed);
   state.koreaRegionListCollapsed = Boolean(state.koreaRegionListCollapsed);
   state.koreaComparedProvinces = normalizeComparedIds(
@@ -2787,6 +3279,11 @@ function normalizeKoreaState() {
 
   if (!koreaLevelRequiresParent(state.koreaLevel)) {
     state.koreaParentCode = "";
+    return;
+  }
+
+  if (!koreaMapDataReady) {
+    state.koreaParentCode = sanitizeShortText(state.koreaParentCode, 24);
     return;
   }
 
@@ -2853,8 +3350,16 @@ async function setMapVersion(mapVersion, { silent = false } = {}) {
     return;
   }
 
+  if (workspacePersistence.isRestoring && !silent) {
+    workspacePersistence.restoreRequestedMapVersion = mapVersion;
+    markWorkspaceDirty({ force: true });
+  }
+
   if (state.mapVersion === mapVersion) {
     syncMapVersionControls();
+    if (workspacePersistence.isRestoring && !silent && mapVersion === "world") {
+      setStatus("대한민국 작업공간 복원을 취소하고 세계 지도에서 계속합니다.");
+    }
     return;
   }
 
@@ -2878,7 +3383,13 @@ async function setMapVersion(mapVersion, { silent = false } = {}) {
     }
   }
 
-  beginHistoryStep("지도 버전 변경");
+  if (mapVersion === "korea") {
+    normalizeKoreaState();
+  }
+
+  if (!silent) {
+    beginHistoryStep("지도 버전 변경");
+  }
   state.mapVersion = mapVersion;
   interactionState.temporaryViewMode = null;
   keyboardState.temporaryPanSourceMode = null;

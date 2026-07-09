@@ -24,6 +24,24 @@ const MAP_SCOPE_LABELS = {
   selected: "선택 지역만",
 };
 const CUSTOM_REGIONS_STORAGE_KEY = "climate-atlas-custom-regions-v1";
+const URL_STATE_KEYS = [
+  "regions",
+  "continent",
+  "hemisphere",
+  "climate",
+  "query",
+  "sort",
+  "map",
+  "baseline",
+];
+const REGION_SORT_VALUES = new Set([
+  "default",
+  "name",
+  "annualPrecipitationDesc",
+  "annualRangeDesc",
+  "warmestMonthDesc",
+  "coldestMonthAsc",
+]);
 const COMPARISON_MONTHS = [0, 6];
 const RANDOM_CLIMATE_SELECTION_SIZE = 4;
 const COMPARISON_LINE_STYLES = [
@@ -281,84 +299,6 @@ const EXAM_COMPARISON_TEMPLATES = [
       `${scopeLabel} 중에서 남회귀선에 가장 가까운 곳은 ${region.name}이다.`,
   },
 ];
-const HERO_MESSAGE_FULL_LINES = [
-  "케이프타운과 카이로를 나란히 두면, 위도보다 바다가 더 말이 많아집니다.",
-  "사막, 스텝, 열대우림, 툰드라. 지도에서는 범주지만 그래프에서는 성격입니다.",
-  "기후는 암기보다 비교가 재밌습니다. 숫자를 붙여 놓는 순간 바로 캐릭터가 생깁니다.",
-  "같은 위도라고 안심하면 늘 바다가 반전을 준비하고 있습니다.",
-  "도시 하나를 고르면 그곳의 계절 리듬이, 여러 도시를 고르면 지리의 성격이 보입니다.",
-  "멀리 떨어진 도시들도 월별 그래프에선 금방 같은 토론 테이블에 앉습니다.",
-  "세계지리는 멀리 있어 어려운 게 아니라, 너무 멀어서 오히려 비교가 재밌습니다.",
-  "지도에서는 한 점인데, 그래프에서는 도시마다 말투가 전부 다릅니다.",
-];
-const HERO_MESSAGE_QUIZZES = [
-  "같은 위도인데도 더 따뜻한 도시는 왜 생길까요. 해류를 먼저 의심하면 꽤 잘 맞습니다.",
-  "적도에 가깝다고 늘 비가 많을까요. 사막은 이런 일반화를 별로 좋아하지 않습니다.",
-  "1월과 7월 차이가 유독 큰 지역은 보통 바다보다 무엇의 영향을 더 크게 받을까요.",
-  "대륙 동안과 서안 중 어느 쪽이 더 온순한 그래프를 보일까요. 정답은 바다가 힌트를 줍니다.",
-  "비슷한 기온인데 강수 패턴이 완전히 다른 두 도시는 무엇이 갈라놓았을까요.",
-  "산지가 끼어 있으면 바람은 어느 쪽에서 더 쉽게 성격이 달라질까요.",
-  "해양성 기후는 왜 여름과 겨울 모두 조금 덜 극적일까요. 바다가 힌트를 거의 다 말해줍니다.",
-  "같은 아열대라도 어떤 곳은 촉촉하고 어떤 곳은 바삭한 이유가 뭘까요.",
-];
-const HERO_MESSAGE_ASIDES = [
-  "산맥은 지도에선 얇은 선인데 날씨에서는 생각보다 자주 편 가르기를 합니다.",
-  "해류는 바다 속 조연처럼 보이지만 기후 문제에서는 꽤 자주 주연입니다.",
-  "강수량 막대가 조용하면 그 지역은 대개 말수보다 건조함이 많습니다.",
-  "지리는 면적으로 배우지만 기후는 리듬으로 기억하면 더 오래 갑니다.",
-  "지도에서 가까워 보여도 바다 하나 끼면 생활감각이 꽤 달라집니다.",
-  "대륙 내부는 계절을 세게 타고, 해안은 바다 눈치를 꽤 봅니다.",
-  "숫자는 차갑지만, 월별 그래프를 늘어놓으면 지역성이 꽤 수다스러워집니다.",
-  "사막은 덥기만 한 곳이 아니라, 비 이야기가 유난히 짧은 곳이기도 합니다.",
-  "고도가 높아지면 위도보다 먼저 분위기가 달라지는 장면이 자주 나옵니다.",
-  "기후대 분류는 깔끔해 보여도 실제 도시는 늘 그 경계에서 재미를 만듭니다.",
-];
-const HERO_MESSAGE_DARKS = [
-  "대륙성 기후는 계절에 늘 과몰입합니다. 여름도 세고 겨울도 세서 타협이 없습니다.",
-  "사막의 강수 그래프는 너무 조용해서 오히려 눈치가 보일 정도입니다.",
-  "몬순은 계절풍이라기보다 매년 공지 없이 들이닥치는 대형 일정에 가깝습니다.",
-  "해양성 기후는 온건한 척하지만, 비로 끝까지 존재감을 챙깁니다.",
-  "같은 위도만 믿고 접근하면 해류가 뒤에서 비웃는 장면을 자주 보게 됩니다.",
-  "열대우림은 촉촉함을 포기하지 않고, 스텝은 강수 소식에 늘 답장이 느립니다.",
-  "기후대 경계는 지도에선 반듯한데, 실제 도시는 늘 그 선 바깥에서 사고를 칩니다.",
-  "고산 기후는 높다는 이유 하나로 늘 예외를 선언하는데, 이상하게 또 납득이 됩니다.",
-  "건조 지역은 비가 없는 게 아니라, 강수량 표가 말을 아끼는 쪽에 가깝습니다.",
-  "해류 한 줄 바뀌면 같은 위도 도시도 갑자기 서로 남처럼 굴기 시작합니다.",
-  "내륙은 계절 기복을 숨길 생각이 없고, 해안은 바다 뒤에 숨어서 부드러운 척을 합니다.",
-  "교과서에서는 기후가 차분해 보이지만, 그래프를 켜면 지역마다 성격이 꽤 험합니다.",
-];
-const HERO_MESSAGE_OPENERS = [
-  "비슷한 위도끼리 모아 놔도,",
-  "지도에서 멀어 보이는 도시들도,",
-  "적도 근처를 줄 세워 봐도,",
-  "대륙 동안과 서안을 나란히 놓으면,",
-  "사막과 해안을 같은 축에 올리면,",
-  "산맥 하나를 사이에 둔 지역만 골라도,",
-  "북반구 겨울과 남반구 여름을 함께 켜 두면,",
-  "도시 네 곳만 찍어도,",
-  "바다를 낀 도시와 내륙 도시를 붙여 보면,",
-  "겉보기엔 온순한 중위도도,",
-  "해류 하나만 끼어들어도,",
-  "건조 지역을 얕보는 순간,",
-  "몬순권 도시를 가져다 붙이면,",
-  "대륙 내부를 슬쩍 끼워 넣는 순간,",
-];
-const HERO_MESSAGE_PAYOFFS = [
-  "그래프에서 바로 성격이 갈립니다.",
-  "해류가 슬쩍 주인공 자리를 가져갑니다.",
-  "강수 막대가 의외로 제일 수다스럽습니다.",
-  "1월과 7월이 서로 다른 증언을 합니다.",
-  "기후대 이름표보다 숫자가 더 빨리 설명합니다.",
-  "대륙성은 숨지 못하고 해양성은 티를 냅니다.",
-  "건조함과 습윤함이 같은 화면에서 맞붙습니다.",
-  "고도 한 번, 바다 한 번이 판을 바꿉니다.",
-  "계절 리듬이 도시마다 딱 다르게 울립니다.",
-  "지리는 조용한데 기후는 꽤 드라마틱합니다.",
-  "온순해 보이던 도시도 갑자기 본색을 드러냅니다.",
-  "교과서 한 줄 설명이 갑자기 너무 순하게 느껴집니다.",
-  "강수 막대가 생각보다 훨씬 독하게 증언합니다.",
-  "바다가 중재하지 않는 순간 계절이 과격해집니다.",
-];
 const MONTH_LABELS = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const COLORS = {
   rain: "#5f5f5f",
@@ -571,6 +511,9 @@ const coordinateFormatter = new Intl.NumberFormat("ko-KR", {
   maximumFractionDigits: 2,
 });
 let mapLayoutAnimationFrame = 0;
+let nextUrlSyncMode = "replace";
+let isRestoringUrlState = false;
+let utilityStatusTimer = 0;
 const APP_CONFIG = normalizeAppConfig(window.CLIMATE_APP_CONFIG ?? {});
 
 const state = {
@@ -609,7 +552,6 @@ const elements = {
   selectionSummary: document.querySelector("#selectionSummary"),
   selectedRegionsContent: document.querySelector("#selectedRegionsContent"),
   comparisonContent: document.querySelector("#comparisonContent"),
-  heroText: document.querySelector("#heroText"),
   heroCount: document.querySelector("#heroCount"),
   heroCaption: document.querySelector("#heroCaption"),
   worldMap: document.querySelector("#worldMap"),
@@ -621,6 +563,9 @@ const elements = {
   apiStatusSummary: document.querySelector("#apiStatusSummary"),
   apiStatusText: document.querySelector("#apiStatusText"),
   apiResults: document.querySelector("#apiResults"),
+  copyShareLinkButton: document.querySelector("#copyShareLinkButton"),
+  downloadSelectedCsvButton: document.querySelector("#downloadSelectedCsvButton"),
+  selectionUtilityStatus: document.querySelector("#selectionUtilityStatus"),
 };
 
 init();
@@ -637,7 +582,7 @@ async function init() {
       console.warn("Failed to load projected world map data:", error);
     }
     state.regions = mergeRegions(state.dataset.regions, loadSavedCustomRegions()).sort(sortRegions);
-    applyDefaultSelection();
+    applyUrlStateFromLocation();
     bindEvents();
     render();
   } catch (error) {
@@ -730,24 +675,34 @@ function bindEvents() {
 
   elements.regionSortSelect?.addEventListener("change", (event) => {
     state.regionSort = event.target.value || "default";
+    pushUrlStateOnNextRender();
     render();
   });
 
   elements.clearSelectionButton.addEventListener("click", () => {
     state.selectedIds = new Set();
     state.comparisonBaseline = "mean";
+    pushUrlStateOnNextRender();
     render();
   });
 
   elements.randomClimateSelectionButton.addEventListener("click", () => {
     applyRandomClimateSelection();
+    pushUrlStateOnNextRender();
     render();
   });
+
+  elements.copyShareLinkButton?.addEventListener("click", () => {
+    void copyCurrentViewLink();
+  });
+
+  elements.downloadSelectedCsvButton?.addEventListener("click", downloadSelectedRegionsCsv);
 
   elements.comparisonContent.addEventListener("change", (event) => {
     const baselineSelect = event.target.closest("[data-baseline-select]");
     if (baselineSelect) {
       state.comparisonBaseline = baselineSelect.value || "mean";
+      pushUrlStateOnNextRender();
       render();
       return;
     }
@@ -809,6 +764,7 @@ function bindEvents() {
     if (randomRegionButton) {
       applyRandomClimateSelection();
       state.examQuestionSeed += 1;
+      pushUrlStateOnNextRender();
       render();
       return;
     }
@@ -829,6 +785,7 @@ function bindEvents() {
     }
 
     state.continent = button.dataset.continent;
+    pushUrlStateOnNextRender();
     render();
     restoreFocusByDataAttribute("data-continent", button.dataset.continent);
   });
@@ -840,6 +797,7 @@ function bindEvents() {
     }
 
     state.hemisphere = button.dataset.hemisphere;
+    pushUrlStateOnNextRender();
     render();
     restoreFocusByDataAttribute("data-hemisphere", button.dataset.hemisphere);
   });
@@ -851,6 +809,7 @@ function bindEvents() {
     }
 
     state.climateGroup = button.dataset.climateGroup;
+    pushUrlStateOnNextRender();
     render();
     restoreFocusByDataAttribute("data-climate-group", button.dataset.climateGroup);
   });
@@ -862,6 +821,7 @@ function bindEvents() {
     }
 
     state.mapScope = button.dataset.mapScope;
+    pushUrlStateOnNextRender();
     render();
     restoreFocusByDataAttribute("data-map-scope", button.dataset.mapScope);
   });
@@ -874,6 +834,7 @@ function bindEvents() {
 
     const regionId = input.dataset.regionId;
     toggleRegion(regionId, input.checked);
+    pushUrlStateOnNextRender();
     render();
     restoreFocusByDataAttribute("data-region-id", regionId);
   });
@@ -886,6 +847,7 @@ function bindEvents() {
 
     const regionId = button.dataset.mapRegionId;
     toggleRegion(regionId, !state.selectedIds.has(regionId));
+    pushUrlStateOnNextRender();
     render();
     restoreFocusByDataAttribute("data-map-region-id", regionId);
   });
@@ -926,6 +888,7 @@ function bindEvents() {
       state.hemisphere = "전체";
       state.climateGroup = "전체";
       state.apiMessage = "이미 있는 지역을 선택했습니다.";
+      pushUrlStateOnNextRender();
       render();
       return;
     }
@@ -947,6 +910,8 @@ function bindEvents() {
       mapLayoutAnimationFrame = 0;
     });
   });
+
+  window.addEventListener("popstate", restoreUrlStateFromHistory);
 }
 
 function applyDefaultSelection() {
@@ -960,6 +925,98 @@ function applyDefaultSelection() {
 
   const randomRegions = pickRandomClimateSelection();
   state.selectedIds = new Set(randomRegions.map((region) => region.id));
+}
+
+function applyUrlStateFromLocation() {
+  const params = new URLSearchParams(window.location.search);
+  const knownRegionIds = new Set(state.regions.map((region) => region.id));
+  const knownContinents = new Set([
+    "전체",
+    ...APP_CONFIG.primaryFilterOrder,
+    ...state.regions.map((region) => region.continent),
+  ]);
+
+  state.continent = readUrlEnum(params, "continent", knownContinents, "전체");
+  state.hemisphere = readUrlEnum(params, "hemisphere", new Set(HEMISPHERE_ORDER), "전체");
+  state.climateGroup = readUrlEnum(params, "climate", new Set(CLIMATE_FILTER_ORDER), "전체");
+  state.regionSort = readUrlEnum(params, "sort", REGION_SORT_VALUES, "default");
+  state.mapScope = readUrlEnum(params, "map", new Set(MAP_SCOPE_ORDER), "all");
+  state.query = (params.get("query") ?? "").slice(0, 160);
+  state.comparisonBaseline = "mean";
+
+  if (params.has("regions")) {
+    state.selectedIds = new Set(
+      (params.get("regions") ?? "")
+        .split(",")
+        .map((regionId) => regionId.trim())
+        .filter((regionId) => knownRegionIds.has(regionId))
+    );
+  } else {
+    applyDefaultSelection();
+  }
+
+  const requestedBaseline = params.get("baseline") ?? "mean";
+  if (requestedBaseline === "mean" || state.selectedIds.has(requestedBaseline)) {
+    state.comparisonBaseline = requestedBaseline;
+  }
+
+  elements.searchInput.value = state.query;
+  if (elements.regionSortSelect) elements.regionSortSelect.value = state.regionSort;
+}
+
+function readUrlEnum(params, key, allowedValues, fallback) {
+  const value = params.get(key);
+  return value && allowedValues.has(value) ? value : fallback;
+}
+
+function buildCurrentViewUrl() {
+  const url = new URL(window.location.href);
+  URL_STATE_KEYS.forEach((key) => url.searchParams.delete(key));
+
+  const selectedIds = state.regions
+    .filter((region) => state.selectedIds.has(region.id))
+    .map((region) => region.id);
+  url.searchParams.set("regions", selectedIds.join(","));
+  if (state.continent !== "전체") url.searchParams.set("continent", state.continent);
+  if (state.hemisphere !== "전체") url.searchParams.set("hemisphere", state.hemisphere);
+  if (state.climateGroup !== "전체") url.searchParams.set("climate", state.climateGroup);
+  if (state.query) url.searchParams.set("query", state.query);
+  if (state.regionSort !== "default") url.searchParams.set("sort", state.regionSort);
+  if (state.mapScope !== "all") url.searchParams.set("map", state.mapScope);
+  if (state.comparisonBaseline !== "mean") {
+    url.searchParams.set("baseline", state.comparisonBaseline);
+  }
+  return url;
+}
+
+function pushUrlStateOnNextRender() {
+  if (!isRestoringUrlState) nextUrlSyncMode = "push";
+}
+
+function syncUrlState(mode = "replace") {
+  if (isRestoringUrlState || !window.history?.replaceState) return;
+
+  const nextUrl = buildCurrentViewUrl();
+  if (nextUrl.href === window.location.href) return;
+
+  try {
+    const method = mode === "push" ? "pushState" : "replaceState";
+    window.history[method]({ climateView: "world" }, "", nextUrl);
+  } catch (error) {
+    console.warn("기후 비교 URL 상태를 갱신하지 못했습니다.", error);
+  }
+}
+
+function restoreUrlStateFromHistory() {
+  isRestoringUrlState = true;
+  nextUrlSyncMode = "replace";
+  try {
+    applyUrlStateFromLocation();
+    render();
+  } finally {
+    isRestoringUrlState = false;
+  }
+  syncUrlState("replace");
 }
 
 function normalizeComparisonBaseline(selectedRegions) {
@@ -1048,6 +1105,7 @@ function removeCustomRegion(regionId) {
   }
   persistCustomRegions();
   state.apiMessage = `${region.name}을(를) 이 기기의 추가 지역에서 삭제했습니다.`;
+  pushUrlStateOnNextRender();
   render();
 }
 
@@ -1068,6 +1126,7 @@ function resetAllCustomRegions() {
   elements.searchInput.value = "";
   persistCustomRegions();
   state.apiMessage = `사용자 추가 지역 ${customRegions.length}개를 초기화했습니다.`;
+  pushUrlStateOnNextRender();
   render();
 }
 
@@ -1078,40 +1137,6 @@ function restoreFocusByDataAttribute(attributeName, attributeValue) {
     (element) => element.getAttribute(attributeName) === attributeValue
   );
   nextTarget?.focus({ preventScroll: true });
-}
-
-function applyRandomHeroMessage() {
-  if (!elements.heroText) {
-    return;
-  }
-
-  elements.heroText.textContent = buildRandomHeroMessage();
-}
-
-function buildRandomHeroMessage() {
-  const roll = Math.random();
-
-  if (roll < 0.18) {
-    return pickRandomItem(HERO_MESSAGE_FULL_LINES);
-  }
-
-  if (roll < 0.36) {
-    return pickRandomItem(HERO_MESSAGE_QUIZZES);
-  }
-
-  if (roll < 0.58) {
-    return pickRandomItem(HERO_MESSAGE_ASIDES);
-  }
-
-  if (roll < 0.8) {
-    return pickRandomItem(HERO_MESSAGE_DARKS);
-  }
-
-  return `${pickRandomItem(HERO_MESSAGE_OPENERS)} ${pickRandomItem(HERO_MESSAGE_PAYOFFS)}`;
-}
-
-function pickRandomItem(items) {
-  return items[Math.floor(Math.random() * items.length)];
 }
 
 function resetClimateCsvExports() {
@@ -1281,21 +1306,145 @@ function handleClimateCsvDownload(event) {
   const payload = climateCsvExports.get(key);
   if (!payload) return;
 
+  downloadClimateCsvPayload(payload);
+}
+
+function downloadClimateCsvPayload(payload) {
   const rows = [];
-  if (payload.headers.length) {
-    rows.push(buildClimateCsvLine(payload.headers));
-  }
+  if (payload.headers.length) rows.push(buildClimateCsvLine(payload.headers));
   payload.rows.forEach((row) => rows.push(buildClimateCsvLine(row)));
 
-  const blob = new Blob(["\uFEFF" + rows.join("\n")], {
-    type: "text/csv;charset=utf-8",
-  });
+  const blob = new Blob(["\uFEFF" + rows.join("\n")], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = `${payload.filename || "climate-data"}.csv`;
+  document.body.append(anchor);
   anchor.click();
-  URL.revokeObjectURL(url);
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function downloadSelectedRegionsCsv() {
+  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  if (selectedRegions.length === 0) {
+    setSelectionUtilityStatus("먼저 지역을 하나 이상 선택해 주세요.", "warning");
+    return;
+  }
+
+  const headers = [
+    "지역 ID", "지역", "영문명", "대륙", "국가", "반구", "기후", "월", "월 번호",
+    "평균 기온(°C)", "강수량(mm)", "연평균 기온(°C)", "연 강수량(mm)", "위도", "경도",
+    "관측 지점", "평년 기간", "출처", "원자료 URL",
+  ];
+  const rows = selectedRegions.flatMap((region) =>
+    region.months.map((month, monthIndex) => [
+      region.id,
+      region.name,
+      region.englishName ?? "",
+      region.continent ?? "",
+      region.country || region.source?.country || "",
+      getHemisphere(region),
+      region.climateCode ?? region.climateGroup ?? "",
+      month,
+      monthIndex + 1,
+      region.monthlyTemperatureC[monthIndex],
+      region.monthlyPrecipitationMm[monthIndex],
+      region.annualMeanTemperatureC,
+      region.annualPrecipitationMm,
+      region.coordinates?.latitude ?? "",
+      region.coordinates?.longitude ?? "",
+      formatSourceStationLabel(region),
+      region.source?.period ?? "",
+      formatSourceLabel(region),
+      region.source?.apiUrl ?? region.source?.url ?? region.source?.weatherUrl ?? "",
+    ])
+  );
+
+  downloadClimateCsvPayload({
+    filename: `세계기후-선택지역-${selectedRegions.length}개`,
+    headers,
+    rows,
+  });
+  setSelectionUtilityStatus(`${selectedRegions.length}개 지역의 월별 원자료를 한 CSV로 저장했습니다.`);
+}
+
+async function copyCurrentViewLink() {
+  syncUrlState("replace");
+  const shareUrl = buildCurrentViewUrl().href;
+
+  try {
+    await writeClipboardText(shareUrl);
+    const hasCustomSelection = getSelectedRegions().some(
+      (region) => region.source?.type === "open-meteo-live"
+    );
+    setSelectionUtilityStatus(
+      hasCustomSelection
+        ? "링크를 복사했습니다. 사용자 추가 지역은 저장된 이 기기에서만 그대로 열립니다."
+        : "선택 지역과 필터, 편차 기준이 담긴 링크를 복사했습니다.",
+      hasCustomSelection ? "warning" : "success"
+    );
+  } catch (error) {
+    console.warn("기후 비교 링크 복사 실패:", error);
+    setSelectionUtilityStatus("링크를 복사하지 못했습니다. 주소창의 URL을 직접 복사해 주세요.", "error");
+  }
+}
+
+async function writeClipboardText(text) {
+  let clipboardAttempt = null;
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    try {
+      clipboardAttempt = navigator.clipboard.writeText(text).then(
+        () => true,
+        () => false,
+      );
+    } catch (error) {
+      console.warn("Clipboard API 호출을 시작하지 못했습니다.", error);
+    }
+  }
+
+  try {
+    copyTextWithFallback(text);
+    return;
+  } catch (fallbackError) {
+    if (!clipboardAttempt) throw fallbackError;
+  }
+
+  const copied = await Promise.race([
+    clipboardAttempt,
+    new Promise((resolve) => {
+      window.setTimeout(() => resolve(false), 900);
+    }),
+  ]);
+  if (copied) {
+    return;
+  }
+  throw new Error("Clipboard copy failed");
+}
+
+function copyTextWithFallback(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.append(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("Clipboard fallback failed");
+}
+
+function setSelectionUtilityStatus(message, tone = "success") {
+  if (!elements.selectionUtilityStatus) return;
+  window.clearTimeout(utilityStatusTimer);
+  elements.selectionUtilityStatus.textContent = message;
+  elements.selectionUtilityStatus.classList.toggle("is-warning", tone === "warning");
+  elements.selectionUtilityStatus.classList.toggle("is-error", tone === "error");
+  utilityStatusTimer = window.setTimeout(() => {
+    elements.selectionUtilityStatus.textContent = "";
+    elements.selectionUtilityStatus.classList.remove("is-warning", "is-error");
+  }, 4200);
 }
 
 function render() {
@@ -1327,8 +1476,17 @@ function render() {
     ? `추가 지역 ${customRegionCount}개 초기화`
     : "추가 지역 없음";
   elements.resetCustomRegionsButton.disabled = state.apiLoading || customRegionCount === 0;
+  if (elements.downloadSelectedCsvButton) {
+    elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
+    elements.downloadSelectedCsvButton.textContent = selectedRegions.length
+      ? `선택 ${selectedRegions.length}개 CSV`
+      : "선택 데이터 CSV";
+  }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  const urlSyncMode = nextUrlSyncMode;
+  nextUrlSyncMode = "replace";
+  syncUrlState(urlSyncMode);
 }
 
 function getVisibleRegions() {
@@ -1921,6 +2079,7 @@ async function addRegionFromApiResult(resultIndex) {
   if (existingRegion) {
     toggleRegion(existingRegion.id, true);
     state.apiMessage = `${existingRegion.name}은(는) 이미 데이터셋에 있어 바로 선택했습니다.`;
+    pushUrlStateOnNextRender();
     render();
     return;
   }
@@ -1944,6 +2103,7 @@ async function addRegionFromApiResult(resultIndex) {
     state.query = region.name;
     elements.searchInput.value = region.name;
     state.apiMessage = `${region.name}을(를) 데이터셋에 추가했습니다.`;
+    pushUrlStateOnNextRender();
   } catch (error) {
     state.apiMessage =
       error instanceof Error

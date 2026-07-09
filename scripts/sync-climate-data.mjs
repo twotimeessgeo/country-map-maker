@@ -9,6 +9,35 @@ const JSON_OUTPUT_PATH = path.join(DATA_DIR, "climate-data.json");
 const JS_OUTPUT_PATH = path.join(DATA_DIR, "climate-data.js");
 const EXPECTED_MONTH_COUNT = 12;
 const SUPPORTED_SOURCE_TYPES = new Set(["jma", "open-meteo"]);
+const COUNTRY_NAME_BY_JMA_LABEL = new Map([
+  ["スーダン", "Sudan"],
+  ["エチオピア", "Ethiopia"],
+  ["南アフリカ", "South Africa"],
+  ["ベネズエラ", "Venezuela"],
+  ["アメリカ合衆国", "United States of America"],
+  ["カナダ", "Canada"],
+  ["ブラジル", "Brazil"],
+  ["ペルー", "Peru"],
+  ["アルゼンチン", "Argentina"],
+  ["オーストラリア", "Australia"],
+  ["シンガポール", "Singapore"],
+  ["ミャンマー", "Myanmar"],
+  ["イラン", "Iran"],
+  ["中国", "China"],
+  ["イギリス", "United Kingdom"],
+  ["オランダ", "Netherlands"],
+  ["フランス", "France"],
+  ["ギリシャ", "Greece"],
+  ["トルコ", "Turkey"],
+  ["ロシア", "Russian Federation"],
+]);
+const COUNTRY_NAME_BY_REGION_ID = new Map([
+  ["region-01", "Nigeria"],
+  ["region-22", "Chile"],
+  ["region-25", "Chile"],
+  ["region-30", "New Zealand"],
+  ["region-42", "Italy"],
+]);
 
 const args = process.argv.slice(2);
 const shouldWrite = args.includes("--write");
@@ -110,6 +139,12 @@ function normalizeDataset(rawDataset) {
 
 function normalizeRegionSource(region) {
   const normalizedRegion = structuredClone(region);
+  if (!String(normalizedRegion.country ?? "").trim()) {
+    normalizedRegion.country =
+      COUNTRY_NAME_BY_REGION_ID.get(normalizedRegion.id) ??
+      COUNTRY_NAME_BY_JMA_LABEL.get(normalizedRegion.source?.country) ??
+      "";
+  }
   normalizedRegion.classificationBasis =
     normalizedRegion.classificationBasis ?? "curriculum-curated";
   const appDerivedClimateGroup = deriveAppClimateGroup(normalizedRegion);

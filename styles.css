@@ -239,6 +239,48 @@ body[data-map-version="korea"] .app-detail-card--selection {
   background: #7b2e2e;
 }
 
+.workspace-persistence {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 14px;
+  border: 1px solid var(--tw-line-faint);
+  background: #ffffff;
+}
+
+.workspace-persistence__copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.workspace-persistence__copy strong {
+  font-size: 0.94rem;
+  line-height: 1.35;
+}
+
+.workspace-persistence__copy strong.is-saving {
+  color: var(--tw-muted);
+}
+
+.workspace-persistence__copy strong.is-error {
+  color: #7b2e2e;
+}
+
+.workspace-persistence__copy span {
+  color: var(--tw-muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.workspace-reset-button {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 8px 11px;
+  font-size: 0.8rem;
+}
+
 .workspace-projection-block {
   display: grid;
   gap: 10px;
@@ -2900,6 +2942,15 @@ code {
   .workspace-preview-head {
     align-items: start;
     flex-direction: column;
+  }
+
+  .workspace-persistence {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .workspace-reset-button {
+    width: 100%;
   }
 
   .preview-quick-actions,

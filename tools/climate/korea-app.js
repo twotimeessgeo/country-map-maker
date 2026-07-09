@@ -36,84 +36,15 @@ const COMPARISON_PAIR_CONFIGS = [
 const RANDOM_SELECTION_SIZE = 4;
 const RANDOM_SELECTION_ATTEMPTS = 200;
 const RANDOM_SELECTION_MIN_DISTANCE_STEPS = [80, 60, 45, 30];
-const HERO_MESSAGE_FULL_LINES = [
-  "태백산맥은 지도에선 선 하나인데, 기후 그래프에선 거의 연출 담당입니다.",
-  "백령도, 서울, 울릉도, 제주를 같이 보면 한반도는 갑자기 꽤 넓어집니다.",
-  "서해안의 안개, 동해안의 바람, 남해안의 비. 한국지리는 해안선부터 바쁩니다.",
-  "같은 남한인데도 내륙은 연교차로 말하고 해안은 습도로 반응합니다.",
-  "추풍령 하나로 공기 결이 달라지는 걸 보면 지형은 정말 성실한 과목입니다.",
-  "서울만 보고 지나가면 아쉽습니다. 속초, 완도, 울진이 들어오면 한국지리가 훨씬 살아납니다.",
-  "한반도는 작아 보여도 바다 셋과 산맥 하나만으로 꽤 많은 변주를 만듭니다.",
-  "영동, 영서, 남해안, 제주를 같이 보면 한국지리는 은근히 아니라 꽤 대놓고 입체적입니다.",
-];
-const HERO_MESSAGE_QUIZZES = [
-  "영동과 영서의 겨울 표정이 다른 이유를 하나만 고르라면, 산맥을 먼저 떠올리면 절반은 맞았습니다.",
-  "제주와 울릉도 중 연교차가 더 작아 보일 곳은 어디일까요. 바다가 힌트를 꽤 많이 줍니다.",
-  "서울과 강릉의 겨울 느낌이 다른 건 위도보다 무엇의 영향이 더 클까요.",
-  "같은 동해안이어도 속초와 울진의 그래프 결이 조금 다른 이유는 무엇일까요.",
-  "남해안이 대체로 겨울에 덜 거칠어 보이는 이유를 설명할 단어 하나는 무엇일까요.",
-  "추풍령이 자꾸 등장하는 이유는 단순히 유명해서일까요, 아니면 공기 흐름 때문일까요.",
-  "백령도와 서울을 나란히 두면 겨울 바람의 영향은 어느 쪽에서 더 먼저 보일까요.",
-  "영남 내륙과 해안 도시를 비교할 때 연교차를 갈라놓는 핵심은 무엇일까요.",
-];
-const HERO_MESSAGE_ASIDES = [
-  "태백산맥은 한국지리에서 너무 자주 등장해서 거의 고정 출연진입니다.",
-  "서해안은 안개와 조수, 동해안은 바람과 겨울, 남해안은 비와 온난함으로 기억하면 편합니다.",
-  "한반도는 작아 보여도 동서 차이를 설명할 때는 꽤 성실하게 증거를 냅니다.",
-  "내륙 도시는 계절을 크게 타고, 해안 도시는 바다 눈치를 꽤 많이 봅니다.",
-  "강수량 막대를 보면 해안선이 지도보다 먼저 떠오르는 순간이 있습니다.",
-  "울릉도와 제주는 둘 다 섬이지만, 그래프를 펴 보면 분위기는 생각보다 다르게 움직입니다.",
-  "서울 하나만 보면 평범한데, 속초 하나를 붙이면 갑자기 한국지리가 살아납니다.",
-  "추풍령은 이름이 자주 나오는 데엔 이유가 있습니다. 공기 흐름이 정말 열심히 일합니다.",
-  "제주가 들어오면 한국 기후 비교는 갑자기 훨씬 남쪽 이야기가 됩니다.",
-  "영동과 영서는 늘 같이 불리지만, 날씨에서는 의외로 꽤 다른 팀입니다.",
-];
-const HERO_MESSAGE_DARKS = [
-  "태백산맥은 지도에서는 선 하나지만, 날씨 입장에서는 조용한 판 흔들기 담당입니다.",
-  "영동과 영서는 늘 같이 불리는데 그래프를 펴 보면 서로 합의가 잘 안 됩니다.",
-  "제주는 한국 기후 비교에 들어오는 순간 혼자 시즌 2를 시작합니다.",
-  "추풍령은 이름만 순하고 공기 흐름한테는 거의 교차로 수준으로 바쁩니다.",
-  "서울은 무난한 척하지만, 속초를 옆에 두는 순간 태백산맥이 또 일 냈다는 게 드러납니다.",
-  "서해안은 흐림으로 존재감을 챙기고, 동해안은 바람으로 밀어붙이고, 남해안은 비까지 얹습니다.",
-  "내륙 도시는 계절에 과몰입하고, 해안 도시는 바다 뒤에 숨어서 온화한 척을 합니다.",
-  "울릉도와 제주는 둘 다 섬이지만, 그래프에서는 서로 다른 장르를 찍고 있습니다.",
-  "한반도는 좁아 보여도 산맥 하나와 바다 셋으로 날씨를 꽤 집요하게 갈라놓습니다.",
-  "영남 내륙과 해안은 같은 팀처럼 보이지만 연교차 앞에서는 생각보다 냉정하게 갈립니다.",
-  "백령도와 서울을 나란히 두면 겨울 바람이 누구 편인지 꽤 노골적으로 드러납니다.",
-  "한국지리는 면적이 작아서 쉬운 게 아니라, 작아 보이는데도 차이가 자꾸 나서 더 얄밉습니다.",
-];
-const HERO_MESSAGE_OPENERS = [
-  "백령도에서 서귀포까지 훑어 보면,",
-  "영동과 영서를 한 화면에 올리면,",
-  "같은 남한끼리만 비교해도,",
-  "서울과 평양을 나란히 두면,",
-  "서해안과 동해안을 붙여 놓으면,",
-  "추풍령 하나 끼워 넣는 순간,",
-  "울릉도와 제주를 같이 보면,",
-  "내륙 도시와 해안 도시를 섞어 고르면,",
-  "태백산맥을 사이에 두고 보면,",
-  "좁아 보이는 한반도도,",
-  "서울 옆에 속초 하나만 붙여도,",
-  "추풍령을 슬쩍 끼워 넣는 순간,",
-  "서해안과 남해안을 같이 세워 두면,",
-  "제주가 비교표에 들어오는 순간,",
-];
-const HERO_MESSAGE_PAYOFFS = [
-  "지형이 얼마나 성실하게 일하는지 바로 보입니다.",
-  "겨울 바람과 여름 비가 서로 다른 흔적을 남깁니다.",
-  "그래프가 먼저 지역색을 설명하기 시작합니다.",
-  "바다와 산맥이 번갈아 주연을 맡습니다.",
-  "기온선 하나에도 동서 차이가 꽤 또렷합니다.",
-  "강수량 막대가 해안선의 존재감을 크게 키웁니다.",
-  "한반도 기후가 생각보다 입체적이라는 게 금방 드러납니다.",
-  "위도만으로는 설명 안 되는 장면이 자꾸 나옵니다.",
-  "영남, 호남, 영서, 영동이 각자 자기 얘기를 합니다.",
-  "한국지리가 은근히 아니라 꽤 대놓고 재밌어집니다.",
-  "산맥이 또 조용히 판을 바꿔 놓았다는 게 드러납니다.",
-  "해안과 내륙이 서로 다른 계절을 사는 것처럼 보입니다.",
-  "교과서 설명보다 현실 그래프가 훨씬 독하게 말합니다.",
-  "평범해 보이던 지점도 갑자기 지역색을 숨기지 못합니다.",
-];
+const URL_STATE_KEYS = ["regions", "nation", "zone", "query", "sort", "map", "baseline"];
+const REGION_SORT_VALUES = new Set([
+  "default",
+  "name",
+  "annualPrecipitationDesc",
+  "annualRangeDesc",
+  "warmestMonthDesc",
+  "coldestMonthAsc",
+]);
 const COMPARISON_LINE_STYLES = [
   { dasharray: "", marker: "circle" },
   { dasharray: "10 6", marker: "square" },
@@ -131,6 +62,9 @@ const coordinateFormatter = new Intl.NumberFormat("ko-KR", {
 });
 const climateCsvExports = new Map();
 let climateCsvExportId = 0;
+let nextUrlSyncMode = "replace";
+let isRestoringUrlState = false;
+let utilityStatusTimer = 0;
 const state = {
   dataset: window.KOREA_CLIMATE_DATA ?? null,
   regions: [],
@@ -144,7 +78,6 @@ const state = {
 };
 
 const elements = {
-  heroText: document.querySelector("#heroText"),
   heroCount: document.querySelector("#heroCount"),
   heroCaption: document.querySelector("#heroCaption"),
   selectionSummary: document.querySelector("#selectionSummary"),
@@ -160,6 +93,9 @@ const elements = {
   mapScopeChips: document.querySelector("#mapScopeChips"),
   selectedRegionsContent: document.querySelector("#selectedRegionsContent"),
   comparisonContent: document.querySelector("#comparisonContent"),
+  copyShareLinkButton: document.querySelector("#copyShareLinkButton"),
+  downloadSelectedCsvButton: document.querySelector("#downloadSelectedCsvButton"),
+  selectionUtilityStatus: document.querySelector("#selectionUtilityStatus"),
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -173,43 +109,9 @@ async function init() {
   }
 
   state.regions = [...state.dataset.regions].sort(sortRegions);
-  applyDefaultSelection();
+  applyUrlStateFromLocation();
   bindEvents();
   render();
-}
-
-function applyRandomHeroMessage() {
-  if (!elements.heroText) {
-    return;
-  }
-
-  elements.heroText.textContent = buildRandomHeroMessage();
-}
-
-function buildRandomHeroMessage() {
-  const roll = Math.random();
-
-  if (roll < 0.18) {
-    return pickRandomItem(HERO_MESSAGE_FULL_LINES);
-  }
-
-  if (roll < 0.36) {
-    return pickRandomItem(HERO_MESSAGE_QUIZZES);
-  }
-
-  if (roll < 0.58) {
-    return pickRandomItem(HERO_MESSAGE_ASIDES);
-  }
-
-  if (roll < 0.8) {
-    return pickRandomItem(HERO_MESSAGE_DARKS);
-  }
-
-  return `${pickRandomItem(HERO_MESSAGE_OPENERS)} ${pickRandomItem(HERO_MESSAGE_PAYOFFS)}`;
-}
-
-function pickRandomItem(items) {
-  return items[Math.floor(Math.random() * items.length)];
 }
 
 function resetClimateCsvExports() {
@@ -260,10 +162,12 @@ function handleClimateCsvDownload(event) {
   const payload = climateCsvExports.get(button.dataset.climateCsvDownload);
   if (!payload) return;
 
+  downloadClimateCsvPayload(payload);
+}
+
+function downloadClimateCsvPayload(payload) {
   const rows = [];
-  if (payload.headers.length) {
-    rows.push(buildClimateCsvLine(payload.headers));
-  }
+  if (payload.headers.length) rows.push(buildClimateCsvLine(payload.headers));
   payload.rows.forEach((row) => rows.push(buildClimateCsvLine(row)));
 
   const blob = new Blob(["\ufeff" + rows.join("\n")], { type: "text/csv;charset=utf-8" });
@@ -271,8 +175,124 @@ function handleClimateCsvDownload(event) {
   const url = URL.createObjectURL(blob);
   anchor.href = url;
   anchor.download = `${payload.filename || "climate-data"}.csv`;
+  document.body.append(anchor);
   anchor.click();
-  URL.revokeObjectURL(url);
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function downloadSelectedRegionsCsv() {
+  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  if (selectedRegions.length === 0) {
+    setSelectionUtilityStatus("먼저 지역을 하나 이상 선택해 주세요.", "warning");
+    return;
+  }
+
+  const headers = [
+    "지역 ID", "지점 번호", "지역", "공식 지점명", "국가", "권역", "월", "월 번호",
+    "평균 기온(°C)", "강수량(mm)", "일최저<0℃(일)", "일최저≥25℃(일)",
+    "연평균 기온(°C)", "연 강수량(mm)", "위도", "경도", "해발(m)", "평년 기간", "출처",
+  ];
+  const rows = selectedRegions.flatMap((region) =>
+    region.months.map((month, monthIndex) => [
+      region.id,
+      region.stationId,
+      region.name,
+      region.officialName,
+      region.nation,
+      region.zone,
+      month,
+      monthIndex + 1,
+      region.monthlyTemperatureC[monthIndex],
+      region.monthlyPrecipitationMm[monthIndex],
+      region.monthlyColdDaysBelowZero[monthIndex],
+      region.monthlyHotDaysAboveTwentyFiveMin[monthIndex],
+      region.annualMeanTemperatureC,
+      region.annualPrecipitationMm,
+      region.coordinates?.latitude ?? "",
+      region.coordinates?.longitude ?? "",
+      region.elevationM ?? "",
+      region.source?.period ?? state.dataset.summary?.period ?? "",
+      region.source?.label ?? state.dataset.summary?.sourceLabel ?? "",
+    ])
+  );
+
+  downloadClimateCsvPayload({
+    filename: `한국기후-선택지역-${selectedRegions.length}개`,
+    headers,
+    rows,
+  });
+  setSelectionUtilityStatus(`${selectedRegions.length}개 지역의 월별 원자료를 한 CSV로 저장했습니다.`);
+}
+
+async function copyCurrentViewLink() {
+  syncUrlState("replace");
+  const shareUrl = buildCurrentViewUrl().href;
+
+  try {
+    await writeClipboardText(shareUrl);
+    setSelectionUtilityStatus("선택 지역과 필터, 편차 기준이 담긴 링크를 복사했습니다.");
+  } catch (error) {
+    console.warn("기후 비교 링크 복사 실패:", error);
+    setSelectionUtilityStatus("링크를 복사하지 못했습니다. 주소창의 URL을 직접 복사해 주세요.", "error");
+  }
+}
+
+async function writeClipboardText(text) {
+  let clipboardAttempt = null;
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    try {
+      clipboardAttempt = navigator.clipboard.writeText(text).then(
+        () => true,
+        () => false,
+      );
+    } catch (error) {
+      console.warn("Clipboard API 호출을 시작하지 못했습니다.", error);
+    }
+  }
+
+  try {
+    copyTextWithFallback(text);
+    return;
+  } catch (fallbackError) {
+    if (!clipboardAttempt) throw fallbackError;
+  }
+
+  const copied = await Promise.race([
+    clipboardAttempt,
+    new Promise((resolve) => {
+      window.setTimeout(() => resolve(false), 900);
+    }),
+  ]);
+  if (copied) {
+    return;
+  }
+  throw new Error("Clipboard copy failed");
+}
+
+function copyTextWithFallback(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.append(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("Clipboard fallback failed");
+}
+
+function setSelectionUtilityStatus(message, tone = "success") {
+  if (!elements.selectionUtilityStatus) return;
+  window.clearTimeout(utilityStatusTimer);
+  elements.selectionUtilityStatus.textContent = message;
+  elements.selectionUtilityStatus.classList.toggle("is-warning", tone === "warning");
+  elements.selectionUtilityStatus.classList.toggle("is-error", tone === "error");
+  utilityStatusTimer = window.setTimeout(() => {
+    elements.selectionUtilityStatus.textContent = "";
+    elements.selectionUtilityStatus.classList.remove("is-warning", "is-error");
+  }, 4200);
 }
 
 function bindEvents() {
@@ -286,6 +306,7 @@ function bindEvents() {
 
   elements.regionSortSelect?.addEventListener("change", (event) => {
     state.regionSort = event.target.value || "default";
+    pushUrlStateOnNextRender();
     render();
   });
 
@@ -296,8 +317,15 @@ function bindEvents() {
   elements.clearSelectionButton?.addEventListener("click", () => {
     state.selectedIds.clear();
     state.comparisonBaseline = "mean";
+    pushUrlStateOnNextRender();
     render();
   });
+
+  elements.copyShareLinkButton?.addEventListener("click", () => {
+    void copyCurrentViewLink();
+  });
+
+  elements.downloadSelectedCsvButton?.addEventListener("click", downloadSelectedRegionsCsv);
 
   elements.nationChips?.addEventListener("click", (event) => {
     const button = event.target.closest("[data-nation]");
@@ -305,6 +333,7 @@ function bindEvents() {
       return;
     }
     state.nation = button.dataset.nation;
+    pushUrlStateOnNextRender();
     render();
     restoreFocusByDataAttribute("data-nation", button.dataset.nation);
   });
@@ -315,6 +344,7 @@ function bindEvents() {
       return;
     }
     state.zone = button.dataset.zone;
+    pushUrlStateOnNextRender();
     render();
     restoreFocusByDataAttribute("data-zone", button.dataset.zone);
   });
@@ -325,6 +355,7 @@ function bindEvents() {
       return;
     }
     state.mapScope = button.dataset.mapScope;
+    pushUrlStateOnNextRender();
     render();
     restoreFocusByDataAttribute("data-map-scope", button.dataset.mapScope);
   });
@@ -335,14 +366,6 @@ function bindEvents() {
       return;
     }
     toggleSelection(checkbox.dataset.regionCheckbox, "data-region-checkbox");
-  });
-
-  elements.regionList?.addEventListener("click", (event) => {
-    const option = event.target.closest("[data-region-option]");
-    if (!option || event.target.matches("input")) {
-      return;
-    }
-    toggleSelection(option.dataset.regionOption);
   });
 
   elements.worldMap?.addEventListener("click", (event) => {
@@ -359,8 +382,11 @@ function bindEvents() {
       return;
     }
     state.comparisonBaseline = select.value || "mean";
+    pushUrlStateOnNextRender();
     render();
   });
+
+  window.addEventListener("popstate", restoreUrlStateFromHistory);
 }
 
 function applyDefaultSelection() {
@@ -375,12 +401,99 @@ function applyDefaultSelection() {
   state.selectedIds = new Set(randomRegions.map((region) => region.id));
 }
 
+function applyUrlStateFromLocation() {
+  const params = new URLSearchParams(window.location.search);
+  const knownRegionIds = new Set(state.regions.map((region) => region.id));
+  const nationValues = new Set(["전체", ...(state.dataset.nationOrder ?? [])]);
+  const zoneValues = new Set(["전체", ...(state.dataset.zoneOrder ?? [])]);
+
+  state.nation = readUrlEnum(params, "nation", nationValues, "전체");
+  state.zone = readUrlEnum(params, "zone", zoneValues, "전체");
+  state.regionSort = readUrlEnum(params, "sort", REGION_SORT_VALUES, "default");
+  state.mapScope = readUrlEnum(params, "map", new Set(["all", "selected"]), "all");
+  state.search = (params.get("query") ?? "").slice(0, 160);
+  state.comparisonBaseline = "mean";
+
+  if (params.has("regions")) {
+    state.selectedIds = new Set(
+      (params.get("regions") ?? "")
+        .split(",")
+        .map((regionId) => regionId.trim())
+        .filter((regionId) => knownRegionIds.has(regionId))
+    );
+  } else {
+    applyDefaultSelection();
+  }
+
+  const requestedBaseline = params.get("baseline") ?? "mean";
+  if (requestedBaseline === "mean" || state.selectedIds.has(requestedBaseline)) {
+    state.comparisonBaseline = requestedBaseline;
+  }
+
+  if (elements.searchInput) elements.searchInput.value = state.search;
+  if (elements.regionSortSelect) elements.regionSortSelect.value = state.regionSort;
+}
+
+function readUrlEnum(params, key, allowedValues, fallback) {
+  const value = params.get(key);
+  return value && allowedValues.has(value) ? value : fallback;
+}
+
+function buildCurrentViewUrl() {
+  const url = new URL(window.location.href);
+  URL_STATE_KEYS.forEach((key) => url.searchParams.delete(key));
+  const selectedIds = state.regions
+    .filter((region) => state.selectedIds.has(region.id))
+    .map((region) => region.id);
+
+  url.searchParams.set("regions", selectedIds.join(","));
+  if (state.nation !== "전체") url.searchParams.set("nation", state.nation);
+  if (state.zone !== "전체") url.searchParams.set("zone", state.zone);
+  if (state.search) url.searchParams.set("query", state.search);
+  if (state.regionSort !== "default") url.searchParams.set("sort", state.regionSort);
+  if (state.mapScope !== "all") url.searchParams.set("map", state.mapScope);
+  if (state.comparisonBaseline !== "mean") {
+    url.searchParams.set("baseline", state.comparisonBaseline);
+  }
+  return url;
+}
+
+function pushUrlStateOnNextRender() {
+  if (!isRestoringUrlState) nextUrlSyncMode = "push";
+}
+
+function syncUrlState(mode = "replace") {
+  if (isRestoringUrlState || !window.history?.replaceState) return;
+  const nextUrl = buildCurrentViewUrl();
+  if (nextUrl.href === window.location.href) return;
+
+  try {
+    const method = mode === "push" ? "pushState" : "replaceState";
+    window.history[method]({ climateView: "korea" }, "", nextUrl);
+  } catch (error) {
+    console.warn("기후 비교 URL 상태를 갱신하지 못했습니다.", error);
+  }
+}
+
+function restoreUrlStateFromHistory() {
+  isRestoringUrlState = true;
+  nextUrlSyncMode = "replace";
+  try {
+    applyUrlStateFromLocation();
+    render();
+  } finally {
+    isRestoringUrlState = false;
+  }
+  syncUrlState("replace");
+}
+
 function toggleSelection(regionId, focusAttribute = "") {
   if (state.selectedIds.has(regionId)) {
     state.selectedIds.delete(regionId);
   } else {
     state.selectedIds.add(regionId);
   }
+  pushUrlStateOnNextRender();
   render();
   restoreFocusByDataAttribute(focusAttribute, regionId);
 }
@@ -411,6 +524,7 @@ function applyRandomSpacedSelection() {
     elements.searchInput.value = "";
   }
 
+  pushUrlStateOnNextRender();
   render();
 }
 
@@ -500,9 +614,18 @@ function render() {
   elements.zoneChips.innerHTML = renderZoneChips();
   elements.mapScopeChips.innerHTML = renderMapScopeChips();
   elements.regionList.innerHTML = renderRegionList(visibleRegions);
+  if (elements.downloadSelectedCsvButton) {
+    elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
+    elements.downloadSelectedCsvButton.textContent = selectedRegions.length
+      ? `선택 ${selectedRegions.length}개 CSV`
+      : "선택 데이터 CSV";
+  }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
   renderMap(visibleRegions, selectedRegions);
+  const urlSyncMode = nextUrlSyncMode;
+  nextUrlSyncMode = "replace";
+  syncUrlState(urlSyncMode);
 }
 
 function getVisibleRegions() {
