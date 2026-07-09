@@ -4,11 +4,11 @@
 
 ## 포털 구성
 
-- [index.html](/Users/twotimess/Desktop/Map/index.html): 포털 홈
-- [map.html](/Users/twotimess/Desktop/Map/map.html): 기존 `투타임즈의 통계머신`
-- [tools/climate/index.html](/Users/twotimess/Desktop/Map/tools/climate/index.html): 세계지리 기후머신
-- [tools/climate/korea.html](/Users/twotimess/Desktop/Map/tools/climate/korea.html): 한국지리 기후머신
-- [tools/cut/index.html](/Users/twotimess/Desktop/Map/tools/cut/index.html): 정적 지리 컷 예측기
+- [index.html](./index.html): 포털 홈
+- [map.html](./map.html): 기존 `투타임즈의 통계머신`
+- [tools/climate/index.html](./tools/climate/index.html): 세계지리 기후머신
+- [tools/climate/korea.html](./tools/climate/korea.html): 한국지리 기후머신
+- [tools/cut/index.html](./tools/cut/index.html): 정적 지리 컷 예측기
 
 ## 실행 방법
 
@@ -18,17 +18,27 @@ npm run start
 
 그다음 [http://localhost:4173](http://localhost:4173)을 열면 됩니다.
 
+기후 데이터 원본을 교체한 뒤에는 정규화된 JSON과 브라우저용 JS를 함께 갱신하고 검증합니다.
+
+```bash
+npm run data:climate
+npm run check
+npm run build
+```
+
+JMA 관측 지점 좌표·고도와 대표 도시 좌표의 차이는 `npm run audit:climate:jma`로 다시 확인할 수 있습니다.
+
 ## GitHub Pages
 
-`.github/workflows/pages.yml`을 포함했습니다. `main` 브랜치에 반영되면 GitHub Actions가 루트 정적 사이트를 Pages 아티팩트로 배포합니다.
+`.github/workflows/pages.yml`을 포함했습니다. `main` 브랜치에 반영되면 GitHub Actions가 검증된 공개 파일만 `dist/`에 묶어 Pages에 배포합니다. 원본 데이터, 유지보수 스크립트와 비공개 메모는 배포물에 포함하지 않습니다.
 
 ## 투타임즈의 통계머신
 
-선택한 국가나 한국 권역만 색칠해서 지역 지도를 만들고, 현재 보이는 결과를 그대로 SVG로 내보내는 작은 웹 앱입니다. `index.html`을 직접 열어도 동작하도록 로컬 라이브러리와 데이터가 함께 들어 있습니다.
+선택한 국가나 한국 권역만 색칠해서 지역 지도를 만들고, 현재 보이는 결과를 그대로 SVG로 내보내는 작은 웹 앱입니다. `map.html`을 직접 열어도 동작하도록 로컬 라이브러리와 데이터가 함께 들어 있습니다.
 
 ## 지도 도구 사용 방법
 
-1. [map.html](/Users/twotimess/Desktop/Map/map.html)를 브라우저에서 바로 열거나, 터미널에서 `npm run start` 후 [http://localhost:4173/map.html](http://localhost:4173/map.html) 로 접속합니다.
+1. [map.html](./map.html)을 브라우저에서 바로 열거나, 터미널에서 `npm run start` 후 [http://localhost:4173/map.html](http://localhost:4173/map.html) 로 접속합니다.
 2. 세계 지도에서는 검색창에 영문 국가명을 입력하거나 지도를 클릭해서 국가를 추가합니다.
 3. 한국 지도에서는 상단 `대한민국` 탭으로 전환한 뒤 `도/광역시`, `시/군`, `구/군` 권역을 칩이나 지도 클릭으로 켜고 끕니다. 일반 시의 `구`는 `시/군` 단계에서 합쳐서 보이고, 서울·광역시는 `구/군` 단계에서 별도로 볼 수 있습니다.
 4. 한국 권역은 선택 목록에서 여러 개를 체크한 뒤 `체크한 권역 비교`를 누르면 전국 지도에서 함께 비교할 수 있습니다. 부모 범위가 달라도 한 장에서 같이 볼 수 있고, 필요하면 노선 오버레이도 덧씌울 수 있습니다.
@@ -113,5 +123,6 @@ npm run start
 
 - 세계 지도: `world-atlas`
 - 한국 지도: [`admdongkor`](https://github.com/vuski/admdongkor) `ver20260201` 행정동 경계를 다시 묶어 생성한 TopoJSON(`도/광역시`, `시/군`, `구/군(특별·광역시)`)
+- 세계 기후: 일본 기상청(JMA) 1991-2020 지점별 평년값 105개 전면 반영, 4개 기온 반영, JMA 미수록 20개는 Open-Meteo ERA5로 보완
 - 서울·부산 구/군 주간인구: KOSIS `DT_1PA2020` 인구총조사 2020년 성별 `계`, 연령 `합계`
 - 교통 오버레이: 프로젝트 내부 비교용 단순화 좌표

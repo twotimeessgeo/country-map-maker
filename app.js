@@ -1,7 +1,7 @@
 const d3 = window.d3;
 const topojson = window.topojson;
 
-if (!d3 || !topojson || !window.WORLD_ATLAS_TOPOLOGY || !window.WORLD_COUNTRY_NAMES_TSV || !window.KOREA_ADMIN_DATA) {
+if (!d3 || !topojson || !window.WORLD_ATLAS_TOPOLOGY || !window.WORLD_COUNTRY_NAMES_TSV) {
   throw new Error("필수 지도 데이터 또는 라이브러리를 불러오지 못했습니다.");
 }
 
@@ -352,18 +352,18 @@ const metricExplorerDisplayModeDefinitions = [
   { key: "relative", label: "상댓값 100" },
   { key: "scatter", label: "산포도" },
 ];
-const koreaGeoStatsMeta = window.KOREA_GEO_STATS_META ?? { categories: {}, levels: {} };
-const koreaGeoStatsRegionOrderByLevel = window.KOREA_GEO_STATS_REGION_ORDER ?? {
+let koreaGeoStatsMeta = { categories: {}, levels: {} };
+let koreaGeoStatsRegionOrderByLevel = {
   provinces: [],
   cities: [],
   metroDistricts: [],
 };
-const koreaGeoStatsRegionsByLevel = window.KOREA_GEO_STATS_REGIONS ?? {
+let koreaGeoStatsRegionsByLevel = {
   provinces: {},
   cities: {},
   metroDistricts: {},
 };
-const koreaGeoStatsMetricsByLevel = window.KOREA_GEO_STATS_METRICS ?? {
+let koreaGeoStatsMetricsByLevel = {
   provinces: {},
   cities: {},
   metroDistricts: {},
@@ -1239,10 +1239,21 @@ const examGraphTextbookPriorityIso3 = new Set([
   "FJI",
   "MYS",
 ]);
-const koreaDatasets = {
-  provinces: buildKoreaDataset(window.KOREA_ADMIN_DATA.provinces, "provinces"),
-  cities: buildKoreaDataset(window.KOREA_ADMIN_DATA.cities, "cities"),
-  metroDistricts: buildKoreaDataset(window.KOREA_ADMIN_DATA.metroDistricts, "metroDistricts"),
+const KOREA_ADMIN_DATA_URL = "./data/korea-admin.js";
+const KOREA_ROUTE_DATA_URL = "./data/korea-routes.js?v=20260423g";
+const KOREA_STATS_DATA_URL = "./data/korea-stats.js?v=20260423e";
+const lazyScriptPromises = new Map();
+let koreaMapDataReady = false;
+let koreaMapDataLoading = false;
+let koreaStatsDataReady = false;
+let koreaStatsDataLoading = false;
+let koreaStatsLoadError = null;
+let mapVersionRequestSequence = 0;
+
+let koreaDatasets = {
+  provinces: null,
+  cities: null,
+  metroDistricts: null,
 };
 
 function buildKoreaLineFeature(item) {
@@ -1270,50 +1281,195 @@ function buildKoreaLineFeature(item) {
   };
 }
 
-const koreaRoutes = (window.KOREA_ROUTE_DATA?.routes ?? []).map((route) => ({
-  ...buildKoreaLineFeature(route),
-})).filter((route) => route.feature?.geometry);
-const koreaWaterways = (window.KOREA_ROUTE_DATA?.waterways ?? []).map((waterway) => ({
-  ...buildKoreaLineFeature(waterway),
-})).filter((waterway) => waterway.feature?.geometry);
-const koreaRouteById = new Map(koreaRoutes.map((route) => [route.id, route]));
-const koreaProvinceByCode = koreaDatasets.provinces.featureById;
-const koreaCitiesByParentCode = d3.group(koreaDatasets.cities.features, (feature) => feature.properties.parentCode);
-const koreaCityContextProvinceCodes = [
-  ...(window.KOREA_ADMIN_DATA.meta?.metroParentCodes ?? []),
-]
-  .map((code) => String(code))
-  .filter((code, index, codes) => codes.indexOf(code) === index && koreaProvinceByCode.has(code));
-const koreaCityContextProvinceFeatures = koreaCityContextProvinceCodes
-  .map((code) => koreaProvinceByCode.get(code))
-  .filter(Boolean);
-const koreaCityFeatureById = new Map(
-  [...koreaDatasets.cities.features, ...koreaCityContextProvinceFeatures].map((feature) => [feature.id, feature]),
-);
-const koreaMetroDistrictsByParentCode = d3.group(
-  koreaDatasets.metroDistricts.features,
-  (feature) => feature.properties.parentCode,
-);
-const koreaParentOptionsByLevel = {
-  cities: [...koreaDatasets.provinces.features]
-    .sort((a, b) => compareKoreaNames(a.properties.name, b.properties.name) || d3.ascending(a.id, b.id))
-    .map((code) => ({
-      code: code.id,
-      name: code.properties.name,
-    })),
-  metroDistricts: [...(window.KOREA_ADMIN_DATA.meta?.metroParentCodes ?? koreaMetroDistrictsByParentCode.keys())]
+let koreaRoutes = [];
+let koreaWaterways = [];
+let koreaRouteById = new Map();
+let koreaProvinceByCode = new Map();
+let koreaCitiesByParentCode = new Map();
+let koreaCityContextProvinceFeatures = [];
+let koreaCityFeatureById = new Map();
+let koreaMetroDistrictsByParentCode = new Map();
+let koreaParentOptionsByLevel = {
+  cities: [],
+  metroDistricts: [],
+};
+let koreaParentCodeSetsByLevel = {
+  cities: new Set(),
+  metroDistricts: new Set(),
+};
+
+function loadLazyScript(source, isReady) {
+  if (isReady()) {
+    return Promise.resolve();
+  }
+
+  const absoluteUrl = new URL(source, document.baseURI).href;
+  if (lazyScriptPromises.has(absoluteUrl)) {
+    return lazyScriptPromises.get(absoluteUrl);
+  }
+
+  const loadPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = absoluteUrl;
+    script.async = true;
+    script.dataset.lazyAsset = "true";
+    script.addEventListener("load", () => {
+      if (isReady()) {
+        resolve();
+        return;
+      }
+      script.remove();
+      reject(new Error(`${source} 파일은 내려받았지만 예상한 데이터를 찾지 못했습니다.`));
+    });
+    script.addEventListener("error", () => {
+      script.remove();
+      reject(new Error(`${source} 파일을 불러오지 못했습니다.`));
+    });
+    document.head.appendChild(script);
+  }).finally(() => {
+    lazyScriptPromises.delete(absoluteUrl);
+  });
+
+  lazyScriptPromises.set(absoluteUrl, loadPromise);
+  return loadPromise;
+}
+
+function initializeKoreaMapRuntimeData() {
+  const adminData = window.KOREA_ADMIN_DATA;
+  const levels = ["provinces", "cities", "metroDistricts"];
+  if (!adminData || !levels.every((level) => adminData[level]?.objects)) {
+    throw new Error("대한민국 행정구역 데이터 형식이 올바르지 않습니다.");
+  }
+
+  koreaDatasets = {
+    provinces: buildKoreaDataset(adminData.provinces, "provinces"),
+    cities: buildKoreaDataset(adminData.cities, "cities"),
+    metroDistricts: buildKoreaDataset(adminData.metroDistricts, "metroDistricts"),
+  };
+  koreaRoutes = (window.KOREA_ROUTE_DATA?.routes ?? [])
+    .map((route) => ({ ...buildKoreaLineFeature(route) }))
+    .filter((route) => route.feature?.geometry);
+  koreaWaterways = (window.KOREA_ROUTE_DATA?.waterways ?? [])
+    .map((waterway) => ({ ...buildKoreaLineFeature(waterway) }))
+    .filter((waterway) => waterway.feature?.geometry);
+  koreaRouteById = new Map(koreaRoutes.map((route) => [route.id, route]));
+  koreaProvinceByCode = koreaDatasets.provinces.featureById;
+  koreaCitiesByParentCode = d3.group(
+    koreaDatasets.cities.features,
+    (feature) => feature.properties.parentCode,
+  );
+  const koreaCityContextProvinceCodes = [...(adminData.meta?.metroParentCodes ?? [])]
     .map((code) => String(code))
-    .filter((code) => koreaProvinceByCode.has(code))
-    .sort((a, b) => compareKoreaNames(getKoreaProvinceName(a), getKoreaProvinceName(b)) || d3.ascending(a, b))
-    .map((code) => ({
-      code,
-      name: getKoreaProvinceName(code),
-    })),
-};
-const koreaParentCodeSetsByLevel = {
-  cities: new Set(koreaParentOptionsByLevel.cities.map((option) => option.code)),
-  metroDistricts: new Set(koreaParentOptionsByLevel.metroDistricts.map((option) => option.code)),
-};
+    .filter((code, index, codes) => codes.indexOf(code) === index && koreaProvinceByCode.has(code));
+  koreaCityContextProvinceFeatures = koreaCityContextProvinceCodes
+    .map((code) => koreaProvinceByCode.get(code))
+    .filter(Boolean);
+  koreaCityFeatureById = new Map(
+    [...koreaDatasets.cities.features, ...koreaCityContextProvinceFeatures].map((feature) => [feature.id, feature]),
+  );
+  koreaMetroDistrictsByParentCode = d3.group(
+    koreaDatasets.metroDistricts.features,
+    (feature) => feature.properties.parentCode,
+  );
+  koreaParentOptionsByLevel = {
+    cities: [...koreaDatasets.provinces.features]
+      .sort((a, b) => compareKoreaNames(a.properties.name, b.properties.name) || d3.ascending(a.id, b.id))
+      .map((feature) => ({
+        code: feature.id,
+        name: feature.properties.name,
+      })),
+    metroDistricts: [...(adminData.meta?.metroParentCodes ?? koreaMetroDistrictsByParentCode.keys())]
+      .map((code) => String(code))
+      .filter((code) => koreaProvinceByCode.has(code))
+      .sort((a, b) => compareKoreaNames(getKoreaProvinceName(a), getKoreaProvinceName(b)) || d3.ascending(a, b))
+      .map((code) => ({
+        code,
+        name: getKoreaProvinceName(code),
+      })),
+  };
+  koreaParentCodeSetsByLevel = {
+    cities: new Set(koreaParentOptionsByLevel.cities.map((option) => option.code)),
+    metroDistricts: new Set(koreaParentOptionsByLevel.metroDistricts.map((option) => option.code)),
+  };
+  koreaMapDataReady = true;
+}
+
+async function ensureKoreaMapData() {
+  if (koreaMapDataReady) {
+    return;
+  }
+
+  koreaMapDataLoading = true;
+  try {
+    await Promise.all([
+      loadLazyScript(KOREA_ADMIN_DATA_URL, () => Boolean(window.KOREA_ADMIN_DATA)),
+      loadLazyScript(KOREA_ROUTE_DATA_URL, () => Boolean(window.KOREA_ROUTE_DATA)),
+    ]);
+    initializeKoreaMapRuntimeData();
+  } finally {
+    koreaMapDataLoading = false;
+  }
+}
+
+function initializeKoreaStatsRuntimeData() {
+  if (!window.KOREA_GEO_STATS_METRICS || typeof window.KOREA_GEO_STATS_METRICS !== "object") {
+    throw new Error("대한민국 통계 데이터 형식이 올바르지 않습니다.");
+  }
+
+  koreaGeoStatsMeta = window.KOREA_GEO_STATS_META ?? { categories: {}, levels: {} };
+  koreaGeoStatsRegionOrderByLevel = window.KOREA_GEO_STATS_REGION_ORDER ?? {
+    provinces: [],
+    cities: [],
+    metroDistricts: [],
+  };
+  koreaGeoStatsRegionsByLevel = window.KOREA_GEO_STATS_REGIONS ?? {
+    provinces: {},
+    cities: {},
+    metroDistricts: {},
+  };
+  koreaGeoStatsMetricsByLevel = window.KOREA_GEO_STATS_METRICS;
+  koreaStatsDataReady = true;
+  koreaStatsLoadError = null;
+}
+
+async function ensureKoreaStatsData() {
+  if (koreaStatsDataReady) {
+    return;
+  }
+
+  koreaStatsDataLoading = true;
+  koreaStatsLoadError = null;
+  try {
+    await loadLazyScript(KOREA_STATS_DATA_URL, () => Boolean(window.KOREA_GEO_STATS_METRICS));
+    initializeKoreaStatsRuntimeData();
+  } catch (error) {
+    koreaStatsLoadError = error;
+    throw error;
+  } finally {
+    koreaStatsDataLoading = false;
+  }
+}
+
+async function loadKoreaStatsInBackground() {
+  if (koreaStatsDataReady) {
+    return;
+  }
+
+  try {
+    await ensureKoreaStatsData();
+  } catch (error) {
+    console.error(error);
+    if (state.mapVersion === "korea") {
+      renderKoreaGeoStatsPanel();
+      setStatus("대한민국 통계 자료를 불러오지 못했습니다. 지도 편집과 내보내기는 계속 사용할 수 있습니다.", true);
+    }
+    return;
+  }
+
+  if (state.mapVersion === "korea") {
+    renderKoreaGeoStatsPanel();
+  }
+}
 
 function buildAtlasDataset(variantTopology, datasetKey) {
   const countriesObject = variantTopology.objects.countries;
@@ -1721,7 +1877,7 @@ void loadEmbeddedMapFontData();
 function attachEventListeners() {
   elements.mapVersionButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      setMapVersion(button.dataset.mapVersion);
+      void setMapVersion(button.dataset.mapVersion);
     });
   });
 
@@ -2363,7 +2519,11 @@ function isFormControl(target) {
     return false;
   }
 
-  return Boolean(target.closest("input, select, textarea, [contenteditable='true']"));
+  return Boolean(
+    target.closest(
+      "input, select, textarea, button, a[href], summary, [role='button'], [contenteditable]:not([contenteditable='false'])"
+    )
+  );
 }
 
 function getDefaultStatusMessage() {
@@ -2686,10 +2846,36 @@ function toggleKoreaRegionListCollapsed() {
   syncKoreaCollapseControls();
 }
 
-function setMapVersion(mapVersion, { silent = false } = {}) {
-  if (!mapVersionLabels[mapVersion] || state.mapVersion === mapVersion) {
+async function setMapVersion(mapVersion, { silent = false } = {}) {
+  const requestId = ++mapVersionRequestSequence;
+  if (!mapVersionLabels[mapVersion]) {
     syncMapVersionControls();
     return;
+  }
+
+  if (state.mapVersion === mapVersion) {
+    syncMapVersionControls();
+    return;
+  }
+
+  if (mapVersion === "korea" && !koreaMapDataReady) {
+    const loadPromise = ensureKoreaMapData();
+    syncMapVersionControls();
+    setStatus("대한민국 행정구역 데이터를 불러오는 중입니다.");
+    try {
+      await loadPromise;
+    } catch (error) {
+      console.error(error);
+      if (requestId === mapVersionRequestSequence) {
+        syncMapVersionControls();
+        setStatus("대한민국 지도 데이터를 불러오지 못했습니다. 잠시 뒤 다시 시도해 주세요.", true);
+      }
+      return;
+    }
+    syncMapVersionControls();
+    if (requestId !== mapVersionRequestSequence) {
+      return;
+    }
   }
 
   beginHistoryStep("지도 버전 변경");
@@ -2699,6 +2885,8 @@ function setMapVersion(mapVersion, { silent = false } = {}) {
   resetContextualSearchInputs({ selection: true, koreaRegion: true });
   if (mapVersion !== "korea") {
     clearKoreaGroupingDraft();
+  } else {
+    void loadKoreaStatsInBackground();
   }
   syncControls();
   renderSelectionViews();
@@ -2763,7 +2951,13 @@ function syncMapVersionControls() {
   setSectionVisibility(elements.worldSections, isWorldMode);
   setSectionVisibility(elements.koreaSections, !isWorldMode);
   elements.mapVersionButtons.forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.mapVersion === state.mapVersion);
+    const isActive = button.dataset.mapVersion === state.mapVersion;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+    if (button.dataset.mapVersion === "korea") {
+      button.disabled = koreaMapDataLoading;
+      button.setAttribute("aria-busy", String(koreaMapDataLoading));
+    }
   });
   elements.selectionCardTitle.textContent = isWorldMode ? "국가 선택" : "한국 권역 선택";
   elements.selectionDetailTitle.textContent = isWorldMode ? "선택 국가 랙" : "선택 권역 랙";
@@ -6386,6 +6580,30 @@ function renderKoreaGeoStatsPanel() {
 
   const shell = document.createElement("div");
   shell.className = "metric-explorer-shell";
+
+  if (!koreaStatsDataReady) {
+    const loadState = createEmptyState(
+      koreaStatsDataLoading
+        ? "대한민국 공식 통계 데이터를 불러오는 중입니다. 지도 편집은 먼저 시작할 수 있습니다."
+        : koreaStatsLoadError
+          ? "대한민국 공식 통계 데이터를 불러오지 못했습니다. 지도 편집과 내보내기는 계속 사용할 수 있습니다."
+          : "대한민국 공식 통계 데이터가 아직 준비되지 않았습니다.",
+    );
+    if (koreaStatsLoadError && !koreaStatsDataLoading) {
+      const retryButton = document.createElement("button");
+      retryButton.type = "button";
+      retryButton.className = "tw-button ghost-button";
+      retryButton.textContent = "통계 다시 불러오기";
+      retryButton.addEventListener("click", () => {
+        void loadKoreaStatsInBackground();
+        renderKoreaGeoStatsPanel();
+      });
+      loadState.append(document.createElement("br"), retryButton);
+    }
+    shell.appendChild(loadState);
+    elements.koreaGeoStatsPanel.appendChild(shell);
+    return;
+  }
 
   const levelKey = getKoreaGeoStatsLevelKey();
   if (!levelKey) {

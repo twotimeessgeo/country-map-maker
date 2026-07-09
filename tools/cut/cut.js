@@ -156,8 +156,10 @@ function renderCutRows() {
   for (let index = 0; index < 20; index += 1) {
     const row = document.createElement("div");
     row.className = "cut-row";
+    row.setAttribute("role", "group");
+    row.setAttribute("aria-label", `${index + 1}번 문항`);
     row.innerHTML = `
-      <span class="cut-number">${index + 1}</span>
+      <span class="cut-number" aria-hidden="true">${index + 1}</span>
       <label>
         <span>배점</span>
         <input data-point-input type="number" min="1" max="5" step="1" inputmode="numeric" />
@@ -195,6 +197,7 @@ function setToolTab(tabName, updateHash = false) {
     const isActive = button.dataset.toolTab === nextTab;
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-selected", isActive ? "true" : "false");
+    button.tabIndex = isActive ? 0 : -1;
   });
   elements.toolPanels.forEach((panel) => {
     panel.hidden = panel.dataset.toolPanel !== nextTab;
@@ -206,6 +209,30 @@ function setToolTab(tabName, updateHash = false) {
   if (nextTab === "questions" && questionBankItems.length) {
     renderQuestionSearchResults();
   }
+}
+
+function handleToolTabKeydown(event) {
+  if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+    return;
+  }
+
+  const currentIndex = elements.toolTabs.indexOf(event.currentTarget);
+  if (currentIndex < 0) return;
+
+  event.preventDefault();
+  let nextIndex = currentIndex;
+  if (event.key === "Home") nextIndex = 0;
+  if (event.key === "End") nextIndex = elements.toolTabs.length - 1;
+  if (event.key === "ArrowLeft") {
+    nextIndex = (currentIndex - 1 + elements.toolTabs.length) % elements.toolTabs.length;
+  }
+  if (event.key === "ArrowRight") {
+    nextIndex = (currentIndex + 1) % elements.toolTabs.length;
+  }
+
+  const nextTab = elements.toolTabs[nextIndex];
+  nextTab.focus();
+  setToolTab(nextTab.dataset.toolTab, true);
 }
 
 function setBusy(isBusy) {
@@ -1799,6 +1826,7 @@ async function initialize() {
 
 elements.toolTabs.forEach((button) => {
   button.addEventListener("click", () => setToolTab(button.dataset.toolTab, true));
+  button.addEventListener("keydown", handleToolTabKeydown);
 });
 elements.subject.addEventListener("change", () => {
   releaseHistoryLock();

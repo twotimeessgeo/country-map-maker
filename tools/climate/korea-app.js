@@ -82,7 +82,6 @@ const HERO_MESSAGE_DARKS = [
   "백령도와 서울을 나란히 두면 겨울 바람이 누구 편인지 꽤 노골적으로 드러납니다.",
   "한국지리는 면적이 작아서 쉬운 게 아니라, 작아 보이는데도 차이가 자꾸 나서 더 얄밉습니다.",
 ];
-const ECONOMY_EGG_MESSAGE = "준비중입니다.";
 const HERO_MESSAGE_OPENERS = [
   "백령도에서 서귀포까지 훑어 보면,",
   "영동과 영서를 한 화면에 올리면,",
@@ -148,7 +147,6 @@ const elements = {
   heroText: document.querySelector("#heroText"),
   heroCount: document.querySelector("#heroCount"),
   heroCaption: document.querySelector("#heroCaption"),
-  economyEggButton: document.querySelector("#economyEggButton"),
   selectionSummary: document.querySelector("#selectionSummary"),
   searchInput: document.querySelector("#searchInput"),
   regionSortSelect: document.querySelector("#regionSortSelect"),
@@ -176,7 +174,6 @@ async function init() {
 
   state.regions = [...state.dataset.regions].sort(sortRegions);
   applyDefaultSelection();
-  applyRandomHeroMessage();
   bindEvents();
   render();
 }
@@ -278,10 +275,6 @@ function handleClimateCsvDownload(event) {
   URL.revokeObjectURL(url);
 }
 
-function showEconomyEggToast() {
-  window.alert(ECONOMY_EGG_MESSAGE);
-}
-
 function bindEvents() {
   elements.selectedRegionsContent?.addEventListener("click", handleClimateCsvDownload);
   elements.comparisonContent?.addEventListener("click", handleClimateCsvDownload);
@@ -300,10 +293,6 @@ function bindEvents() {
     applyRandomSpacedSelection();
   });
 
-  elements.economyEggButton?.addEventListener("click", () => {
-    showEconomyEggToast();
-  });
-
   elements.clearSelectionButton?.addEventListener("click", () => {
     state.selectedIds.clear();
     state.comparisonBaseline = "mean";
@@ -317,6 +306,7 @@ function bindEvents() {
     }
     state.nation = button.dataset.nation;
     render();
+    restoreFocusByDataAttribute("data-nation", button.dataset.nation);
   });
 
   elements.zoneChips?.addEventListener("click", (event) => {
@@ -326,6 +316,7 @@ function bindEvents() {
     }
     state.zone = button.dataset.zone;
     render();
+    restoreFocusByDataAttribute("data-zone", button.dataset.zone);
   });
 
   elements.mapScopeChips?.addEventListener("click", (event) => {
@@ -335,6 +326,7 @@ function bindEvents() {
     }
     state.mapScope = button.dataset.mapScope;
     render();
+    restoreFocusByDataAttribute("data-map-scope", button.dataset.mapScope);
   });
 
   elements.regionList?.addEventListener("change", (event) => {
@@ -342,7 +334,7 @@ function bindEvents() {
     if (!checkbox) {
       return;
     }
-    toggleSelection(checkbox.dataset.regionCheckbox);
+    toggleSelection(checkbox.dataset.regionCheckbox, "data-region-checkbox");
   });
 
   elements.regionList?.addEventListener("click", (event) => {
@@ -358,7 +350,7 @@ function bindEvents() {
     if (!marker) {
       return;
     }
-    toggleSelection(marker.dataset.mapRegionId);
+    toggleSelection(marker.dataset.mapRegionId, "data-map-region-id");
   });
 
   elements.comparisonContent?.addEventListener("change", (event) => {
@@ -372,25 +364,34 @@ function bindEvents() {
 }
 
 function applyDefaultSelection() {
-  const randomRegions = pickRandomSpacedSelection();
-  if (randomRegions.length > 0) {
-    state.selectedIds = new Set(randomRegions.map((region) => region.id));
+  const defaults = state.dataset.defaultSampleNames ?? [];
+  const defaultRegions = state.regions.filter((region) => defaults.includes(region.name));
+  if (defaultRegions.length > 0) {
+    state.selectedIds = new Set(defaultRegions.map((region) => region.id));
     return;
   }
 
-  const defaults = state.dataset.defaultSampleNames ?? [];
-  state.selectedIds = new Set(
-    state.regions.filter((region) => defaults.includes(region.name)).map((region) => region.id)
-  );
+  const randomRegions = pickRandomSpacedSelection();
+  state.selectedIds = new Set(randomRegions.map((region) => region.id));
 }
 
-function toggleSelection(regionId) {
+function toggleSelection(regionId, focusAttribute = "") {
   if (state.selectedIds.has(regionId)) {
     state.selectedIds.delete(regionId);
   } else {
     state.selectedIds.add(regionId);
   }
   render();
+  restoreFocusByDataAttribute(focusAttribute, regionId);
+}
+
+function restoreFocusByDataAttribute(attributeName, attributeValue) {
+  if (!attributeName || !attributeValue) return;
+
+  const nextTarget = [...document.querySelectorAll(`[${attributeName}]`)].find(
+    (element) => element.getAttribute(attributeName) === attributeValue
+  );
+  nextTarget?.focus({ preventScroll: true });
 }
 
 function applyRandomSpacedSelection() {
@@ -568,6 +569,7 @@ function renderNationChips() {
           type="button"
           class="chip-button ${state.nation === nation ? "is-active" : ""}"
           data-nation="${escapeHtml(nation)}"
+          aria-pressed="${state.nation === nation}"
         >
           ${escapeHtml(nation)} (${count})
         </button>
@@ -588,6 +590,7 @@ function renderZoneChips() {
           type="button"
           class="chip-button ${state.zone === zone ? "is-active" : ""}"
           data-zone="${escapeHtml(zone)}"
+          aria-pressed="${state.zone === zone}"
         >
           ${escapeHtml(zone)} (${count})
         </button>
@@ -608,6 +611,7 @@ function renderMapScopeChips() {
           type="button"
           class="chip-button ${state.mapScope === item.id ? "is-active" : ""}"
           data-map-scope="${item.id}"
+          aria-pressed="${state.mapScope === item.id}"
         >
           ${item.label}
         </button>
@@ -674,18 +678,33 @@ function buildClimateChartScale(regions) {
 }
 
 function renderRegionCard(region, sharedChartScale) {
-  const periodMetrics = state.dataset.comparisonPeriods.map((period) => getPeriodMetrics(region, period));
+  const monthlyRows = region.months.map((month, monthIndex) => ({
+    label: month,
+    temperature: region.monthlyTemperatureC[monthIndex],
+    precipitation: region.monthlyPrecipitationMm[monthIndex],
+    coldDays: region.monthlyColdDaysBelowZero[monthIndex],
+    hotDays: region.monthlyHotDaysAboveTwentyFiveMin[monthIndex],
+  }));
   const annualRange = getAnnualTemperatureRange(region);
   const csvKey = registerClimateCsvExport(
     `korea-region-${region.id}-raw`,
-    ["시기", "평균 기온(°C)", "강수량(mm)", "일최저<0℃", "일최저≥25℃"],
-    periodMetrics.map((metric) => [
-      metric.label,
-      metric.temperature,
-      metric.precipitation,
-      metric.coldDays,
-      metric.hotDays,
-    ]),
+    ["월", "평균 기온(°C)", "강수량(mm)", "일최저<0℃(일)", "일최저≥25℃(일)"],
+    [
+      ...monthlyRows.map((row) => [
+        row.label,
+        row.temperature,
+        row.precipitation,
+        row.coldDays,
+        row.hotDays,
+      ]),
+      [
+        "연간",
+        region.annualMeanTemperatureC,
+        region.annualPrecipitationMm,
+        region.annualColdDaysBelowZero,
+        region.annualHotDaysAboveTwentyFiveMin,
+      ],
+    ],
     `${region.name}-월별-원데이터`
   );
 
@@ -708,7 +727,7 @@ function renderRegionCard(region, sharedChartScale) {
           <div class="stats-row">
             <span class="stat-pill">연평균 ${formatTemp(region.annualMeanTemperatureC)}</span>
             <span class="stat-pill">연강수 ${formatMm(region.annualPrecipitationMm)}</span>
-            <span class="stat-pill">연교차(8월-1월) ${formatTemp(annualRange)}</span>
+            <span class="stat-pill">연교차 ${formatTemp(annualRange)}</span>
             <span class="stat-pill">연간 일최저 &lt;0℃ ${formatDays(region.annualColdDaysBelowZero)}</span>
             <span class="stat-pill">연간 일최저 ≥25℃ ${formatDays(region.annualHotDaysAboveTwentyFiveMin)}</span>
           </div>
@@ -736,7 +755,7 @@ function renderRegionCard(region, sharedChartScale) {
           <table>
             <thead>
               <tr>
-                <th>시기</th>
+                <th>월</th>
                 <th>평균 기온</th>
                 <th>강수량</th>
                 <th>일최저 &lt;0℃</th>
@@ -744,19 +763,26 @@ function renderRegionCard(region, sharedChartScale) {
               </tr>
             </thead>
             <tbody>
-              ${periodMetrics
+              ${monthlyRows
                 .map(
-                  (metric) => `
+                  (row) => `
                     <tr>
-                      <td>${escapeHtml(metric.label)}</td>
-                      <td>${formatTemp(metric.temperature)}</td>
-                      <td>${formatMm(metric.precipitation)}</td>
-                      <td>${formatDays(metric.coldDays)}</td>
-                      <td>${formatDays(metric.hotDays)}</td>
+                      <td>${escapeHtml(row.label)}</td>
+                      <td>${formatTemp(row.temperature)}</td>
+                      <td>${formatMm(row.precipitation)}</td>
+                      <td>${formatDays(row.coldDays)}</td>
+                      <td>${formatDays(row.hotDays)}</td>
                     </tr>
                   `
                 )
                 .join("")}
+              <tr>
+                <th scope="row">연간</th>
+                <td>${formatTemp(region.annualMeanTemperatureC)}</td>
+                <td>${formatMm(region.annualPrecipitationMm)}</td>
+                <td>${formatDays(region.annualColdDaysBelowZero)}</td>
+                <td>${formatDays(region.annualHotDaysAboveTwentyFiveMin)}</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -999,7 +1025,7 @@ function renderComparison(regions) {
       <div class="chart-card is-wide">
         <h4>연교차 비교</h4>
         ${renderAnnualRangeChart(rows)}
-        ${renderFootnoteLines(["연교차는 8월 평균 기온에서 1월 평균 기온을 뺀 값입니다."])}
+        ${renderFootnoteLines(["연교차는 최난월 평균 기온에서 최한월 평균 기온을 뺀 값입니다."])}
       </div>
     </div>
   `;
@@ -1044,14 +1070,17 @@ function renderMap(visibleRegions, selectedRegions) {
         return "";
       }
       const [x, y] = projected;
+      const isSelected = state.selectedIds.has(region.id);
       return `
         <button
           type="button"
-          class="map-marker ${state.selectedIds.has(region.id) ? "is-selected" : ""}"
+          class="map-marker ${isSelected ? "is-selected" : ""}"
           data-map-region-id="${region.id}"
           data-label="${escapeHtml(`${region.name} · ${region.nation}`)}"
+          data-mobile-label="${escapeHtml(region.name)}"
           style="left:${((x / width) * 100).toFixed(3)}%; top:${((y / height) * 100).toFixed(3)}%; --marker-color: #111111;"
-          aria-label="${escapeHtml(region.name)} 선택"
+          aria-label="${escapeHtml(region.name)} ${isSelected ? "선택 해제" : "선택"}"
+          aria-pressed="${isSelected}"
         ></button>
       `;
     })
@@ -1117,7 +1146,7 @@ function getPeriodMetrics(region, period) {
 }
 
 function getAnnualTemperatureRange(region) {
-  return round(region.monthlyTemperatureC[7] - region.monthlyTemperatureC[0]);
+  return round(getWarmestMonthTemperature(region) - getColdestMonthTemperature(region));
 }
 
 function getWarmestMonthTemperature(region) {

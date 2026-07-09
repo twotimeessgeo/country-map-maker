@@ -320,6 +320,11 @@ body {
   font-family: inherit;
 }
 
+.app-switch-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
 .app-switch-link,
 .app-switch-link:visited,
 .app-switch-link:hover,
@@ -833,6 +838,22 @@ body {
   font-size: 0.84rem;
 }
 
+.source-meta-link {
+  text-decoration: none;
+}
+
+.source-meta-link:hover,
+.source-meta-link:focus-visible {
+  border-color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.16em;
+}
+
+.classification-review-pill {
+  border-style: dashed;
+  background: #f7f7f7;
+}
+
 .table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -1025,6 +1046,13 @@ tfoot td {
   );
   box-shadow: 0 0 0 1px rgba(17, 17, 17, 0.2);
   transition: width 140ms ease, height 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+}
+
+.map-marker::before {
+  position: absolute;
+  inset: -7px;
+  border-radius: 999px;
+  content: "";
 }
 
 .map-marker::after {
@@ -2161,6 +2189,24 @@ tfoot td {
     padding: 14px;
   }
 
+  .chart-card,
+  .region-card-chart,
+  .world-region-chart-frame {
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chart-card .svg-chart,
+  .region-card-chart .svg-chart {
+    min-width: 420px;
+  }
+
+  .world-trend-card .svg-chart,
+  .chart-card.is-wide .svg-chart {
+    min-width: 560px;
+  }
+
   .region-picker .region-list,
   .region-list,
   .api-results {
@@ -2188,7 +2234,14 @@ tfoot td {
   }
 
   .map-marker::after {
-    display: none;
+    content: attr(data-mobile-label);
+    bottom: calc(100% + 7px);
+    padding: 4px 6px;
+    font-size: 0.66rem;
+  }
+
+  .map-marker.is-selected::after {
+    opacity: 1;
   }
 
   .region-card h3,

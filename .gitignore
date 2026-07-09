@@ -1,2 +1,6 @@
 .DS_Store
 .cache/
+.private/
+PRIVATE_CONTEXT.md
+NOTES_PRIVATE.md
+dist/

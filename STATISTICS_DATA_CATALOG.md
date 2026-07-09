@@ -133,13 +133,17 @@
 
 - 지역 129개
 - 월 12개
-- 모든 기본 지역은 Open-Meteo 기반으로 정리됨
+- 일본 기상청(JMA) 1991-2020 평년값 105개 전면 반영
+- JMA 기온 + Open-Meteo 강수 혼합 4개
+- JMA 미수록 지점 Open-Meteo ERA5 보완 20개
 
 주요 필드:
 
 - `name`, `englishName`, `aliases`
 - `continent`, `country`
 - `climateCode`, `climateGroup`
+- `classificationBasis`: 출제·교과용 수동 분류(`curriculum-curated`). JMA 대체 관측소 값으로 자동 재분류하지 않음
+- `classificationReview`: 현재 앱 분류식과 수동 분류의 일치 여부. `review-required` 지역은 기후군 기반 자동 선지에서 제외
 - `months`
 - `monthlyTemperatureC`
 - `monthlyPrecipitationMm`
@@ -147,6 +151,8 @@
 - `annualPrecipitationMm`
 - `coordinates.latitude`, `coordinates.longitude`
 - `source.type`, `source.label`, `source.url`, `source.apiUrl`, `source.model`, `source.period`, `source.note`
+- `source.variableSources.temperature`, `source.variableSources.precipitation`
+- JMA 지점: `source.stn`, `source.jmaStationName`, `source.sourceKind`
 - `hemisphere`, `id`
 
 기후군 분포:
@@ -157,7 +163,8 @@
 
 출처:
 
-- Open-Meteo Historical Weather API
+- 일본 기상청 세계의 지점별 평년값 / 국내 기후평년값
+- Open-Meteo Historical Weather API(ERA5, JMA 미수록·결측 보완)
 - Open-Meteo Geocoding API
 - Natural Earth Downloads
 

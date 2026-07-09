@@ -6,7 +6,7 @@
     <title>Promenade Geography</title>
     <meta
       name="description"
-      content="Promenade Geography is a map editor, climate graphics database, and exam simulator for geography workflows."
+      content="지도 편집, 기후 평년값 비교, 지리 기출 검색과 컷 시뮬레이션을 한곳에서 사용하는 Promenade Geography 작업실입니다."
     />
     <meta name="theme-color" content="#f4f1ea" />
     <link
@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="./tokens.css" />
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="./components.css" />
-    <link rel="stylesheet" href="./portal.css" />
+    <link rel="stylesheet" href="./portal.css?v=20260710b" />
   </head>
   <body>
     <div class="portal-shell">
@@ -42,23 +42,39 @@
             </h1>
             <p class="portal-kicker">THE GEOGRAPHY WORKROOM</p>
           </div>
+          <div class="portal-manifesto">
+            <p>
+              지도 편집, 기후 비교, 기출 분석을 한 흐름으로 이어 쓰는 지리 콘텐츠 제작용 작업실입니다.
+              필요한 도구를 골라 바로 시작할 수 있습니다.
+            </p>
+            <p class="portal-manifesto-meta">지도·통계 · JMA 1991–2020 · 기출 DB·컷 모델</p>
+          </div>
         </section>
 
-        <section class="portal-index" aria-label="Promenade Geography tools">
+        <section class="portal-index" aria-label="Promenade Geography 도구 목록">
           <a href="./map.html">
-            <span>01</span>
+            <span class="portal-index-number" aria-hidden="true">01</span>
             <strong>Map Editor with Statistics Archive</strong>
-            <em>World and Korea map data</em>
+            <span class="portal-index-detail">
+              <em>세계·한국 지도 편집과 행정구역·통계 시각화</em>
+              <small>지도·통계</small>
+            </span>
           </a>
           <a href="./tools/climate/index.html">
-            <span>02</span>
+            <span class="portal-index-number" aria-hidden="true">02</span>
             <strong>Climate Database and Graphics</strong>
-            <em>Climate charts and tables</em>
+            <span class="portal-index-detail">
+              <em>JMA 1991–2020 평년값 기반 월별 기후 그래프·표</em>
+              <small>129개 지역</small>
+            </span>
           </a>
           <a href="./tools/cut/index.html">
-            <span>03</span>
+            <span class="portal-index-number" aria-hidden="true">03</span>
             <strong>Exam Database with Simulator</strong>
-            <em>Exam items, cut prediction, choice rates</em>
+            <span class="portal-index-detail">
+              <em>기출 검색, 정답률·선택지 분석과 등급컷 시뮬레이션</em>
+              <small>기출 DB·컷 모델</small>
+            </span>
           </a>
         </section>
       </main>
