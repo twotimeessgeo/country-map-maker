@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="../../base.css" />
     <link rel="stylesheet" href="../../components.css" />
     <link rel="stylesheet" href="../../patterns.css" />
-    <link rel="stylesheet" href="./cut.css" />
+    <link rel="stylesheet" href="./cut.css?v=20260710b" />
   </head>
   <body>
     <div class="tw-page tw-stack cut-page">
@@ -43,18 +43,52 @@
           <h1 class="tw-hero-title">Exam Database with Simulator</h1>
         </div>
         <aside class="tw-hero-note cut-hero-note" aria-label="현재 모델">
-          <strong id="modelBadge">로딩</strong>
+          <strong id="modelBadge" aria-live="polite">로딩</strong>
         </aside>
       </header>
 
-      <nav class="tw-switch cut-tool-tabs" aria-label="컷 도구 선택">
-        <button class="tw-switch-item is-active" type="button" data-tool-tab="questions">기출 검색</button>
-        <button class="tw-switch-item" type="button" data-tool-tab="predict">컷 보기</button>
-        <button class="tw-switch-item" type="button" data-tool-tab="solutions">CSV 업로드</button>
-      </nav>
+      <div class="tw-switch cut-tool-tabs" role="tablist" aria-label="시험 도구 선택" aria-orientation="horizontal">
+        <button
+          class="tw-switch-item is-active"
+          id="questionsTab"
+          type="button"
+          role="tab"
+          aria-selected="true"
+          aria-controls="questionsPanel"
+          tabindex="0"
+          data-tool-tab="questions"
+        >기출 검색</button>
+        <button
+          class="tw-switch-item"
+          id="predictTab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="predictPanel"
+          tabindex="-1"
+          data-tool-tab="predict"
+        >컷 보기</button>
+        <button
+          class="tw-switch-item"
+          id="solutionsTab"
+          type="button"
+          role="tab"
+          aria-selected="false"
+          aria-controls="solutionsPanel"
+          tabindex="-1"
+          data-tool-tab="solutions"
+        >CSV 업로드</button>
+      </div>
 
       <main class="cut-tool-stack">
-        <section class="cut-tab-panel" data-tool-panel="predict" hidden>
+        <section
+          class="cut-tab-panel"
+          id="predictPanel"
+          role="tabpanel"
+          aria-labelledby="predictTab"
+          data-tool-panel="predict"
+          hidden
+        >
           <div class="cut-predict-layout">
             <section class="tw-panel cut-workbench" aria-labelledby="cutTitle">
               <div class="tw-section-heading compact">
@@ -62,7 +96,7 @@
                   <p class="tw-kicker">1. INPUT</p>
                   <h2 id="cutTitle" class="tw-section-title">정답률 입력</h2>
                 </div>
-                <span class="tw-badge" id="statusBadge">대기</span>
+                <span class="tw-badge" id="statusBadge" aria-live="polite">대기</span>
               </div>
 
               <form id="cutForm" class="cut-form">
@@ -139,7 +173,7 @@
                   <span id="meanMetric">-</span>
                   <span id="rateMetric">-</span>
                 </div>
-                <p class="cut-warning" id="warningText" hidden></p>
+                <p class="cut-warning" id="warningText" role="status" hidden></p>
 
                 <details class="cut-result-section app-collapse" open>
                   <summary class="app-collapse-summary">
@@ -178,14 +212,20 @@
           </div>
         </section>
 
-        <section class="cut-tab-panel" data-tool-panel="questions">
+        <section
+          class="cut-tab-panel"
+          id="questionsPanel"
+          role="tabpanel"
+          aria-labelledby="questionsTab"
+          data-tool-panel="questions"
+        >
           <section class="tw-panel question-panel" aria-labelledby="questionTitle">
             <div class="tw-section-heading compact">
               <div>
                 <p class="tw-kicker">QUESTION BANK</p>
                 <h2 id="questionTitle" class="tw-section-title">기출 문항 검색</h2>
               </div>
-              <span class="tw-badge" id="questionBankBadge">로딩</span>
+              <span class="tw-badge" id="questionBankBadge" aria-live="polite">로딩</span>
             </div>
 
             <form id="questionSearchForm" class="question-search-form">
@@ -306,19 +346,26 @@
               </div>
             </form>
 
-            <div class="question-search-meta" id="questionSearchMeta"></div>
+            <div class="question-search-meta" id="questionSearchMeta" aria-live="polite"></div>
             <div class="question-result-grid" id="questionResultGrid"></div>
           </section>
         </section>
 
-        <section class="cut-tab-panel" data-tool-panel="solutions" hidden>
+        <section
+          class="cut-tab-panel"
+          id="solutionsPanel"
+          role="tabpanel"
+          aria-labelledby="solutionsTab"
+          data-tool-panel="solutions"
+          hidden
+        >
           <section class="tw-panel solution-panel" aria-labelledby="solutionTitle">
             <div class="tw-section-heading compact">
               <div>
                 <p class="tw-kicker">CSV</p>
                 <h2 id="solutionTitle" class="tw-section-title">해설 CSV + 컷</h2>
               </div>
-              <span class="tw-badge" id="solutionStatusBadge">대기</span>
+              <span class="tw-badge" id="solutionStatusBadge" aria-live="polite">대기</span>
             </div>
 
             <form id="solutionForm" class="solution-form">
@@ -367,8 +414,12 @@
       </main>
     </div>
 
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script
+      src="https://unpkg.com/lucide@1.24.0/dist/umd/lucide.min.js"
+      integrity="sha384-mooE85Luwgx+AyykX7e90VcN8/QCFTSIwPuHLmvcsLVoA0en7lKYb9XlOzn5G2co"
+      crossorigin="anonymous"
+    ></script>
     <script src="./data/cut-data.js"></script>
-    <script src="./cut.js"></script>
+    <script src="./cut.js?v=20260710b"></script>
   </body>
 </html>

@@ -56,6 +56,10 @@
   background: var(--tw-paper);
 }
 
+.cut-tool-tabs [role="tab"] {
+  flex: 1 1 140px;
+}
+
 .cut-tool-stack {
   display: grid;
   gap: 18px;
@@ -552,6 +556,11 @@
   border: var(--tw-border);
   background: #ffffff;
   cursor: pointer;
+}
+
+.solution-upload:focus-within {
+  outline: 2px solid rgba(17, 17, 17, 0.34);
+  outline-offset: 2px;
 }
 
 .solution-upload input {
