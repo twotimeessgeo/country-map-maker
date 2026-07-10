@@ -63,6 +63,8 @@ const WORKSPACE_PERSISTED_KEYS = [
   "mapVersion",
   "width",
   "height",
+  "canvasAspectLocked",
+  "canvasAspectRatio",
   "paddingPercent",
   "centerLongitude",
   "projectionMode",
@@ -351,13 +353,13 @@ const countryStatsYearModeDefinitions = [
 ];
 const metricExplorerRankPalette = [
   "#111111",
-  "#2f3136",
-  "#4d5158",
-  "#6b727d",
-  "#8b94a0",
-  "#a7b2bf",
-  "#bcc6d1",
-  "#d3d9e0",
+  "#444444",
+  "#707070",
+  "#969696",
+  "#b8b8b8",
+  "#d0d0d0",
+  "#e0e0e0",
+  "#eeeeee",
 ];
 const metricExplorerCategoryDefinitions = [
   {
@@ -393,6 +395,35 @@ const metricExplorerDisplayModeDefinitions = [
   { key: "flow", label: "수입·수출·이동" },
   { key: "relative", label: "상댓값 100" },
   { key: "scatter", label: "산포도" },
+];
+const worldStatsQuickMetricKeys = [
+  "population-total",
+  "population-urban-share",
+  "age-65plus-share",
+  "industry-agriculture-share",
+  "energy-renewables-share",
+];
+const examGraphQuickStartDefinitions = [
+  {
+    key: "population-rank",
+    label: "Population Rank",
+    config: { presetKey: "rankBars", metricKey: "population-total", valueMode: "amount", grouping: "countries" },
+  },
+  {
+    key: "urban-rural",
+    label: "Urban & Rural",
+    config: { presetKey: "stacked100", compositionKey: "urban-rural", valueMode: "share", grouping: "countries" },
+  },
+  {
+    key: "population-trend",
+    label: "Population Trend",
+    config: { presetKey: "trendLine", timeMetricKey: "population-total", valueMode: "amount", grouping: "countries" },
+  },
+  {
+    key: "industry-mix",
+    label: "Industry Mix",
+    config: { presetKey: "stacked100", compositionKey: "industry-structure", valueMode: "share", grouping: "countries" },
+  },
 ];
 let koreaGeoStatsMeta = { categories: {}, levels: {} };
 let koreaGeoStatsRegionOrderByLevel = {
@@ -1694,6 +1725,8 @@ const state = {
   mapVersion: "world",
   width: MAIN_CANVAS_WIDTH,
   height: 310,
+  canvasAspectLocked: false,
+  canvasAspectRatio: 1,
   paddingPercent: 10,
   centerLongitude: 0,
   projectionMode: "rectangular",
@@ -1718,7 +1751,7 @@ const state = {
   activeStatsCountryId: null,
   metricExplorerCategoryKey: "demography",
   metricExplorerDisplayMode: "overview",
-  metricExplorerMetricKey: "",
+  metricExplorerMetricKey: "population-total",
   metricExplorerTopN: 5,
   metricExplorerGrouping: "countries",
   metricExplorerMapHighlightEnabled: false,
@@ -1763,6 +1796,7 @@ const state = {
   examGraphFocusCountryIds: [],
   examGraphFocusLabel: "",
   examGraphDesignExpanded: false,
+  examGraphDataExpanded: false,
   examGraphActionsExpanded: false,
   guides: {
     equator: false,
@@ -1819,14 +1853,16 @@ const elements = {
   examGraphPanel: document.querySelector("#examGraphPanel"),
   metricExplorerPanel: document.querySelector("#metricExplorerPanel"),
   countryStatsPanel: document.querySelector("#countryStatsPanel"),
+  countryProfileModule: document.querySelector("#countryProfileModule"),
   koreaGeoStatsPanel: document.querySelector("#koreaGeoStatsPanel"),
   statusMessage: document.querySelector("#statusMessage"),
   workspaceSaveStatus: document.querySelector("#workspaceSaveStatus"),
   resetWorkspaceButton: document.querySelector("#resetWorkspaceButton"),
   widthInput: document.querySelector("#widthInput"),
   heightInput: document.querySelector("#heightInput"),
-  heightSlider: document.querySelector("#heightSlider"),
-  heightSliderValue: document.querySelector("#heightSliderValue"),
+  canvasSizeValue: document.querySelector("#canvasSizeValue"),
+  aspectRatioLockButton: document.querySelector("#aspectRatioLockButton"),
+  swapCanvasDimensionsButton: document.querySelector("#swapCanvasDimensionsButton"),
   paddingInput: document.querySelector("#paddingInput"),
   paddingValue: document.querySelector("#paddingValue"),
   centerLongitudeInput: document.querySelector("#centerLongitudeInput"),
@@ -1898,6 +1934,7 @@ let currentRenderContext = null;
 let embeddedMapFontDataUrl = window.EMBEDDED_MAP_FONT_DATA_URL ?? null;
 let activeGestureScale = 1;
 let currentCanvasSurface = null;
+let renderedStatsSelectionSignature = null;
 const previewInteraction = {
   scale: 1,
   translateX: 0,
@@ -1992,27 +2029,52 @@ function attachEventListeners() {
   });
 
   elements.widthInput.addEventListener("input", () => {
+    if (elements.widthInput.value === "") {
+      return;
+    }
     beginHistoryStep("캔버스 크기 변경");
-    state.width = clampCanvasWidth(elements.widthInput.value, state.width);
+    applyCanvasDimensionInput("width", elements.widthInput.value);
     syncDimensionInputs();
     syncPresetButtons();
     renderMap();
   });
 
   elements.heightInput.addEventListener("input", () => {
+    if (elements.heightInput.value === "") {
+      return;
+    }
     beginHistoryStep("캔버스 크기 변경");
-    state.height = clampCanvasHeight(elements.heightInput.value, state.height);
+    applyCanvasDimensionInput("height", elements.heightInput.value);
     syncDimensionInputs();
     syncPresetButtons();
     renderMap();
   });
 
-  elements.heightSlider?.addEventListener("input", () => {
-    beginHistoryStep("캔버스 비율 변경");
-    state.height = clampCanvasHeight(elements.heightSlider.value, state.height);
+  [elements.widthInput, elements.heightInput].forEach((input) => {
+    input.addEventListener("change", () => {
+      syncDimensionInputs();
+    });
+  });
+
+  elements.aspectRatioLockButton?.addEventListener("click", () => {
+    state.canvasAspectLocked = !state.canvasAspectLocked;
+    state.canvasAspectRatio = getCurrentCanvasAspectRatio();
+    markWorkspaceDirty({ force: true });
+    syncDimensionInputs();
+    setStatus(state.canvasAspectLocked ? "캔버스 비율을 잠갔습니다." : "캔버스 비율 잠금을 해제했습니다.");
+  });
+
+  elements.swapCanvasDimensionsButton?.addEventListener("click", () => {
+    beginHistoryStep("캔버스 방향 전환");
+    const swappedAspectRatio = normalizeCanvasAspectRatio(state.height / state.width, 1);
+    const nextFrame = fitCanvasFrameByWidth(Math.min(state.height, MAX_CANVAS_WIDTH), swappedAspectRatio);
+    state.width = nextFrame.width;
+    state.height = nextFrame.height;
+    state.canvasAspectRatio = getCurrentCanvasAspectRatio();
     syncDimensionInputs();
     syncPresetButtons();
     renderMap();
+    setStatus(`${state.width} × ${state.height}px로 가로와 세로를 바꿨습니다.`);
   });
 
   elements.paddingInput.addEventListener("input", () => {
@@ -2277,6 +2339,7 @@ function attachEventListeners() {
       beginHistoryStep("캔버스 프리셋 변경");
       state.width = clampCanvasWidth(Number(button.dataset.width), state.width);
       state.height = clampCanvasHeight(Number(button.dataset.height), state.height);
+      state.canvasAspectRatio = getCurrentCanvasAspectRatio();
       syncDimensionInputs();
       syncPresetButtons();
       renderMap();
@@ -2354,6 +2417,11 @@ function sanitizeWorkspaceEditor(editor) {
   next.mapVersion = mapVersionLabels[editor.mapVersion] ? editor.mapVersion : "world";
   next.width = clampCanvasWidth(editor.width, defaultEditorState.width);
   next.height = clampCanvasHeight(editor.height, defaultEditorState.height);
+  next.canvasAspectLocked = Boolean(editor.canvasAspectLocked);
+  next.canvasAspectRatio = normalizeCanvasAspectRatio(
+    editor.canvasAspectRatio,
+    next.width / next.height,
+  );
   next.paddingPercent = clampFiniteNumber(editor.paddingPercent, 4, 24, defaultEditorState.paddingPercent);
   next.centerLongitude = clampFiniteNumber(editor.centerLongitude, -180, 180, defaultEditorState.centerLongitude);
   next.projectionMode = projectionModeLabels[editor.projectionMode]
@@ -3552,13 +3620,14 @@ function syncControls() {
 function syncDimensionInputs() {
   elements.widthInput.value = String(clampCanvasWidth(state.width));
   elements.heightInput.value = String(clampCanvasHeight(state.height));
-  if (elements.heightSlider) {
-    const sliderMin = Number(elements.heightSlider.min);
-    const sliderMax = Number(elements.heightSlider.max);
-    elements.heightSlider.value = String(clamp(state.height, sliderMin, sliderMax));
+  if (elements.canvasSizeValue) {
+    elements.canvasSizeValue.textContent = formatCanvasSize();
   }
-  if (elements.heightSliderValue) {
-    elements.heightSliderValue.textContent = `${clampCanvasHeight(state.height)}px`;
+  if (elements.aspectRatioLockButton) {
+    elements.aspectRatioLockButton.setAttribute("aria-pressed", String(state.canvasAspectLocked));
+    elements.aspectRatioLockButton.title = state.canvasAspectLocked
+      ? "너비와 높이의 비율 잠금 해제"
+      : "너비와 높이의 비율 잠금";
   }
 }
 
@@ -4437,11 +4506,10 @@ function getMetricExplorerVisibleDefinitions(definitions = getMetricExplorerDefi
 }
 
 function ensureMetricExplorerState(definitions = getMetricExplorerDefinitions()) {
-  const categoryDefinitions = getMetricExplorerCategoryDefinitionsFiltered(definitions);
+  let categoryDefinitions = getMetricExplorerCategoryDefinitionsFiltered(definitions);
   if (!categoryDefinitions.length) {
     state.metricExplorerCategoryKey = metricExplorerCategoryDefinitions[0].key;
-    state.metricExplorerMetricKey = "";
-    return;
+    categoryDefinitions = getMetricExplorerCategoryDefinitionsFiltered(definitions);
   }
 
   if (
@@ -4461,6 +4529,9 @@ function ensureMetricExplorerState(definitions = getMetricExplorerDefinitions())
     !visibleDefinitions.some((definition) => definition.key === state.metricExplorerMetricKey)
   ) {
     state.metricExplorerMetricKey = "";
+  }
+  if (!state.metricExplorerMetricKey) {
+    state.metricExplorerMetricKey = visibleDefinitions[0]?.key ?? categoryDefinitions[0]?.key ?? "";
   }
 
   const scatterFallbacks = categoryDefinitions.map((definition) => definition.key);
@@ -4500,6 +4571,19 @@ function syncActiveStatsCountry(preferredId = null) {
 }
 
 function renderSelectionViews() {
+  const nextSelectionSignature = `${state.mapVersion}:${state.selected
+    .map((country) => country.id)
+    .sort()
+    .join(",")}`;
+  if (
+    state.mapVersion === "world" &&
+    renderedStatsSelectionSignature !== null &&
+    renderedStatsSelectionSignature !== nextSelectionSignature
+  ) {
+    state.examGraphFocusCountryIds = [];
+    state.examGraphFocusLabel = "";
+  }
+  renderedStatsSelectionSignature = nextSelectionSignature;
   renderSelectedCountries();
   renderExamGraphPanel();
   renderMetricExplorerPanel();
@@ -4573,10 +4657,7 @@ function renderSelectedCountries() {
       metaParts.push("통일 색상");
     }
     const baseMetaText = metaParts.join(" · ");
-    code.textContent =
-      state.mapVersion === "world" && country.id === state.activeStatsCountryId
-        ? "프로필 표시 중"
-        : baseMetaText;
+    code.textContent = baseMetaText;
     textWrap.append(name, code);
 
     const controls = document.createElement("div");
@@ -4586,10 +4667,15 @@ function renderSelectedCountries() {
       const statsButton = document.createElement("button");
       statsButton.className = "remove-button tw-button";
       statsButton.type = "button";
-      statsButton.textContent = country.id === state.activeStatsCountryId ? "선택됨" : "프로필";
+      statsButton.lang = "en";
+      statsButton.textContent = country.id === state.activeStatsCountryId ? "Active" : "Profile";
       statsButton.disabled = country.id === state.activeStatsCountryId;
       statsButton.addEventListener("click", () => {
         state.activeStatsCountryId = country.id;
+        if (elements.countryProfileModule) {
+          elements.countryProfileModule.open = true;
+          elements.countryProfileModule.scrollIntoView({ block: "nearest", behavior: "smooth" });
+        }
         renderSelectionViews();
       });
       controls.appendChild(statsButton);
@@ -4646,6 +4732,71 @@ function renderSelectedCountries() {
   syncKoreaGroupingActionButtons();
 }
 
+function buildWorldStatsQuickCards(definitions) {
+  const preferredDefinitions = worldStatsQuickMetricKeys
+    .map((key) => definitions.find((definition) => definition.key === key))
+    .filter(Boolean);
+  const fallbackDefinitions = definitions.filter(
+    (definition) => !worldStatsQuickMetricKeys.includes(definition.key),
+  );
+  const cards = [...preferredDefinitions, ...fallbackDefinitions]
+    .map((definition) => {
+      const results = getMetricExplorerResults(definition, "countries");
+      const entry = results[0] ?? null;
+      return entry ? { definition, entry } : null;
+    })
+    .filter(Boolean)
+    .slice(0, 4);
+
+  if (!cards.length) {
+    return null;
+  }
+
+  const grid = document.createElement("div");
+  grid.className = "stats-quick-grid stats-quick-grid--metrics";
+  grid.setAttribute("aria-label", "빠른 세계 통계");
+
+  cards.forEach(({ definition, entry }) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "stats-quick-card stats-quick-card--metric";
+    button.dataset.metricKey = definition.key;
+    button.classList.toggle("is-active", state.metricExplorerMetricKey === definition.key);
+    button.setAttribute("aria-pressed", String(state.metricExplorerMetricKey === definition.key));
+    button.setAttribute(
+      "aria-label",
+      `${definition.label}, ${entry.label}, ${definition.formatter(entry.value)}`,
+    );
+
+    const label = document.createElement("span");
+    label.textContent = definition.label;
+    const value = document.createElement("strong");
+    value.textContent = definition.formatter(entry.value);
+    const context = document.createElement("small");
+    context.textContent = [entry.label, entry.year ? `${entry.year}` : ""].filter(Boolean).join(" · ");
+    button.append(label, value, context);
+
+    button.addEventListener("click", () => {
+      beginHistoryStep("빠른 지표 변경");
+      state.metricExplorerCategoryKey = getMetricExplorerDefinitionCategoryKey(definition);
+      state.metricExplorerDisplayMode = "overview";
+      state.metricExplorerGrouping = "countries";
+      state.metricExplorerMetricKey = definition.key;
+      state.examGraphPresetKey = "rankBars";
+      state.examGraphMetricKey = definition.key;
+      state.examGraphGrouping = "countries";
+      state.examGraphValueMode = "amount";
+      state.examGraphFocusCountryIds = [];
+      state.examGraphFocusLabel = "";
+      renderSelectionViews();
+      renderMap();
+    });
+    grid.appendChild(button);
+  });
+
+  return grid;
+}
+
 function renderMetricExplorerPanel() {
   if (!elements.metricExplorerPanel) {
     return;
@@ -4667,6 +4818,10 @@ function renderMetricExplorerPanel() {
 
   const shell = document.createElement("div");
   shell.className = "metric-explorer-shell";
+  const quickCards = buildWorldStatsQuickCards(definitions);
+  if (quickCards) {
+    shell.appendChild(quickCards);
+  }
   shell.appendChild(buildMinimalMetricExplorerControls(definitions, visibleDefinitions, activeDefinition));
 
   if (!activeDefinition) {
@@ -7722,6 +7877,12 @@ function buildMinimalMetricExplorerControls(definitions, visibleDefinitions, act
     ...(getMetricExplorerScopeMode() === "selected"
       ? [buildStatsScopeReadout(getMetricExplorerScopeLabel(), () => applyMetricExplorerScopeReset())]
       : []),
+  );
+  wrapper.appendChild(primary);
+
+  const advanced = document.createElement("div");
+  advanced.className = "metric-explorer-controls";
+  advanced.append(
     buildCompactStatsSelect({
       id: "metricExplorerGroupingSelect",
       label: "집계",
@@ -7752,10 +7913,6 @@ function buildMinimalMetricExplorerControls(definitions, visibleDefinitions, act
       },
     }),
   );
-  wrapper.appendChild(primary);
-
-  const advanced = document.createElement("div");
-  advanced.className = "metric-explorer-controls";
   advanced.appendChild(
     buildCompactStatsSelect({
       id: "worldStatsYearModeSelect",
@@ -7863,6 +8020,9 @@ function buildControlDisclosure({ title, detail, contentNode, open = false, onTo
   summary.className = "control-disclosure__summary";
   const titleNode = document.createElement("strong");
   titleNode.textContent = title;
+  if (/^[\x00-\x7F]+$/.test(title)) {
+    titleNode.lang = "en";
+  }
   const detailNode = document.createElement("span");
   detailNode.textContent = detail;
   summary.append(titleNode, detailNode);
@@ -11718,6 +11878,52 @@ function updateExamGraphState(label, updater) {
   renderExamGraphPanel();
 }
 
+function isExamGraphQuickStartActive(config) {
+  if (state.examGraphPresetKey !== config.presetKey) {
+    return false;
+  }
+  if (config.metricKey && state.examGraphMetricKey !== config.metricKey) {
+    return false;
+  }
+  if (config.compositionKey && state.examGraphCompositionKey !== config.compositionKey) {
+    return false;
+  }
+  if (config.timeMetricKey && state.examGraphTimeMetricKey !== config.timeMetricKey) {
+    return false;
+  }
+  return !config.grouping || state.examGraphGrouping === config.grouping;
+}
+
+function buildExamGraphQuickStarts() {
+  const grid = document.createElement("div");
+  grid.className = "stats-quick-grid stats-quick-grid--charts";
+  grid.setAttribute("aria-label", "추천 통계 그래프");
+
+  examGraphQuickStartDefinitions.forEach((definition) => {
+    const active = isExamGraphQuickStartActive(definition.config);
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "stats-quick-card stats-quick-card--chart";
+    button.dataset.graphQuickStart = definition.key;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+    const label = document.createElement("strong");
+    label.lang = "en";
+    label.textContent = definition.label;
+    button.appendChild(label);
+    button.addEventListener("click", () => {
+      updateExamGraphState("추천 그래프 적용", () => {
+        applyExamGraphScenarioConfig(definition.config);
+        state.examGraphFocusCountryIds = [];
+        state.examGraphFocusLabel = "";
+      });
+    });
+    grid.appendChild(button);
+  });
+
+  return grid;
+}
+
 function renderExamGraphPanel() {
   if (!elements.examGraphPanel) {
     return;
@@ -11733,6 +11939,7 @@ function renderExamGraphPanel() {
   const model = buildExamGraphModel();
   const shell = document.createElement("div");
   shell.className = "exam-graph-shell";
+  shell.appendChild(buildExamGraphQuickStarts());
   shell.appendChild(buildExamGraphControls());
 
   if (!model) {
@@ -11778,7 +11985,7 @@ function buildExamGraphControls() {
   const presetLegend = document.createElement("p");
   presetLegend.className = "exam-graph-guide";
   presetLegend.lang = "en";
-  presetLegend.textContent = `Chart Type · ${examGraphPresetDefinitions.length}`;
+  presetLegend.textContent = "Chart Type";
   wrapper.appendChild(presetLegend);
 
   const presetRow = document.createElement("div");
@@ -11839,19 +12046,18 @@ function buildExamGraphControls() {
     button.addEventListener("click", config.handler);
     actionRow.appendChild(button);
   });
-  wrapper.appendChild(
-    buildControlDisclosure({
-      title: "빠른 추천과 대상 변경",
-      detail: "지도 선택 복귀, 국가 추천, 세트 추천",
-      contentNode: actionRow,
-      open: state.examGraphActionsExpanded,
-      onToggle: (nextOpen) => {
-        state.examGraphActionsExpanded = nextOpen;
-      },
-    }),
-  );
+  const actionDisclosure = buildControlDisclosure({
+    title: "More",
+    detail: "지도 선택 · 무작위 조합",
+    contentNode: actionRow,
+    open: state.examGraphActionsExpanded,
+    onToggle: (nextOpen) => {
+      state.examGraphActionsExpanded = nextOpen;
+    },
+  });
 
   if (!getExamGraphPresetDefinition()) {
+    wrapper.appendChild(actionDisclosure);
     return wrapper;
   }
 
@@ -12086,10 +12292,20 @@ function buildExamGraphControls() {
     );
   }
 
-  wrapper.appendChild(coreControls);
   wrapper.appendChild(
     buildControlDisclosure({
-      title: "디자인과 출력 형태",
+      title: "Data",
+      detail: getExamGraphPresetDefinition()?.label ?? "그래프 설정",
+      contentNode: coreControls,
+      open: state.examGraphDataExpanded,
+      onToggle: (nextOpen) => {
+        state.examGraphDataExpanded = nextOpen;
+      },
+    }),
+  );
+  wrapper.appendChild(
+    buildControlDisclosure({
+      title: "Appearance",
       detail: `${getExamGraphStyleModeDefinition().label} · ${getExamGraphOrientationLabel()} · ${getExamGraphPreviewCount()}개 나란히 · ${formatExamGraphPtLabel()}`,
       contentNode: designControls,
       open: state.examGraphDesignExpanded,
@@ -12098,6 +12314,7 @@ function buildExamGraphControls() {
       },
     }),
   );
+  wrapper.appendChild(actionDisclosure);
   return wrapper;
 }
 
@@ -20537,8 +20754,8 @@ function mountPreviewCanvas() {
 
   const maxWidth = Math.max(260, elements.previewStage.clientWidth - 28);
   const maxHeight = Math.max(260, elements.previewStage.clientHeight - 28);
-  // Preview can scale up independently from the export canvas so small outputs remain easy to edit.
-  currentPreviewScale = Math.max(1, Math.min(maxWidth / state.width, maxHeight / state.height));
+  // Keep every edge reachable like a slide editor, while still enlarging compact canvases.
+  currentPreviewScale = clamp(Math.min(maxWidth / state.width, maxHeight / state.height), 0.1, 2.5);
 
   const canvasShell = document.createElement("div");
   canvasShell.className = `canvas-shell mode-${getActiveViewMode()}`;
@@ -20567,13 +20784,28 @@ function mountPreviewCanvas() {
   overlay.className = "interaction-overlay";
   canvasShell.append(overlay);
 
-  const resizeHandle = document.createElement("button");
-  resizeHandle.type = "button";
-  resizeHandle.className = "resize-handle";
-  resizeHandle.title = "드래그해 캔버스 크기 조절";
-  resizeHandle.setAttribute("aria-label", "캔버스 크기 조절");
-  resizeHandle.addEventListener("pointerdown", startArtboardResize);
-  canvasShell.append(resizeHandle);
+  const sizeBadge = document.createElement("output");
+  sizeBadge.className = "canvas-size-badge";
+  sizeBadge.dataset.canvasSizeBadge = "";
+  sizeBadge.setAttribute("aria-hidden", "true");
+  sizeBadge.textContent = formatCanvasSize();
+  canvasShell.append(sizeBadge);
+
+  [
+    { axis: "x", label: "너비", title: "좌우로 드래그해 너비 조절" },
+    { axis: "y", label: "높이", title: "위아래로 드래그해 높이 조절" },
+    { axis: "both", label: "너비와 높이", title: "대각선으로 드래그해 크기 조절" },
+  ].forEach(({ axis, label, title }) => {
+    const resizeHandle = document.createElement("button");
+    resizeHandle.type = "button";
+    resizeHandle.className = `resize-handle resize-handle--${axis}`;
+    resizeHandle.dataset.resizeAxis = axis;
+    resizeHandle.title = `${title} · 방향키 1px · Shift 10px`;
+    resizeHandle.setAttribute("aria-label", `${label} 조절. 현재 ${formatCanvasSize()}. 방향키로 조절`);
+    resizeHandle.addEventListener("pointerdown", startArtboardResize);
+    resizeHandle.addEventListener("keydown", handleArtboardResizeKeyDown);
+    canvasShell.append(resizeHandle);
+  });
 
   mountAnnotationEditors(editorLayer, canvasShell);
   elements.previewStage.replaceChildren(canvasShell);
@@ -21070,6 +21302,10 @@ function previewTransformIsIdentity() {
 }
 
 function startArtboardResize(event) {
+  if (event.button !== 0 || event.isPrimary === false) {
+    return;
+  }
+
   event.preventDefault();
   event.stopPropagation();
   event.currentTarget.setPointerCapture?.(event.pointerId);
@@ -21083,40 +21319,48 @@ function startArtboardResize(event) {
   const startY = event.clientY;
   const startWidth = state.width;
   const startHeight = state.height;
+  const resizeAxis = event.currentTarget.dataset.resizeAxis || "both";
+  const previewScale = currentPreviewScale || 1;
+  const pointerId = event.pointerId;
+  let latestFrame = { width: startWidth, height: startHeight };
 
-  shell.classList.add("is-resizing");
+  flushPendingHistory();
+  beginHistoryStep("캔버스 크기 변경");
+  if (historyState.commitTimer) {
+    window.clearTimeout(historyState.commitTimer);
+    historyState.commitTimer = null;
+  }
+  shell.classList.add(`is-resizing-${resizeAxis}`);
 
   const onPointerMove = (moveEvent) => {
-    const deltaWidth = (moveEvent.clientX - startX) / (currentPreviewScale || 1);
-    const deltaHeight = (moveEvent.clientY - startY) / (currentPreviewScale || 1);
-    const { width: nextWidth, height: nextHeight } = getArtboardResizeFrame(
+    if (moveEvent.pointerId !== pointerId) {
+      return;
+    }
+    moveEvent.preventDefault();
+    const deltaWidth = (moveEvent.clientX - startX) / previewScale;
+    const deltaHeight = (moveEvent.clientY - startY) / previewScale;
+    latestFrame = getArtboardResizeFrame(
       startWidth,
       startHeight,
       deltaWidth,
       deltaHeight,
+      resizeAxis,
     );
-
-    shell.style.width = `${Math.round(nextWidth * currentPreviewScale)}px`;
-    shell.style.height = `${Math.round(nextHeight * currentPreviewScale)}px`;
-    setStatus(`${nextWidth} × ${nextHeight}px`);
+    applyLiveCanvasResize(shell, latestFrame, previewScale);
   };
 
   const stopResize = (upEvent) => {
+    if (upEvent.pointerId !== pointerId) {
+      return;
+    }
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", stopResize);
     window.removeEventListener("pointercancel", stopResize);
-    shell.classList.remove("is-resizing");
+    shell.classList.remove(`is-resizing-${resizeAxis}`);
 
-    const deltaWidth = (upEvent.clientX - startX) / (currentPreviewScale || 1);
-    const deltaHeight = (upEvent.clientY - startY) / (currentPreviewScale || 1);
-    const nextFrame = getArtboardResizeFrame(startWidth, startHeight, deltaWidth, deltaHeight);
-    beginHistoryStep("캔버스 크기 변경");
-    state.width = nextFrame.width;
-    state.height = nextFrame.height;
-    syncDimensionInputs();
-    syncPresetButtons();
     renderMap();
-    setStatus("미리보기 핸들로 캔버스 비율을 조절했습니다.");
+    commitPendingHistoryStep();
+    setStatus(`${latestFrame.width} × ${latestFrame.height}px 캔버스`);
   };
 
   window.addEventListener("pointermove", onPointerMove);
@@ -21124,14 +21368,98 @@ function startArtboardResize(event) {
   window.addEventListener("pointercancel", stopResize);
 }
 
-function getArtboardResizeFrame(startWidth, startHeight, deltaWidth, deltaHeight) {
-  const width = clampCanvasWidth(startWidth + deltaWidth, startWidth);
-  const maxedWidth = startWidth >= MAX_CANVAS_WIDTH - 0.5 && deltaWidth > Math.abs(deltaHeight) * 1.15;
-  const heightDelta = maxedWidth ? -deltaWidth : deltaHeight;
+function getArtboardResizeFrame(startWidth, startHeight, deltaWidth, deltaHeight, axis = "both") {
+  if (state.canvasAspectLocked) {
+    const ratio = normalizeCanvasAspectRatio(state.canvasAspectRatio, startWidth / startHeight);
+    if (axis === "x") {
+      return fitCanvasFrameByWidth(startWidth + deltaWidth, ratio);
+    }
+    if (axis === "y") {
+      return fitCanvasFrameByHeight(startHeight + deltaHeight, ratio);
+    }
+
+    const widthChange = Math.abs(deltaWidth / Math.max(1, startWidth));
+    const heightChange = Math.abs(deltaHeight / Math.max(1, startHeight));
+    return widthChange >= heightChange
+      ? fitCanvasFrameByWidth(startWidth + deltaWidth, ratio)
+      : fitCanvasFrameByHeight(startHeight + deltaHeight, ratio);
+  }
+
   return {
-    width,
-    height: clampCanvasHeight(startHeight + heightDelta, startHeight),
+    width: axis === "y" ? startWidth : clampCanvasWidth(startWidth + deltaWidth, startWidth),
+    height: axis === "x" ? startHeight : clampCanvasHeight(startHeight + deltaHeight, startHeight),
   };
+}
+
+function applyLiveCanvasResize(shell, frame, previewScale = currentPreviewScale || 1) {
+  state.width = clampCanvasWidth(frame.width, state.width);
+  state.height = clampCanvasHeight(frame.height, state.height);
+  if (!state.canvasAspectLocked) {
+    state.canvasAspectRatio = getCurrentCanvasAspectRatio();
+  }
+
+  shell.style.width = `${Math.round(state.width * previewScale)}px`;
+  shell.style.height = `${Math.round(state.height * previewScale)}px`;
+  const sizeBadge = shell.querySelector("[data-canvas-size-badge]");
+  if (sizeBadge) {
+    sizeBadge.textContent = formatCanvasSize();
+  }
+  shell.querySelectorAll("[data-resize-axis]").forEach((handle) => {
+    const label = handle.dataset.resizeAxis === "x"
+      ? "너비"
+      : handle.dataset.resizeAxis === "y"
+        ? "높이"
+        : "너비와 높이";
+    handle.setAttribute("aria-label", `${label} 조절. 현재 ${formatCanvasSize()}. 방향키로 조절`);
+  });
+  syncDimensionInputs();
+  syncPresetButtons();
+}
+
+function handleArtboardResizeKeyDown(event) {
+  const horizontal = event.key === "ArrowLeft" || event.key === "ArrowRight";
+  const vertical = event.key === "ArrowUp" || event.key === "ArrowDown";
+  if (!horizontal && !vertical) {
+    return;
+  }
+
+  const handleAxis = event.currentTarget.dataset.resizeAxis || "both";
+  if ((handleAxis === "x" && !horizontal) || (handleAxis === "y" && !vertical)) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+  const step = event.shiftKey ? 10 : 1;
+  const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+  const resizeAxis = horizontal ? "x" : "y";
+  const nextFrame = getArtboardResizeFrame(
+    state.width,
+    state.height,
+    horizontal ? direction * step : 0,
+    vertical ? direction * step : 0,
+    resizeAxis,
+  );
+  if (nextFrame.width === state.width && nextFrame.height === state.height) {
+    return;
+  }
+
+  beginHistoryStep("캔버스 크기 변경");
+  state.width = nextFrame.width;
+  state.height = nextFrame.height;
+  if (!state.canvasAspectLocked) {
+    state.canvasAspectRatio = getCurrentCanvasAspectRatio();
+  }
+  syncDimensionInputs();
+  syncPresetButtons();
+  renderMap();
+  setStatus(`${formatCanvasSize()} 캔버스`);
+
+  window.requestAnimationFrame(() => {
+    elements.previewStage
+      .querySelector(`[data-resize-axis="${handleAxis}"]`)
+      ?.focus({ preventScroll: true });
+  });
 }
 
 function handleCanvasPointerDown(event) {
@@ -21888,6 +22216,90 @@ function isPointNearViewport(point, buffer = 48) {
   return point.x >= -buffer && point.x <= state.width + buffer && point.y >= -buffer && point.y <= state.height + buffer;
 }
 
+function applyCanvasDimensionInput(dimension, value) {
+  if (state.canvasAspectLocked) {
+    const ratio = normalizeCanvasAspectRatio(state.canvasAspectRatio, getCurrentCanvasAspectRatio());
+    const frame = dimension === "width"
+      ? fitCanvasFrameByWidth(value, ratio)
+      : fitCanvasFrameByHeight(value, ratio);
+    state.width = frame.width;
+    state.height = frame.height;
+    return;
+  }
+
+  if (dimension === "width") {
+    state.width = clampCanvasWidth(value, state.width);
+  } else {
+    state.height = clampCanvasHeight(value, state.height);
+  }
+  state.canvasAspectRatio = getCurrentCanvasAspectRatio();
+}
+
+function fitCanvasFrameByWidth(value, aspectRatio) {
+  const ratio = normalizeCanvasAspectRatio(aspectRatio, getCurrentCanvasAspectRatio());
+  const minimumFeasibleWidth = Math.max(MIN_CANVAS_WIDTH, MIN_CANVAS_HEIGHT * ratio);
+  const maximumFeasibleWidth = Math.min(MAX_CANVAS_WIDTH, 3200 * ratio);
+  if (minimumFeasibleWidth <= maximumFeasibleWidth) {
+    const width = clamp(
+      Math.round(Number(value) || state.width),
+      Math.ceil(minimumFeasibleWidth),
+      Math.floor(maximumFeasibleWidth),
+    );
+    return {
+      width: clampCanvasWidth(width, state.width),
+      height: clampCanvasHeight(Math.round(width / ratio), state.height),
+    };
+  }
+
+  const width = clampCanvasWidth(value, state.width);
+  return {
+    width,
+    height: clampCanvasHeight(Math.round(width / ratio), state.height),
+  };
+}
+
+function fitCanvasFrameByHeight(value, aspectRatio) {
+  const ratio = normalizeCanvasAspectRatio(aspectRatio, getCurrentCanvasAspectRatio());
+  const minimumFeasibleHeight = Math.max(MIN_CANVAS_HEIGHT, MIN_CANVAS_WIDTH / ratio);
+  const maximumFeasibleHeight = Math.min(3200, MAX_CANVAS_WIDTH / ratio);
+  if (minimumFeasibleHeight <= maximumFeasibleHeight) {
+    const height = clamp(
+      Math.round(Number(value) || state.height),
+      Math.ceil(minimumFeasibleHeight),
+      Math.floor(maximumFeasibleHeight),
+    );
+    return {
+      width: clampCanvasWidth(Math.round(height * ratio), state.width),
+      height: clampCanvasHeight(height, state.height),
+    };
+  }
+
+  const height = clampCanvasHeight(value, state.height);
+  return {
+    width: clampCanvasWidth(Math.round(height * ratio), state.width),
+    height,
+  };
+}
+
+function getCurrentCanvasAspectRatio() {
+  return normalizeCanvasAspectRatio(state.width / Math.max(1, state.height), 1);
+}
+
+function normalizeCanvasAspectRatio(value, fallback = 1) {
+  const parsed = Number(value);
+  if (Number.isFinite(parsed) && parsed > 0) {
+    return clamp(parsed, 0.01, 100);
+  }
+  const parsedFallback = Number(fallback);
+  return Number.isFinite(parsedFallback) && parsedFallback > 0
+    ? clamp(parsedFallback, 0.01, 100)
+    : 1;
+}
+
+function formatCanvasSize(width = state.width, height = state.height) {
+  return `${clampCanvasWidth(width)} × ${clampCanvasHeight(height)} px`;
+}
+
 function clampCanvasWidth(value, fallback = MAIN_CANVAS_WIDTH) {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
@@ -21909,6 +22321,10 @@ function clampCanvasHeight(value, fallback = 310) {
 function normalizeCanvasStateDimensions() {
   state.width = clampCanvasWidth(state.width, MAIN_CANVAS_WIDTH);
   state.height = clampCanvasHeight(state.height, 310);
+  state.canvasAspectLocked = Boolean(state.canvasAspectLocked);
+  state.canvasAspectRatio = state.canvasAspectLocked
+    ? normalizeCanvasAspectRatio(state.canvasAspectRatio, getCurrentCanvasAspectRatio())
+    : getCurrentCanvasAspectRatio();
 }
 
 function clamp(value, min, max) {
