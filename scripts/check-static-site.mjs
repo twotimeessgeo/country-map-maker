@@ -40,22 +40,11 @@ for (const htmlPath of htmlFiles) {
   }
 }
 
-const manifestPath = path.join(rootDir, "tools", "cut", "data", "question-image-manifest.json");
-const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-if (!Array.isArray(manifest.items)) {
-  errors.push("문항 이미지 manifest의 items가 배열이 아닙니다.");
-} else {
-  if (manifest.count !== manifest.items.length) {
-    errors.push(`문항 이미지 manifest count(${manifest.count})와 items(${manifest.items.length})가 다릅니다.`);
-  }
-
-  const cutDir = path.join(rootDir, "tools", "cut");
-  for (const item of manifest.items) {
-    const imagePath = path.resolve(cutDir, String(item.url ?? ""));
-    if (!item.url || !fs.existsSync(imagePath)) {
-      errors.push(`문항 이미지 누락: ${item.id ?? "id 없음"} -> ${item.url ?? "url 없음"}`);
-    }
-  }
+const cutDataPath = path.join(rootDir, "tools", "cut", "data", "ebsi_geo_data.json");
+const cutData = JSON.parse(fs.readFileSync(cutDataPath, "utf8"));
+const cutRecords = Array.isArray(cutData.records) ? cutData.records : [];
+if (cutRecords.length === 0) {
+  errors.push("EBSi 등급컷 records가 비어 있습니다.");
 }
 
 if (errors.length > 0) {
@@ -66,7 +55,7 @@ if (errors.length > 0) {
 console.log(
   `정적 사이트 검증 완료(${path.relative(projectRoot, rootDir) || "source"}): ` +
     `HTML ${htmlFiles.length}개 · 로컬 링크/에셋 ${localReferenceCount}개 · ` +
-    `문항 이미지 ${manifest.items.length}개`
+    `등급컷 기록 ${cutRecords.length}개`
 );
 
 function isExternalReference(reference) {

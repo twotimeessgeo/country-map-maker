@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>세계 기후 | Promenade Geography</title>
+    <title>Climate Atlas — World | Promenade Geography</title>
     <meta
       name="description"
-      content="세계 지역의 월별 기온과 강수량을 비교하고 기후 그래프를 만듭니다."
+      content="세계 주요 지역의 1991–2020 월별 기온과 강수량을 비교하고 그래프로 확인합니다."
     />
     <meta name="theme-color" content="#111111" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260710f" />
+    <link rel="stylesheet" href="styles.css?v=20260710h" />
   </head>
   <body data-app-mode="world">
     <div class="page-shell">
@@ -28,22 +28,22 @@
           </summary>
           <div class="app-context-menu-panel">
             <a href="../../map.html">Map Editor</a>
-            <a class="is-active" href="./index.html">Climate Database</a>
-            <a href="../cut/index.html">Exam Archive</a>
+            <a class="is-active" href="./index.html">Climate Atlas</a>
+            <a href="../cut/index.html">Grade Cut Archive</a>
           </div>
         </details>
       </nav>
       <header class="hero">
         <div class="hero-copy">
-          <h1>세계 기후</h1>
-          <nav class="app-switch" aria-label="기후 자료 선택">
-            <a class="app-switch-link is-active" href="./index.html">세계</a>
-            <a class="app-switch-link" href="./korea.html">한국</a>
+          <h1 lang="en">Climate Atlas</h1>
+          <nav class="app-switch" aria-label="지역 범위">
+            <a class="app-switch-link is-active" lang="en" href="./index.html">World</a>
+            <a class="app-switch-link" lang="en" href="./korea.html">Korea</a>
           </nav>
         </div>
         <div class="hero-note">
           <strong id="heroCount">129개 지역</strong>
-          <span id="heroCaption">JMA 1991-2020</span>
+          <span id="heroCaption" lang="en">JMA · 1991–2020</span>
         </div>
       </header>
 
@@ -179,7 +179,7 @@
         <section class="panel" id="selectedPanel">
           <div class="section-heading">
             <div>
-              <h2>지역별 기후</h2>
+              <h2>기후 그래프</h2>
             </div>
           </div>
           <div id="selectedRegionsContent" class="selected-grid"></div>
@@ -201,6 +201,6 @@
     <script src="data/world-countries-50m.js"></script>
     <script src="data/vendor-d3.min.js"></script>
     <script src="data/vendor-topojson-client.min.js"></script>
-    <script src="app.js?v=20260710e"></script>
+    <script src="app.js?v=20260710h"></script>
   </body>
 </html>

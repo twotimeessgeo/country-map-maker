@@ -2,10 +2,6 @@
   box-sizing: border-box;
 }
 
-:root {
-  --tw-font-sans: "TWK Lausanne", "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
-}
-
 html {
   scroll-behavior: smooth;
   font-size: 87.5%;
@@ -17,9 +13,16 @@ body {
   background: var(--tw-paper);
   color: var(--tw-ink);
   font-family: var(--tw-font-sans);
-  font-weight: 400;
+  font-weight: var(--tw-weight-body);
+  font-kerning: normal;
   line-height: 1.55;
   overflow-x: hidden;
+}
+
+:lang(en),
+.tw-latin {
+  font-family: var(--tw-font-latin);
+  font-synthesis: none;
 }
 
 img,

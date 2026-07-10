@@ -32,7 +32,7 @@ const requiredOutputs = [
   "tools/climate/data/climate-data.json",
   "tools/climate/korea.html",
   "tools/cut/index.html",
-  "tools/cut/data/cut-data.js",
+  "tools/cut/data/ebsi_geo_data.json",
 ];
 
 fs.rmSync(outputDir, { recursive: true, force: true });

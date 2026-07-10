@@ -15,8 +15,8 @@
 .tw-card-title {
   margin: 0;
   font-family: var(--tw-font-sans);
-  font-weight: 800;
-  letter-spacing: -0.03em;
+  font-weight: var(--tw-weight-heading);
+  letter-spacing: var(--tw-track-heading);
 }
 
 .tw-hero-title {
@@ -26,6 +26,14 @@
   word-break: keep-all;
   overflow-wrap: normal;
   text-wrap: balance;
+}
+
+.tw-section-title:lang(en),
+.tw-card-title:lang(en) {
+  font-family: var(--tw-font-latin);
+  font-weight: var(--tw-weight-latin-ui);
+  letter-spacing: var(--tw-track-heading);
+  font-synthesis: none;
 }
 
 .tw-hero-text {
@@ -51,7 +59,7 @@
   display: block;
   margin-bottom: 4px;
   font-size: 1.95rem;
-  font-weight: 800;
+  font-weight: var(--tw-weight-heading);
   line-height: 0.98;
   letter-spacing: -0.03em;
 }
@@ -130,7 +138,7 @@
   padding: 6px 9px;
   border: var(--tw-border);
   background: #ffffff;
-  font-weight: 700;
+  font-weight: var(--tw-weight-ui);
 }
 
 @media (max-width: 980px) {

@@ -11777,6 +11777,7 @@ function buildExamGraphControls() {
 
   const presetLegend = document.createElement("p");
   presetLegend.className = "exam-graph-guide";
+  presetLegend.lang = "en";
   presetLegend.textContent = `Chart Type · ${examGraphPresetDefinitions.length}`;
   wrapper.appendChild(presetLegend);
 

@@ -597,7 +597,8 @@ function render() {
     elements.heroCount.textContent = `${state.dataset.summary.regionCount}개 지역`;
   }
   if (elements.heroCaption) {
-    elements.heroCaption.textContent = `${state.dataset.summary.sourceLabel} ${state.dataset.summary.period}`;
+    const period = String(state.dataset.summary.period ?? "1991-2020").replace("-", "–");
+    elements.heroCaption.textContent = `KMA · ${period}`;
   }
   if (elements.selectionSummary) {
     elements.selectionSummary.textContent = `${selectedRegions.length}개 선택됨`;

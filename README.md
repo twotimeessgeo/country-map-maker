@@ -1,6 +1,6 @@
 # 수능 지리 유틸리티 포털
 
-지도 제작, 기후 비교, 지리 등급컷 예측을 한곳에서 여는 정적 웹 포털입니다. GitHub Pages 같은 정적 호스팅에 그대로 올릴 수 있도록 루트 `index.html`을 포털 홈으로 두고, 각 도구는 독립 페이지로 분리했습니다.
+지도 제작, 기후 비교, 실제 시행 지리 등급컷 조회를 한곳에서 여는 정적 웹 포털입니다. GitHub Pages 같은 정적 호스팅에 그대로 올릴 수 있도록 루트 `index.html`을 포털 홈으로 두고, 각 도구는 독립 페이지로 분리했습니다.
 
 ## 포털 구성
 
@@ -8,7 +8,7 @@
 - [map.html](./map.html): 기존 `투타임즈의 통계머신`
 - [tools/climate/index.html](./tools/climate/index.html): 세계지리 기후머신
 - [tools/climate/korea.html](./tools/climate/korea.html): 한국지리 기후머신
-- [tools/cut/index.html](./tools/cut/index.html): 정적 지리 컷 예측기
+- [tools/cut/index.html](./tools/cut/index.html): 한국지리·세계지리 실제 등급컷 아카이브
 
 ## 실행 방법
 

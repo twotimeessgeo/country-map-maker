@@ -8,11 +8,11 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="./tokens.css" />
-    <link rel="stylesheet" href="./base.css?v=20260710f" />
-    <link rel="stylesheet" href="./components.css" />
-    <link rel="stylesheet" href="./patterns.css" />
-    <link rel="stylesheet" href="./styles.css?v=20260710f" />
+    <link rel="stylesheet" href="./tokens.css?v=20260710h" />
+    <link rel="stylesheet" href="./base.css?v=20260710h" />
+    <link rel="stylesheet" href="./components.css?v=20260710h" />
+    <link rel="stylesheet" href="./patterns.css?v=20260710h" />
+    <link rel="stylesheet" href="./styles.css?v=20260710h" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
@@ -27,38 +27,38 @@
           </summary>
           <div class="app-context-menu-panel">
             <a class="is-active" href="./map.html">Map Editor</a>
-            <a href="./tools/climate/index.html">Climate Database</a>
-            <a href="./tools/cut/index.html">Exam Archive</a>
+            <a href="./tools/climate/index.html">Climate Atlas</a>
+            <a href="./tools/cut/index.html">Grade Cut Archive</a>
           </div>
         </details>
       </nav>
       <header class="tw-hero app-hero">
         <div class="tw-hero-copy">
           <nav class="tw-switch" aria-label="Map dataset">
-            <button class="map-version-button tw-switch-item" type="button" data-map-version="world" aria-pressed="true">World</button>
-            <button class="map-version-button tw-switch-item" type="button" data-map-version="korea" aria-pressed="false">Korea</button>
+            <button class="map-version-button tw-switch-item" lang="en" type="button" data-map-version="world" aria-pressed="true">World</button>
+            <button class="map-version-button tw-switch-item" lang="en" type="button" data-map-version="korea" aria-pressed="false">Korea</button>
           </nav>
-          <h1 class="tw-hero-title">Map Editor</h1>
+          <h1 class="tw-hero-title" lang="en">Map Editor</h1>
         </div>
-        <aside class="tw-hero-note" aria-label="Selection count">
-          <p class="tw-kicker">Selection</p>
-          <strong id="selectionSummary">0 selected</strong>
+        <aside class="tw-hero-note app-hero-note" aria-label="Selection count">
+          <p class="tw-kicker" lang="en">Selection</p>
+          <strong id="selectionSummary" lang="en">0 selected</strong>
         </aside>
       </header>
 
       <section class="tw-panel workspace-panel">
         <div class="tw-section-heading">
-          <h2 class="tw-section-title">Canvas</h2>
+          <h2 class="tw-section-title" lang="en">Canvas</h2>
           <div class="workspace-export-actions">
-            <button id="downloadSvgButton" class="tw-button export-button" type="button">SVG</button>
-            <button id="downloadPngButton" class="tw-button export-button ghost-button" type="button">PNG</button>
+            <button id="downloadSvgButton" class="tw-button export-button" lang="en" type="button">SVG</button>
+            <button id="downloadPngButton" class="tw-button export-button ghost-button" lang="en" type="button">PNG</button>
           </div>
         </div>
 
         <div class="workspace-shell">
           <div class="workspace-controls-column">
             <div class="workspace-controls-head">
-              <h3 class="tw-card-title">Settings</h3>
+              <h3 class="tw-card-title" lang="en">Settings</h3>
             </div>
 
             <div id="statusMessage" class="status-message" aria-live="polite">지도를 클릭해 선택</div>
@@ -71,7 +71,7 @@
               </button>
             </div>
             <div class="workspace-projection-block world-only">
-              <p class="app-mini-label">Projection</p>
+              <p class="app-mini-label" lang="en">Projection</p>
               <nav id="projectionSwitch" class="tw-switch projection-switch" aria-label="지도 시점 선택">
                 <button class="projection-button tw-switch-item" type="button" data-projection="rectangular">
                   평면
@@ -87,7 +87,7 @@
             <div class="tw-card-grid app-control-grid">
               <article class="tw-data-card app-control-card app-control-card--wide korea-selection-card">
                 <div class="app-card-head">
-                  <h3 id="selectionCardTitle" class="tw-card-title">Countries</h3>
+                  <h3 id="selectionCardTitle" class="tw-card-title" lang="en">Countries</h3>
                   <button id="clearSelectionButton" class="tw-button ghost-button ghost-button--compact" type="button">
                     비우기
                   </button>
@@ -199,7 +199,7 @@
               </details>
 
               <article class="tw-data-card app-control-card">
-                <h3 class="tw-card-title">Canvas Size</h3>
+                <h3 class="tw-card-title" lang="en">Canvas Size</h3>
                 <div class="chip-grid">
                   <button class="tw-chip preset-button" type="button" data-width="310" data-height="310">1:1</button>
                   <button class="tw-chip preset-button" type="button" data-width="310" data-height="233">4:3</button>
@@ -219,7 +219,7 @@
                   </label>
                 </div>
                 <label class="range-field canvas-ratio-field">
-                  <span>Height</span>
+                  <span lang="en">Height</span>
                   <div class="range-row">
                     <input id="heightSlider" type="range" min="120" max="620" step="1" value="310" />
                     <strong id="heightSliderValue">310px</strong>
@@ -290,7 +290,7 @@
               </details>
 
               <article class="tw-data-card app-control-card app-control-card--wide">
-                <h3 class="tw-card-title">Style</h3>
+                <h3 class="tw-card-title" lang="en">Style</h3>
                 <label class="range-field">
                   <span>주변 여백</span>
                   <div class="range-row">
@@ -344,7 +344,7 @@
               </article>
 
               <details class="tw-data-card app-control-card app-control-disclosure">
-                <summary>Labels &amp; Scale</summary>
+                <summary lang="en">Labels &amp; Scale</summary>
                 <div class="app-control-disclosure__body">
                   <label class="range-field">
                   <span>지도 글자 크기</span>
@@ -364,7 +364,7 @@
 
           <div class="workspace-preview-column">
             <div class="workspace-preview-head">
-              <h3 class="tw-card-title">Preview</h3>
+              <h3 class="tw-card-title" lang="en">Preview</h3>
             </div>
 
             <div class="tw-chart-panel preview-card">
@@ -406,7 +406,7 @@
                   </section>
 
                   <section class="preview-toolbox__section korea-only" hidden>
-                    <strong class="preview-toolbox__title">Select regions on map</strong>
+                    <strong class="preview-toolbox__title" lang="en">Select regions on map</strong>
                   </section>
 
                   <section class="preview-toolbox__section">
@@ -460,11 +460,11 @@
                     <summary>단축키</summary>
                     <div class="shortcut-list">
                       <div class="shortcut-item">
-                        <kbd>Wheel</kbd>
+                        <kbd lang="en">Wheel</kbd>
                         <span>어디서든 확대/축소</span>
                       </div>
                       <div class="shortcut-item">
-                        <kbd>Space</kbd>
+                        <kbd lang="en">Space</kbd>
                         <span>누르고 있는 동안 이동</span>
                       </div>
                       <div class="shortcut-item">
@@ -498,31 +498,31 @@
 
       <section class="tw-panel">
         <div class="tw-section-heading">
-          <h2 id="detailSectionTitle" class="tw-section-title">Statistics</h2>
+          <h2 id="detailSectionTitle" class="tw-section-title" lang="en">Statistics</h2>
           <span id="detailSectionBadge" hidden>구성비 · 변화 · 국가 프로필</span>
         </div>
 
         <div class="app-detail-grid stats-workspace">
           <div class="stats-workspace__main">
             <section class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-              <header class="stats-module__header"><strong>Graph Builder</strong></header>
+              <header class="stats-module__header"><strong lang="en">Graph Builder</strong></header>
               <div id="examGraphPanel" class="exam-graph-panel"></div>
             </section>
 
             <section class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-              <header class="stats-module__header"><strong>World Data</strong></header>
+              <header class="stats-module__header"><strong lang="en">World Data</strong></header>
               <div id="metricExplorerPanel" class="metric-explorer-panel"></div>
             </section>
 
             <section class="tw-data-card app-detail-card app-detail-card--stats stats-module korea-only" hidden>
-              <header class="stats-module__header"><strong>Korea Data</strong></header>
+              <header class="stats-module__header"><strong lang="en">Korea Data</strong></header>
               <div id="koreaGeoStatsPanel" class="metric-explorer-panel"></div>
             </section>
           </div>
 
           <aside class="stats-workspace__sidebar">
             <section class="tw-data-card app-detail-card app-detail-card--selection stats-module">
-              <header class="stats-module__header"><strong id="selectionDetailTitle">Selection</strong></header>
+              <header class="stats-module__header"><strong id="selectionDetailTitle" lang="en">Selection</strong></header>
               <div class="selection-module-body">
                 <p id="selectionDetailHint" class="hint" hidden>선택 항목 관리</p>
                 <div id="selectionCompareActions" class="inline-actions korea-only" hidden>
@@ -545,7 +545,7 @@
             </section>
 
             <details class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-              <summary><strong>Country Profile</strong></summary>
+              <summary><strong lang="en">Country Profile</strong></summary>
               <div id="countryStatsPanel" class="country-stats-panel"></div>
             </details>
           </aside>
@@ -561,6 +561,6 @@
     <script src="./data/world-lakes.js"></script>
     <script src="./data/country-stats.js?v=20260428a"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260710f"></script>
+    <script src="./app.js?v=20260710h"></script>
   </body>
 </html>

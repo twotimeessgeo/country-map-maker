@@ -33,8 +33,10 @@ body[data-map-version="korea"] .world-only {
 .app-hero .tw-hero-title {
   max-width: 12.5ch;
   font-family: var(--tw-font-latin);
-  font-weight: 200;
+  font-weight: var(--tw-weight-latin-display);
   font-size: 3.35rem;
+  letter-spacing: var(--tw-track-display);
+  font-synthesis: none;
 }
 
 .app-hero .tw-hero-text {
@@ -57,7 +59,11 @@ body[data-map-version="korea"] .world-only {
 }
 
 .app-hero-note strong {
+  font-family: var(--tw-font-latin);
   font-size: 1.72rem;
+  font-weight: var(--tw-weight-latin-ui);
+  letter-spacing: -0.015em;
+  font-synthesis: none;
   line-height: 1;
   word-break: keep-all;
   text-wrap: balance;
@@ -206,8 +212,15 @@ body[data-map-version="korea"] .app-detail-card--selection {
   margin: 0;
   color: var(--tw-muted);
   font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: var(--tw-weight-ui);
+  letter-spacing: 0;
+}
+
+.app-mini-label:lang(en),
+.stats-module__header strong:lang(en),
+.stats-module > summary strong:lang(en) {
+  font-weight: var(--tw-weight-latin-ui);
+  letter-spacing: var(--tw-track-heading);
 }
 
 .status-message {
@@ -828,7 +841,7 @@ output {
   background: var(--tw-panel-soft);
   color: var(--tw-muted);
   font-size: 0.8rem;
-  font-weight: 650;
+  font-weight: var(--tw-weight-ui);
 }
 
 .preview-mode-button__body {
@@ -1446,8 +1459,8 @@ kbd {
   flex: 0 0 auto;
   color: var(--tw-muted);
   font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-weight: var(--tw-weight-ui);
+  letter-spacing: 0;
 }
 
 .control-disclosure[open] .control-disclosure__summary::after {
@@ -1616,9 +1629,9 @@ kbd {
 .metric-explorer-summary-card span,
 .country-stats-metric span {
   font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: var(--tw-weight-ui);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .country-stats-summary-card strong,
@@ -1934,6 +1947,12 @@ kbd {
   line-height: 1.65;
 }
 
+.exam-graph-guide:lang(en) {
+  font-family: var(--tw-font-latin);
+  font-weight: var(--tw-weight-latin-ui);
+  font-synthesis: none;
+}
+
 .exam-graph-chip,
 .metric-explorer-chip,
 .metric-explorer-metric-chip {
@@ -1985,9 +2004,9 @@ kbd {
 .exam-graph-control label,
 .metric-explorer-control label {
   font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: var(--tw-weight-ui);
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--tw-muted);
 }
 
@@ -2064,9 +2083,9 @@ kbd {
 .exam-graph-preview-card__eyebrow {
   color: var(--tw-muted);
   font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  font-weight: var(--tw-weight-ui);
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .exam-graph-stage {
@@ -2650,9 +2669,9 @@ kbd {
 .metric-explorer-table__matrix thead .metric-explorer-table__cell {
   border-top: 0;
   font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: var(--tw-weight-ui);
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--tw-muted);
 }
 
@@ -2713,11 +2732,12 @@ kbd {
 
 .app-hero .tw-hero-title {
   max-width: none;
-  font-family: var(--tw-font-sans);
+  font-family: var(--tw-font-latin);
   font-size: clamp(2.8rem, 5vw, 4.25rem);
-  font-weight: 800;
+  font-weight: var(--tw-weight-latin-display);
   line-height: 0.95;
-  letter-spacing: -0.03em;
+  letter-spacing: var(--tw-track-display);
+  font-synthesis: none;
 }
 
 .app-hero-note {
@@ -2731,12 +2751,19 @@ kbd {
 .app-hero-note strong {
   margin: 0;
   font-size: 1.5rem;
-  font-weight: 800;
+  font-weight: var(--tw-weight-latin-ui);
   line-height: 1;
+  letter-spacing: -0.015em;
+  font-synthesis: none;
 }
 
 .app-hero-note .tw-kicker {
   margin: 0;
+  font-family: var(--tw-font-latin);
+  font-weight: var(--tw-weight-latin-ui);
+  letter-spacing: var(--tw-track-kicker);
+  text-transform: uppercase;
+  font-synthesis: none;
 }
 
 .workspace-panel,

@@ -28,6 +28,14 @@
 
   --tw-font-latin: "TWK Lausanne", "Pretendard Variable", "Pretendard", sans-serif;
   --tw-font-sans: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --tw-weight-latin-display: 200;
+  --tw-weight-latin-ui: 300;
+  --tw-weight-body: 400;
+  --tw-weight-ui: 600;
+  --tw-weight-heading: 700;
+  --tw-track-display: -0.025em;
+  --tw-track-heading: -0.01em;
+  --tw-track-kicker: 0.08em;
   --tw-text-base: 0.875rem;
   --tw-text-sm: 0.84rem;
   --tw-text-md: 1rem;
