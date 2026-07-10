@@ -3471,18 +3471,18 @@ function syncMapVersionControls() {
     }
   });
   elements.selectionCardTitle.textContent = isWorldMode ? "국가 선택" : "한국 권역 선택";
-  elements.selectionDetailTitle.textContent = isWorldMode ? "선택 국가 랙" : "선택 권역 랙";
+  elements.selectionDetailTitle.textContent = isWorldMode ? "선택 국가" : "선택 권역";
   elements.selectionDetailHint.textContent = isWorldMode
-    ? "비교와 그래프에 쓸 국가를 여기서 색상과 함께 관리합니다."
-    : "비교와 그래프에 쓸 권역을 여기서 색상과 비교 보기 상태와 함께 관리합니다.";
+    ? "선택 국가 관리"
+    : "선택 권역 관리";
   if (elements.selectionFilterLabel) {
     elements.selectionFilterLabel.textContent = isWorldMode ? "선택 국가 찾기" : "선택 권역 찾기";
   }
   if (elements.selectionFilterInput) {
     elements.selectionFilterInput.placeholder = isWorldMode ? "예: Brazil, AUS" : "예: 경기, 전주, 강남구";
   }
-  elements.detailSectionTitle.textContent = isWorldMode ? "인문지리 비교 자료실" : "한국지리 비교 자료실";
-  elements.detailSectionBadge.textContent = isWorldMode ? "구성비 · 변화 · 국가 프로필" : "권역 비교 · 구조 · 변화";
+  elements.detailSectionTitle.textContent = "통계";
+  elements.detailSectionBadge.textContent = isWorldMode ? "세계 통계" : "한국 통계";
   elements.unifySelectedColorLabel.textContent = isWorldMode ? "선택 국가 색상 통일" : "선택 권역 색상 통일";
   elements.modeButtons.forEach((button) => {
     button.disabled = !isWorldMode;
@@ -4579,20 +4579,16 @@ function renderSelectedCountries() {
     if (state.mapVersion === "korea") {
       metaParts.push(koreaRegionLevelLabels[state.koreaLevel]);
       if (comparedIdSet.has(country.id)) {
-        metaParts.push("비교 보기 중");
+        metaParts.push("비교 중");
       }
     }
-    metaParts.push(
-      state.unifySelectedCountryColors
-        ? "통일 색상 사용 중"
-        : state.mapVersion === "world"
-          ? "색상은 자유롭게 바꿀 수 있습니다"
-          : "색상은 자유롭게 바꿀 수 있습니다",
-    );
+    if (state.unifySelectedCountryColors) {
+      metaParts.push("통일 색상");
+    }
     const baseMetaText = metaParts.join(" · ");
     code.textContent =
       state.mapVersion === "world" && country.id === state.activeStatsCountryId
-        ? `현재 통계 패널 표시 중 · ${baseMetaText}`
+        ? "프로필 표시 중"
         : baseMetaText;
     textWrap.append(name, code);
 
@@ -4603,7 +4599,7 @@ function renderSelectedCountries() {
       const statsButton = document.createElement("button");
       statsButton.className = "remove-button tw-button";
       statsButton.type = "button";
-      statsButton.textContent = country.id === state.activeStatsCountryId ? "보고 있음" : "통계";
+      statsButton.textContent = country.id === state.activeStatsCountryId ? "선택됨" : "프로필";
       statsButton.disabled = country.id === state.activeStatsCountryId;
       statsButton.addEventListener("click", () => {
         state.activeStatsCountryId = country.id;
@@ -4684,7 +4680,7 @@ function renderMetricExplorerPanel() {
 
   const shell = document.createElement("div");
   shell.className = "metric-explorer-shell";
-  shell.appendChild(buildMetricExplorerControls(definitions, visibleDefinitions, activeDefinition));
+  shell.appendChild(buildMinimalMetricExplorerControls(definitions, visibleDefinitions, activeDefinition));
 
   if (!activeDefinition) {
     shell.appendChild(createEmptyState("지표를 선택하면 그래프와 순위표가 표시됩니다."));
@@ -4747,8 +4743,6 @@ function renderMetricExplorerPanel() {
     ),
     createMetricExplorerSummaryCard("그래프 제작", displayModeMeta.label, categoryMeta.description),
   );
-  shell.appendChild(summary);
-
   if (!results.length) {
     shell.appendChild(createEmptyState("선택한 지표로 정렬할 수 있는 국가 통계가 아직 없습니다."));
     elements.metricExplorerPanel.appendChild(shell);
@@ -7161,7 +7155,7 @@ function renderKoreaGeoStatsPanel() {
     state.koreaGeoStatsTrendEndPeriodKey = trendPresentation.endPeriodKey;
   }
 
-  shell.appendChild(buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition, trendPresentation));
+  shell.appendChild(buildMinimalKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition, trendPresentation));
 
   const summary = document.createElement("div");
   summary.className = "metric-explorer-summary";
@@ -7198,8 +7192,6 @@ function renderKoreaGeoStatsPanel() {
       );
     }
   }
-  shell.appendChild(summary);
-
   if (!latestEntries.length) {
     shell.appendChild(createEmptyState(`선택한 지표로 비교할 수 있는 ${regionNoun} 통계가 없습니다.`));
     elements.koreaGeoStatsPanel.appendChild(shell);
@@ -7467,130 +7459,113 @@ function renderKoreaGeoStatsPanel() {
   elements.koreaGeoStatsPanel.appendChild(shell);
 }
 
-function buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition, trendPresentation = null) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "metric-explorer-control-shell";
-  const levelKey = getKoreaGeoStatsLevelKey();
-  const compactRegionNoun = getKoreaGeoStatsRegionNoun(levelKey, true);
+function buildCompactStatsSelect({ id, label, options, value, onChange }) {
+  const field = document.createElement("label");
+  field.className = "stats-flow-control";
+  const labelNode = document.createElement("span");
+  labelNode.textContent = label;
+  const select = document.createElement("select");
+  if (id) {
+    select.id = id;
+  }
+  options.forEach((optionConfig) => {
+    const option = document.createElement("option");
+    option.value = optionConfig.key ?? optionConfig.value;
+    option.textContent = optionConfig.label;
+    option.selected = option.value === value;
+    select.appendChild(option);
+  });
+  select.addEventListener("change", () => onChange(select.value));
+  field.append(labelNode, select);
+  return field;
+}
 
-  const actionRow = document.createElement("div");
-  actionRow.className = "exam-graph-action-row";
-  [
-    {
-      label: "현재 범위 사용",
-      active: getKoreaGeoStatsScopeMode(levelKey) !== "all",
-      handler: () => applyKoreaGeoStatsScopeReset(),
-    },
-    {
-      label: "지역 랜덤",
-      active: false,
-      handler: () => applyKoreaGeoStatsRandomRegions(),
-    },
-    {
-      label: "통계 랜덤",
-      active: false,
-      handler: () => applyKoreaGeoStatsRandomMetric(),
-    },
-    {
-      label: "세트 랜덤",
-      active: false,
-      handler: () => applyKoreaGeoStatsRandomScenario(),
-    },
-  ].forEach((config) => {
+function buildStatsScopeReadout(label, onReset = null) {
+  const field = document.createElement("div");
+  field.className = "stats-scope-readout";
+  const labelNode = document.createElement("span");
+  labelNode.textContent = "범위";
+  const valueNode = document.createElement("strong");
+  valueNode.textContent = label;
+  field.append(labelNode, valueNode);
+  if (onReset) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "metric-explorer-chip exam-graph-chip--action";
-    button.classList.toggle("is-active", Boolean(config.active));
-    button.textContent = config.label;
-    button.addEventListener("click", config.handler);
-    actionRow.appendChild(button);
-  });
-  wrapper.appendChild(
-    buildControlDisclosure({
-      title: "빠른 추천과 범위 조정",
-      detail: "현재 범위 복귀, 지역 추천, 통계 추천",
-      contentNode: actionRow,
-      open: state.koreaGeoStatsActionsExpanded,
-      onToggle: (nextOpen) => {
-        state.koreaGeoStatsActionsExpanded = nextOpen;
+    button.className = "stats-scope-reset";
+    button.textContent = "전체";
+    button.addEventListener("click", onReset);
+    field.appendChild(button);
+  }
+  return field;
+}
+
+function buildMinimalKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition, trendPresentation = null) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "metric-explorer-control-shell stats-control-shell";
+  const levelKey = getKoreaGeoStatsLevelKey();
+
+  const primary = document.createElement("div");
+  primary.className = "stats-flow";
+  primary.append(
+    buildCompactStatsSelect({
+      id: "koreaGeoStatsCategorySelect",
+      label: "분류",
+      options: koreaGeoStatsCategoryDefinitions,
+      value: state.koreaGeoStatsCategoryKey,
+      onChange: (value) => {
+        state.koreaGeoStatsCategoryKey = value;
+        const fallbackMetric = getKoreaGeoStatsDefinitionsByCategory(definitions, value)[0];
+        if (fallbackMetric) {
+          state.koreaGeoStatsMetricKey = fallbackMetric.key;
+        }
+        renderSelectionViews();
+      },
+    }),
+    buildCompactStatsSelect({
+      id: "koreaGeoStatsMetricSelect",
+      label: "지표",
+      options: categoryDefinitions,
+      value: activeDefinition?.key ?? "",
+      onChange: (value) => {
+        const nextDefinition = definitions.find((definition) => definition.key === value);
+        state.koreaGeoStatsMetricKey = value;
+        if (state.koreaGeoStatsDisplayMode === "relative" && !nextDefinition?.allowRelative) {
+          state.koreaGeoStatsDisplayMode = "latest";
+        }
+        renderSelectionViews();
+      },
+    }),
+    buildStatsScopeReadout(
+      getKoreaGeoStatsScopeLabel(levelKey),
+      getKoreaGeoStatsScopeMode(levelKey) === "selected" ? () => applyKoreaGeoStatsScopeReset() : null,
+    ),
+    buildCompactStatsSelect({
+      id: "koreaGeoStatsDisplayModeSelect",
+      label: "그래프",
+      options: koreaGeoStatsDisplayModeDefinitions.filter(
+        (mode) => mode.key !== "relative" || categoryDefinitions.some((definition) => definition.allowRelative),
+      ),
+      value: state.koreaGeoStatsDisplayMode,
+      onChange: (value) => {
+        state.koreaGeoStatsDisplayMode = value;
+        if (value === "relative" && !activeDefinition?.allowRelative) {
+          const fallback = categoryDefinitions.find((definition) => definition.allowRelative);
+          if (fallback) {
+            state.koreaGeoStatsMetricKey = fallback.key;
+          }
+        }
+        renderSelectionViews();
       },
     }),
   );
+  wrapper.appendChild(primary);
 
-  const guide = document.createElement("p");
-  guide.className = "metric-explorer-guide";
-  guide.textContent = getKoreaGeoStatsGuideText(levelKey);
-  wrapper.appendChild(guide);
-
-  const categoryRow = document.createElement("div");
-  categoryRow.className = "metric-explorer-tab-row";
-  koreaGeoStatsCategoryDefinitions.forEach((category) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "metric-explorer-chip";
-    button.classList.toggle("is-active", state.koreaGeoStatsCategoryKey === category.key);
-    button.textContent = category.label;
-    button.addEventListener("click", () => {
-      state.koreaGeoStatsCategoryKey = category.key;
-      const fallbackMetric = getKoreaGeoStatsDefinitionsByCategory(definitions, category.key)[0];
-      if (fallbackMetric) {
-        state.koreaGeoStatsMetricKey = fallbackMetric.key;
-      }
-      renderSelectionViews();
-    });
-    categoryRow.appendChild(button);
-  });
-  wrapper.appendChild(categoryRow);
-
-  const modeRow = document.createElement("div");
-  modeRow.className = "metric-explorer-tab-row metric-explorer-tab-row--compact";
-  koreaGeoStatsDisplayModeDefinitions.forEach((mode) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "metric-explorer-chip";
-    button.classList.toggle("is-active", state.koreaGeoStatsDisplayMode === mode.key);
-    button.textContent = mode.label;
-    button.disabled = mode.key === "relative" && !categoryDefinitions.some((definition) => definition.allowRelative);
-    button.addEventListener("click", () => {
-      state.koreaGeoStatsDisplayMode = mode.key;
-      if (mode.key === "relative" && !activeDefinition.allowRelative) {
-        const relativeFallback = categoryDefinitions.find((definition) => definition.allowRelative);
-        if (relativeFallback) {
-          state.koreaGeoStatsMetricKey = relativeFallback.key;
-        }
-      }
-      renderSelectionViews();
-    });
-    modeRow.appendChild(button);
-  });
-  wrapper.appendChild(modeRow);
-
-  const metricGrid = document.createElement("div");
-  metricGrid.className = "metric-explorer-metric-grid";
-  categoryDefinitions.forEach((definition) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "metric-explorer-metric-chip";
-    button.classList.toggle("is-active", state.koreaGeoStatsMetricKey === definition.key);
-    button.textContent = definition.label;
-    button.addEventListener("click", () => {
-      state.koreaGeoStatsMetricKey = definition.key;
-      if (state.koreaGeoStatsDisplayMode === "relative" && !definition.allowRelative) {
-        state.koreaGeoStatsDisplayMode = "latest";
-      }
-      renderSelectionViews();
-    });
-    metricGrid.appendChild(button);
-  });
-  wrapper.appendChild(metricGrid);
-
-  const controls = document.createElement("div");
-  controls.className = "metric-explorer-controls";
+  const advanced = document.createElement("div");
+  advanced.className = "metric-explorer-controls";
 
   const topNLabel = document.createElement("label");
   topNLabel.className = "metric-explorer-control";
-  topNLabel.setAttribute("for", "koreaGeoStatsTopNInput");
-  topNLabel.textContent = `상위 ${compactRegionNoun} 수`;
+  topNLabel.textContent = "표시 개수";
   const topNInput = document.createElement("input");
   topNInput.id = "koreaGeoStatsTopNInput";
   topNInput.type = "number";
@@ -7598,304 +7573,210 @@ function buildKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefi
   topNInput.max = String(getKoreaGeoStatsMaxCount(levelKey));
   topNInput.value = String(getKoreaGeoStatsTopN(levelKey));
   topNInput.addEventListener("change", () => {
-    state.koreaGeoStatsTopN = clamp(
-      Math.round(Number(topNInput.value) || 10),
-      1,
-      getKoreaGeoStatsMaxCount(levelKey),
-    );
+    state.koreaGeoStatsTopN = clamp(Math.round(Number(topNInput.value) || 10), 1, getKoreaGeoStatsMaxCount(levelKey));
     renderSelectionViews();
   });
   topNLabel.appendChild(topNInput);
-  controls.appendChild(topNLabel);
+  advanced.appendChild(topNLabel);
 
   if ((state.koreaGeoStatsDisplayMode === "trend" || state.koreaGeoStatsDisplayMode === "overview") && trendPresentation) {
-    const valueModeLabel = document.createElement("div");
-    valueModeLabel.className = "metric-explorer-control";
-    const valueModeText = document.createElement("label");
-    valueModeText.setAttribute("for", "koreaGeoStatsTrendValueModeSelect");
-    valueModeText.textContent = "시계열 기준";
-    const valueModeSelect = document.createElement("select");
-    valueModeSelect.id = "koreaGeoStatsTrendValueModeSelect";
-    koreaGeoStatsTrendValueModeDefinitions
-      .filter((definition) => definition.key !== "index" || trendPresentation.canUseIndex)
-      .forEach((definition) => {
-        const option = document.createElement("option");
-        option.value = definition.key;
-        option.textContent = definition.label;
-        option.selected = definition.key === getKoreaGeoStatsTrendValueMode();
-        valueModeSelect.appendChild(option);
-      });
-    valueModeSelect.addEventListener("change", () => {
-      state.koreaGeoStatsTrendValueMode = valueModeSelect.value;
-      renderSelectionViews();
-    });
-    valueModeLabel.append(valueModeText, valueModeSelect);
-    controls.appendChild(valueModeLabel);
-
-    const intervalField = document.createElement("div");
-    intervalField.className = "metric-explorer-control";
-    const intervalLabel = document.createElement("label");
-    intervalLabel.setAttribute("for", "koreaGeoStatsTrendIntervalSelect");
-    intervalLabel.textContent = "시점 간격";
-    const intervalSelect = document.createElement("select");
-    intervalSelect.id = "koreaGeoStatsTrendIntervalSelect";
-    koreaGeoStatsTrendIntervalDefinitions.forEach((definition) => {
-      const option = document.createElement("option");
-      option.value = definition.key;
-      option.textContent = definition.label;
-      option.selected = Number(definition.key) === getKoreaGeoStatsTrendInterval();
-      intervalSelect.appendChild(option);
-    });
-    intervalSelect.addEventListener("change", () => {
-      state.koreaGeoStatsTrendInterval = Number(intervalSelect.value);
-      renderSelectionViews();
-    });
-    intervalField.append(intervalLabel, intervalSelect);
-    controls.appendChild(intervalField);
-
-    const rangePeriodOptions = trendPresentation.rangePeriodOptions?.length
+    advanced.append(
+      buildCompactStatsSelect({
+        id: "koreaGeoStatsTrendValueModeSelect",
+        label: "시계열 기준",
+        options: koreaGeoStatsTrendValueModeDefinitions.filter(
+          (definition) => definition.key !== "index" || trendPresentation.canUseIndex,
+        ),
+        value: getKoreaGeoStatsTrendValueMode(),
+        onChange: (value) => {
+          state.koreaGeoStatsTrendValueMode = value;
+          renderSelectionViews();
+        },
+      }),
+      buildCompactStatsSelect({
+        id: "koreaGeoStatsTrendIntervalSelect",
+        label: "시점 간격",
+        options: koreaGeoStatsTrendIntervalDefinitions,
+        value: String(getKoreaGeoStatsTrendInterval()),
+        onChange: (value) => {
+          state.koreaGeoStatsTrendInterval = Number(value);
+          renderSelectionViews();
+        },
+      }),
+    );
+    const rangeOptions = trendPresentation.rangePeriodOptions?.length
       ? trendPresentation.rangePeriodOptions
       : trendPresentation.periodOptions;
-    const startPeriodField = document.createElement("div");
-    startPeriodField.className = "metric-explorer-control";
-    const startPeriodLabel = document.createElement("label");
-    startPeriodLabel.setAttribute("for", "koreaGeoStatsTrendStartPeriodSelect");
-    startPeriodLabel.textContent = "시작 시점";
-    const startPeriodSelect = document.createElement("select");
-    startPeriodSelect.id = "koreaGeoStatsTrendStartPeriodSelect";
-    rangePeriodOptions.forEach((optionConfig) => {
-      const option = document.createElement("option");
-      option.value = optionConfig.key;
-      option.textContent = optionConfig.label;
-      option.selected = optionConfig.key === trendPresentation.startPeriodKey;
-      startPeriodSelect.appendChild(option);
-    });
-    startPeriodSelect.disabled = rangePeriodOptions.length <= 1;
-    startPeriodSelect.addEventListener("change", () => {
-      state.koreaGeoStatsTrendStartPeriodKey = startPeriodSelect.value;
-      renderSelectionViews();
-    });
-    startPeriodField.append(startPeriodLabel, startPeriodSelect);
-    controls.appendChild(startPeriodField);
-
-    const endPeriodField = document.createElement("div");
-    endPeriodField.className = "metric-explorer-control";
-    const endPeriodLabel = document.createElement("label");
-    endPeriodLabel.setAttribute("for", "koreaGeoStatsTrendEndPeriodSelect");
-    endPeriodLabel.textContent = "종료 시점";
-    const endPeriodSelect = document.createElement("select");
-    endPeriodSelect.id = "koreaGeoStatsTrendEndPeriodSelect";
-    rangePeriodOptions.forEach((optionConfig) => {
-      const option = document.createElement("option");
-      option.value = optionConfig.key;
-      option.textContent = optionConfig.label;
-      option.selected = optionConfig.key === trendPresentation.endPeriodKey;
-      endPeriodSelect.appendChild(option);
-    });
-    endPeriodSelect.disabled = rangePeriodOptions.length <= 1;
-    endPeriodSelect.addEventListener("change", () => {
-      state.koreaGeoStatsTrendEndPeriodKey = endPeriodSelect.value;
-      renderSelectionViews();
-    });
-    endPeriodField.append(endPeriodLabel, endPeriodSelect);
-    controls.appendChild(endPeriodField);
-
-    const basePeriodField = document.createElement("div");
-    basePeriodField.className = "metric-explorer-control";
-    const basePeriodLabel = document.createElement("label");
-    basePeriodLabel.setAttribute("for", "koreaGeoStatsTrendBasePeriodSelect");
-    basePeriodLabel.textContent = "기준 시점";
-    const basePeriodSelect = document.createElement("select");
-    basePeriodSelect.id = "koreaGeoStatsTrendBasePeriodSelect";
-    trendPresentation.periodOptions.forEach((optionConfig) => {
-      const option = document.createElement("option");
-      option.value = optionConfig.key;
-      option.textContent = optionConfig.label;
-      option.selected = optionConfig.key === trendPresentation.basePeriodKey;
-      basePeriodSelect.appendChild(option);
-    });
-    basePeriodSelect.disabled = trendPresentation.periodOptions.length <= 1;
-    basePeriodSelect.addEventListener("change", () => {
-      state.koreaGeoStatsTrendBasePeriodKey = basePeriodSelect.value;
-      renderSelectionViews();
-    });
-    basePeriodField.append(basePeriodLabel, basePeriodSelect);
-    controls.appendChild(basePeriodField);
+    advanced.append(
+      buildCompactStatsSelect({
+        id: "koreaGeoStatsTrendStartPeriodSelect",
+        label: "시작",
+        options: rangeOptions,
+        value: trendPresentation.startPeriodKey,
+        onChange: (value) => {
+          state.koreaGeoStatsTrendStartPeriodKey = value;
+          renderSelectionViews();
+        },
+      }),
+      buildCompactStatsSelect({
+        id: "koreaGeoStatsTrendEndPeriodSelect",
+        label: "종료",
+        options: rangeOptions,
+        value: trendPresentation.endPeriodKey,
+        onChange: (value) => {
+          state.koreaGeoStatsTrendEndPeriodKey = value;
+          renderSelectionViews();
+        },
+      }),
+      buildCompactStatsSelect({
+        id: "koreaGeoStatsTrendBasePeriodSelect",
+        label: "기준",
+        options: trendPresentation.periodOptions,
+        value: trendPresentation.basePeriodKey,
+        onChange: (value) => {
+          state.koreaGeoStatsTrendBasePeriodKey = value;
+          renderSelectionViews();
+        },
+      }),
+    );
   }
 
   if (state.koreaGeoStatsDisplayMode === "scatter") {
-    const scatterConfigs = [
-      {
-        id: "koreaGeoStatsScatterXSelect",
-        label: "X축",
-        value: state.koreaGeoStatsScatterXKey,
-        onChange: (value) => {
-          state.koreaGeoStatsScatterXKey = value;
-        },
-      },
-      {
-        id: "koreaGeoStatsScatterYSelect",
-        label: "Y축",
-        value: state.koreaGeoStatsScatterYKey,
-        onChange: (value) => {
-          state.koreaGeoStatsScatterYKey = value;
-        },
-      },
-      {
-        id: "koreaGeoStatsScatterSizeSelect",
-        label: "버블 크기",
-        value: state.koreaGeoStatsScatterSizeKey,
-        onChange: (value) => {
-          state.koreaGeoStatsScatterSizeKey = value;
-        },
-      },
-    ];
-
-    scatterConfigs.forEach((config) => {
-      const label = document.createElement("label");
-      label.className = "metric-explorer-control";
-      label.setAttribute("for", config.id);
-      label.textContent = config.label;
-      const select = document.createElement("select");
-      select.id = config.id;
-      buildMetricExplorerOptions(categoryDefinitions, select, config.value);
-      select.addEventListener("change", () => {
-        config.onChange(select.value);
-        renderSelectionViews();
-      });
-      label.appendChild(select);
-      controls.appendChild(label);
+    [
+      ["koreaGeoStatsScatterXSelect", "X축", state.koreaGeoStatsScatterXKey, "koreaGeoStatsScatterXKey"],
+      ["koreaGeoStatsScatterYSelect", "Y축", state.koreaGeoStatsScatterYKey, "koreaGeoStatsScatterYKey"],
+      ["koreaGeoStatsScatterSizeSelect", "크기", state.koreaGeoStatsScatterSizeKey, "koreaGeoStatsScatterSizeKey"],
+    ].forEach(([id, label, value, stateKey]) => {
+      advanced.appendChild(
+        buildCompactStatsSelect({
+          id,
+          label,
+          options: categoryDefinitions,
+          value,
+          onChange: (nextValue) => {
+            state[stateKey] = nextValue;
+            renderSelectionViews();
+          },
+        }),
+      );
     });
   }
 
-  wrapper.appendChild(controls);
+  const actionRow = document.createElement("div");
+  actionRow.className = "exam-graph-action-row";
+  [
+    ["지역 추천", () => applyKoreaGeoStatsRandomRegions()],
+    ["지표 추천", () => applyKoreaGeoStatsRandomMetric()],
+    ["세트 추천", () => applyKoreaGeoStatsRandomScenario()],
+  ].forEach(([label, handler]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "metric-explorer-chip exam-graph-chip--action";
+    button.textContent = label;
+    button.addEventListener("click", handler);
+    actionRow.appendChild(button);
+  });
+  advanced.appendChild(actionRow);
+  wrapper.appendChild(
+    buildControlDisclosure({
+      title: "옵션",
+      detail: `상위 ${getKoreaGeoStatsTopN(levelKey)}개`,
+      contentNode: advanced,
+      open: state.koreaGeoStatsActionsExpanded,
+      onToggle: (nextOpen) => {
+        state.koreaGeoStatsActionsExpanded = nextOpen;
+      },
+    }),
+  );
   return wrapper;
 }
 
-function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefinition) {
+function buildMinimalMetricExplorerControls(definitions, visibleDefinitions, activeDefinition) {
   const wrapper = document.createElement("div");
-  wrapper.className = "metric-explorer-control-shell";
-  const categoryMeta = getMetricExplorerCategoryMeta();
-  const displayModeMeta = getMetricExplorerDisplayModeMeta();
+  wrapper.className = "metric-explorer-control-shell stats-control-shell";
 
-  const categoryTabs = document.createElement("div");
-  categoryTabs.className = "metric-explorer-tab-row";
-  metricExplorerCategoryDefinitions.forEach((category) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "metric-explorer-chip";
-    button.classList.toggle("is-active", state.metricExplorerCategoryKey === category.key);
-    button.textContent = category.label;
-    button.addEventListener("click", () => {
-      beginHistoryStep("지표 탐색기 변경");
-      state.metricExplorerCategoryKey = category.key;
-      state.metricExplorerMetricKey = "";
-      ensureMetricExplorerState(definitions);
-      renderSelectionViews();
-      renderMap();
-    });
-    categoryTabs.appendChild(button);
-  });
-  wrapper.appendChild(categoryTabs);
+  const primary = document.createElement("div");
+  primary.className = "stats-flow";
+  primary.append(
+    buildCompactStatsSelect({
+      id: "metricExplorerCategorySelect",
+      label: "분류",
+      options: metricExplorerCategoryDefinitions,
+      value: state.metricExplorerCategoryKey,
+      onChange: (value) => {
+        beginHistoryStep("지표 탐색기 변경");
+        state.metricExplorerCategoryKey = value;
+        state.metricExplorerMetricKey = "";
+        ensureMetricExplorerState(definitions);
+        renderSelectionViews();
+        renderMap();
+      },
+    }),
+    buildCompactStatsSelect({
+      id: "metricExplorerMetricSelect",
+      label: "지표",
+      options: visibleDefinitions,
+      value: activeDefinition?.key ?? "",
+      onChange: (value) => {
+        beginHistoryStep("지표 탐색기 변경");
+        state.metricExplorerMetricKey = value;
+        renderSelectionViews();
+        renderMap();
+      },
+    }),
+    buildStatsScopeReadout(getMetricExplorerScopeLabel()),
+    buildCompactStatsSelect({
+      id: "metricExplorerGroupingSelect",
+      label: "집계",
+      options: [
+        { key: "countries", label: "국가별" },
+        { key: "continents", label: "대륙별" },
+      ],
+      value: state.metricExplorerGrouping,
+      onChange: (value) => {
+        beginHistoryStep("지표 탐색기 변경");
+        state.metricExplorerGrouping = value;
+        renderSelectionViews();
+        renderMap();
+      },
+    }),
+    buildCompactStatsSelect({
+      id: "metricExplorerDisplayModeSelect",
+      label: "그래프",
+      options: metricExplorerDisplayModeDefinitions,
+      value: state.metricExplorerDisplayMode,
+      onChange: (value) => {
+        beginHistoryStep("지표 탐색기 변경");
+        state.metricExplorerDisplayMode = value;
+        state.metricExplorerMetricKey = "";
+        ensureMetricExplorerState(definitions);
+        renderSelectionViews();
+        renderMap();
+      },
+    }),
+  );
+  wrapper.appendChild(primary);
 
-  const modeTabs = document.createElement("div");
-  modeTabs.className = "metric-explorer-tab-row metric-explorer-tab-row--compact";
-  metricExplorerDisplayModeDefinitions.forEach((mode) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "metric-explorer-chip";
-    button.classList.toggle("is-active", state.metricExplorerDisplayMode === mode.key);
-    button.textContent = mode.label;
-    button.addEventListener("click", () => {
-      beginHistoryStep("지표 탐색기 변경");
-      state.metricExplorerDisplayMode = mode.key;
-      state.metricExplorerMetricKey = "";
-      ensureMetricExplorerState(definitions);
-      renderSelectionViews();
-      renderMap();
-    });
-    modeTabs.appendChild(button);
-  });
-  wrapper.appendChild(modeTabs);
+  const advanced = document.createElement("div");
+  advanced.className = "metric-explorer-controls";
+  advanced.appendChild(
+    buildCompactStatsSelect({
+      id: "worldStatsYearModeSelect",
+      label: "통계 연도",
+      options: countryStatsYearModeDefinitions,
+      value: getWorldStatsYearMode(),
+      onChange: (value) => {
+        beginHistoryStep("지표 탐색기 변경");
+        state.worldStatsYearMode = value;
+        renderSelectionViews();
+        renderMap();
+      },
+    }),
+  );
 
-  const guide = document.createElement("p");
-  guide.className = "metric-explorer-guide";
-  guide.textContent = `${categoryMeta.description} 중심으로 ${displayModeMeta.label} 그래프에 바로 쓸 지표만 먼저 보여줍니다.`;
-  wrapper.appendChild(guide);
-
-  const metricChips = document.createElement("div");
-  metricChips.className = "metric-explorer-metric-grid";
-  visibleDefinitions.forEach((definition) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "metric-explorer-metric-chip";
-    button.classList.toggle("is-active", definition.key === activeDefinition?.key);
-    button.textContent = definition.label;
-    button.addEventListener("click", () => {
-      beginHistoryStep("지표 탐색기 변경");
-      state.metricExplorerMetricKey = definition.key;
-      renderSelectionViews();
-      renderMap();
-    });
-    metricChips.appendChild(button);
-  });
-  wrapper.appendChild(metricChips);
-
-  const controls = document.createElement("div");
-  controls.className = "metric-explorer-controls";
-
-  const groupingField = document.createElement("div");
-  groupingField.className = "metric-explorer-control";
-  const groupingLabel = document.createElement("label");
-  groupingLabel.setAttribute("for", "metricExplorerGroupingSelect");
-  groupingLabel.textContent = "비교 범위";
-  const groupingSelect = document.createElement("select");
-  groupingSelect.id = "metricExplorerGroupingSelect";
-  [
-    { value: "countries", label: "국가별 비교" },
-    { value: "continents", label: "대륙별 묶음" },
-  ].forEach((optionConfig) => {
-    const option = document.createElement("option");
-    option.value = optionConfig.value;
-    option.textContent = optionConfig.label;
-    option.selected = state.metricExplorerGrouping === optionConfig.value;
-    groupingSelect.appendChild(option);
-  });
-  groupingSelect.addEventListener("change", () => {
-    beginHistoryStep("지표 탐색기 변경");
-    state.metricExplorerGrouping = groupingSelect.value;
-    renderSelectionViews();
-    renderMap();
-  });
-  groupingField.append(groupingLabel, groupingSelect);
-
-  const yearModeField = document.createElement("div");
-  yearModeField.className = "metric-explorer-control";
-  const yearModeLabel = document.createElement("label");
-  yearModeLabel.setAttribute("for", "worldStatsYearModeSelect");
-  yearModeLabel.textContent = "통계 연도";
-  const yearModeSelect = document.createElement("select");
-  yearModeSelect.id = "worldStatsYearModeSelect";
-  countryStatsYearModeDefinitions.forEach((optionConfig) => {
-    const option = document.createElement("option");
-    option.value = optionConfig.key;
-    option.textContent = optionConfig.label;
-    option.selected = getWorldStatsYearMode() === optionConfig.key;
-    yearModeSelect.appendChild(option);
-  });
-  yearModeSelect.addEventListener("change", () => {
-    beginHistoryStep("지표 탐색기 변경");
-    state.worldStatsYearMode = yearModeSelect.value;
-    renderSelectionViews();
-    renderMap();
-  });
-  yearModeField.append(yearModeLabel, yearModeSelect);
-
-  const topNField = document.createElement("div");
+  const topNField = document.createElement("label");
   topNField.className = "metric-explorer-control";
-  const topNLabel = document.createElement("label");
-  topNLabel.setAttribute("for", "metricExplorerTopNInput");
-  topNLabel.textContent = "표시 개수";
+  topNField.textContent = "표시 개수";
   const topNInput = document.createElement("input");
   topNInput.id = "metricExplorerTopNInput";
   topNInput.type = "number";
@@ -7909,7 +7790,8 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
     renderSelectionViews();
     renderMap();
   });
-  topNField.append(topNLabel, topNInput);
+  topNField.appendChild(topNInput);
+  advanced.appendChild(topNField);
 
   const highlightField = document.createElement("label");
   highlightField.className = "metric-explorer-toggle";
@@ -7923,71 +7805,38 @@ function buildMetricExplorerControls(definitions, visibleDefinitions, activeDefi
     renderMap();
   });
   const highlightText = document.createElement("span");
-  highlightText.textContent = "지도에서 상위 N 강조";
+  highlightText.textContent = "지도 강조";
   highlightField.append(highlightCheckbox, highlightText);
-
-  controls.append(groupingField, yearModeField, topNField, highlightField);
+  advanced.appendChild(highlightField);
 
   if (state.metricExplorerDisplayMode === "scatter") {
     const categoryDefinitions = getMetricExplorerCategoryDefinitionsFiltered(definitions);
-    const scatterXField = document.createElement("div");
-    scatterXField.className = "metric-explorer-control";
-    const scatterXLabel = document.createElement("label");
-    scatterXLabel.setAttribute("for", "metricExplorerScatterXSelect");
-    scatterXLabel.textContent = "산포도 X축";
-    const scatterXSelect = document.createElement("select");
-    scatterXSelect.id = "metricExplorerScatterXSelect";
-    buildMetricExplorerOptions(categoryDefinitions, scatterXSelect, state.metricExplorerScatterXKey);
-    scatterXSelect.addEventListener("change", () => {
-      beginHistoryStep("지표 탐색기 변경");
-      state.metricExplorerScatterXKey = scatterXSelect.value;
-      renderSelectionViews();
+    [
+      ["metricExplorerScatterXSelect", "X축", state.metricExplorerScatterXKey, "metricExplorerScatterXKey"],
+      ["metricExplorerScatterYSelect", "Y축", state.metricExplorerScatterYKey, "metricExplorerScatterYKey"],
+      ["metricExplorerScatterSizeSelect", "크기", state.metricExplorerScatterSizeKey, "metricExplorerScatterSizeKey"],
+    ].forEach(([id, label, value, stateKey]) => {
+      advanced.appendChild(
+        buildCompactStatsSelect({
+          id,
+          label,
+          options: categoryDefinitions,
+          value,
+          onChange: (nextValue) => {
+            beginHistoryStep("지표 탐색기 변경");
+            state[stateKey] = nextValue;
+            renderSelectionViews();
+          },
+        }),
+      );
     });
-    scatterXField.append(scatterXLabel, scatterXSelect);
-
-    const scatterYField = document.createElement("div");
-    scatterYField.className = "metric-explorer-control";
-    const scatterYLabel = document.createElement("label");
-    scatterYLabel.setAttribute("for", "metricExplorerScatterYSelect");
-    scatterYLabel.textContent = "산포도 Y축";
-    const scatterYSelect = document.createElement("select");
-    scatterYSelect.id = "metricExplorerScatterYSelect";
-    buildMetricExplorerOptions(categoryDefinitions, scatterYSelect, state.metricExplorerScatterYKey);
-    scatterYSelect.addEventListener("change", () => {
-      beginHistoryStep("지표 탐색기 변경");
-      state.metricExplorerScatterYKey = scatterYSelect.value;
-      renderSelectionViews();
-    });
-    scatterYField.append(scatterYLabel, scatterYSelect);
-
-    const scatterSizeField = document.createElement("div");
-    scatterSizeField.className = "metric-explorer-control";
-    const scatterSizeLabel = document.createElement("label");
-    scatterSizeLabel.setAttribute("for", "metricExplorerScatterSizeSelect");
-    scatterSizeLabel.textContent = "버블 크기";
-    const scatterSizeSelect = document.createElement("select");
-    scatterSizeSelect.id = "metricExplorerScatterSizeSelect";
-    buildMetricExplorerOptions(categoryDefinitions, scatterSizeSelect, state.metricExplorerScatterSizeKey);
-    scatterSizeSelect.addEventListener("change", () => {
-      beginHistoryStep("지표 탐색기 변경");
-      state.metricExplorerScatterSizeKey = scatterSizeSelect.value;
-      renderSelectionViews();
-    });
-    scatterSizeField.append(scatterSizeLabel, scatterSizeSelect);
-
-    controls.append(scatterXField, scatterYField, scatterSizeField);
   }
 
   wrapper.appendChild(
     buildControlDisclosure({
-      title: "비교 범위와 표시 옵션",
-      detail:
-        state.metricExplorerDisplayMode === "scatter"
-          ? `${state.metricExplorerGrouping === "continents" ? "대륙" : "국가"} · 상위 ${getMetricExplorerTopN()}개 · ${formatWorldStatsYearModeLabel()} · 산포도 축`
-          : `${state.metricExplorerGrouping === "continents" ? "대륙" : "국가"} · 상위 ${getMetricExplorerTopN()}개${
-              state.metricExplorerMapHighlightEnabled ? " · 지도 강조" : ""
-            } · ${formatWorldStatsYearModeLabel()}`,
-      contentNode: controls,
+      title: "옵션",
+      detail: `${formatWorldStatsYearModeLabel()} · ${getMetricExplorerTopN()}개`,
+      contentNode: advanced,
       open: state.metricExplorerOptionsExpanded,
       onToggle: (nextOpen) => {
         state.metricExplorerOptionsExpanded = nextOpen;
@@ -8040,9 +7889,11 @@ function createMetricExplorerSummaryCard(label, value, detail) {
   labelNode.textContent = label;
   const valueNode = document.createElement("strong");
   valueNode.textContent = value;
-  const detailNode = document.createElement("small");
-  detailNode.textContent = detail;
-  card.append(labelNode, valueNode, detailNode);
+  if (detail) {
+    card.setAttribute("aria-description", detail);
+    card.title = detail;
+  }
+  card.append(labelNode, valueNode);
   return card;
 }
 
@@ -8056,10 +7907,8 @@ function buildMetricExplorerTable({ title, description, entries, valueFormatter 
   card.appendChild(titleNode);
 
   if (description) {
-    const descriptionNode = document.createElement("p");
-    descriptionNode.className = "metric-explorer-table__meta";
-    descriptionNode.textContent = description;
-    card.appendChild(descriptionNode);
+    card.setAttribute("aria-description", description);
+    card.title = description;
   }
 
   if (!(entries ?? []).length) {
@@ -11114,10 +10963,8 @@ function buildChartCardShell(title, description) {
   card.appendChild(titleNode);
 
   if (description) {
-    const descriptionNode = document.createElement("p");
-    descriptionNode.className = "country-stats-chart-card__meta";
-    descriptionNode.textContent = description;
-    card.appendChild(descriptionNode);
+    card.setAttribute("aria-description", description);
+    card.title = description;
   }
 
   return card;
@@ -11911,8 +11758,6 @@ function renderExamGraphPanel() {
     createMetricExplorerSummaryCard("표시 방식", model.displayModeLabel ?? "기본", model.displayModeDetail ?? model.metricDetail),
     createMetricExplorerSummaryCard("데이터", model.metricLabel, model.metricDetail),
   );
-  shell.appendChild(summary);
-
   const grid = document.createElement("div");
   grid.className = "exam-graph-grid";
   grid.appendChild(buildExamGraphPreviewGallery(model));
@@ -12003,7 +11848,6 @@ function buildExamGraphControls() {
   const guide = document.createElement("p");
   guide.className = "exam-graph-guide";
   guide.textContent = getExamGraphGuideText();
-  wrapper.appendChild(guide);
 
   if (!getExamGraphPresetDefinition()) {
     return wrapper;

@@ -16,7 +16,6 @@ const publicEntries = [
   "patterns.css",
   "styles.css",
   "portal.css",
-  "assets",
   "data",
   "fonts",
   "vendor",

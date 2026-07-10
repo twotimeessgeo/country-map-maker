@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Exam Database with Simulator | Promenade Geography</title>
+    <title>기출·등급컷 | Promenade Geography</title>
     <meta
       name="description"
-      content="Search geography exam items with images, inspect answer rates, and run a 20-item cut simulator."
+      content="지리 기출 문항을 검색하고 20문항 등급컷을 계산합니다."
     />
     <meta name="theme-color" content="#efefec" />
     <link
@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="../../base.css" />
     <link rel="stylesheet" href="../../components.css" />
     <link rel="stylesheet" href="../../patterns.css" />
-    <link rel="stylesheet" href="./cut.css?v=20260710b" />
+    <link rel="stylesheet" href="./cut.css?v=20260710c" />
   </head>
   <body>
     <div class="tw-page tw-stack cut-page">
@@ -31,18 +31,17 @@
             <span>Menu</span>
           </summary>
           <div class="app-context-menu-panel">
-            <a href="../../map.html">Map Editor</a>
-            <a href="../climate/index.html">Climate Database</a>
-            <a class="is-active" href="./index.html">Exam Simulator</a>
+            <a href="../../map.html">지도</a>
+            <a href="../climate/index.html">기후</a>
+            <a class="is-active" href="./index.html">기출·컷</a>
           </div>
         </details>
       </nav>
       <header class="tw-hero cut-hero">
         <div class="tw-hero-copy">
-          <p class="tw-eyebrow">PROMENADE GEOGRAPHY</p>
-          <h1 class="tw-hero-title">Exam Database with Simulator</h1>
+          <h1 class="tw-hero-title">기출·컷</h1>
         </div>
-        <aside class="tw-hero-note cut-hero-note" aria-label="현재 모델">
+        <aside class="cut-hero-note" aria-label="현재 모델">
           <strong id="modelBadge" aria-live="polite">로딩</strong>
         </aside>
       </header>
@@ -57,7 +56,7 @@
           aria-controls="questionsPanel"
           tabindex="0"
           data-tool-tab="questions"
-        >기출 검색</button>
+        >기출</button>
         <button
           class="tw-switch-item"
           id="predictTab"
@@ -67,7 +66,7 @@
           aria-controls="predictPanel"
           tabindex="-1"
           data-tool-tab="predict"
-        >컷 보기</button>
+        >컷</button>
         <button
           class="tw-switch-item"
           id="solutionsTab"
@@ -77,7 +76,7 @@
           aria-controls="solutionsPanel"
           tabindex="-1"
           data-tool-tab="solutions"
-        >CSV 업로드</button>
+        >CSV</button>
       </div>
 
       <main class="cut-tool-stack">
@@ -93,8 +92,7 @@
             <section class="tw-panel cut-workbench" aria-labelledby="cutTitle">
               <div class="tw-section-heading compact">
                 <div>
-                  <p class="tw-kicker">1. INPUT</p>
-                  <h2 id="cutTitle" class="tw-section-title">정답률 입력</h2>
+                  <h2 id="cutTitle" class="tw-section-title">입력</h2>
                 </div>
                 <span class="tw-badge" id="statusBadge" aria-live="polite">대기</span>
               </div>
@@ -109,7 +107,7 @@
                     </select>
                   </label>
                   <label class="tw-field">
-                    <span>입력값</span>
+                    <span>기준</span>
                     <select id="modeSelect" name="mode">
                       <option value="national">전국 정답률</option>
                       <option value="academy">시대인재N 정답률</option>
@@ -120,7 +118,7 @@
 
                 <div class="cut-history-row">
                   <label class="tw-field">
-                    <span>과거 시험 DB</span>
+                    <span>과거 시험</span>
                     <select id="historySelect"></select>
                   </label>
                   <button class="tw-button" type="button" id="loadHistoryButton">
@@ -131,7 +129,7 @@
 
                 <div class="cut-paste-row">
                   <label class="tw-field">
-                    <span>20개 정답률 붙여넣기</span>
+                    <span>정답률 붙여넣기</span>
                     <textarea id="ratePaste" rows="3" placeholder="예: 82.1, 74.5, 61.0 ..."></textarea>
                   </label>
                   <button class="tw-button" type="button" id="applyPasteButton">
@@ -145,7 +143,7 @@
                 <div class="tw-row cut-actions">
                   <button class="tw-button" type="button" id="defaultPointsButton">
                     <i data-lucide="list-restart"></i>
-                    <span>배점 기본값</span>
+                    <span>배점 초기화</span>
                   </button>
                   <button class="tw-button is-primary" type="submit">
                     <i data-lucide="calculator"></i>
@@ -158,8 +156,7 @@
             <section class="tw-panel cut-output-panel" aria-labelledby="resultTitle">
               <div class="tw-section-heading compact">
                 <div>
-                  <p class="tw-kicker">2. RESULT</p>
-                  <h2 id="resultTitle" class="tw-section-title">예측 결과</h2>
+                  <h2 id="resultTitle" class="tw-section-title">결과</h2>
                 </div>
               </div>
 
@@ -178,10 +175,9 @@
                 <details class="cut-result-section app-collapse" open>
                   <summary class="app-collapse-summary">
                     <div>
-                      <p class="tw-kicker">SCORE SCALE</p>
-                      <h3 class="cut-subtitle">원점수별 표준점수·백분위</h3>
+                      <h3 class="cut-subtitle">점수표</h3>
                     </div>
-                    <span class="app-collapse-label">접기 / 펼치기</span>
+                    <span class="app-collapse-label">접기</span>
                   </summary>
                   <div class="cut-table" id="scoreTable"></div>
                 </details>
@@ -189,8 +185,7 @@
                 <details class="cut-result-section app-collapse">
                   <summary class="app-collapse-summary">
                     <div>
-                      <p class="tw-kicker">HISTORICAL COMPARISON</p>
-                      <h3 class="cut-subtitle">유사 과거 시험 비교</h3>
+                      <h3 class="cut-subtitle">유사 시험</h3>
                     </div>
                     <span class="app-collapse-label">펼치기</span>
                   </summary>
@@ -200,7 +195,6 @@
                 <details class="cut-result-section app-collapse">
                   <summary class="app-collapse-summary">
                     <div>
-                      <p class="tw-kicker">RATE CONVERSION</p>
                       <h3 class="cut-subtitle">문항별 정답률</h3>
                     </div>
                     <span class="app-collapse-label">펼치기</span>
@@ -222,8 +216,7 @@
           <section class="tw-panel question-panel" aria-labelledby="questionTitle">
             <div class="tw-section-heading compact">
               <div>
-                <p class="tw-kicker">QUESTION BANK</p>
-                <h2 id="questionTitle" class="tw-section-title">기출 문항 검색</h2>
+                <h2 id="questionTitle" class="tw-section-title">기출 검색</h2>
               </div>
               <span class="tw-badge" id="questionBankBadge" aria-live="polite">로딩</span>
             </div>
@@ -248,11 +241,11 @@
                       </select>
                     </label>
                     <label class="tw-field">
-                      <span>시작 연도</span>
+                      <span>시작</span>
                       <input id="questionYearFrom" type="number" min="2010" max="2030" step="1" inputmode="numeric" />
                     </label>
                     <label class="tw-field">
-                      <span>끝 연도</span>
+                      <span>끝</span>
                       <input id="questionYearTo" type="number" min="2010" max="2030" step="1" inputmode="numeric" />
                     </label>
                     <label class="tw-field">
@@ -272,7 +265,7 @@
                   <legend>문항 조건</legend>
                   <div class="question-filter-fields is-question">
                     <label class="tw-field">
-                      <span>문항 번호</span>
+                      <span>번호</span>
                       <input id="questionNumber" type="number" min="1" max="20" step="1" inputmode="numeric" />
                     </label>
                     <label class="tw-field">
@@ -287,7 +280,7 @@
                       </select>
                     </label>
                     <label class="tw-field">
-                      <span>자료 상태</span>
+                      <span>자료</span>
                       <select id="questionMatchStatus">
                         <option value="">전체</option>
                         <option value="exact">EBSi 자료</option>
@@ -296,11 +289,11 @@
                       </select>
                     </label>
                     <label class="tw-field">
-                      <span>오답률 하한</span>
+                      <span>오답률 최소</span>
                       <input id="wrongRateMin" type="number" min="0" max="100" step="0.1" inputmode="decimal" />
                     </label>
                     <label class="tw-field">
-                      <span>오답률 상한</span>
+                      <span>오답률 최대</span>
                       <input id="wrongRateMax" type="number" min="0" max="100" step="0.1" inputmode="decimal" />
                     </label>
                   </div>
@@ -314,7 +307,7 @@
                       <input id="questionKeyword" type="search" placeholder="예: 수능, 6월, 20번, 최고난도" />
                     </label>
                     <label class="tw-field">
-                      <span>정렬 방식</span>
+                      <span>정렬</span>
                       <select id="questionSearchSort">
                         <option value="latest">최신순</option>
                         <option value="wrong_desc">오답률 높은순</option>
@@ -362,8 +355,7 @@
           <section class="tw-panel solution-panel" aria-labelledby="solutionTitle">
             <div class="tw-section-heading compact">
               <div>
-                <p class="tw-kicker">CSV</p>
-                <h2 id="solutionTitle" class="tw-section-title">해설 CSV + 컷</h2>
+                <h2 id="solutionTitle" class="tw-section-title">CSV 편집</h2>
               </div>
               <span class="tw-badge" id="solutionStatusBadge" aria-live="polite">대기</span>
             </div>
@@ -375,20 +367,20 @@
                   <i data-lucide="table"></i>
                 </span>
                 <span class="solution-upload-title" id="csvLabel">CSV 선택</span>
-                <span class="solution-upload-meta" id="csvMeta">문항 번호와 예상 정답률을 읽어 컷 보기에 반영합니다</span>
+                <span class="solution-upload-meta" id="csvMeta">문항 번호·예상 정답률</span>
               </label>
               <div class="tw-row solution-actions">
                 <button class="tw-button is-primary" type="submit">
                   <i data-lucide="panel-right-open"></i>
-                  <span>CSV 적용 + 컷</span>
+                  <span>적용</span>
                 </button>
                 <button class="tw-button" type="button" id="downloadCsvButton" disabled>
                   <i data-lucide="download"></i>
-                  <span>CSV 내보내기</span>
+                  <span>내보내기</span>
                 </button>
                 <button class="tw-button" type="button" id="downloadCsvTemplateButton">
                   <i data-lucide="file-down"></i>
-                  <span>양식 다운로드</span>
+                  <span>양식</span>
                 </button>
               </div>
             </form>
@@ -399,10 +391,9 @@
               <details class="solution-overview app-collapse" open>
                 <summary class="app-collapse-summary">
                   <div>
-                    <p class="tw-kicker">QUESTION METRICS</p>
-                    <h3 class="cut-subtitle">문항 지표 일람</h3>
+                    <h3 class="cut-subtitle">문항 지표</h3>
                   </div>
-                  <span class="app-collapse-label">접기 / 펼치기</span>
+                  <span class="app-collapse-label">접기</span>
                 </summary>
                 <div class="solution-overview-table" id="solutionOverviewTable"></div>
               </details>
@@ -420,6 +411,6 @@
       crossorigin="anonymous"
     ></script>
     <script src="./data/cut-data.js"></script>
-    <script src="./cut.js?v=20260710b"></script>
+    <script src="./cut.js?v=20260710c"></script>
   </body>
 </html>

@@ -1328,7 +1328,7 @@ function downloadClimateCsvPayload(payload) {
 function downloadSelectedRegionsCsv() {
   const selectedRegions = sortDisplayedRegions(getSelectedRegions());
   if (selectedRegions.length === 0) {
-    setSelectionUtilityStatus("먼저 지역을 하나 이상 선택해 주세요.", "warning");
+    setSelectionUtilityStatus("지역을 선택하세요", "warning");
     return;
   }
 
@@ -1366,7 +1366,7 @@ function downloadSelectedRegionsCsv() {
     headers,
     rows,
   });
-  setSelectionUtilityStatus(`${selectedRegions.length}개 지역의 월별 원자료를 한 CSV로 저장했습니다.`);
+  setSelectionUtilityStatus(`${selectedRegions.length}개 지역 CSV 저장 완료`);
 }
 
 async function copyCurrentViewLink() {
@@ -1380,13 +1380,13 @@ async function copyCurrentViewLink() {
     );
     setSelectionUtilityStatus(
       hasCustomSelection
-        ? "링크를 복사했습니다. 사용자 추가 지역은 저장된 이 기기에서만 그대로 열립니다."
-        : "선택 지역과 필터, 편차 기준이 담긴 링크를 복사했습니다.",
+        ? "링크 복사 완료 · 추가 지역은 이 기기에만 저장됨"
+        : "링크 복사 완료",
       hasCustomSelection ? "warning" : "success"
     );
   } catch (error) {
     console.warn("기후 비교 링크 복사 실패:", error);
-    setSelectionUtilityStatus("링크를 복사하지 못했습니다. 주소창의 URL을 직접 복사해 주세요.", "error");
+    setSelectionUtilityStatus("복사 실패 · 주소창 URL을 복사하세요", "error");
   }
 }
 
@@ -1559,27 +1559,23 @@ function getMapRegions(visibleRegions, selectedRegions) {
 
 function buildHeroCaption() {
   const summary = state.dataset?.summary ?? {};
-  const jmaFull = summary.jmaFull ?? 0;
-  const jmaTemperatureOnly = summary.jmaTemperatureOnly ?? 0;
   const openMeteoFallback = summary.openMeteoFallback ?? 0;
   const period = summary.period ?? API_NORMAL_PERIOD.label;
   const liveApiCount = state.regions.filter((region) => region.source?.type === "open-meteo-live").length;
 
   const parts = [`JMA ${period}`];
-  if (jmaFull > 0) parts.push(`전면 반영 ${jmaFull}개`);
-  if (jmaTemperatureOnly > 0) parts.push(`기온 반영 ${jmaTemperatureOnly}개`);
-  if (openMeteoFallback > 0) parts.push(`Open-Meteo 보완 ${openMeteoFallback}개`);
-  if (liveApiCount > 0) parts.push(`사용자 추가 ${liveApiCount}개`);
+  if (openMeteoFallback > 0) parts.push(`보완 ${openMeteoFallback}`);
+  if (liveApiCount > 0) parts.push(`추가 ${liveApiCount}`);
   return parts.join(" · ");
 }
 
 function buildMapSummary(mappableRegions, selectedRegions) {
   if (state.mapScope === "selected") {
-    return `선택 ${mappableRegions.length}개 표시 · 전체 선택 ${selectedRegions.length}개`;
+    return `${mappableRegions.length}/${selectedRegions.length}개`;
   }
 
   const totalMappable = state.regions.filter(hasCoordinates).length;
-  return `표시 ${mappableRegions.length}개 · 전체 ${totalMappable}개`;
+  return `${mappableRegions.length}/${totalMappable}개`;
 }
 
 function formatSourceLabel(region) {
@@ -1743,10 +1739,7 @@ function renderClimateChips() {
 
 function renderRegionOptions(regions) {
   if (regions.length === 0) {
-    return renderEmptyState(
-      "검색 결과가 없습니다.",
-      "검색어를 바꾸거나 대륙/기후 필터를 전체로 돌려보세요."
-    );
+    return renderEmptyState("검색 결과 없음", "");
   }
 
   return regions
@@ -1771,18 +1764,10 @@ function renderRegionOptions(regions) {
             />
           </div>
           <div class="region-option-meta">
-            교육용 기후 코드 ${escapeHtml(region.climateCode)} ·
-            연평균 기온 ${formatTemp(region.annualMeanTemperatureC)} · 연강수량 ${formatMm(
+            ${escapeHtml(region.climateCode)} · ${formatTemp(region.annualMeanTemperatureC)} · ${formatMm(
               region.annualPrecipitationMm
             )}
           </div>
-          ${
-            hasCoordinates(region)
-              ? `<div class="region-option-coordinates">표시 좌표 ${escapeHtml(
-                  formatCoordinatePair(region.coordinates)
-                )}</div>`
-              : ""
-          }
         </label>
       `;
     })
@@ -1791,10 +1776,7 @@ function renderRegionOptions(regions) {
 
 function renderSelectedRegions(selectedRegions) {
   if (selectedRegions.length === 0) {
-    return renderEmptyState(
-      "아직 선택된 지역이 없습니다.",
-      "왼쪽에서 지역을 골라 월별 기후 통계를 확인해보세요."
-    );
+    return renderEmptyState("지역을 선택하세요", "");
   }
 
   const sharedChartScale = buildClimateChartScale(selectedRegions);
@@ -1821,20 +1803,17 @@ function renderSelectedRegions(selectedRegions) {
                   <div>
                     <h3>${escapeHtml(region.name)}</h3>
                     <div class="region-meta">
-                      <span class="meta-pill">${escapeHtml(region.continent)}</span>
-                      <span class="meta-pill">${escapeHtml(getHemisphere(region))}</span>
-                      ${region.country ? `<span class="meta-pill">${escapeHtml(region.country)}</span>` : ""}
-                      <span class="meta-pill">교육용 기후 ${escapeHtml(region.climateGroup)}</span>
+                      <span class="meta-pill">${escapeHtml(
+                        [region.continent, region.country, getHemisphere(region)].filter(Boolean).join(" · ")
+                      )}</span>
+                      <span class="meta-pill">${escapeHtml(region.climateGroup)}${
+                        region.climateCode !== region.climateGroup ? ` · ${escapeHtml(region.climateCode)}` : ""
+                      }</span>
                       ${
                         region.classificationReview?.status === "review-required"
                           ? `<span class="meta-pill classification-review-pill">분류 재검토 · 자료식 ${escapeHtml(
                               region.classificationReview.appDerivedGroup
                             )}</span>`
-                          : ""
-                      }
-                      ${
-                        region.climateCode !== region.climateGroup
-                          ? `<span class="meta-pill">교육용 세부 코드 ${escapeHtml(region.climateCode)}</span>`
                           : ""
                       }
                       <span class="meta-pill">${escapeHtml(formatSourceLabel(region))}</span>
@@ -1882,7 +1861,7 @@ function renderSelectedRegions(selectedRegions) {
               <div class="world-region-chart-frame">
                 ${renderClimateChart(region, sharedChartScale)}
               </div>
-              <p class="chart-caption">* 회색 막대는 강수량, 검은 선은 평균 기온입니다.</p>
+              <p class="chart-caption">강수량 막대 · 기온 선</p>
             </div>
           </div>
           <details class="climate-data-details">
@@ -1944,12 +1923,12 @@ function buildClimateChartScale(regions) {
 
 function buildApiStatusSummary() {
   if (state.apiLoading) {
-    return "Open-Meteo 검색 중";
+    return "검색 중";
   }
 
   const resultCount = state.apiResults.length;
   const liveApiCount = state.regions.filter((region) => region.source?.type === "open-meteo-live").length;
-  return `JMA 기반 기본 ${state.dataset?.regions?.length ?? 0}개 · 검색 결과 ${resultCount}개 · 사용자 추가 ${liveApiCount}개`;
+  return `결과 ${resultCount} · 추가 ${liveApiCount}`;
 }
 
 function buildApiStatusText() {
@@ -1957,15 +1936,12 @@ function buildApiStatusText() {
     return state.apiMessage;
   }
 
-  return "* 기본 자료는 일본 기상청(JMA) 1991-2020 평년값을 우선합니다. JMA 미수록 지점은 Open-Meteo ERA5로 보완하며, 검색으로 추가하는 새 지역도 같은 ERA5 1991-2020 기간으로 계산합니다.";
+  return "JMA 미수록 지역은 Open-Meteo 1991-2020으로 보완합니다.";
 }
 
 function renderApiResults() {
   if (state.apiResults.length === 0) {
-    return renderEmptyState(
-      "아직 API 검색 결과가 없습니다.",
-      "도시나 지역명을 검색하면 좌표 후보를 찾고, 원하는 위치를 현재 기후 데이터셋에 바로 추가할 수 있습니다."
-    );
+    return renderEmptyState("검색 결과 없음", "");
   }
 
   return state.apiResults
@@ -2386,10 +2362,7 @@ function isValidPersistedRegion(region) {
 
 function renderComparison(selectedRegions) {
   if (selectedRegions.length < 2) {
-    return renderEmptyState(
-      "비교 그래프는 2개 이상 지역을 선택해야 생성됩니다.",
-      "1월과 7월 편차, 월 평균 기온, 누적 강수량 비교는 2개 이상 지역을 선택해야 생성됩니다."
-    );
+    return renderEmptyState("2곳 이상 선택하세요", "");
   }
 
   const baseline = resolveWorldComparisonBaseline(selectedRegions);
@@ -2471,7 +2444,6 @@ function renderComparison(selectedRegions) {
 
   return `
     <div class="comparison-controls">
-      <p>편차 기준을 선택 지역 평균이나 특정 지역으로 바꿔, 각 지역이 어느 기준보다 높고 낮은지 바로 비교할 수 있습니다.</p>
       <label class="comparison-select">
         <span>편차 기준</span>
         <select data-baseline-select aria-label="세계지리 편차 기준">
@@ -2499,21 +2471,12 @@ function renderComparison(selectedRegions) {
         ${renderMonthlyTemperatureTrendChart(selectedRegions, baseline)}
         ${renderTrendLegend(comparableTrendRegions(selectedRegions, baseline), COLORS.temperature)}
         ${worldTemperatureDeltaTable}
-        ${renderFootnoteLines([
-          `월 평균 기온 편차 = 해당 지역 월 평균 기온 − ${baseline.formulaLabel}`,
-          baseline.mode === "region" ? "기준 지역은 편차선에서 제외했습니다." : "월별 선택 지역 평균을 기준선으로 삼았습니다.",
-        ])}
       </article>
       <article class="chart-card world-trend-card">
         <h4>누적 강수량 편차</h4>
         ${renderCumulativePrecipitationTrendChart(selectedRegions, baseline)}
         ${renderTrendLegend(comparableTrendRegions(selectedRegions, baseline), COLORS.rain)}
         ${worldPrecipitationDeltaTable}
-        ${renderFootnoteLines([
-          "누적 강수량은 1월부터 해당 월까지의 강수량 합입니다.",
-          `누적 강수량 편차 = 해당 지역 누적 강수량 − ${baseline.formulaLabel}`,
-          baseline.mode === "region" ? "기준 지역은 편차선에서 제외했습니다." : "월별 선택 지역 평균 누적값을 기준선으로 삼았습니다.",
-        ])}
       </article>
       <article class="chart-card world-trend-card">
         <h4>월 평균 기온</h4>
@@ -2527,7 +2490,6 @@ function renderComparison(selectedRegions) {
         )}
         ${renderTrendLegend(selectedRegions, COLORS.temperature)}
         ${monthlyTemperatureAnnualDataTable}
-        ${renderFootnoteLines(["선택 지역의 월 평균 기온(°C) 실제값을 함께 확인합니다."])}
       </article>
       <article class="chart-card world-trend-card">
         <h4>누적 강수량</h4>
@@ -2541,7 +2503,6 @@ function renderComparison(selectedRegions) {
         )}
         ${renderTrendLegend(selectedRegions, COLORS.rain)}
         ${cumulativePrecipitationAnnualDataTable}
-        ${renderFootnoteLines(["선택 지역의 누적 강수량(mm) 실제값을 함께 확인합니다."])}
       </article>
       <article class="chart-card world-trend-card">
         <h4>1월·7월 강수량</h4>
@@ -2557,7 +2518,6 @@ function renderComparison(selectedRegions) {
         )}
         ${renderTrendLegend(selectedRegions, COLORS.rain)}
         ${precipitationJanJulyDataTable}
-        ${renderFootnoteLines(["선택 지역의 1월·7월 시기 강수량(mm) 실제값을 함께 확인합니다."])}
       </article>
       <article class="chart-card world-trend-card">
         <h4>1월·7월 평균 기온</h4>
@@ -2573,7 +2533,6 @@ function renderComparison(selectedRegions) {
         )}
         ${renderTrendLegend(selectedRegions, COLORS.temperature)}
         ${temperatureJanJulyDataTable}
-        ${renderFootnoteLines(["선택 지역의 1월·7월 시기 평균 기온(°C) 실제값을 함께 확인합니다."])}
       </article>
     </div>
     ${renderExamClimateSourcePanel(selectedRegions)}
@@ -2599,50 +2558,45 @@ function renderExamClimateSourcePanel(selectedRegions) {
   );
 
   return `
-    <article class="exam-source-panel">
-      <div class="section-heading compact nested-heading">
-        <div>
-          <p class="section-kicker">기출 선지 자동화</p>
-          <h3>선택 지점에 붙일 수 있는 원문 기반 선지</h3>
+    <details class="exam-source-panel">
+      <summary class="exam-source-summary">
+        <strong>기출 선지</strong>
+        <span>${statements.length}개</span>
+      </summary>
+      <div class="exam-source-content">
+        ${renderExamMultipleChoiceQuestion(multipleChoiceQuestion)}
+        <div class="exam-source-grid">
+          <section class="exam-source-block">
+            <h4>지역 비교</h4>
+            ${
+              generatedGroups.length > 0
+                ? `<div class="exam-generated-list">${generatedGroups
+                    .slice(0, 13)
+                    .map(renderExamGeneratedGroup)
+                    .join("")}</div>`
+                : renderExamMiniEmptyState("비교 선지 없음")
+            }
+          </section>
+          <section class="exam-source-block">
+            <h4>지역 특성</h4>
+            ${
+              matchedFeatureGroups.length > 0
+                ? `<div class="exam-statement-list">${matchedFeatureGroups
+                    .slice(0, 16)
+                    .map(renderExamFeatureItem)
+                    .join("")}</div>`
+                : renderExamMiniEmptyState("지역 선지 없음")
+            }
+          </section>
         </div>
-        <div class="selection-summary is-muted">원문 ${statements.length}개</div>
+        <details class="exam-source-details">
+          <summary>전체 카테고리</summary>
+          <div class="exam-statement-list compact">
+            ${comparisonCatalog.map(renderExamComparisonCatalogItem).join("")}
+          </div>
+        </details>
       </div>
-      ${renderExamMultipleChoiceQuestion(multipleChoiceQuestion)}
-      <div class="exam-source-grid">
-        <section class="exam-source-block">
-          <h4>지역 간 비교 선지</h4>
-          <p class="exam-source-note">
-            같은 의미의 선지는 하나의 카테고리로 묶고, 많다·높다·크다·길다·멀다 쪽을 기본 방향으로 보여줍니다.
-          </p>
-          ${
-            generatedGroups.length > 0
-              ? `<div class="exam-generated-list">${generatedGroups
-                  .slice(0, 13)
-                  .map(renderExamGeneratedGroup)
-                  .join("")}</div>`
-              : renderExamMiniEmptyState("선택 지점끼리 적용할 수 있는 비교형 표현틀이 아직 없습니다.")
-          }
-        </section>
-        <section class="exam-source-block">
-          <h4>지역 특성 원문</h4>
-          <p class="exam-source-note">선택 지역명이나 기후 구분과 맞는 기출 선지입니다. 해당 지역을 함께 표시합니다.</p>
-          ${
-            matchedFeatureGroups.length > 0
-              ? `<div class="exam-statement-list">${matchedFeatureGroups
-                  .slice(0, 16)
-                  .map(renderExamFeatureItem)
-                  .join("")}</div>`
-              : renderExamMiniEmptyState("선택 지역과 직접 맞는 지역 특성 원문이 없습니다.")
-          }
-        </section>
-      </div>
-      <details class="exam-source-details">
-        <summary>기출 비교 카테고리 풀 보기</summary>
-        <div class="exam-statement-list compact">
-          ${comparisonCatalog.map(renderExamComparisonCatalogItem).join("")}
-        </div>
-      </details>
-    </article>
+    </details>
   `;
 }
 
@@ -4167,12 +4121,6 @@ function renderMonthPanel(selectedRegions, monthIndex, panelIndex, baseline) {
             </article>
           `}
       </div>
-      ${renderFootnoteLines([
-        `현재 기준: ${baseline.label}`,
-        `평균 기온 차이 = 해당 지역 기온 − ${baseline.formulaLabel}`,
-        `강수량 차이 = 해당 지역 강수량 − ${baseline.formulaLabel}`,
-        baseline.mode === "region" ? "기준 지역은 편차 그래프에서 제외했습니다." : "",
-      ])}
       </article>
     `;
   }
@@ -5318,14 +5266,11 @@ function renderDeviationPrecipitationChart(rows) {
 function renderWorldMap(regions) {
   if (regions.length === 0) {
     return renderEmptyState(
-      state.mapScope === "selected" ? "아직 지도에 고른 지역이 없습니다." : "지도에 표시할 지역이 없습니다.",
-      state.mapScope === "selected"
-        ? "지역을 선택한 뒤 \"선택 지역만\" 보기로 현재 선택 지점만 지도에 모아볼 수 있습니다."
-        : "검색어나 필터를 조금 넓히면 다시 마커가 나타납니다."
+      state.mapScope === "selected" ? "선택 지역 없음" : "표시 지역 없음",
+      ""
     );
   }
 
-  const selectedVisibleCount = regions.filter((region) => state.selectedIds.has(region.id)).length;
   const projection = buildMapProjection();
   if (!projection) {
     return renderEmptyState(
@@ -5335,23 +5280,12 @@ function renderWorldMap(regions) {
   }
 
   const background = renderProjectedWorldMapBackground(projection);
-  const mapTypeLabel = "투영 지도";
-  const mapStatusLabel = state.mapLoadError ? "지도 로드 실패" : "위경도 기준";
-  const mapScopeLabel = state.mapScope === "selected" ? "선택 지역만 표시" : "전체 지역 표시";
-
   return `
     <div class="world-map-frame is-natural">
       ${background}
       <svg class="world-map-leaders" aria-hidden="true"></svg>
       <div class="world-map-markers">
         ${regions.map((region) => renderMapMarker(region, projection)).join("")}
-      </div>
-      <div class="world-map-overlay">
-        <span class="map-overlay-pill">${mapTypeLabel}</span>
-        <span class="map-overlay-pill">${mapStatusLabel}</span>
-        <span class="map-overlay-pill">${mapScopeLabel}</span>
-        <span class="map-overlay-pill">마커 ${regions.length}개</span>
-        <span class="map-overlay-pill">현재 선택 ${selectedVisibleCount}개</span>
       </div>
     </div>
   `;
@@ -5865,7 +5799,7 @@ function renderEmptyState(title, description) {
   return `
     <div class="empty-state">
       <strong>${escapeHtml(title)}</strong>
-      <p>${escapeHtml(description)}</p>
+      ${description ? `<p>${escapeHtml(description)}</p>` : ""}
     </div>
   `;
 }
