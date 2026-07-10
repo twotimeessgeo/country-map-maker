@@ -69,9 +69,17 @@ const WORKSPACE_PERSISTED_KEYS = [
   "centerLongitude",
   "projectionMode",
   "viewMode",
+  "viewFitScale",
   "viewZoom",
   "viewOffsetX",
   "viewOffsetY",
+  "viewCanvasWidth",
+  "viewCanvasHeight",
+  "koreaFitScale",
+  "koreaFitOffsetX",
+  "koreaFitOffsetY",
+  "koreaViewCanvasWidth",
+  "koreaViewCanvasHeight",
   "oceanColor",
   "landColor",
   "borderColor",
@@ -1731,9 +1739,17 @@ const state = {
   centerLongitude: 0,
   projectionMode: "rectangular",
   viewMode: "zoom",
+  viewFitScale: 1,
   viewZoom: 1,
   viewOffsetX: 0,
   viewOffsetY: 0,
+  viewCanvasWidth: 310,
+  viewCanvasHeight: 310,
+  koreaFitScale: 1,
+  koreaFitOffsetX: 0,
+  koreaFitOffsetY: 0,
+  koreaViewCanvasWidth: 310,
+  koreaViewCanvasHeight: 310,
   oceanColor: "#d8d8d8",
   landColor: "#ffffff",
   borderColor: "#101010",
@@ -1931,6 +1947,8 @@ const elements = {
 let currentSvgNode = null;
 let currentPreviewScale = 1;
 let currentRenderContext = null;
+let lastKoreaFitContextKey = null;
+let activeCanvasResizeSnapshot = null;
 let embeddedMapFontDataUrl = window.EMBEDDED_MAP_FONT_DATA_URL ?? null;
 let activeGestureScale = 1;
 let currentCanvasSurface = null;
@@ -2033,7 +2051,9 @@ function attachEventListeners() {
       return;
     }
     beginHistoryStep("캔버스 크기 변경");
-    applyCanvasDimensionInput("width", elements.widthInput.value);
+    updateCanvasDimensionsWithStableMap(() => {
+      applyCanvasDimensionInput("width", elements.widthInput.value);
+    });
     syncDimensionInputs();
     syncPresetButtons();
     renderMap();
@@ -2044,7 +2064,9 @@ function attachEventListeners() {
       return;
     }
     beginHistoryStep("캔버스 크기 변경");
-    applyCanvasDimensionInput("height", elements.heightInput.value);
+    updateCanvasDimensionsWithStableMap(() => {
+      applyCanvasDimensionInput("height", elements.heightInput.value);
+    });
     syncDimensionInputs();
     syncPresetButtons();
     renderMap();
@@ -2057,20 +2079,22 @@ function attachEventListeners() {
   });
 
   elements.aspectRatioLockButton?.addEventListener("click", () => {
+    beginHistoryStep("캔버스 비율 잠금 변경");
     state.canvasAspectLocked = !state.canvasAspectLocked;
     state.canvasAspectRatio = getCurrentCanvasAspectRatio();
-    markWorkspaceDirty({ force: true });
     syncDimensionInputs();
     setStatus(state.canvasAspectLocked ? "캔버스 비율을 잠갔습니다." : "캔버스 비율 잠금을 해제했습니다.");
   });
 
   elements.swapCanvasDimensionsButton?.addEventListener("click", () => {
     beginHistoryStep("캔버스 방향 전환");
-    const swappedAspectRatio = normalizeCanvasAspectRatio(state.height / state.width, 1);
-    const nextFrame = fitCanvasFrameByWidth(Math.min(state.height, MAX_CANVAS_WIDTH), swappedAspectRatio);
-    state.width = nextFrame.width;
-    state.height = nextFrame.height;
-    state.canvasAspectRatio = getCurrentCanvasAspectRatio();
+    updateCanvasDimensionsWithStableMap(() => {
+      const swappedAspectRatio = normalizeCanvasAspectRatio(state.height / state.width, 1);
+      const nextFrame = fitCanvasFrameByWidth(Math.min(state.height, MAX_CANVAS_WIDTH), swappedAspectRatio);
+      state.width = nextFrame.width;
+      state.height = nextFrame.height;
+      state.canvasAspectRatio = getCurrentCanvasAspectRatio();
+    });
     syncDimensionInputs();
     syncPresetButtons();
     renderMap();
@@ -2194,15 +2218,14 @@ function attachEventListeners() {
   });
 
   elements.resetViewButton.addEventListener("click", () => {
-    if (state.mapVersion !== "world") {
-      setStatus("한국 지도는 지도를 이동하지 않고 권역만 켜고 끕니다.");
-      return;
-    }
-
     beginHistoryStep("전체 보기");
-    resetViewWindow();
+    if (state.mapVersion === "world") {
+      resetViewWindow();
+    } else {
+      resetKoreaFitTransform();
+    }
     renderMap();
-    setStatus("보기 범위를 전체 보기로 되돌렸습니다.");
+    setStatus("지도를 캔버스에 맞췄습니다.");
   });
 
   elements.guideToggles.forEach((toggle) => {
@@ -2337,9 +2360,11 @@ function attachEventListeners() {
   elements.presetButtons.forEach((button) => {
     button.addEventListener("click", () => {
       beginHistoryStep("캔버스 프리셋 변경");
-      state.width = clampCanvasWidth(Number(button.dataset.width), state.width);
-      state.height = clampCanvasHeight(Number(button.dataset.height), state.height);
-      state.canvasAspectRatio = getCurrentCanvasAspectRatio();
+      updateCanvasDimensionsWithStableMap(() => {
+        state.width = clampCanvasWidth(Number(button.dataset.width), state.width);
+        state.height = clampCanvasHeight(Number(button.dataset.height), state.height);
+        state.canvasAspectRatio = getCurrentCanvasAspectRatio();
+      });
       syncDimensionInputs();
       syncPresetButtons();
       renderMap();
@@ -2428,9 +2453,17 @@ function sanitizeWorkspaceEditor(editor) {
     ? editor.projectionMode
     : defaultEditorState.projectionMode;
   next.viewMode = viewModeLabels[editor.viewMode] ? editor.viewMode : defaultEditorState.viewMode;
+  next.viewFitScale = clampFiniteNumber(editor.viewFitScale, 0.01, 100, 1);
   next.viewZoom = clampFiniteNumber(editor.viewZoom, 0.35, 48, defaultEditorState.viewZoom);
   next.viewOffsetX = clampFiniteNumber(editor.viewOffsetX, -100000, 100000, 0);
   next.viewOffsetY = clampFiniteNumber(editor.viewOffsetY, -100000, 100000, 0);
+  next.viewCanvasWidth = clampCanvasWidth(editor.viewCanvasWidth, next.width);
+  next.viewCanvasHeight = clampCanvasHeight(editor.viewCanvasHeight, next.height);
+  next.koreaFitScale = clampFiniteNumber(editor.koreaFitScale, 0.01, 100, 1);
+  next.koreaFitOffsetX = clampFiniteNumber(editor.koreaFitOffsetX, -100000, 100000, 0);
+  next.koreaFitOffsetY = clampFiniteNumber(editor.koreaFitOffsetY, -100000, 100000, 0);
+  next.koreaViewCanvasWidth = clampCanvasWidth(editor.koreaViewCanvasWidth, next.width);
+  next.koreaViewCanvasHeight = clampCanvasHeight(editor.koreaViewCanvasHeight, next.height);
 
   ["oceanColor", "landColor", "borderColor", "unifiedSelectedCountryColor"].forEach((key) => {
     next[key] = normalizeHexColor(editor[key], defaultEditorState[key]);
@@ -2599,6 +2632,10 @@ function persistWorkspaceNow() {
     return;
   }
 
+  if (activeCanvasResizeSnapshot) {
+    preserveCanvasProjectionAfterResize(activeCanvasResizeSnapshot);
+  }
+
   try {
     const editor = buildWorkspaceEditorSnapshot();
     const editorSerialized = JSON.stringify(editor);
@@ -2678,6 +2715,8 @@ function resetLocalWorkspace() {
   clearKoreaGroupingDraft();
   resetContextualSearchInputs({ selection: true, koreaRegion: true });
   resetPreviewInteractionState();
+  lastKoreaFitContextKey = null;
+  activeCanvasResizeSnapshot = null;
   syncControls();
   renderSelectionViews();
   renderAnnotations();
@@ -2842,6 +2881,8 @@ function applyStateSnapshot(snapshot) {
   clearKoreaGroupingDraft();
   normalizeCanvasStateDimensions();
   syncActiveStatsCountry(state.activeStatsCountryId);
+  lastKoreaFitContextKey = null;
+  activeCanvasResizeSnapshot = null;
 
   syncControls();
   renderSelectionViews();
@@ -3572,7 +3613,7 @@ function syncMapVersionControls() {
     button.disabled = !isWorldMode;
   });
   elements.zoomOutButton.disabled = !isWorldMode;
-  elements.resetViewButton.disabled = !isWorldMode;
+  elements.resetViewButton.disabled = false;
   syncKoreaGroupingActionButtons();
 }
 
@@ -14682,6 +14723,14 @@ function buildExamGraphPreviewCard(preview) {
   stage.className = "exam-graph-stage";
   stage.dataset.orientation = model.orientation ?? "landscape";
   stage.dataset.style = model.styleMode ?? getExamGraphStyleMode();
+  const fontSizePt = clamp(roundToStep(Number(model.fontSizePt) || EXAM_GRAPH_FONT_BASE_PT, 0.5), 7, 9);
+  const secondaryFontSizePt = clamp(fontSizePt - 1, 7, 9);
+  stage.style.setProperty("--exam-graph-label-size", `${fontSizePt}pt`);
+  stage.style.setProperty("--exam-graph-tick-size", `${secondaryFontSizePt}pt`);
+  stage.style.setProperty("--exam-graph-value-size", `${secondaryFontSizePt}pt`);
+  stage.style.setProperty("--exam-graph-point-size", `${secondaryFontSizePt}pt`);
+  stage.style.setProperty("--exam-graph-legend-size", `${fontSizePt}pt`);
+  stage.style.setProperty("--exam-graph-empty-size", `${fontSizePt}pt`);
   stage.appendChild(buildExamGraphNativeChart(model));
   card.appendChild(stage);
 
@@ -14877,22 +14926,26 @@ function getExamGraphClimateYScale(domainStart, domainEnd, plotTop, plotBottom) 
   return (value) => scale(value);
 }
 
-function getExamGraphClimateHorizontalLayout(rows, { legend = false, paired = false, orientation = "landscape" } = {}) {
+function getExamGraphClimateHorizontalLayout(
+  rows,
+  { legend = false, paired = false, orientation = "landscape", fontSizePt = EXAM_GRAPH_FONT_BASE_PT } = {},
+) {
   const rowCount = rows?.length || 1;
   const longestLabel = Math.max(0, ...(rows ?? []).map((row) => String(row.displayLabel ?? row.label ?? "").length));
   const isPortrait = orientation === "portrait";
-  const left = clamp(Math.round(86 + longestLabel * 5.5), 118, 232);
-  const top = 24;
-  const right = isPortrait ? 28 : 36;
-  const bottom = legend ? (isPortrait ? 88 : 78) : (isPortrait ? 58 : 52);
+  const fontScale = clamp(Number(fontSizePt) || EXAM_GRAPH_FONT_BASE_PT, 7, 9) / EXAM_GRAPH_FONT_BASE_PT;
+  const left = clamp(Math.round(70 + longestLabel * 5 * fontScale), 104, Math.round(190 * fontScale));
+  const top = 20;
+  const right = Math.round((isPortrait ? 40 : 52) * Math.max(1, fontScale));
+  const bottom = Math.round((legend ? (isPortrait ? 80 : 70) : (isPortrait ? 50 : 44)) * fontScale);
   const plotWidth = isPortrait
-    ? clamp(292 + rowCount * 16 + (paired ? 40 : 0), 340, 470)
-    : clamp(438 + rowCount * 24 + (paired ? 64 : 0), 520, 720);
+    ? clamp(270 + rowCount * 12 + (paired ? 34 : 0), 318, 440)
+    : clamp(390 + rowCount * 18 + (paired ? 52 : 0), 450, 620);
   const width = left + plotWidth + right;
   const rowHeight = isPortrait
-    ? paired ? 66 : rowCount >= 8 ? 50 : rowCount >= 6 ? 54 : 58
-    : paired ? 58 : rowCount >= 8 ? 43 : rowCount >= 6 ? 46 : 50;
-  const plotHeight = Math.max(paired ? 190 : 156, rowCount * rowHeight);
+    ? paired ? 58 : rowCount >= 8 ? 43 : rowCount >= 6 ? 46 : 50
+    : paired ? 50 : rowCount >= 8 ? 38 : rowCount >= 6 ? 41 : 44;
+  const plotHeight = Math.max(paired ? 174 : 142, rowCount * rowHeight);
   const height = top + plotHeight + bottom;
   return {
     width,
@@ -14904,6 +14957,7 @@ function getExamGraphClimateHorizontalLayout(rows, { legend = false, paired = fa
     plotBottom: top + plotHeight,
     plotWidth,
     plotHeight,
+    fontScale,
   };
 }
 
@@ -14913,8 +14967,10 @@ function getExamGraphClimateCartesianLayout({
   series = 1,
   scatter = false,
   orientation = "landscape",
+  fontSizePt = EXAM_GRAPH_FONT_BASE_PT,
 } = {}) {
   const isPortrait = orientation === "portrait";
+  const fontScale = clamp(Number(fontSizePt) || EXAM_GRAPH_FONT_BASE_PT, 7, 9) / EXAM_GRAPH_FONT_BASE_PT;
   const width = isPortrait
     ? clamp(430 + Number(steps || 0) * 12 + (scatter ? 28 : 0), 500, 640)
     : clamp(620 + Number(steps || 0) * 18 + (scatter ? 56 : 0), 720, 900);
@@ -14922,10 +14978,10 @@ function getExamGraphClimateCartesianLayout({
     ? clamp((scatter ? 302 : 286) + Number(series || 1) * 16, 320, 470)
     : clamp((scatter ? 232 : 214) + Number(series || 1) * 12, 232, 320);
   const margin = {
-    top: 26,
-    right: scatter ? (isPortrait ? 34 : 42) : (isPortrait ? 26 : 32),
-    bottom: legend ? (isPortrait ? 92 : 86) : (isPortrait ? 66 : 60),
-    left: isPortrait ? 64 : 60,
+    top: Math.round(26 * fontScale),
+    right: Math.round((scatter ? (isPortrait ? 34 : 42) : (isPortrait ? 26 : 32)) * fontScale),
+    bottom: Math.round((legend ? (isPortrait ? 92 : 86) : (isPortrait ? 66 : 60)) * fontScale),
+    left: Math.round((isPortrait ? 64 : 60) * fontScale),
   };
   const height = margin.top + plotHeight + margin.bottom;
   return {
@@ -14938,29 +14994,39 @@ function getExamGraphClimateCartesianLayout({
     plotBottom: height - margin.bottom,
     plotWidth: width - margin.left - margin.right,
     plotHeight,
+    fontScale,
   };
 }
 
 function appendExamGraphClimateFrame(svg, layout) {
-  appendExamGraphClimateSvgElement(svg, "rect", {
+  appendExamGraphClimateSvgElement(svg, "line", {
     class: "exam-graph-svg-frame",
-    x: layout.plotLeft,
-    y: layout.plotTop,
-    width: layout.plotWidth,
-    height: layout.plotHeight,
+    x1: layout.plotLeft,
+    y1: layout.plotTop,
+    x2: layout.plotLeft,
+    y2: layout.plotBottom,
+  });
+  appendExamGraphClimateSvgElement(svg, "line", {
+    class: "exam-graph-svg-frame",
+    x1: layout.plotLeft,
+    y1: layout.plotBottom,
+    x2: layout.plotRight,
+    y2: layout.plotBottom,
   });
 }
 
 function appendExamGraphClimateXAxis(svg, axis, layout, xScale) {
   axis.ticks.forEach((tick, index) => {
     const x = xScale(tick);
-    appendExamGraphClimateSvgElement(svg, "line", {
-      class: `exam-graph-svg-grid exam-graph-svg-grid--x${Math.abs(Number(tick)) < 0.000001 ? " is-zero" : ""}`,
-      x1: x,
-      y1: layout.plotTop,
-      x2: x,
-      y2: layout.plotBottom,
-    });
+    if (index > 0 && index < axis.ticks.length - 1) {
+      appendExamGraphClimateSvgElement(svg, "line", {
+        class: `exam-graph-svg-grid exam-graph-svg-grid--x${Math.abs(Number(tick)) < 0.000001 ? " is-zero" : ""}`,
+        x1: x,
+        y1: layout.plotTop,
+        x2: x,
+        y2: layout.plotBottom,
+      });
+    }
     const label = appendExamGraphClimateSvgElement(svg, "text", {
       class: "exam-graph-svg-tick",
       x,
@@ -14974,6 +15040,7 @@ function appendExamGraphClimateXAxis(svg, axis, layout, xScale) {
   if (axis.unitLabel) {
     appendExamGraphClimateSvgElement(svg, "text", {
       class: "exam-graph-svg-unit",
+      lang: /[가-힣]/u.test(String(axis.unitLabel)) ? "ko" : "en",
       x: layout.plotRight,
       y: layout.height - 16,
       "text-anchor": "end",
@@ -14982,15 +15049,17 @@ function appendExamGraphClimateXAxis(svg, axis, layout, xScale) {
 }
 
 function appendExamGraphClimateYAxis(svg, axis, layout, yScale) {
-  axis.ticks.forEach((tick) => {
+  axis.ticks.forEach((tick, index) => {
     const y = yScale(tick);
-    appendExamGraphClimateSvgElement(svg, "line", {
-      class: `exam-graph-svg-grid exam-graph-svg-grid--y${Math.abs(Number(tick)) < 0.000001 ? " is-zero" : ""}`,
-      x1: layout.plotLeft,
-      y1: y,
-      x2: layout.plotRight,
-      y2: y,
-    });
+    if (index > 0 && index < axis.ticks.length - 1) {
+      appendExamGraphClimateSvgElement(svg, "line", {
+        class: `exam-graph-svg-grid exam-graph-svg-grid--y${Math.abs(Number(tick)) < 0.000001 ? " is-zero" : ""}`,
+        x1: layout.plotLeft,
+        y1: y,
+        x2: layout.plotRight,
+        y2: y,
+      });
+    }
     appendExamGraphClimateSvgElement(svg, "text", {
       class: "exam-graph-svg-tick",
       x: layout.plotLeft - 12,
@@ -15001,6 +15070,7 @@ function appendExamGraphClimateYAxis(svg, axis, layout, yScale) {
   if (axis.unitLabel) {
     appendExamGraphClimateSvgElement(svg, "text", {
       class: "exam-graph-svg-unit exam-graph-svg-unit--y",
+      lang: /[가-힣]/u.test(String(axis.unitLabel)) ? "ko" : "en",
       x: layout.plotLeft,
       y: 16,
       "text-anchor": "start",
@@ -15015,7 +15085,8 @@ function appendExamGraphClimateLegend(svg, items = [], layout, { line = false } 
   const gap = 18;
   const rowGap = 21;
   const maxRowWidth = layout.width - 36;
-  const itemWidths = items.map((item) => clamp(34 + String(item.label ?? "").length * 8.4, 60, maxRowWidth));
+  const fontScale = Number(layout.fontScale) || 1;
+  const itemWidths = items.map((item) => clamp(34 + String(item.label ?? "").length * 8.4 * fontScale, 60, maxRowWidth));
   const rows = [];
   items.forEach((item, index) => {
     const currentRow = rows[rows.length - 1];
@@ -15051,6 +15122,7 @@ function appendExamGraphClimateLegend(svg, items = [], layout, { line = false } 
         appendExamGraphClimateMarker(group, 13, -5, style.marker, color, index);
         appendExamGraphClimateSvgElement(group, "text", {
           class: "exam-graph-svg-legend-text",
+          lang: /[가-힣]/u.test(String(item.label ?? "")) ? "ko" : "en",
           x: 36,
           y: 0,
         }, item.label);
@@ -15065,6 +15137,7 @@ function appendExamGraphClimateLegend(svg, items = [], layout, { line = false } 
         });
         appendExamGraphClimateSvgElement(group, "text", {
           class: "exam-graph-svg-legend-text",
+          lang: /[가-힣]/u.test(String(item.label ?? "")) ? "ko" : "en",
           x: 26,
           y: -4,
         }, item.label);
@@ -15166,8 +15239,11 @@ function buildExamGraphClimateSingleBarChart(model) {
     return buildExamGraphClimateEmptyChart();
   }
   const values = rows.map((row) => Number(row.displayValue ?? row.value));
-  const axis = getExamGraphNativeAxis(values, model.valueFormatter, { paddingRatio: 0.04, rangePadding: 0 });
-  const layout = getExamGraphClimateHorizontalLayout(rows, { orientation: model.orientation });
+  const axis = getExamGraphNativeAxis(values, model.valueFormatter, { paddingRatio: 0.08, rangePadding: 0 });
+  const layout = getExamGraphClimateHorizontalLayout(rows, {
+    orientation: model.orientation,
+    fontSizePt: model.fontSizePt,
+  });
   const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 막대 그래프", "bar");
   const xScale = getExamGraphClimateScale(axis.minimum, axis.maximum, layout.plotLeft, layout.plotRight);
   const zeroX = xScale(0);
@@ -15177,21 +15253,36 @@ function buildExamGraphClimateSingleBarChart(model) {
   rows.forEach((row, rowIndex) => {
     const centerY = layout.plotTop + ((rowIndex + 0.5) / rows.length) * layout.plotHeight;
     const value = Number(row.displayValue ?? row.value) || 0;
+    const labelText = row.displayLabel ?? row.label ?? "";
     appendExamGraphClimateSvgElement(svg, "text", {
       class: "exam-graph-svg-label",
+      lang: /[가-힣]/u.test(labelText) ? "ko" : "en",
       x: layout.plotLeft - 14,
       y: centerY + 4,
       "text-anchor": "end",
-    }, row.displayLabel ?? row.label ?? "");
+    }, labelText);
+    const barHeight = clamp((layout.plotHeight / rows.length) * 0.3, 10, 14);
     appendExamGraphClimateBar(svg, {
       xScale,
       zeroX,
       value,
-      y: centerY - 5,
-      height: 10,
-      color: getExamGraphClimateSeriesColor(rowIndex),
-      seriesIndex: rowIndex,
+      y: centerY - barHeight / 2,
+      height: barHeight,
+      color: getExamGraphClimateSeriesColor(0),
+      seriesIndex: 0,
+      title: `${labelText} ${model.valueFormatter ? model.valueFormatter(value) : value}`,
     });
+    const valueX = xScale(value);
+    const pointsRight = value >= 0;
+    const remainingSpace = pointsRight ? layout.plotRight - valueX : valueX - layout.plotLeft;
+    const isInside = remainingSpace < 34;
+    appendExamGraphClimateSvgElement(svg, "text", {
+      class: `exam-graph-svg-value${isInside ? " is-inside" : ""}`,
+      x: valueX + (pointsRight ? (isInside ? -7 : 7) : isInside ? 7 : -7),
+      y: centerY + 0.5,
+      "dominant-baseline": "middle",
+      "text-anchor": pointsRight ? (isInside ? "end" : "start") : isInside ? "start" : "end",
+    }, axis.formatTick(value));
   });
   return svg;
 }
@@ -15212,7 +15303,11 @@ function buildExamGraphClimateStackedChart(model) {
         formatTick: (value) => String(value),
         unitLabel: "(%)",
       };
-  const layout = getExamGraphClimateHorizontalLayout(rows, { legend: true, orientation: model.orientation });
+  const layout = getExamGraphClimateHorizontalLayout(rows, {
+    legend: true,
+    orientation: model.orientation,
+    fontSizePt: model.fontSizePt,
+  });
   const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 누적 막대 그래프", "stacked");
   const xScale = getExamGraphClimateScale(axis.minimum, axis.maximum, layout.plotLeft, layout.plotRight);
   appendExamGraphClimateFrame(svg, layout);
@@ -15221,12 +15316,14 @@ function buildExamGraphClimateStackedChart(model) {
   rows.forEach((row, rowIndex) => {
     const centerY = layout.plotTop + ((rowIndex + 0.5) / rows.length) * layout.plotHeight;
     let cumulativeValue = 0;
+    const labelText = row.displayLabel ?? row.label ?? "";
     appendExamGraphClimateSvgElement(svg, "text", {
       class: "exam-graph-svg-label",
+      lang: /[가-힣]/u.test(labelText) ? "ko" : "en",
       x: layout.plotLeft - 14,
       y: centerY + 4,
       "text-anchor": "end",
-    }, row.displayLabel ?? row.label ?? "");
+    }, labelText);
     (row.segments ?? []).forEach((segment, segmentIndex) => {
       const segmentValue = mode === "amount" ? Number(segment.value) || 0 : clamp(Number(segment.share) || 0, 0, 100);
       const startX = xScale(cumulativeValue);
@@ -15258,7 +15355,12 @@ function buildExamGraphClimatePairedChart(model) {
       : [Number(row.displayFirstValue), Number(row.displaySecondValue)],
   );
   const axis = getExamGraphNativeAxis(values, model.valueFormatter, { paddingRatio: 0.04, rangePadding: 0 });
-  const layout = getExamGraphClimateHorizontalLayout(rows, { legend: true, paired: true, orientation: model.orientation });
+  const layout = getExamGraphClimateHorizontalLayout(rows, {
+    legend: true,
+    paired: true,
+    orientation: model.orientation,
+    fontSizePt: model.fontSizePt,
+  });
   const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 비교 막대 그래프", "paired");
   const xScale = getExamGraphClimateScale(axis.minimum, axis.maximum, layout.plotLeft, layout.plotRight);
   const zeroX = xScale(0);
@@ -15270,12 +15372,14 @@ function buildExamGraphClimatePairedChart(model) {
     const pairValues = model.chartKind === "timeCompare"
       ? [row.displayStartValue ?? row.startValue, row.displayEndValue ?? row.endValue]
       : [row.displayFirstValue, row.displaySecondValue];
+    const labelText = row.displayLabel ?? row.label ?? "";
     appendExamGraphClimateSvgElement(svg, "text", {
       class: "exam-graph-svg-label",
+      lang: /[가-힣]/u.test(labelText) ? "ko" : "en",
       x: layout.plotLeft - 14,
       y: centerY + 4,
       "text-anchor": "end",
-    }, row.displayLabel ?? row.label ?? "");
+    }, labelText);
     pairValues.forEach((value, valueIndex) => {
       appendExamGraphClimateBar(svg, {
         xScale,
@@ -15305,6 +15409,7 @@ function buildExamGraphClimateTrendChart(model) {
     steps: years.length,
     series: rows.length,
     orientation: model.orientation,
+    fontSizePt: model.fontSizePt,
   });
   const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 시계열 그래프", "trend");
   const yScale = getExamGraphClimateYScale(axis.minimum, axis.maximum, layout.plotTop, layout.plotBottom);
@@ -15383,6 +15488,7 @@ function buildExamGraphClimateScatterChart(model) {
     series: rows.length,
     scatter: true,
     orientation: model.orientation,
+    fontSizePt: model.fontSizePt,
   });
   const svg = createExamGraphClimateSvg(layout.width, layout.height, "인문지리 산포도", "scatter");
   const xScale = getExamGraphClimateScale(xAxis.minimum, xAxis.maximum, layout.plotLeft, layout.plotRight);
@@ -15409,6 +15515,7 @@ function buildExamGraphClimateScatterChart(model) {
   if (xAxis.unitLabel) {
     appendExamGraphClimateSvgElement(svg, "text", {
       class: "exam-graph-svg-unit",
+      lang: /[가-힣]/u.test(String(xAxis.unitLabel)) ? "ko" : "en",
       x: layout.plotRight,
       y: layout.height - 16,
       "text-anchor": "end",
@@ -15429,6 +15536,7 @@ function buildExamGraphClimateScatterChart(model) {
     });
     appendExamGraphClimateSvgElement(svg, "text", {
       class: "exam-graph-svg-point-label",
+      lang: /[가-힣]/u.test(String(row.displayLabel ?? row.label ?? "")) ? "ko" : "en",
       x: x + radius + 5,
       y: y - radius,
     }, row.displayLabel ?? row.label ?? "");
@@ -17927,6 +18035,7 @@ function renderMap() {
   const renderModel = buildWorldMapSvg();
   currentSvgNode = renderModel.svgNode;
   currentRenderContext = {
+    mapVersion: "world",
     projection: renderModel.projection,
     path: renderModel.path,
     baseScale: renderModel.baseScale,
@@ -17943,10 +18052,8 @@ function renderMap() {
 function buildWorldMapSvg(options = {}) {
   normalizeCanvasStateDimensions();
   const focusGeometry = buildFocusGeometry();
-  const padding = Math.max(
-    16,
-    Math.round(Math.min(state.width, state.height) * (state.paddingPercent / 100)),
-  );
+  rebaseWorldViewToCanvas(focusGeometry);
+  const padding = getCanvasFitPadding(state.width, state.height, 16);
   const projectionMeta = createProjectionMeta(focusGeometry, padding);
   const projection = projectionMeta.projection;
   const path = d3.geoPath(projection);
@@ -18084,18 +18191,28 @@ function renderKoreaMap() {
   const visibleProvinceCodeSet =
     state.koreaLevel === "cities" ? getKoreaProvinceCodeSetFromVisibleFeatures(visibleFeatures) : new Set();
   const fitGeometry = buildKoreaFitGeometry(visibleFeatures, visibleProvinceCodeSet);
-  const padding = Math.max(
-    18,
-    Math.round(Math.min(state.width, state.height) * (state.paddingPercent / 100)),
-  );
-  const projection = d3.geoMercator();
-  projection.fitExtent(
-    [
-      [padding, padding],
-      [state.width - padding, state.height - padding],
-    ],
-    fitGeometry,
-  );
+  const padding = getCanvasFitPadding(state.width, state.height, 18);
+  const fitContextKey = [
+    state.koreaLevel,
+    state.koreaParentCode ?? "",
+    compareMode ? "compare" : "standard",
+    visibleFeatures.map((feature) => feature.id).sort().join(","),
+  ].join("|");
+  const fitContextChanged = lastKoreaFitContextKey !== null && lastKoreaFitContextKey !== fitContextKey;
+  if (fitContextChanged) {
+    resetKoreaFitTransform();
+  }
+  lastKoreaFitContextKey = fitContextKey;
+  rebaseKoreaViewToCanvas(fitGeometry);
+
+  const projectionMeta = createKoreaBaseProjectionMeta(fitGeometry, padding);
+  const projection = d3
+    .geoMercator()
+    .scale(projectionMeta.baseScale * normalizeProjectionFitScale(state.koreaFitScale))
+    .translate([
+      projectionMeta.baseTranslate[0] + state.koreaFitOffsetX,
+      projectionMeta.baseTranslate[1] + state.koreaFitOffsetY,
+    ]);
   projection.precision(0.14);
 
   const path = d3.geoPath(projection);
@@ -18262,10 +18379,11 @@ function renderKoreaMap() {
   currentSvgNode = svg.node();
   ensureSvgFontStyle(currentSvgNode);
   currentRenderContext = {
+    mapVersion: "korea",
     projection,
     path,
-    baseScale: projection.scale(),
-    baseTranslate: [...projection.translate()],
+    baseScale: projectionMeta.baseScale,
+    baseTranslate: projectionMeta.baseTranslate,
     padding,
   };
 
@@ -18527,7 +18645,7 @@ function renderKoreaRouteLayer(root, path, projection) {
   });
 
   renderKoreaRouteStationLayer(routeLayer, projection, activeRoutes);
-  renderKoreaRouteLegend(root, activeRoutes);
+  renderKoreaRouteLegend(root, activeRoutes, path);
 }
 
 function renderKoreaRouteStationLayer(routeLayer, projection, activeRoutes) {
@@ -18618,33 +18736,51 @@ function normalizeKoreaRouteCoordinate(coordinates) {
   return Number.isFinite(longitude) && Number.isFinite(latitude) ? [longitude, latitude] : null;
 }
 
-function renderKoreaRouteLegend(root, activeRoutes) {
+function renderKoreaRouteLegend(root, activeRoutes, path) {
   const legend = root.append("g").attr("class", "korea-route-legend");
-  const legendX = 16;
-  const legendY = 16;
   const showStationLegend = activeRoutes.some((route) => route.stations?.length);
   const rowCount = activeRoutes.length + (showStationLegend ? 1 : 0);
-  const rowHeight = rowCount >= 4 ? 10.5 : 11.5;
-  const fontSize = rowCount >= 4 ? 4.8 : 5.2;
-  const swatchLength = 14;
-  const textOffset = 22;
+  const rowHeight = rowCount >= 4 ? 8.5 : 9.5;
+  const fontSize = rowCount >= 4 ? 4.2 : 4.6;
+  const panelPadding = 6;
+  const swatchLength = 12;
+  const textOffset = 18;
   const legendNames = [...activeRoutes.map((route) => route.name), ...(showStationLegend ? ["고속철도 정차역"] : [])];
-  const panelWidth = clamp(40 + Math.max(...legendNames.map((name) => name.length)) * 11, 104, 132);
-  const panelHeight = 16 + rowCount * rowHeight;
+  const longestNameLength = Math.max(...legendNames.map((name) => String(name).length));
+  const estimatedTextWidth = longestNameLength * fontSize * 1.32;
+  const panelWidth = clamp(
+    panelPadding * 2 + textOffset + estimatedTextWidth,
+    72,
+    Math.min(96, state.width - 16),
+  );
+  const panelHeight = panelPadding * 2 + rowCount * rowHeight;
+  let panelX = 8;
+  if (typeof path?.bounds === "function" && koreaDatasets.provinces.landFeature) {
+    const bounds = path.bounds(koreaDatasets.provinces.landFeature);
+    const leftSpace = Number(bounds?.[0]?.[0]) || 0;
+    const rightSpace = state.width - (Number(bounds?.[1]?.[0]) || state.width);
+    if (rightSpace > leftSpace) {
+      panelX = Math.max(8, state.width - panelWidth - 8);
+    }
+  }
+  const panelY = 8;
+  const legendX = panelX + panelPadding;
+  const firstRowY = panelY + panelPadding + rowHeight / 2;
 
   legend
     .append("rect")
-    .attr("x", legendX - 8)
-    .attr("y", legendY - 8)
+    .attr("x", panelX)
+    .attr("y", panelY)
     .attr("width", panelWidth)
     .attr("height", panelHeight)
     .attr("fill", "#ffffff")
+    .attr("fill-opacity", 0.94)
     .attr("stroke", state.borderColor)
-    .attr("stroke-width", OUTLINE_STROKE_WIDTH)
+    .attr("stroke-width", "0.4pt")
     .attr("vector-effect", "non-scaling-stroke");
 
   activeRoutes.forEach((route, index) => {
-    const y = legendY + index * rowHeight;
+    const y = firstRowY + index * rowHeight;
     legend
       .append("line")
       .attr("x1", legendX)
@@ -18663,15 +18799,15 @@ function renderKoreaRouteLegend(root, activeRoutes) {
       .attr("y", y)
       .attr("dominant-baseline", "middle")
       .attr("font-size", `${fontSize}pt`)
-      .attr("font-family", "Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif")
-      .attr("font-weight", 700)
-      .attr("letter-spacing", "-0.02em")
+      .attr("font-family", SITE_GRAPH_FONT_FAMILY)
+      .attr("font-weight", 600)
+      .attr("letter-spacing", "0")
       .attr("fill", state.borderColor)
       .text(route.name);
   });
 
   if (showStationLegend) {
-    const y = legendY + activeRoutes.length * rowHeight;
+    const y = firstRowY + activeRoutes.length * rowHeight;
     legend
       .append("circle")
       .attr("cx", legendX + swatchLength / 2)
@@ -18688,9 +18824,9 @@ function renderKoreaRouteLegend(root, activeRoutes) {
       .attr("y", y)
       .attr("dominant-baseline", "middle")
       .attr("font-size", `${fontSize}pt`)
-      .attr("font-family", "Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif")
-      .attr("font-weight", 700)
-      .attr("letter-spacing", "-0.02em")
+      .attr("font-family", SITE_GRAPH_FONT_FAMILY)
+      .attr("font-weight", 600)
+      .attr("letter-spacing", "0")
       .attr("fill", state.borderColor)
       .text("고속철도 정차역");
   }
@@ -18749,22 +18885,85 @@ function buildFocusGeometry() {
   };
 }
 
-function createProjectionMeta(focusGeometry, padding) {
-  const target = buildProjectionFitGeometry(focusGeometry);
-  const baseProjection = buildBaseProjection();
-  baseProjection.fitExtent(
-    [
-      [padding, padding],
-      [state.width - padding, state.height - padding],
-    ],
-    target,
+function getCanvasFitPadding(width, height, minimum) {
+  return Math.max(
+    minimum,
+    Math.round(Math.min(width, height) * (state.paddingPercent / 100)),
   );
+}
 
-  const baseScale = baseProjection.scale();
-  const baseTranslate = [...baseProjection.translate()];
+function rebaseWorldViewToCanvas(focusGeometry) {
+  const previousWidth = clampCanvasWidth(state.viewCanvasWidth, state.width);
+  const previousHeight = clampCanvasHeight(state.viewCanvasHeight, state.height);
+  if (previousWidth === state.width && previousHeight === state.height) {
+    state.viewCanvasWidth = state.width;
+    state.viewCanvasHeight = state.height;
+    return;
+  }
 
+  const previousBase = createWorldBaseProjectionMeta(
+    focusGeometry,
+    getCanvasFitPadding(previousWidth, previousHeight, 16),
+    previousWidth,
+    previousHeight,
+  );
+  const actualScale =
+    previousBase.baseScale * normalizeProjectionFitScale(state.viewFitScale) * state.viewZoom;
+  const actualTranslate = [
+    previousBase.baseTranslate[0] + state.viewOffsetX,
+    previousBase.baseTranslate[1] + state.viewOffsetY,
+  ];
+  const nextBase = createWorldBaseProjectionMeta(
+    focusGeometry,
+    getCanvasFitPadding(state.width, state.height, 16),
+    state.width,
+    state.height,
+  );
+  const viewZoom = Math.max(0.0001, Number(state.viewZoom) || 1);
+  state.viewFitScale = normalizeProjectionFitScale(actualScale / (nextBase.baseScale * viewZoom));
+  state.viewOffsetX = actualTranslate[0] - nextBase.baseTranslate[0];
+  state.viewOffsetY = actualTranslate[1] - nextBase.baseTranslate[1];
+  state.viewCanvasWidth = state.width;
+  state.viewCanvasHeight = state.height;
+}
+
+function rebaseKoreaViewToCanvas(fitGeometry) {
+  const previousWidth = clampCanvasWidth(state.koreaViewCanvasWidth, state.width);
+  const previousHeight = clampCanvasHeight(state.koreaViewCanvasHeight, state.height);
+  if (previousWidth === state.width && previousHeight === state.height) {
+    state.koreaViewCanvasWidth = state.width;
+    state.koreaViewCanvasHeight = state.height;
+    return;
+  }
+
+  const previousBase = createKoreaBaseProjectionMeta(
+    fitGeometry,
+    getCanvasFitPadding(previousWidth, previousHeight, 18),
+    previousWidth,
+    previousHeight,
+  );
+  const actualScale = previousBase.baseScale * normalizeProjectionFitScale(state.koreaFitScale);
+  const actualTranslate = [
+    previousBase.baseTranslate[0] + state.koreaFitOffsetX,
+    previousBase.baseTranslate[1] + state.koreaFitOffsetY,
+  ];
+  const nextBase = createKoreaBaseProjectionMeta(
+    fitGeometry,
+    getCanvasFitPadding(state.width, state.height, 18),
+    state.width,
+    state.height,
+  );
+  state.koreaFitScale = normalizeProjectionFitScale(actualScale / nextBase.baseScale);
+  state.koreaFitOffsetX = actualTranslate[0] - nextBase.baseTranslate[0];
+  state.koreaFitOffsetY = actualTranslate[1] - nextBase.baseTranslate[1];
+  state.koreaViewCanvasWidth = state.width;
+  state.koreaViewCanvasHeight = state.height;
+}
+
+function createProjectionMeta(focusGeometry, padding) {
+  const { baseScale, baseTranslate } = createWorldBaseProjectionMeta(focusGeometry, padding);
   const projection = buildBaseProjection();
-  projection.scale(baseScale * state.viewZoom);
+  projection.scale(baseScale * normalizeProjectionFitScale(state.viewFitScale) * state.viewZoom);
   projection.translate([
     baseTranslate[0] + state.viewOffsetX,
     baseTranslate[1] + state.viewOffsetY,
@@ -18775,6 +18974,55 @@ function createProjectionMeta(focusGeometry, padding) {
     baseScale,
     baseTranslate,
   };
+}
+
+function createWorldBaseProjectionMeta(
+  focusGeometry,
+  padding,
+  width = state.width,
+  height = state.height,
+) {
+  const target = buildProjectionFitGeometry(focusGeometry);
+  const baseProjection = buildBaseProjection();
+  baseProjection.fitExtent(
+    [
+      [padding, padding],
+      [width - padding, height - padding],
+    ],
+    target,
+  );
+
+  const baseScale = baseProjection.scale();
+  const baseTranslate = [...baseProjection.translate()];
+  return {
+    baseScale,
+    baseTranslate,
+  };
+}
+
+function createKoreaBaseProjectionMeta(
+  fitGeometry,
+  padding,
+  width = state.width,
+  height = state.height,
+) {
+  const baseProjection = d3.geoMercator();
+  baseProjection.fitExtent(
+    [
+      [padding, padding],
+      [width - padding, height - padding],
+    ],
+    fitGeometry,
+  );
+  return {
+    baseScale: baseProjection.scale(),
+    baseTranslate: [...baseProjection.translate()],
+  };
+}
+
+function normalizeProjectionFitScale(value) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? clamp(parsed, 0.01, 100) : 1;
 }
 
 function buildProjectionFitGeometry(focusGeometry) {
@@ -21301,6 +21549,119 @@ function previewTransformIsIdentity() {
   );
 }
 
+function prepareCanvasViewForResize() {
+  if (state.mapVersion !== "world") {
+    return;
+  }
+
+  if (
+    currentRenderContext?.mapVersion === "world" &&
+    !previewTransformIsIdentity()
+  ) {
+    if (previewInteraction.commitTimer) {
+      window.clearTimeout(previewInteraction.commitTimer);
+      previewInteraction.commitTimer = null;
+    }
+    const oldZoom = state.viewZoom;
+    const nextZoom = clampViewZoom(oldZoom * previewInteraction.scale);
+    const actualScale = nextZoom / oldZoom;
+    const baseTranslate = currentRenderContext.baseTranslate;
+    state.viewZoom = nextZoom;
+    state.viewOffsetX =
+      actualScale * state.viewOffsetX +
+      previewInteraction.translateX +
+      (actualScale - 1) * baseTranslate[0];
+    state.viewOffsetY =
+      actualScale * state.viewOffsetY +
+      previewInteraction.translateY +
+      (actualScale - 1) * baseTranslate[1];
+  }
+
+  if (annotationZoomRenderTimer !== null) {
+    window.clearTimeout(annotationZoomRenderTimer);
+    annotationZoomRenderTimer = null;
+  }
+  if (annotationZoomRenderFrame !== null) {
+    window.cancelAnimationFrame(annotationZoomRenderFrame);
+    annotationZoomRenderFrame = null;
+  }
+}
+
+function captureCanvasProjectionSnapshot() {
+  if (
+    currentRenderContext?.mapVersion !== state.mapVersion ||
+    !Number.isFinite(Number(currentRenderContext?.baseScale)) ||
+    !Array.isArray(currentRenderContext?.baseTranslate)
+  ) {
+    return null;
+  }
+
+  const scale = state.mapVersion === "world"
+    ? Number(currentRenderContext.baseScale) * normalizeProjectionFitScale(state.viewFitScale) * state.viewZoom
+    : Number(currentRenderContext.baseScale) * normalizeProjectionFitScale(state.koreaFitScale);
+  const translate = state.mapVersion === "world"
+    ? [
+        currentRenderContext.baseTranslate[0] + state.viewOffsetX,
+        currentRenderContext.baseTranslate[1] + state.viewOffsetY,
+      ]
+    : [
+        currentRenderContext.baseTranslate[0] + state.koreaFitOffsetX,
+        currentRenderContext.baseTranslate[1] + state.koreaFitOffsetY,
+      ];
+  if (!Number.isFinite(scale) || !Array.isArray(translate) || !translate.every(Number.isFinite)) {
+    return null;
+  }
+
+  return {
+    mapVersion: state.mapVersion,
+    width: state.width,
+    height: state.height,
+    scale,
+    translate: [...translate],
+  };
+}
+
+function preserveCanvasProjectionAfterResize(snapshot) {
+  if (!snapshot || snapshot.mapVersion !== state.mapVersion) {
+    return;
+  }
+  if (snapshot.width === state.width && snapshot.height === state.height) {
+    return;
+  }
+
+  if (state.mapVersion === "world") {
+    const padding = getCanvasFitPadding(state.width, state.height, 16);
+    const { baseScale, baseTranslate } = createWorldBaseProjectionMeta(buildFocusGeometry(), padding);
+    const viewZoom = Math.max(0.0001, Number(state.viewZoom) || 1);
+    state.viewFitScale = normalizeProjectionFitScale(snapshot.scale / (baseScale * viewZoom));
+    state.viewOffsetX = snapshot.translate[0] - baseTranslate[0];
+    state.viewOffsetY = snapshot.translate[1] - baseTranslate[1];
+    state.viewCanvasWidth = state.width;
+    state.viewCanvasHeight = state.height;
+    return;
+  }
+
+  const compareMode = isKoreaCompareModeActive();
+  const visibleFeatures = compareMode ? getCurrentKoreaComparedFeatures() : getVisibleKoreaRenderFeatures();
+  const visibleProvinceCodeSet =
+    state.koreaLevel === "cities" ? getKoreaProvinceCodeSetFromVisibleFeatures(visibleFeatures) : new Set();
+  const fitGeometry = buildKoreaFitGeometry(visibleFeatures, visibleProvinceCodeSet);
+  const padding = getCanvasFitPadding(state.width, state.height, 18);
+  const { baseScale, baseTranslate } = createKoreaBaseProjectionMeta(fitGeometry, padding);
+  state.koreaFitScale = normalizeProjectionFitScale(snapshot.scale / baseScale);
+  state.koreaFitOffsetX = snapshot.translate[0] - baseTranslate[0];
+  state.koreaFitOffsetY = snapshot.translate[1] - baseTranslate[1];
+  state.koreaViewCanvasWidth = state.width;
+  state.koreaViewCanvasHeight = state.height;
+}
+
+function updateCanvasDimensionsWithStableMap(updateDimensions) {
+  prepareCanvasViewForResize();
+  const projectionSnapshot = captureCanvasProjectionSnapshot();
+  updateDimensions();
+  preserveCanvasProjectionAfterResize(projectionSnapshot);
+}
+
 function startArtboardResize(event) {
   if (event.button !== 0 || event.isPrimary === false) {
     return;
@@ -21308,9 +21669,10 @@ function startArtboardResize(event) {
 
   event.preventDefault();
   event.stopPropagation();
-  event.currentTarget.setPointerCapture?.(event.pointerId);
+  const resizeHandle = event.currentTarget;
+  resizeHandle.setPointerCapture?.(event.pointerId);
 
-  const shell = event.currentTarget.parentElement;
+  const shell = resizeHandle.parentElement;
   if (!shell) {
     return;
   }
@@ -21319,10 +21681,9 @@ function startArtboardResize(event) {
   const startY = event.clientY;
   const startWidth = state.width;
   const startHeight = state.height;
-  const resizeAxis = event.currentTarget.dataset.resizeAxis || "both";
+  const resizeAxis = resizeHandle.dataset.resizeAxis || "both";
   const previewScale = currentPreviewScale || 1;
   const pointerId = event.pointerId;
-  let latestFrame = { width: startWidth, height: startHeight };
 
   flushPendingHistory();
   beginHistoryStep("캔버스 크기 변경");
@@ -21330,6 +21691,19 @@ function startArtboardResize(event) {
     window.clearTimeout(historyState.commitTimer);
     historyState.commitTimer = null;
   }
+
+  prepareCanvasViewForResize();
+  const projectionSnapshot = captureCanvasProjectionSnapshot();
+  activeCanvasResizeSnapshot = projectionSnapshot;
+  const surface = shell.querySelector(".canvas-surface");
+  let latestFrame = { width: startWidth, height: startHeight };
+  let resizeFinished = false;
+
+  if (surface) {
+    surface.style.width = `${Math.round(startWidth * previewScale)}px`;
+    surface.style.height = `${Math.round(startHeight * previewScale)}px`;
+  }
+  shell.style.overflow = "hidden";
   shell.classList.add(`is-resizing-${resizeAxis}`);
 
   const onPointerMove = (moveEvent) => {
@@ -21346,18 +21720,25 @@ function startArtboardResize(event) {
       deltaHeight,
       resizeAxis,
     );
-    applyLiveCanvasResize(shell, latestFrame, previewScale);
+    applyLiveCanvasResize(shell, latestFrame, previewScale, {
+      width: startWidth,
+      height: startHeight,
+    });
   };
 
   const stopResize = (upEvent) => {
-    if (upEvent.pointerId !== pointerId) {
+    if (resizeFinished || upEvent.pointerId !== pointerId) {
       return;
     }
+    resizeFinished = true;
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", stopResize);
     window.removeEventListener("pointercancel", stopResize);
+    resizeHandle.removeEventListener("lostpointercapture", stopResize);
     shell.classList.remove(`is-resizing-${resizeAxis}`);
 
+    preserveCanvasProjectionAfterResize(projectionSnapshot);
+    activeCanvasResizeSnapshot = null;
     renderMap();
     commitPendingHistoryStep();
     setStatus(`${latestFrame.width} × ${latestFrame.height}px 캔버스`);
@@ -21366,6 +21747,7 @@ function startArtboardResize(event) {
   window.addEventListener("pointermove", onPointerMove);
   window.addEventListener("pointerup", stopResize);
   window.addEventListener("pointercancel", stopResize);
+  resizeHandle.addEventListener("lostpointercapture", stopResize, { once: true });
 }
 
 function getArtboardResizeFrame(startWidth, startHeight, deltaWidth, deltaHeight, axis = "both") {
@@ -21391,7 +21773,7 @@ function getArtboardResizeFrame(startWidth, startHeight, deltaWidth, deltaHeight
   };
 }
 
-function applyLiveCanvasResize(shell, frame, previewScale = currentPreviewScale || 1) {
+function applyLiveCanvasResize(shell, frame, previewScale = currentPreviewScale || 1, originFrame = null) {
   state.width = clampCanvasWidth(frame.width, state.width);
   state.height = clampCanvasHeight(frame.height, state.height);
   if (!state.canvasAspectLocked) {
@@ -21400,6 +21782,11 @@ function applyLiveCanvasResize(shell, frame, previewScale = currentPreviewScale 
 
   shell.style.width = `${Math.round(state.width * previewScale)}px`;
   shell.style.height = `${Math.round(state.height * previewScale)}px`;
+  if (originFrame) {
+    const translateX = ((state.width - originFrame.width) * previewScale) / 2;
+    const translateY = ((state.height - originFrame.height) * previewScale) / 2;
+    shell.style.transform = `translate(${translateX}px, ${translateY}px)`;
+  }
   const sizeBadge = shell.querySelector("[data-canvas-size-badge]");
   if (sizeBadge) {
     sizeBadge.textContent = formatCanvasSize();
@@ -21445,11 +21832,13 @@ function handleArtboardResizeKeyDown(event) {
   }
 
   beginHistoryStep("캔버스 크기 변경");
-  state.width = nextFrame.width;
-  state.height = nextFrame.height;
-  if (!state.canvasAspectLocked) {
-    state.canvasAspectRatio = getCurrentCanvasAspectRatio();
-  }
+  updateCanvasDimensionsWithStableMap(() => {
+    state.width = nextFrame.width;
+    state.height = nextFrame.height;
+    if (!state.canvasAspectLocked) {
+      state.canvasAspectRatio = getCurrentCanvasAspectRatio();
+    }
+  });
   syncDimensionInputs();
   syncPresetButtons();
   renderMap();
@@ -21955,9 +22344,20 @@ function applyRelativeZoom(factor, sourcePoint, destinationPoint = sourcePoint, 
 }
 
 function resetViewWindow() {
+  state.viewFitScale = 1;
   state.viewZoom = 1;
   state.viewOffsetX = 0;
   state.viewOffsetY = 0;
+  state.viewCanvasWidth = state.width;
+  state.viewCanvasHeight = state.height;
+}
+
+function resetKoreaFitTransform() {
+  state.koreaFitScale = 1;
+  state.koreaFitOffsetX = 0;
+  state.koreaFitOffsetY = 0;
+  state.koreaViewCanvasWidth = state.width;
+  state.koreaViewCanvasHeight = state.height;
 }
 
 function hasMapAnnotations() {
@@ -22321,6 +22721,14 @@ function clampCanvasHeight(value, fallback = 310) {
 function normalizeCanvasStateDimensions() {
   state.width = clampCanvasWidth(state.width, MAIN_CANVAS_WIDTH);
   state.height = clampCanvasHeight(state.height, 310);
+  state.viewFitScale = normalizeProjectionFitScale(state.viewFitScale);
+  state.viewCanvasWidth = clampCanvasWidth(state.viewCanvasWidth, state.width);
+  state.viewCanvasHeight = clampCanvasHeight(state.viewCanvasHeight, state.height);
+  state.koreaFitScale = normalizeProjectionFitScale(state.koreaFitScale);
+  state.koreaFitOffsetX = Number.isFinite(Number(state.koreaFitOffsetX)) ? Number(state.koreaFitOffsetX) : 0;
+  state.koreaFitOffsetY = Number.isFinite(Number(state.koreaFitOffsetY)) ? Number(state.koreaFitOffsetY) : 0;
+  state.koreaViewCanvasWidth = clampCanvasWidth(state.koreaViewCanvasWidth, state.width);
+  state.koreaViewCanvasHeight = clampCanvasHeight(state.koreaViewCanvasHeight, state.height);
   state.canvasAspectLocked = Boolean(state.canvasAspectLocked);
   state.canvasAspectRatio = state.canvasAspectLocked
     ? normalizeCanvasAspectRatio(state.canvasAspectRatio, getCurrentCanvasAspectRatio())
