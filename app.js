@@ -411,27 +411,58 @@ const worldStatsQuickMetricKeys = [
   "industry-agriculture-share",
   "energy-renewables-share",
 ];
-const examGraphQuickStartDefinitions = [
-  {
-    key: "population-rank",
-    label: "Population Rank",
-    config: { presetKey: "rankBars", metricKey: "population-total", valueMode: "amount", grouping: "countries" },
-  },
-  {
-    key: "urban-rural",
-    label: "Urban & Rural",
-    config: { presetKey: "stacked100", compositionKey: "urban-rural", valueMode: "share", grouping: "countries" },
-  },
-  {
-    key: "population-trend",
-    label: "Population Trend",
-    config: { presetKey: "trendLine", timeMetricKey: "population-total", valueMode: "amount", grouping: "countries" },
-  },
-  {
-    key: "industry-mix",
-    label: "Industry Mix",
-    config: { presetKey: "stacked100", compositionKey: "industry-structure", valueMode: "share", grouping: "countries" },
-  },
+const examDrillTopicDefinitions = [
+  { key: "auto", label: "Auto" },
+  { key: "demography", label: "인구" },
+  { key: "agriculture", label: "농업" },
+  { key: "economy", label: "산업" },
+  { key: "energy", label: "에너지" },
+  { key: "religion", label: "종교" },
+];
+const examDrillSkillPrompts = {
+  rank: "값의 순서와 국가를 연결해 보세요.",
+  composition: "구성비의 차이로 국가를 판별해 보세요.",
+  compare: "두 지표의 대소 관계를 비교해 보세요.",
+  change: "증감 방향과 변화 폭을 판별해 보세요.",
+  scatter: "사분면과 버블 크기로 국가를 판별해 보세요.",
+};
+const examDrillScenarioDefinitions = [
+  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-total", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-density", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-urban-share", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-birth-rate", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-natural-increase-rate", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "age-65plus-share", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "urban-rural", valueMode: "share", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "age-structure", valueMode: "share", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "young-old-share", valueMode: "share", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "birth-death-rate", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "change", config: { presetKey: "timeCompare", timeMetricKey: "population-total", valueMode: "amount", grouping: "countries", yearStart: 1970, yearEnd: 2023 } },
+  { topicKey: "demography", skillKey: "change", config: { presetKey: "trendLine", timeMetricKey: "population-urban-share", valueMode: "amount", grouping: "countries", yearStart: 1970, yearEnd: 2023 } },
+  { topicKey: "demography", skillKey: "scatter", config: { presetKey: "scatter", grouping: "countries", scatterXKey: "population-urban-share", scatterYKey: "age-65plus-share", scatterSizeKey: "population-total" } },
+  { topicKey: "demography", skillKey: "scatter", config: { presetKey: "scatter", grouping: "countries", scatterXKey: "population-birth-rate", scatterYKey: "population-death-rate", scatterSizeKey: "population-total" } },
+  { topicKey: "agriculture", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "crops-production", valueMode: "share", grouping: "countries" } },
+  { topicKey: "agriculture", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "livestock-stocks", valueMode: "share", grouping: "countries" } },
+  { topicKey: "agriculture", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "livestock-meat", valueMode: "share", grouping: "countries" } },
+  { topicKey: "agriculture", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "wheat-trade", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "agriculture", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "rice-trade", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "agriculture", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "maize-trade", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "economy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "industry-structure", valueMode: "share", grouping: "countries" } },
+  { topicKey: "economy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "agri-services-share", valueMode: "share", grouping: "countries" } },
+  { topicKey: "energy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "energy-summary", valueMode: "share", grouping: "countries" } },
+  { topicKey: "energy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "electricity-breakdown", valueMode: "share", grouping: "countries" } },
+  { topicKey: "energy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "fossil-production", valueMode: "share", grouping: "countries" } },
+  { topicKey: "energy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "solar-wind-amount", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "energy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "oil-gas-production", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "energy", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "energy-renewables-share", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "energy", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "electricity-nuclear-share", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "religion", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "religion-major", valueMode: "share", grouping: "countries" } },
+  { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "christians-muslims-share", valueMode: "share", grouping: "countries" } },
+  { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "hindus-buddhists-share", valueMode: "share", grouping: "countries" } },
+  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-christians-share", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-muslims-share", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-hindus-share", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-buddhists-share", valueMode: "amount", grouping: "countries" } },
 ];
 let koreaGeoStatsMeta = { categories: {}, levels: {} };
 let koreaGeoStatsRegionOrderByLevel = {
@@ -920,6 +951,7 @@ const examGraphCompositionDefinitions = [
         { key: "ruralPopulation", label: "촌락", value: row?.ruralPopulation },
       ];
     },
+    getYears: (stats) => [getLatestPopulationRow(stats?.population)?.year],
   },
   {
     key: "age-structure",
@@ -936,6 +968,10 @@ const examGraphCompositionDefinitions = [
         { key: "age65Plus", label: "65세 이상", value: totalPopulation ? (Number(structure?.shares?.age65Plus) || 0) * totalPopulation / 100 : null },
       ];
     },
+    getYears: (stats) => [
+      stats?.populationStructure?.year,
+      !Number(stats?.populationStructure?.totalPopulation) ? getLatestPopulationRow(stats?.population)?.year : null,
+    ],
   },
   {
     key: "industry-structure",
@@ -947,6 +983,7 @@ const examGraphCompositionDefinitions = [
       { key: "industry", label: "공업", value: stats?.economy?.industry?.shares?.industry },
       { key: "services", label: "서비스업", value: stats?.economy?.industry?.shares?.services },
     ],
+    getYears: (stats) => [stats?.economy?.industry?.year],
   },
   {
     key: "religion-major",
@@ -970,6 +1007,7 @@ const examGraphCompositionDefinitions = [
         },
       ];
     },
+    getYears: (stats) => [stats?.religion2020?.year],
   },
   {
     key: "energy-summary",
@@ -981,6 +1019,7 @@ const examGraphCompositionDefinitions = [
       { key: "renewables", label: "재생", value: stats?.energy?.consumption?.summaryAmountsTWh?.renewables },
       { key: "nuclear", label: "원자력", value: stats?.energy?.consumption?.summaryAmountsTWh?.nuclear },
     ],
+    getYears: (stats) => [stats?.energy?.consumption?.year],
   },
   {
     key: "electricity-breakdown",
@@ -997,6 +1036,7 @@ const examGraphCompositionDefinitions = [
         { key: "renewables", label: "재생에너지", value: source?.summaryAmountsTWh?.renewables },
       ];
     },
+    getYears: (stats) => [stats?.energy?.electricity?.year],
   },
   {
     key: "fossil-production",
@@ -1008,6 +1048,7 @@ const examGraphCompositionDefinitions = [
       { key: "gas", label: "가스", value: stats?.energy?.fossilProduction?.amountBreakdownTWh?.gas },
       { key: "coal", label: "석탄", value: stats?.energy?.fossilProduction?.amountBreakdownTWh?.coal },
     ],
+    getYears: (stats) => [stats?.energy?.fossilProduction?.year],
   },
   {
     key: "crops-production",
@@ -1019,6 +1060,7 @@ const examGraphCompositionDefinitions = [
       { key: "rice", label: "쌀", value: stats?.agriculture?.crops?.production?.rice?.value },
       { key: "maize", label: "옥수수", value: stats?.agriculture?.crops?.production?.maize?.value },
     ],
+    getYears: (stats) => ["wheat", "rice", "maize"].map((key) => stats?.agriculture?.crops?.production?.[key]?.year),
   },
   {
     key: "livestock-stocks",
@@ -1030,6 +1072,7 @@ const examGraphCompositionDefinitions = [
       { key: "pigs", label: "돼지", value: stats?.agriculture?.livestock?.stocks?.pigs?.value },
       { key: "sheep", label: "양", value: stats?.agriculture?.livestock?.stocks?.sheep?.value },
     ],
+    getYears: (stats) => ["cattle", "pigs", "sheep"].map((key) => stats?.agriculture?.livestock?.stocks?.[key]?.year),
   },
   {
     key: "livestock-meat",
@@ -1041,6 +1084,7 @@ const examGraphCompositionDefinitions = [
       { key: "pigs", label: "돼지고기", value: stats?.agriculture?.livestock?.meat?.pigs?.value },
       { key: "sheep", label: "양고기", value: stats?.agriculture?.livestock?.meat?.sheep?.value },
     ],
+    getYears: (stats) => ["cattle", "pigs", "sheep"].map((key) => stats?.agriculture?.livestock?.meat?.[key]?.year),
   },
 ];
 const examGraphTimeMetricDefinitions = [
@@ -1866,6 +1910,8 @@ const elements = {
   detailSectionTitle: document.querySelector("#detailSectionTitle"),
   detailSectionBadge: document.querySelector("#detailSectionBadge"),
   selectedCountryList: document.querySelector("#selectedCountryList"),
+  examDrillPanel: document.querySelector("#examDrillPanel"),
+  examGraphModule: document.querySelector("#examGraphModule"),
   examGraphPanel: document.querySelector("#examGraphPanel"),
   metricExplorerPanel: document.querySelector("#metricExplorerPanel"),
   countryStatsPanel: document.querySelector("#countryStatsPanel"),
@@ -1949,6 +1995,10 @@ let currentPreviewScale = 1;
 let currentRenderContext = null;
 let lastKoreaFitContextKey = null;
 let activeCanvasResizeSnapshot = null;
+let examDrillTopicKey = "auto";
+let examDrillResult = null;
+let examDrillRevealed = false;
+const examDrillRecentSignatures = [];
 let embeddedMapFontDataUrl = window.EMBEDDED_MAP_FONT_DATA_URL ?? null;
 let activeGestureScale = 1;
 let currentCanvasSurface = null;
@@ -4626,6 +4676,7 @@ function renderSelectionViews() {
   }
   renderedStatsSelectionSignature = nextSelectionSignature;
   renderSelectedCountries();
+  renderExamDrillPanel();
   renderExamGraphPanel();
   renderMetricExplorerPanel();
   renderCountryStatsPanel();
@@ -7691,10 +7742,29 @@ function buildStatsScopeReadout(label, onReset = null) {
   return field;
 }
 
+function buildKoreaGeoStatsAutoActions() {
+  const row = document.createElement("div");
+  row.className = "stats-auto-action-row";
+  [
+    ["새 세트", () => applyKoreaGeoStatsRandomScenario(), true],
+    ["지역만", () => applyKoreaGeoStatsRandomRegions(), false],
+    ["지표만", () => applyKoreaGeoStatsRandomMetric(), false],
+  ].forEach(([label, handler, primary]) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `tw-chip stats-auto-action${primary ? " is-primary" : ""}`;
+    button.textContent = label;
+    button.addEventListener("click", handler);
+    row.appendChild(button);
+  });
+  return row;
+}
+
 function buildMinimalKoreaGeoStatsControls(definitions, categoryDefinitions, activeDefinition, trendPresentation = null) {
   const wrapper = document.createElement("div");
   wrapper.className = "metric-explorer-control-shell stats-control-shell";
   const levelKey = getKoreaGeoStatsLevelKey();
+  wrapper.appendChild(buildKoreaGeoStatsAutoActions());
 
   const primary = document.createElement("div");
   primary.className = "stats-flow";
@@ -7853,21 +7923,6 @@ function buildMinimalKoreaGeoStatsControls(definitions, categoryDefinitions, act
     });
   }
 
-  const actionRow = document.createElement("div");
-  actionRow.className = "exam-graph-action-row";
-  [
-    ["지역 추천", () => applyKoreaGeoStatsRandomRegions()],
-    ["지표 추천", () => applyKoreaGeoStatsRandomMetric()],
-    ["세트 추천", () => applyKoreaGeoStatsRandomScenario()],
-  ].forEach(([label, handler]) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "metric-explorer-chip exam-graph-chip--action";
-    button.textContent = label;
-    button.addEventListener("click", handler);
-    actionRow.appendChild(button);
-  });
-  advanced.appendChild(actionRow);
   wrapper.appendChild(
     buildControlDisclosure({
       title: "옵션",
@@ -11919,50 +11974,541 @@ function updateExamGraphState(label, updater) {
   renderExamGraphPanel();
 }
 
-function isExamGraphQuickStartActive(config) {
-  if (state.examGraphPresetKey !== config.presetKey) {
-    return false;
-  }
-  if (config.metricKey && state.examGraphMetricKey !== config.metricKey) {
-    return false;
-  }
-  if (config.compositionKey && state.examGraphCompositionKey !== config.compositionKey) {
-    return false;
-  }
-  if (config.timeMetricKey && state.examGraphTimeMetricKey !== config.timeMetricKey) {
-    return false;
-  }
-  return !config.grouping || state.examGraphGrouping === config.grouping;
+function getExamDrillMetricEntry(definition, stats) {
+  const entry = definition?.getValue?.(stats);
+  return entry && Number.isFinite(Number(entry.value)) ? entry : null;
 }
 
-function buildExamGraphQuickStarts() {
-  const grid = document.createElement("div");
-  grid.className = "stats-quick-grid stats-quick-grid--charts";
-  grid.setAttribute("aria-label", "추천 통계 그래프");
+function getExamDrillSourceYearSignature(scenarioDefinition, stats) {
+  const config = scenarioDefinition?.config ?? {};
+  const metricDefinitions = getMetricExplorerDefinitions();
+  const buildSingleYearSignature = (years) => {
+    const knownYears = [...new Set(
+      (years ?? [])
+        .filter((year) => year !== null && year !== undefined && year !== "")
+        .map((year) => Number(year))
+        .filter(Number.isFinite),
+    )];
+    return knownYears.length === 1 ? String(knownYears[0]) : "";
+  };
 
-  examGraphQuickStartDefinitions.forEach((definition) => {
-    const active = isExamGraphQuickStartActive(definition.config);
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "stats-quick-card stats-quick-card--chart";
-    button.dataset.graphQuickStart = definition.key;
-    button.classList.toggle("is-active", active);
-    button.setAttribute("aria-pressed", String(active));
-    const label = document.createElement("strong");
-    label.lang = "en";
-    label.textContent = definition.label;
-    button.appendChild(label);
-    button.addEventListener("click", () => {
-      updateExamGraphState("추천 그래프 적용", () => {
-        applyExamGraphScenarioConfig(definition.config);
-        state.examGraphFocusCountryIds = [];
-        state.examGraphFocusLabel = "";
-      });
-    });
-    grid.appendChild(button);
+  if (config.presetKey === "stacked100") {
+    const definition = examGraphCompositionDefinitions.find((item) => item.key === config.compositionKey);
+    return buildSingleYearSignature(definition?.getYears?.(stats));
+  }
+  if (config.presetKey === "rankBars") {
+    const definition = getMetricExplorerDefinitionByKey(metricDefinitions, config.metricKey);
+    return buildSingleYearSignature([getExamDrillMetricEntry(definition, stats)?.year]);
+  }
+  if (config.presetKey === "pairedBars") {
+    const pairDefinition = examGraphPairMetricDefinitions.find((item) => item.key === config.pairKey);
+    return buildSingleYearSignature(
+      (pairDefinition?.metricKeys ?? []).map((key) =>
+        getExamDrillMetricEntry(getMetricExplorerDefinitionByKey(metricDefinitions, key), stats)?.year,
+      ),
+    );
+  }
+  if (config.presetKey === "timeCompare" || config.presetKey === "trendLine") {
+    return `${config.yearStart}:${config.yearEnd}`;
+  }
+  if (config.presetKey === "scatter") {
+    return buildSingleYearSignature(
+      [config.scatterXKey, config.scatterYKey, config.scatterSizeKey].map((key) =>
+        getExamDrillMetricEntry(getMetricExplorerDefinitionByKey(metricDefinitions, key), stats)?.year,
+      ),
+    );
+  }
+  return "";
+}
+
+function getExamDrillEligibleCountryIds(scenarioDefinition) {
+  const groups = new Map();
+  Object.keys(countryStatsById).forEach((countryId) => {
+    const stats = countryStatsById[countryId];
+    if (!isExamGraphRandomCountryAllowed(stats) || !validateExamDrillSourceData(scenarioDefinition, [countryId])) {
+      return;
+    }
+    const yearSignature = getExamDrillSourceYearSignature(scenarioDefinition, stats);
+    if (!yearSignature) {
+      return;
+    }
+    if (!groups.has(yearSignature)) {
+      groups.set(yearSignature, []);
+    }
+    groups.get(yearSignature).push(countryId);
   });
 
-  return grid;
+  return [...groups.values()]
+    .filter((countryIds) => countryIds.length >= 3)
+    .sort((first, second) => {
+      const sizeDifference = second.length - first.length;
+      if (sizeDifference) {
+        return sizeDifference;
+      }
+      const firstPriority = d3.sum(first, (countryId) => getExamGraphRandomCountryPriority(countryStatsById[countryId]));
+      const secondPriority = d3.sum(second, (countryId) => getExamGraphRandomCountryPriority(countryStatsById[countryId]));
+      return secondPriority - firstPriority;
+    })[0] ?? [];
+}
+
+function validateExamDrillSourceData(scenarioDefinition, countryIds) {
+  const config = scenarioDefinition?.config ?? {};
+  const metricDefinitions = getMetricExplorerDefinitions();
+  const statsRows = countryIds.map((countryId) => countryStatsById[countryId]).filter(Boolean);
+  if (statsRows.length !== countryIds.length) {
+    return false;
+  }
+
+  if (config.presetKey === "stacked100") {
+    const definition = examGraphCompositionDefinitions.find((item) => item.key === config.compositionKey);
+    if (!definition) {
+      return false;
+    }
+    const knownYears = new Set();
+    return statsRows.every((stats) => {
+      const components = definition.getComponents(stats) ?? [];
+      const rowYears = new Set(
+        (definition.getYears?.(stats) ?? [])
+          .filter((year) => year !== null && year !== undefined && year !== "")
+          .map((year) => Number(year))
+          .filter(Number.isFinite),
+      );
+      rowYears.forEach((year) => knownYears.add(year));
+      return (
+        components.length >= 2 &&
+        components.every(
+          (component) =>
+            component?.value !== null &&
+            component?.value !== undefined &&
+            Number.isFinite(Number(component.value)) &&
+            Number(component.value) >= 0,
+        ) &&
+        d3.sum(components, (component) => Number(component.value)) > 0 &&
+        rowYears.size === 1
+      );
+    }) && knownYears.size === 1;
+  }
+
+  if (config.presetKey === "rankBars") {
+    const definition = getMetricExplorerDefinitionByKey(metricDefinitions, config.metricKey);
+    const entries = statsRows.map((stats) => getExamDrillMetricEntry(definition, stats));
+    if (entries.some((entry) => !entry)) {
+      return false;
+    }
+    const years = new Set(entries.map((entry) => String(entry.year ?? "")).filter(Boolean));
+    return years.size <= 1;
+  }
+
+  if (config.presetKey === "pairedBars") {
+    const pairDefinition = examGraphPairMetricDefinitions.find((item) => item.key === config.pairKey);
+    const definitions = (pairDefinition?.metricKeys ?? []).map((key) =>
+      getMetricExplorerDefinitionByKey(metricDefinitions, key),
+    );
+    if (definitions.length !== 2 || definitions.some((definition) => !definition)) {
+      return false;
+    }
+    const knownYears = new Set();
+    return statsRows.every((stats) => {
+      const entries = definitions.map((definition) => getExamDrillMetricEntry(definition, stats));
+      if (entries.some((entry) => !entry)) {
+        return false;
+      }
+      const rowYears = new Set(entries.map((entry) => String(entry.year ?? "")).filter(Boolean));
+      rowYears.forEach((year) => knownYears.add(year));
+      return rowYears.size <= 1;
+    }) && knownYears.size <= 1;
+  }
+
+  if (config.presetKey === "timeCompare" || config.presetKey === "trendLine") {
+    const definition = examGraphTimeMetricDefinitions.find((item) => item.key === config.timeMetricKey);
+    return Boolean(definition) && statsRows.every((stats) => {
+      const startValue = definition.getYearValue(stats, config.yearStart);
+      const endValue = definition.getYearValue(stats, config.yearEnd);
+      return (
+        startValue !== null &&
+        startValue !== undefined &&
+        endValue !== null &&
+        endValue !== undefined &&
+        Number.isFinite(Number(startValue)) &&
+        Number.isFinite(Number(endValue))
+      );
+    });
+  }
+
+  if (config.presetKey === "scatter") {
+    const definitions = [config.scatterXKey, config.scatterYKey, config.scatterSizeKey].map((key) =>
+      getMetricExplorerDefinitionByKey(metricDefinitions, key),
+    );
+    if (definitions.some((definition) => !definition)) {
+      return false;
+    }
+    const knownYears = new Set();
+    return statsRows.every((stats) => {
+      const entries = definitions.map((definition) => getExamDrillMetricEntry(definition, stats));
+      if (entries.some((entry) => !entry)) {
+        return false;
+      }
+      const rowYears = new Set(entries.map((entry) => String(entry.year ?? "")).filter(Boolean));
+      rowYears.forEach((year) => knownYears.add(year));
+      return rowYears.size <= 1;
+    }) && knownYears.size <= 1;
+  }
+
+  return false;
+}
+
+function buildExamDrillRowSignature(model, row) {
+  const valueToken = (value) => (Number.isFinite(Number(value)) ? Number(value).toPrecision(8) : "-");
+  if (model.chartKind === "stacked") {
+    return (row.segments ?? [])
+      .map((segment) => `${segment.key}:${valueToken(model.chartMode === "amount" ? segment.value : segment.share)}`)
+      .join("|");
+  }
+  if (model.chartKind === "pairedBar") {
+    return `${valueToken(row.displayFirstValue ?? row.firstValue)}|${valueToken(row.displaySecondValue ?? row.secondValue)}`;
+  }
+  if (model.chartKind === "timeCompare") {
+    return `${valueToken(row.displayStartValue ?? row.startValue)}|${valueToken(row.displayEndValue ?? row.endValue)}`;
+  }
+  if (model.chartKind === "trendLine") {
+    return (row.points ?? []).map((point) => `${point.year}:${valueToken(point.displayValue ?? point.value)}`).join("|");
+  }
+  if (model.chartKind === "scatter") {
+    return `${valueToken(row.xValue)}|${valueToken(row.yValue)}|${valueToken(row.sizeDisplayValue ?? row.sizeValue)}`;
+  }
+  return valueToken(row.displayValue ?? row.value);
+}
+
+function validateExamDrillCandidate(result) {
+  const model = result?.model;
+  const countryIds = result?.recommendation?.ids ?? [];
+  const rows = model?.rows ?? [];
+  const answers = model?.answerRows ?? [];
+  if (
+    !model ||
+    countryIds.length < 3 ||
+    countryIds.length > 5 ||
+    rows.length !== countryIds.length ||
+    answers.length !== rows.length ||
+    !validateExamDrillSourceData(result.scenarioDefinition, countryIds)
+  ) {
+    return false;
+  }
+
+  const actualLabels = answers.map((row) => String(row.value ?? "").trim());
+  const displayLabels = rows.map((row) => String(row.displayLabel ?? "").trim());
+  const signatures = rows.map((row) => buildExamDrillRowSignature(model, row));
+  return (
+    actualLabels.every(Boolean) &&
+    new Set(actualLabels).size === actualLabels.length &&
+    displayLabels.every((label) => /^\(.+\)$/u.test(label)) &&
+    new Set(signatures).size === signatures.length
+  );
+}
+
+function getExamDrillScenarioSignature(result) {
+  return JSON.stringify([
+    result?.scenarioDefinition?.topicKey,
+    result?.scenarioDefinition?.skillKey,
+    result?.scenarioDefinition?.config,
+    result?.recommendation?.ids,
+  ]);
+}
+
+function buildExamDrillAnswerChoices(answerRows) {
+  const source = (answerRows ?? []).map((row) => String(row.value ?? "").trim()).filter(Boolean);
+  const shuffled = shuffleExamGraphItems(source);
+  if (shuffled.length > 1 && shuffled.every((label, index) => label === source[index])) {
+    shuffled.push(shuffled.shift());
+  }
+  return shuffled;
+}
+
+function createExamDrillResult(topicKey = examDrillTopicKey) {
+  const originalSnapshot = captureExamGraphStateSnapshot();
+  let builtResult = null;
+  try {
+    state.worldStatsYearMode = "exam";
+    state.examGraphAliasMode = true;
+    state.examGraphTopN = 4;
+    state.examGraphOrientation = "auto";
+    state.examGraphPreviewCount = 1;
+    state.examGraphFontSizePt = 8;
+    state.examGraphMergeAmericas = false;
+    state.examGraphFocusCountryIds = [];
+    state.examGraphFocusLabel = "";
+    ensureExamGraphState();
+    const drillSnapshot = captureExamGraphStateSnapshot();
+    const topicKeys = topicKey === "auto"
+      ? shuffleExamGraphItems(examDrillTopicDefinitions.filter((definition) => definition.key !== "auto").map((definition) => definition.key))
+      : [topicKey];
+
+    for (const candidateTopicKey of topicKeys) {
+      const candidates = shuffleExamGraphItems(
+        examDrillScenarioDefinitions.filter((definition) => definition.topicKey === candidateTopicKey),
+      );
+      for (const scenarioDefinition of candidates) {
+        const eligibleCountryIds = getExamDrillEligibleCountryIds(scenarioDefinition);
+        if (eligibleCountryIds.length < 3) {
+          continue;
+        }
+        for (let recommendationAttempt = 0; recommendationAttempt < 8; recommendationAttempt += 1) {
+          restoreExamGraphStateSnapshot(drillSnapshot);
+          applyExamGraphScenarioConfig(scenarioDefinition.config);
+          state.examGraphFocusCountryIds = [];
+          state.examGraphFocusLabel = "";
+          ensureExamGraphState();
+          const recommendation = getExamGraphRecommendedFocus({ allowedCountryIds: eligibleCountryIds });
+          if (!recommendation?.ids?.length) {
+            continue;
+          }
+          state.examGraphFocusCountryIds = recommendation.ids;
+          state.examGraphFocusLabel = recommendation.label;
+          state.examGraphTopN = recommendation.ids.length;
+          ensureExamGraphState();
+          const model = buildExamGraphModel();
+          const result = {
+            topicKey: candidateTopicKey,
+            scenarioDefinition,
+            recommendation,
+            model,
+          };
+          const signature = getExamDrillScenarioSignature(result);
+          if (
+            validateExamDrillCandidate(result) &&
+            (!examDrillRecentSignatures.includes(signature) || candidates.length <= examDrillRecentSignatures.length)
+          ) {
+            builtResult = {
+              ...result,
+              answerChoices: buildExamDrillAnswerChoices(model.answerRows),
+              signature,
+            };
+            break;
+          }
+        }
+        if (builtResult) {
+          break;
+        }
+      }
+      if (builtResult) {
+        break;
+      }
+    }
+  } finally {
+    restoreExamGraphStateSnapshot(originalSnapshot);
+    ensureExamGraphState();
+  }
+  return builtResult;
+}
+
+function tryCreateExamDrillResult(topicKey = examDrillTopicKey) {
+  try {
+    return createExamDrillResult(topicKey);
+  } catch (error) {
+    console.error("Exam Drill 자료를 생성하지 못했습니다.", error);
+    return null;
+  }
+}
+
+function generateExamDrillResult({ focusSelector = "" } = {}) {
+  examDrillResult = tryCreateExamDrillResult(examDrillTopicKey);
+  examDrillRevealed = false;
+  if (examDrillResult?.signature) {
+    examDrillRecentSignatures.push(examDrillResult.signature);
+    if (examDrillRecentSignatures.length > 6) {
+      examDrillRecentSignatures.shift();
+    }
+  }
+  renderExamDrillPanel();
+  if (focusSelector) {
+    window.requestAnimationFrame(() => {
+      (document.querySelector(focusSelector) ?? document.querySelector("#examDrillRevealButton"))?.focus({
+        preventScroll: true,
+      });
+    });
+  }
+}
+
+function buildExamDrillAnswerPanel(answerRows) {
+  const panel = document.createElement("section");
+  panel.id = "examDrillAnswers";
+  panel.className = "exam-drill-answers";
+  panel.setAttribute("aria-live", "polite");
+  const title = document.createElement("strong");
+  title.lang = "en";
+  title.textContent = "Answer";
+  const list = document.createElement("dl");
+  list.className = "exam-drill-answer-list";
+  answerRows.forEach((row) => {
+    const item = document.createElement("div");
+    const term = document.createElement("dt");
+    term.textContent = row.label;
+    const value = document.createElement("dd");
+    value.lang = /[가-힣]/u.test(String(row.value ?? "")) ? "ko" : "en";
+    value.textContent = row.value;
+    item.append(term, value);
+    list.appendChild(item);
+  });
+  panel.append(title, list);
+  return panel;
+}
+
+function applyExamDrillResultToBuilder() {
+  if (!examDrillResult?.model) {
+    return;
+  }
+  const { scenarioDefinition, recommendation } = examDrillResult;
+  beginHistoryStep("수능 통계 드릴 적용");
+  state.worldStatsYearMode = "exam";
+  applyExamGraphScenarioConfig(scenarioDefinition.config);
+  state.examGraphFocusCountryIds = [...recommendation.ids];
+  state.examGraphFocusLabel = recommendation.label;
+  state.examGraphAliasMode = true;
+  state.examGraphTopN = recommendation.ids.length;
+  state.examGraphOrientation = "auto";
+  state.examGraphPreviewCount = 1;
+  state.examGraphFontSizePt = 8;
+  state.examGraphActionsExpanded = false;
+  if (scenarioDefinition.config.metricKey) {
+    const definition = getMetricExplorerDefinitionByKey(getMetricExplorerDefinitions(), scenarioDefinition.config.metricKey);
+    if (definition) {
+      state.metricExplorerCategoryKey = getMetricExplorerDefinitionCategoryKey(definition);
+      state.metricExplorerDisplayMode = "overview";
+      state.metricExplorerGrouping = "countries";
+      state.metricExplorerMetricKey = definition.key;
+    }
+  }
+  ensureExamGraphState();
+  renderSelectionViews();
+  renderMap();
+  if (elements.examGraphModule) {
+    elements.examGraphModule.open = true;
+    window.requestAnimationFrame(() => {
+      elements.examGraphModule.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+  setStatus("현재 자료를 Graph Builder로 옮겼습니다.");
+}
+
+function renderExamDrillPanel() {
+  if (!elements.examDrillPanel) {
+    return;
+  }
+  elements.examDrillPanel.replaceChildren();
+  if (state.mapVersion !== "world") {
+    return;
+  }
+  if (!examDrillResult) {
+    examDrillResult = tryCreateExamDrillResult(examDrillTopicKey);
+    if (examDrillResult?.signature) {
+      examDrillRecentSignatures.push(examDrillResult.signature);
+    }
+  }
+
+  const shell = document.createElement("div");
+  shell.className = "exam-drill-shell";
+  const toolbar = document.createElement("div");
+  toolbar.className = "exam-drill-toolbar";
+  const topicField = document.createElement("label");
+  topicField.className = "tw-field exam-drill-topic";
+  const topicLabel = document.createElement("span");
+  topicLabel.lang = "en";
+  topicLabel.textContent = "Topic";
+  const topicSelect = document.createElement("select");
+  topicSelect.id = "examDrillTopicSelect";
+  examDrillTopicDefinitions.forEach((definition) => {
+    const option = document.createElement("option");
+    option.value = definition.key;
+    option.textContent = definition.label;
+    option.selected = definition.key === examDrillTopicKey;
+    topicSelect.appendChild(option);
+  });
+  topicSelect.addEventListener("change", () => {
+    examDrillTopicKey = topicSelect.value;
+    generateExamDrillResult({ focusSelector: "#examDrillTopicSelect" });
+  });
+  topicField.append(topicLabel, topicSelect);
+  toolbar.appendChild(topicField);
+  shell.appendChild(toolbar);
+
+  if (!examDrillResult?.model) {
+    const empty = createEmptyState("표시할 수 있는 통계 조합을 찾지 못했습니다.");
+    const retry = document.createElement("button");
+    retry.id = "examDrillRetryButton";
+    retry.type = "button";
+    retry.className = "tw-chip";
+    retry.textContent = "다시 생성";
+    retry.addEventListener("click", () => generateExamDrillResult({ focusSelector: "#examDrillRetryButton" }));
+    empty.appendChild(retry);
+    shell.appendChild(empty);
+    elements.examDrillPanel.appendChild(shell);
+    return;
+  }
+
+  const workspace = document.createElement("div");
+  workspace.className = "exam-drill-workspace";
+  const stage = document.createElement("div");
+  stage.className = "exam-drill-stage";
+  const heading = document.createElement("div");
+  heading.className = "exam-drill-heading";
+  const title = document.createElement("h3");
+  title.className = "exam-drill-title";
+  title.textContent = examDrillResult.model.title;
+  const prompt = document.createElement("p");
+  prompt.textContent = examDrillSkillPrompts[examDrillResult.scenarioDefinition.skillKey] ?? examDrillSkillPrompts.rank;
+  const candidateBank = document.createElement("div");
+  candidateBank.className = "exam-drill-candidate-bank";
+  const candidateLabel = document.createElement("strong");
+  candidateLabel.lang = "en";
+  candidateLabel.textContent = "Candidates";
+  const candidateValues = document.createElement("p");
+  candidateValues.lang = "en";
+  candidateValues.textContent = examDrillResult.answerChoices.join(" · ");
+  candidateBank.append(candidateLabel, candidateValues);
+  heading.append(title, prompt, candidateBank);
+  const preview = buildExamGraphPreviewCard({ model: examDrillResult.model });
+  preview.classList.add("exam-drill-preview");
+  stage.append(heading, preview);
+
+  const rail = document.createElement("div");
+  rail.className = "exam-drill-rail";
+  const revealButton = document.createElement("button");
+  revealButton.id = "examDrillRevealButton";
+  revealButton.type = "button";
+  revealButton.className = "tw-chip exam-drill-button exam-drill-button--primary";
+  revealButton.textContent = examDrillRevealed ? "정답 숨기기" : "정답 보기";
+  revealButton.setAttribute("aria-expanded", String(examDrillRevealed));
+  if (examDrillRevealed) {
+    revealButton.setAttribute("aria-controls", "examDrillAnswers");
+  }
+  revealButton.addEventListener("click", () => {
+    examDrillRevealed = !examDrillRevealed;
+    renderExamDrillPanel();
+    window.requestAnimationFrame(() => {
+      document.querySelector("#examDrillRevealButton")?.focus({ preventScroll: true });
+    });
+  });
+  const nextButton = document.createElement("button");
+  nextButton.id = "examDrillNextButton";
+  nextButton.type = "button";
+  nextButton.className = "tw-chip exam-drill-button";
+  nextButton.textContent = "다음 자료";
+  nextButton.addEventListener("click", () => generateExamDrillResult({ focusSelector: "#examDrillNextButton" }));
+  const builderButton = document.createElement("button");
+  builderButton.id = "examDrillBuilderButton";
+  builderButton.type = "button";
+  builderButton.className = "tw-chip exam-drill-button";
+  builderButton.lang = "en";
+  builderButton.textContent = "Graph Builder";
+  builderButton.addEventListener("click", applyExamDrillResultToBuilder);
+  rail.append(revealButton, nextButton);
+  if (examDrillRevealed) {
+    rail.appendChild(builderButton);
+    rail.appendChild(buildExamDrillAnswerPanel(examDrillResult.model.answerRows));
+  }
+  workspace.append(stage, rail);
+  shell.appendChild(workspace);
+  elements.examDrillPanel.appendChild(shell);
 }
 
 function renderExamGraphPanel() {
@@ -11980,14 +12526,13 @@ function renderExamGraphPanel() {
   const model = buildExamGraphModel();
   const shell = document.createElement("div");
   shell.className = "exam-graph-shell";
-  shell.appendChild(buildExamGraphQuickStarts());
   shell.appendChild(buildExamGraphControls());
 
   if (!model) {
     shell.appendChild(
       createEmptyState(
         state.examGraphPresetKey
-          ? "현재 선택에 표시할 값이 없습니다. 지표를 바꾸거나 ‘빠른 추천과 대상 변경’에서 ‘세트 랜덤’을 실행해 보세요."
+          ? "현재 선택에 표시할 값이 없습니다. 지표를 바꾸거나 More에서 세트 랜덤을 실행해 보세요."
           : "‘순위 막대’를 선택해 기본 그래프를 불러오세요.",
       ),
     );
@@ -12440,6 +12985,7 @@ function buildExamGraphToggleField(labelText, checked, onChange) {
 
 function captureExamGraphStateSnapshot() {
   return {
+    worldStatsYearMode: state.worldStatsYearMode,
     examGraphPresetKey: state.examGraphPresetKey,
     examGraphCompositionKey: state.examGraphCompositionKey,
     examGraphTimeMetricKey: state.examGraphTimeMetricKey,
@@ -12467,6 +13013,7 @@ function captureExamGraphStateSnapshot() {
 
 function restoreExamGraphStateSnapshot(snapshot) {
   Object.assign(state, {
+    worldStatsYearMode: snapshot.worldStatsYearMode,
     examGraphPresetKey: snapshot.examGraphPresetKey,
     examGraphCompositionKey: snapshot.examGraphCompositionKey,
     examGraphTimeMetricKey: snapshot.examGraphTimeMetricKey,
@@ -12727,15 +13274,23 @@ function selectExamGraphRecommendedCountries(candidates, desiredCount = getExamG
   return selected.slice(0, desiredCount);
 }
 
-function buildExamGraphRecommendation(baseLabel, candidates) {
-  const picked = selectExamGraphRecommendedCountries(candidates);
+function buildExamGraphRecommendation(baseLabel, candidates, allowedCountryIds = null) {
+  const allowedSet = allowedCountryIds instanceof Set
+    ? allowedCountryIds
+    : Array.isArray(allowedCountryIds)
+      ? new Set(allowedCountryIds)
+      : null;
+  const scopedCandidates = allowedSet
+    ? (candidates ?? []).filter((candidate) => allowedSet.has(candidate.id))
+    : candidates;
+  const picked = selectExamGraphRecommendedCountries(scopedCandidates);
   return {
     ids: picked.map((candidate) => candidate.id),
     label: picked.length ? `${baseLabel} · 수능특강 등장국 우선 ${picked.length}개국` : "",
   };
 }
 
-function getExamGraphRecommendedFocus() {
+function getExamGraphRecommendedFocus({ allowedCountryIds = null } = {}) {
   if (state.examGraphPresetKey === "stacked100") {
     const definition = getExamGraphCompositionDefinition();
     const rows = buildExamGraphAllCountryCompositionRows(definition);
@@ -12754,6 +13309,7 @@ function getExamGraphRecommendedFocus() {
           groupKey: dominantSegment?.key ?? "mixed",
         };
       }),
+      allowedCountryIds,
     );
   }
 
@@ -12777,6 +13333,7 @@ function getExamGraphRecommendedFocus() {
               : Number(row.value),
         groupKey: hasNegative ? (Number(row.value) >= 0 ? "plus" : "minus") : percentLike ? (Number(row.value) >= medianValue ? "high" : "low") : undefined,
       })),
+      allowedCountryIds,
     );
   }
 
@@ -12796,6 +13353,7 @@ function getExamGraphRecommendedFocus() {
           groupKey: Number(row.firstValue) >= Number(row.secondValue) ? "first" : "second",
         };
       }),
+      allowedCountryIds,
     );
   }
 
@@ -12814,6 +13372,7 @@ function getExamGraphRecommendedFocus() {
           groupKey: delta >= 0 ? "increase" : "decrease",
         };
       }),
+      allowedCountryIds,
     );
   }
 
@@ -12834,6 +13393,7 @@ function getExamGraphRecommendedFocus() {
           groupKey: lastValue >= firstValue ? "up" : "down",
         };
       }),
+      allowedCountryIds,
     );
   }
 
@@ -12859,6 +13419,7 @@ function getExamGraphRecommendedFocus() {
           (Math.abs(Number(row.yValue) - yMedian) / ySpan) * 20,
         groupKey: `${Number(row.xValue) >= xMedian ? "right" : "left"}-${Number(row.yValue) >= yMedian ? "top" : "bottom"}`,
       })),
+      allowedCountryIds,
     );
   }
 
@@ -12872,6 +13433,7 @@ function getExamGraphRecommendedFocus() {
       score: Number(entry.value),
       groupKey: entry.continent,
     })),
+    allowedCountryIds,
   );
 }
 
@@ -14385,7 +14947,7 @@ function applyExamGraphDisplayLabels(rows) {
 function buildExamGraphValueRows(rows, detailBuilder) {
   return rows.map((row) => ({
     label: state.examGraphAliasMode ? row.displayLabel : row.actualLabel ?? row.label ?? row.displayLabel,
-    value: state.examGraphAliasMode ? row.actualLabel ?? row.label : "",
+    value: state.examGraphAliasMode ? getExamGraphReadableLabel(row.actualLabel ?? row.label) : "",
     detail: detailBuilder(row),
   }));
 }
@@ -14396,7 +14958,7 @@ function buildExamGraphAnswerRows(rows, detailBuilder) {
   }
   return rows.map((row) => ({
     label: row.displayLabel,
-    value: row.actualLabel ?? row.label,
+    value: getExamGraphReadableLabel(row.actualLabel ?? row.label),
     detail: detailBuilder(row),
   }));
 }

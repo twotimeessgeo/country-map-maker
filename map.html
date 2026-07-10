@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./base.css?v=20260710h" />
     <link rel="stylesheet" href="./components.css?v=20260710h" />
     <link rel="stylesheet" href="./patterns.css?v=20260710h" />
-    <link rel="stylesheet" href="./styles.css?v=20260710m" />
+    <link rel="stylesheet" href="./styles.css?v=20260710n" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
@@ -531,15 +531,25 @@
 
         <div class="app-detail-grid stats-workspace">
           <div class="stats-workspace__main">
-            <section class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-              <header class="stats-module__header"><strong lang="en">Graph Builder</strong></header>
-              <div id="examGraphPanel" class="exam-graph-panel"></div>
+            <section
+              id="examDrillModule"
+              class="tw-data-card app-detail-card app-detail-card--stats stats-module stats-module--drill world-only"
+              aria-labelledby="examDrillHeading"
+              hidden
+            >
+              <header class="stats-module__header"><strong id="examDrillHeading" lang="en">Exam Drill</strong></header>
+              <div id="examDrillPanel" class="exam-drill-panel"></div>
             </section>
 
-            <section class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-              <header class="stats-module__header"><strong lang="en">World Data</strong></header>
+            <details id="examGraphModule" class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
+              <summary><strong lang="en">Graph Builder</strong></summary>
+              <div id="examGraphPanel" class="exam-graph-panel"></div>
+            </details>
+
+            <details id="metricExplorerModule" class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
+              <summary><strong lang="en">World Data</strong></summary>
               <div id="metricExplorerPanel" class="metric-explorer-panel"></div>
-            </section>
+            </details>
 
             <section class="tw-data-card app-detail-card app-detail-card--stats stats-module korea-only" hidden>
               <header class="stats-module__header"><strong lang="en">Korea Data</strong></header>
@@ -588,6 +598,6 @@
     <script src="./data/world-lakes.js"></script>
     <script src="./data/country-stats.js?v=20260428a"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260710m"></script>
+    <script src="./app.js?v=20260710n"></script>
   </body>
 </html>
