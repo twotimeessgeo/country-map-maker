@@ -1614,28 +1614,6 @@ function formatSourceStationLabel(region) {
   return "";
 }
 
-function renderSourceStationMeta(region) {
-  const label = formatSourceStationLabel(region);
-  if (!label) return "";
-
-  const sourceUrl = region.source?.apiUrl || region.source?.url;
-  if (!sourceUrl) {
-    return `<span class="meta-pill">${escapeHtml(label)}</span>`;
-  }
-
-  return `
-    <a
-      class="meta-pill source-meta-link"
-      href="${escapeHtml(sourceUrl)}"
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="${escapeHtml(`${label} 원자료 열기`)}"
-    >
-      ${escapeHtml(label)} <span aria-hidden="true">↗</span>
-    </a>
-  `;
-}
-
 function renderMapScopeChips() {
   return MAP_SCOPE_ORDER.map((scopeId) => {
     const isActive = state.mapScope === scopeId;
@@ -1804,11 +1782,8 @@ function renderSelectedRegions(selectedRegions) {
                     <h3>${escapeHtml(region.name)}</h3>
                     <div class="region-meta">
                       <span class="meta-pill">${escapeHtml(
-                        [region.continent, region.country, getHemisphere(region)].filter(Boolean).join(" · ")
+                        [region.country, region.climateCode].filter(Boolean).join(" · ")
                       )}</span>
-                      <span class="meta-pill">${escapeHtml(region.climateGroup)}${
-                        region.climateCode !== region.climateGroup ? ` · ${escapeHtml(region.climateCode)}` : ""
-                      }</span>
                       ${
                         region.classificationReview?.status === "review-required"
                           ? `<span class="meta-pill classification-review-pill">분류 재검토 · 자료식 ${escapeHtml(
@@ -1817,7 +1792,6 @@ function renderSelectedRegions(selectedRegions) {
                           : ""
                       }
                       <span class="meta-pill">${escapeHtml(formatSourceLabel(region))}</span>
-                      ${renderSourceStationMeta(region)}
                     </div>
                   </div>
                   ${
@@ -1834,26 +1808,6 @@ function renderSelectedRegions(selectedRegions) {
                 <div class="stat-grid">
                   <span class="stat-pill">연평균 기온 ${formatTemp(region.annualMeanTemperatureC)}</span>
                   <span class="stat-pill">연강수량 ${formatMm(region.annualPrecipitationMm)}</span>
-                  <span class="stat-pill">1월 ${formatTemp(region.monthlyTemperatureC[0])} / ${formatMm(
-                    region.monthlyPrecipitationMm[0]
-                  )}</span>
-                  <span class="stat-pill">7월 ${formatTemp(region.monthlyTemperatureC[6])} / ${formatMm(
-                    region.monthlyPrecipitationMm[6]
-                  )}</span>
-                  ${
-                    hasCoordinates(region)
-                      ? `<span class="stat-pill">표시 좌표 ${escapeHtml(
-                          formatCoordinatePair(region.coordinates)
-                        )}</span>`
-                      : ""
-                  }
-                  ${
-                    Number.isFinite(region.elevationM)
-                      ? `<span class="stat-pill">${
-                          region.source?.type === "jma" ? "대표 위치 해발" : "해발"
-                        } ${escapeHtml(formatMeters(region.elevationM))}</span>`
-                      : ""
-                  }
                 </div>
               </div>
             </div>

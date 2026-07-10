@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>지도 편집기 | Promenade Geography</title>
+    <title>Map Editor | Promenade Geography</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="./components.css" />
     <link rel="stylesheet" href="./patterns.css" />
-    <link rel="stylesheet" href="./styles.css?v=20260710d" />
+    <link rel="stylesheet" href="./styles.css?v=20260710e" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
@@ -26,29 +26,29 @@
             <span>Menu</span>
           </summary>
           <div class="app-context-menu-panel">
-            <a class="is-active" href="./map.html">지도</a>
-            <a href="./tools/climate/index.html">기후</a>
-            <a href="./tools/cut/index.html">등급컷</a>
+            <a class="is-active" href="./map.html">Map Editor</a>
+            <a href="./tools/climate/index.html">Climate Database</a>
+            <a href="./tools/cut/index.html">Exam Archive</a>
           </div>
         </details>
       </nav>
       <header class="tw-hero app-hero">
         <div class="tw-hero-copy">
-          <nav class="tw-switch" aria-label="지도 버전 선택">
-            <button class="map-version-button tw-switch-item" type="button" data-map-version="world" aria-pressed="true">세계</button>
-            <button class="map-version-button tw-switch-item" type="button" data-map-version="korea" aria-pressed="false">대한민국</button>
+          <nav class="tw-switch" aria-label="Map dataset">
+            <button class="map-version-button tw-switch-item" type="button" data-map-version="world" aria-pressed="true">World</button>
+            <button class="map-version-button tw-switch-item" type="button" data-map-version="korea" aria-pressed="false">Korea</button>
           </nav>
-          <h1 class="tw-hero-title">지도 편집기</h1>
+          <h1 class="tw-hero-title">Map Editor</h1>
         </div>
-        <aside class="tw-hero-note">
-          <strong id="selectionSummary">선택 없음</strong>
-          <span id="exportMeta">310 × 310 px · 세계 · 평면 · 보기 100% · 윤곽선 0.3pt</span>
+        <aside class="tw-hero-note" aria-label="Selection count">
+          <p class="tw-kicker">Selection</p>
+          <strong id="selectionSummary">0 selected</strong>
         </aside>
       </header>
 
       <section class="tw-panel workspace-panel">
         <div class="tw-section-heading">
-          <h2 class="tw-section-title">지도</h2>
+          <h2 class="tw-section-title">Canvas</h2>
           <div class="workspace-export-actions">
             <button id="downloadSvgButton" class="tw-button export-button" type="button">SVG</button>
             <button id="downloadPngButton" class="tw-button export-button ghost-button" type="button">PNG</button>
@@ -58,7 +58,7 @@
         <div class="workspace-shell">
           <div class="workspace-controls-column">
             <div class="workspace-controls-head">
-              <h3 class="tw-card-title">설정</h3>
+              <h3 class="tw-card-title">Settings</h3>
             </div>
 
             <div id="statusMessage" class="status-message" aria-live="polite">지도를 클릭해 선택</div>
@@ -71,7 +71,7 @@
               </button>
             </div>
             <div class="workspace-projection-block world-only">
-              <p class="app-mini-label">지도 시점</p>
+              <p class="app-mini-label">Projection</p>
               <nav id="projectionSwitch" class="tw-switch projection-switch" aria-label="지도 시점 선택">
                 <button class="projection-button tw-switch-item" type="button" data-projection="rectangular">
                   평면
@@ -87,7 +87,7 @@
             <div class="tw-card-grid app-control-grid">
               <article class="tw-data-card app-control-card app-control-card--wide korea-selection-card">
                 <div class="app-card-head">
-                  <h3 id="selectionCardTitle" class="tw-card-title">국가 선택</h3>
+                  <h3 id="selectionCardTitle" class="tw-card-title">Countries</h3>
                   <button id="clearSelectionButton" class="tw-button ghost-button ghost-button--compact" type="button">
                     비우기
                   </button>
@@ -109,7 +109,7 @@
 
                 <div class="korea-only korea-selection-panel" hidden>
                   <div class="korea-level-block">
-                    <p class="app-mini-label">권역 레벨</p>
+                    <p class="app-mini-label">권역 단위</p>
                     <div class="chip-grid" data-columns="3">
                       <button class="tw-chip korea-level-button" type="button" data-korea-level="provinces">
                         도/광역시
@@ -144,10 +144,10 @@
                   </div>
                   <div class="inline-actions korea-region-actions">
                     <button id="activateVisibleKoreaRegionsButton" class="tw-chip" type="button">
-                      현재 권역 모두 켜기
+                      현재 권역 전체 선택
                     </button>
                     <button id="clearVisibleKoreaRegionsButton" class="tw-chip" type="button">
-                      현재 권역 모두 끄기
+                      현재 권역 전체 해제
                     </button>
                   </div>
                   <div class="korea-region-block">
@@ -199,7 +199,7 @@
               </details>
 
               <article class="tw-data-card app-control-card">
-                <h3 class="tw-card-title">캔버스 비율</h3>
+                <h3 class="tw-card-title">Canvas Size</h3>
                 <div class="chip-grid">
                   <button class="tw-chip preset-button" type="button" data-width="310" data-height="310">1:1</button>
                   <button class="tw-chip preset-button" type="button" data-width="310" data-height="233">4:3</button>
@@ -219,7 +219,7 @@
                   </label>
                 </div>
                 <label class="range-field canvas-ratio-field">
-                  <span>높이 빠른 조절</span>
+                  <span>Height</span>
                   <div class="range-row">
                     <input id="heightSlider" type="range" min="120" max="620" step="1" value="310" />
                     <strong id="heightSliderValue">310px</strong>
@@ -280,7 +280,7 @@
                 </div>
                 <label class="checkbox-field">
                   <input id="guideLineToggle" type="checkbox" />
-                  <span>기준선 선 표시</span>
+                  <span>기준선 표시</span>
                 </label>
                 <label class="checkbox-field">
                   <input id="latitudeLabelToggle" type="checkbox" />
@@ -290,7 +290,7 @@
               </details>
 
               <article class="tw-data-card app-control-card app-control-card--wide">
-                <h3 class="tw-card-title">스타일</h3>
+                <h3 class="tw-card-title">Style</h3>
                 <label class="range-field">
                   <span>주변 여백</span>
                   <div class="range-row">
@@ -321,7 +321,7 @@
                   </select>
                 </label>
                 <label id="coastlineDetailField" class="tw-field world-only">
-                  <span>해안선 디테일</span>
+                  <span>해안선 정밀도</span>
                   <select id="coastlineDetailInput">
                     <option value="performance">성능 우선</option>
                     <option value="auto" selected>자동</option>
@@ -344,7 +344,7 @@
               </article>
 
               <details class="tw-data-card app-control-card app-control-disclosure">
-                <summary>문자 · 축척</summary>
+                <summary>Labels &amp; Scale</summary>
                 <div class="app-control-disclosure__body">
                   <label class="range-field">
                   <span>지도 글자 크기</span>
@@ -364,25 +364,7 @@
 
           <div class="workspace-preview-column">
             <div class="workspace-preview-head">
-              <h3 class="tw-card-title">미리보기</h3>
-            </div>
-
-            <div class="workspace-banner">
-              <div class="workspace-banner__stats" aria-live="polite">
-                <div class="workspace-stat">
-                  <span>활성 도구</span>
-                  <strong id="activeModeLabel">영역 확대</strong>
-                </div>
-                <div class="workspace-stat">
-                  <span>보기 배율</span>
-                  <strong id="viewZoomLabel">100%</strong>
-                </div>
-                <div class="workspace-stat">
-                  <span>편집 대상</span>
-                  <strong id="workspaceObjectSummary">국가 0 · 마커 0 · 인셋 0</strong>
-                </div>
-              </div>
-              <p id="previewHint" class="preview-hint" hidden>드래그해서 영역 확대</p>
+              <h3 class="tw-card-title">Preview</h3>
             </div>
 
             <div class="tw-chart-panel preview-card">
@@ -424,7 +406,7 @@
                   </section>
 
                   <section class="preview-toolbox__section korea-only" hidden>
-                    <strong class="preview-toolbox__title">지도 클릭으로 권역 선택</strong>
+                    <strong class="preview-toolbox__title">Select regions on map</strong>
                   </section>
 
                   <section class="preview-toolbox__section">
@@ -516,33 +498,33 @@
 
       <section class="tw-panel">
         <div class="tw-section-heading">
-          <h2 id="detailSectionTitle" class="tw-section-title">통계</h2>
+          <h2 id="detailSectionTitle" class="tw-section-title">Statistics</h2>
           <span id="detailSectionBadge" hidden>구성비 · 변화 · 국가 프로필</span>
         </div>
 
         <div class="app-detail-grid">
           <details class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden open>
-            <summary><strong>그래프 만들기</strong></summary>
+            <summary><strong>Graph Builder</strong></summary>
             <div id="examGraphPanel" class="exam-graph-panel"></div>
           </details>
 
           <details class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-            <summary><strong>세계 통계</strong></summary>
+            <summary><strong>World Data</strong></summary>
             <div id="metricExplorerPanel" class="metric-explorer-panel"></div>
           </details>
 
           <details class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-            <summary><strong>국가 프로필</strong></summary>
+            <summary><strong>Country Profile</strong></summary>
             <div id="countryStatsPanel" class="country-stats-panel"></div>
           </details>
 
           <details class="tw-data-card app-detail-card app-detail-card--stats stats-module korea-only" hidden open>
-            <summary><strong>한국 통계</strong></summary>
+            <summary><strong>Korea Data</strong></summary>
             <div id="koreaGeoStatsPanel" class="metric-explorer-panel"></div>
           </details>
 
           <details class="tw-data-card app-detail-card app-detail-card--selection stats-module" open>
-            <summary><strong id="selectionDetailTitle">선택 목록</strong></summary>
+            <summary><strong id="selectionDetailTitle">Selection</strong></summary>
             <div class="selection-module-body">
               <p id="selectionDetailHint" class="hint" hidden>선택 항목 관리</p>
               <div id="selectionCompareActions" class="inline-actions korea-only" hidden>
@@ -576,6 +558,6 @@
     <script src="./data/world-lakes.js"></script>
     <script src="./data/country-stats.js?v=20260428a"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260710d"></script>
+    <script src="./app.js?v=20260710e"></script>
   </body>
 </html>

@@ -1839,14 +1839,9 @@ const elements = {
   selectedBordersOnlyToggle: document.querySelector("#selectedBordersOnlyToggle"),
   downloadSvgButton: document.querySelector("#downloadSvgButton"),
   downloadPngButton: document.querySelector("#downloadPngButton"),
-  exportMeta: document.querySelector("#exportMeta"),
   previewStage: document.querySelector("#previewStage"),
-  previewHint: document.querySelector("#previewHint"),
-  activeModeLabel: document.querySelector("#activeModeLabel"),
   activeModeTitle: document.querySelector("#activeModeTitle"),
   activeModeDescription: document.querySelector("#activeModeDescription"),
-  viewZoomLabel: document.querySelector("#viewZoomLabel"),
-  workspaceObjectSummary: document.querySelector("#workspaceObjectSummary"),
   workspaceModeTips: document.querySelector("#workspaceModeTips"),
   selectionSummary: document.querySelector("#selectionSummary"),
   koreaLevelButtons: [...document.querySelectorAll(".korea-level-button")],
@@ -2100,7 +2095,7 @@ function attachEventListeners() {
 
   elements.zoomOutButton.addEventListener("click", () => {
     if (state.mapVersion !== "world") {
-      setStatus("한국 지도는 권역 on/off 전용으로 고정 보기입니다.");
+      setStatus("한국 지도는 권역 선택 전용 고정 보기입니다.");
       return;
     }
 
@@ -2172,7 +2167,7 @@ function attachEventListeners() {
   });
 
   elements.coastlineDetailInput.addEventListener("change", () => {
-    beginHistoryStep("해안선 디테일 변경");
+    beginHistoryStep("해안선 정밀도 변경");
     state.coastlineDetail = elements.coastlineDetailInput.value;
     renderMap();
   });
@@ -2828,9 +2823,8 @@ function setViewMode(mode, { silent = false } = {}) {
 
 function refreshInteractionUi() {
   syncModeButtons();
-  updatePreviewHint();
+  updatePreviewTools();
   syncPreviewCanvasMode();
-  updateWorkspaceStats();
 }
 
 function syncPreviewCanvasMode() {
@@ -3038,8 +3032,7 @@ function setKoreaCityScopeCodes(codes) {
 
 function syncKoreaPreviewScopeFeedback() {
   window.requestAnimationFrame(() => {
-    updatePreviewHint();
-    updateWorkspaceStats();
+    updatePreviewTools();
   });
 }
 
@@ -3058,6 +3051,7 @@ function toggleKoreaCityScopeCode(code) {
   beginHistoryStep("시/군 범위 변경");
   setKoreaCityScopeCodes([...nextCodes]);
   syncKoreaControls();
+  renderSelectionViews();
   renderMap();
   syncKoreaPreviewScopeFeedback();
 
@@ -3078,6 +3072,7 @@ function clearKoreaCityScope() {
   beginHistoryStep("시/군 범위 변경");
   setKoreaCityScopeCodes([]);
   syncKoreaControls();
+  renderSelectionViews();
   renderMap();
   syncKoreaPreviewScopeFeedback();
   setStatus("시/군 범위를 전국 보기로 되돌렸습니다.");
@@ -3470,8 +3465,8 @@ function syncMapVersionControls() {
       button.setAttribute("aria-busy", String(koreaMapDataLoading));
     }
   });
-  elements.selectionCardTitle.textContent = isWorldMode ? "국가 선택" : "한국 권역 선택";
-  elements.selectionDetailTitle.textContent = isWorldMode ? "선택 국가" : "선택 권역";
+  elements.selectionCardTitle.textContent = isWorldMode ? "Countries" : "Regions";
+  elements.selectionDetailTitle.textContent = "Selection";
   elements.selectionDetailHint.textContent = isWorldMode
     ? "선택 국가 관리"
     : "선택 권역 관리";
@@ -3481,7 +3476,7 @@ function syncMapVersionControls() {
   if (elements.selectionFilterInput) {
     elements.selectionFilterInput.placeholder = isWorldMode ? "예: Brazil, AUS" : "예: 경기, 전주, 강남구";
   }
-  elements.detailSectionTitle.textContent = "통계";
+  elements.detailSectionTitle.textContent = "Statistics";
   elements.detailSectionBadge.textContent = isWorldMode ? "세계 통계" : "한국 통계";
   elements.unifySelectedColorLabel.textContent = isWorldMode ? "선택 국가 색상 통일" : "선택 권역 색상 통일";
   elements.modeButtons.forEach((button) => {
@@ -3515,8 +3510,7 @@ function syncKoreaControls() {
   renderKoreaCityScopeChips();
   renderKoreaRegionChips();
   syncKoreaGroupingActionButtons();
-  updatePreviewHint();
-  updateWorkspaceStats();
+  updatePreviewTools();
 }
 
 function syncControls() {
@@ -3530,8 +3524,7 @@ function syncControls() {
   syncGuideControls();
   syncStyleControls();
   syncKoreaControls();
-  updatePreviewHint();
-  updateWorkspaceStats();
+  updatePreviewTools();
   syncHistoryButtons();
 }
 
@@ -3622,12 +3615,9 @@ function syncStyleControls() {
   elements.markerStyleInput.value = state.markerDraftStyle;
 }
 
-function updatePreviewHint() {
+function updatePreviewTools() {
   if (state.mapVersion === "korea") {
     if (isKoreaCompareModeActive()) {
-      const comparedCount = getCurrentKoreaComparedIds().length;
-      elements.previewHint.textContent = `체크해 둔 ${comparedCount}개 권역을 전국 비교 보기로 띄우고 있습니다.`;
-      elements.activeModeLabel.textContent = "권역 비교";
       elements.activeModeTitle.textContent = "권역 비교";
       elements.activeModeDescription.textContent =
         "선택한 권역을 한 장의 한국 지도에서 비교하고, 필요한 경우 노선 오버레이를 함께 얹습니다.";
@@ -3635,35 +3625,23 @@ function updatePreviewHint() {
       return;
     }
 
-    const scopeText =
-      state.koreaLevel === "cities"
-        ? hasKoreaCityScopeFilter()
-          ? `${getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 3 })} 범위의 시/군 권역을 보고 있습니다.`
-          : "전국 시/군 권역을 한 장의 지도에서 보고 있습니다."
-        : koreaLevelRequiresParent(state.koreaLevel)
-          ? state.koreaParentCode
-            ? `${getKoreaProvinceName(state.koreaParentCode)} 범위에서 권역을 켜고 끄고 있습니다.`
-            : "특별시 또는 광역시를 먼저 고르면 구/군 권역을 바로 켜고 끌 수 있습니다."
-          : "도/광역시 권역을 클릭해서 바로 켜고 끌 수 있습니다.";
-    elements.previewHint.textContent = scopeText;
-    elements.activeModeLabel.textContent = "권역 on/off";
-    elements.activeModeTitle.textContent = "권역 on/off";
+    elements.activeModeTitle.textContent = "권역 선택";
     elements.activeModeDescription.textContent =
       "한국 지도에서는 지도를 이동하지 않고 권역을 바로 켜고 끄며 구도를 정합니다.";
     renderWorkspaceModeTips(
       state.koreaLevel === "cities"
         ? [
-            "클릭: 권역 on/off",
+            "클릭: 권역 선택/해제",
             "도/광역시 복수 범위",
             hasKoreaCityScopeFilter() ? "선택 범위만 표시" : "전국 문맥 유지",
           ]
         : koreaLevelRequiresParent(state.koreaLevel)
           ? [
-              "클릭: 권역 on/off",
+              "클릭: 권역 선택/해제",
               "상위 범위 선택",
               "체크 후 비교 가능",
             ]
-          : ["클릭: 권역 on/off", "레벨 전환: 도/광역시·시/군·구/군", "체크 후 비교 가능"],
+          : ["클릭: 권역 선택/해제", "단위 전환: 도/광역시·시/군·구/군", "체크 후 비교 가능"],
     );
     return;
   }
@@ -3671,8 +3649,6 @@ function updatePreviewHint() {
   const activeMode = getActiveViewMode();
   const details = viewModeDetails[activeMode] ?? viewModeDetails.zoom;
 
-  elements.previewHint.textContent = details.hint;
-  elements.activeModeLabel.textContent = viewModeLabels[activeMode] ?? viewModeLabels.zoom;
   elements.activeModeTitle.textContent = viewModeLabels[activeMode] ?? viewModeLabels.zoom;
   elements.activeModeDescription.textContent = details.description;
   renderWorkspaceModeTips(details.tips);
@@ -3687,30 +3663,6 @@ function renderWorkspaceModeTips(tips = []) {
     item.textContent = tip;
     elements.workspaceModeTips.appendChild(item);
   });
-}
-
-function updateWorkspaceStats() {
-  if (state.mapVersion === "korea") {
-    const currentSelection = getCurrentSelectionEntries();
-    const compareText = isKoreaCompareModeActive() ? ` · 비교 ${getCurrentKoreaComparedIds().length}개` : "";
-    const scopeText =
-      state.koreaLevel === "cities"
-        ? ` · ${hasKoreaCityScopeFilter() ? getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 }) : "전국"}`
-        : koreaLevelRequiresParent(state.koreaLevel) && state.koreaParentCode
-          ? ` · ${getKoreaProvinceName(state.koreaParentCode)}`
-          : "";
-    elements.viewZoomLabel.textContent = "고정 보기";
-    elements.workspaceObjectSummary.textContent =
-      `권역 ${currentSelection.length} · ${koreaRegionLevelLabels[state.koreaLevel]}` +
-      scopeText +
-      compareText;
-    return;
-  }
-
-  const zoomRatio = state.viewZoom * previewInteraction.scale;
-  elements.viewZoomLabel.textContent = `${Math.round(zoomRatio * 100)}%`;
-  elements.workspaceObjectSummary.textContent =
-    `국가 ${state.selected.length} · 마커 ${state.markers.length} · 인셋 ${state.insets.length}`;
 }
 
 function buildCountryDatalist() {
@@ -4361,6 +4313,20 @@ function getMetricExplorerScopeMode() {
 
 function getMetricExplorerScopeLabel() {
   return getMetricExplorerScopeMode() === "selected" ? `선택 국가 ${state.selected.length}개` : "전 세계";
+}
+
+function applyMetricExplorerScopeReset() {
+  if (!state.selected.length) {
+    return;
+  }
+
+  beginHistoryStep("세계 통계 범위 초기화");
+  setCurrentSelectionEntries([]);
+  syncActiveStatsCountry();
+  resetViewForSelectionIfNeeded();
+  renderSelectionViews();
+  renderMap();
+  setStatus("세계 통계 범위를 전 세계로 되돌렸습니다.");
 }
 
 function getMetricExplorerCategoryMeta(categoryKey = state.metricExplorerCategoryKey) {
@@ -5045,6 +5011,13 @@ function getKoreaGeoStatsSelectedRegions(levelKey = getKoreaGeoStatsLevelKey()) 
 
 function getKoreaGeoStatsScopeMode(levelKey = getKoreaGeoStatsLevelKey()) {
   return getKoreaGeoStatsSelectedRegions(levelKey).length ? "selected" : "all";
+}
+
+function hasKoreaGeoStatsCustomScope(levelKey = getKoreaGeoStatsLevelKey()) {
+  return (
+    getKoreaGeoStatsSelectedRegions(levelKey).length > 0 ||
+    (levelKey === "cities" && state.koreaCityScopeCodes.length > 0)
+  );
 }
 
 function getKoreaGeoStatsScopeRegionIds(levelKey = getKoreaGeoStatsLevelKey()) {
@@ -6194,7 +6167,9 @@ function applyKoreaGeoStatsScopeReset() {
   }
 
   if (!getKoreaGeoStatsSelectedRegions(levelKey).length) {
-    setStatus("이미 현재 범위 전체를 기준으로 비교하고 있습니다.");
+    if (levelKey === "cities" && state.koreaCityScopeCodes.length) {
+      clearKoreaCityScope();
+    }
     return;
   }
 
@@ -7535,10 +7510,9 @@ function buildMinimalKoreaGeoStatsControls(definitions, categoryDefinitions, act
         renderSelectionViews();
       },
     }),
-    buildStatsScopeReadout(
-      getKoreaGeoStatsScopeLabel(levelKey),
-      getKoreaGeoStatsScopeMode(levelKey) === "selected" ? () => applyKoreaGeoStatsScopeReset() : null,
-    ),
+    ...(hasKoreaGeoStatsCustomScope(levelKey)
+      ? [buildStatsScopeReadout(getKoreaGeoStatsScopeLabel(levelKey), () => applyKoreaGeoStatsScopeReset())]
+      : []),
     buildCompactStatsSelect({
       id: "koreaGeoStatsDisplayModeSelect",
       label: "그래프",
@@ -7724,7 +7698,9 @@ function buildMinimalMetricExplorerControls(definitions, visibleDefinitions, act
         renderMap();
       },
     }),
-    buildStatsScopeReadout(getMetricExplorerScopeLabel()),
+    ...(getMetricExplorerScopeMode() === "selected"
+      ? [buildStatsScopeReadout(getMetricExplorerScopeLabel(), () => applyMetricExplorerScopeReset())]
+      : []),
     buildCompactStatsSelect({
       id: "metricExplorerGroupingSelect",
       label: "집계",
@@ -17754,10 +17730,8 @@ function renderMap() {
 
   resetPreviewInteractionState();
   mountPreviewCanvas();
-  updatePreviewHint();
+  updatePreviewTools();
   updateSelectionSummary();
-  updateExportMeta();
-  updateWorkspaceStats();
 }
 
 function buildWorldMapSvg(options = {}) {
@@ -18091,10 +18065,8 @@ function renderKoreaMap() {
 
   resetPreviewInteractionState();
   mountPreviewCanvas();
-  updatePreviewHint();
+  updatePreviewTools();
   updateSelectionSummary();
-  updateExportMeta();
-  updateWorkspaceStats();
 }
 
 function getVisibleKoreaRenderFeatures() {
@@ -20125,79 +20097,8 @@ function getMapLabelStrokeWidth() {
 }
 
 function updateSelectionSummary() {
-  const parts = [];
-  const currentSelection = getCurrentSelectionEntries();
-
-  if (currentSelection.length) {
-    parts.push(`${currentSelection.length}개 ${state.mapVersion === "world" ? "국가" : "권역"}`);
-  } else {
-    parts.push(state.mapVersion === "world" ? "국가 선택 없음" : "권역 선택 없음");
-  }
-
-  if (state.mapVersion === "world" && state.markers.length) {
-    parts.push(`마커 ${state.markers.length}개`);
-  }
-
-  if (state.mapVersion === "world" && state.insets.length) {
-    parts.push(`인셋 ${state.insets.length}개`);
-  }
-
-  if (state.mapVersion === "korea") {
-    parts.push(koreaRegionLevelLabels[state.koreaLevel]);
-    if (isKoreaCompareModeActive()) {
-      parts.push(`비교 ${getCurrentKoreaComparedIds().length}개`);
-    } else if (state.koreaLevel === "cities") {
-      parts.push(hasKoreaCityScopeFilter() ? getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 }) : "전국");
-    } else if (koreaLevelRequiresParent(state.koreaLevel) && state.koreaParentCode) {
-      parts.push(getKoreaProvinceName(state.koreaParentCode));
-    }
-  }
-
-  elements.selectionSummary.textContent = parts.join(" · ");
-}
-
-function updateExportMeta() {
-  if (state.mapVersion === "korea") {
-    const scaleText = state.showScaleBar ? "축척 포함" : "축척 없음";
-    const borderText =
-      state.borderMode === "none" ? "경계선 없음" : state.borderMode === "dashed" ? "경계선 점선" : "경계선 실선";
-    const activeRouteNames = getActiveKoreaRoutes().map((route) => route.name);
-    const activeWaterwayNames = getActiveKoreaWaterways().map((waterway) => waterway.name);
-    const activeOverlayNames = [...activeRouteNames, ...activeWaterwayNames];
-    const scopeText =
-      isKoreaCompareModeActive()
-        ? `비교 ${getCurrentKoreaComparedIds().length}개`
-        : state.koreaLevel === "cities"
-          ? hasKoreaCityScopeFilter()
-            ? `범위 ${getKoreaCityScopeLabel(state.koreaCityScopeCodes, { maxNames: 2 })}`
-            : "범위 전국"
-        : koreaLevelRequiresParent(state.koreaLevel) && state.koreaParentCode
-        ? `범위 ${getKoreaProvinceName(state.koreaParentCode)}`
-        : "범위 전국";
-    elements.exportMeta.textContent =
-      `${state.width} × ${state.height} px · 대한민국 · ${koreaRegionLevelLabels[state.koreaLevel]} · ` +
-      `${scopeText} · ${formatPointSize(state.mapFontSizePt)} · ${scaleText} · ${borderText}` +
-      (activeOverlayNames.length ? ` · 오버레이 ${activeOverlayNames.length}개` : "") +
-      ` · 윤곽선 ${OUTLINE_STROKE_WIDTH}`;
-    return;
-  }
-
-  const scaleText = state.showScaleBar ? "축척 포함" : "축척 없음";
-  const borderText =
-    state.borderMode === "none" ? "국경선 없음" : state.borderMode === "dashed" ? "국경선 점선" : "국경선 실선";
-  const detailModeText =
-    state.coastlineDetail === "performance"
-      ? "성능 우선"
-      : state.coastlineDetail === "detailed"
-        ? "선명하게"
-        : state.coastlineDetail === "max"
-          ? "최대"
-          : "자동";
-  const detailText = getAtlasLevelForZoom(state.viewZoom).replace("m", "m 디테일");
-  elements.exportMeta.textContent =
-    `${state.width} × ${state.height} px · ${projectionModeLabels[state.projectionMode]} · ` +
-    `중심 ${formatLongitude(state.centerLongitude)} · 보기 ${Math.round(state.viewZoom * 100)}% · ` +
-    `${formatPointSize(state.mapFontSizePt)} · ${scaleText} · ${borderText} · ${detailModeText} · ${detailText} · 윤곽선 ${OUTLINE_STROKE_WIDTH}`;
+  const selectedCount = getCurrentSelectionEntries().length;
+  elements.selectionSummary.textContent = `${selectedCount} selected`;
 }
 
 async function exportCurrentSvg() {
@@ -21093,7 +20994,6 @@ function applyPreviewInteraction() {
     `translate(${previewInteraction.translateX * currentPreviewScale}px, ${previewInteraction.translateY * currentPreviewScale}px)`,
     `scale(${previewInteraction.scale})`,
   ].join(" ");
-  updateWorkspaceStats();
 }
 
 function queuePreviewCommit() {
@@ -21170,7 +21070,6 @@ function resetPreviewInteractionState() {
     currentCanvasSurface.style.transform = "";
   }
 
-  updateWorkspaceStats();
 }
 
 function previewTransformIsIdentity() {
