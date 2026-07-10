@@ -419,12 +419,16 @@ const examDrillTopicDefinitions = [
   { key: "energy", label: "에너지" },
   { key: "religion", label: "종교" },
 ];
+const examDrillPoolDefinitions = [
+  { key: "core", label: "Core" },
+  { key: "extended", label: "Extended" },
+];
 const examDrillSkillPrompts = {
-  rank: "값의 순서와 국가를 연결해 보세요.",
-  composition: "구성비의 차이로 국가를 판별해 보세요.",
-  compare: "두 지표의 대소 관계를 비교해 보세요.",
-  change: "증감 방향과 변화 폭을 판별해 보세요.",
-  scatter: "사분면과 버블 크기로 국가를 판별해 보세요.",
+  rank: "순위와 격차를 이용한 배열·판별형",
+  composition: "구성비 편차를 이용한 우세 구조 판별형",
+  compare: "두 지표의 우위와 격차를 이용한 비교형",
+  change: "현재 규모와 변화 폭을 분리하는 시계열형",
+  scatter: "사분면과 규모를 함께 읽는 관계형",
 };
 const examDrillScenarioDefinitions = [
   { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-total", valueMode: "amount", grouping: "countries" } },
@@ -461,7 +465,6 @@ const examDrillScenarioDefinitions = [
   { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "hindus-buddhists-share", valueMode: "share", grouping: "countries" } },
   { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-christians-share", valueMode: "amount", grouping: "countries" } },
   { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-muslims-share", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-hindus-share", valueMode: "amount", grouping: "countries" } },
   { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-buddhists-share", valueMode: "amount", grouping: "countries" } },
 ];
 let koreaGeoStatsMeta = { categories: {}, levels: {} };
@@ -1382,8 +1385,88 @@ const examGraphTextbookPriorityIso3 = new Set([
   "KWT",
   "ISL",
   "DNK",
-  "FJI",
   "MYS",
+]);
+const examItemLabCoreIso3ByTopic = {
+  demography: new Set(
+    "USA CAN MEX BRA ARG CHL COL PER CHN IND JPN KOR IDN BGD PAK PHL VNM THA RUS GBR DEU FRA ITA ESP SWE NOR POL UKR TUR SAU ARE QAT IRN ISR EGY NGA ETH KEN ZAF COD NER AUS NZL".split(" "),
+  ),
+  agriculture: new Set(
+    "USA CAN MEX BRA ARG CHL COL PER CHN IND JPN KOR IDN VNM THA PAK BGD MYS PHL RUS UKR FRA DEU ESP ITA NLD TUR AUS NZL ZAF NGA ETH EGY".split(" "),
+  ),
+  economy: new Set(
+    "USA CAN MEX BRA ARG CHL CHN IND JPN KOR SGP IDN VNM THA MYS PHL RUS GBR DEU FRA ITA ESP NLD SWE NOR POL TUR SAU ARE QAT IRN ISR EGY NGA ETH ZAF AUS NZL".split(" "),
+  ),
+  energy: new Set(
+    "USA CAN MEX BRA ARG CHL CHN IND JPN KOR IDN MYS VNM AUS RUS NOR GBR DEU FRA ESP ITA POL UKR SAU ARE QAT IRN IRQ KWT ISR TUR ZAF NGA DZA EGY".split(" "),
+  ),
+  religion: new Set(
+    "USA CAN MEX BRA ARG PER COL GBR DEU FRA ITA ESP POL RUS TUR UKR SAU IRN IRQ ISR EGY NGA ETH SDN ZAF COD IND PAK BGD IDN MYS THA MMR VNM CHN JPN KOR PHL AUS".split(" "),
+  ),
+};
+const createExamItemLabIso3Set = (value) => new Set(String(value).trim().split(/\s+/u));
+const examItemLabCountryPools = {
+  populationScale: createExamItemLabIso3Set("CHN IND USA IDN PAK NGA BRA BGD RUS MEX JPN ETH PHL EGY COD DEU TUR"),
+  populationDensity: createExamItemLabIso3Set("BGD KOR IND JPN NLD DEU GBR ITA USA CAN AUS RUS BRA"),
+  urbanization: createExamItemLabIso3Set("JPN KOR GBR DEU USA CAN ARG BRA MEX CHN IND IDN BGD NGA ETH KEN"),
+  populationRates: createExamItemLabIso3Set("NER NGA ETH COD PAK IND BGD MEX BRA USA FRA JPN KOR DEU ITA"),
+  ageStructure: createExamItemLabIso3Set("JPN KOR ITA DEU FRA GBR USA CHN IND IDN BGD NGA ETH BRA"),
+  crops: createExamItemLabIso3Set("USA CHN IND RUS UKR BRA ARG IDN VNM THA PAK BGD AUS CAN FRA"),
+  livestockStocks: createExamItemLabIso3Set("IND BRA CHN USA AUS NZL ARG ETH SDN ESP DEU VNM"),
+  livestockMeat: createExamItemLabIso3Set("USA BRA ARG AUS NZL CHN ESP DEU VNM RUS FRA"),
+  wheatTrade: createExamItemLabIso3Set("RUS UKR USA CAN AUS FRA ARG EGY IDN CHN TUR BGD"),
+  riceTrade: createExamItemLabIso3Set("IND THA VNM PAK USA CHN IDN PHL BGD MYS"),
+  maizeTrade: createExamItemLabIso3Set("USA BRA ARG UKR CHN MEX JPN EGY IDN"),
+  industryStructure: createExamItemLabIso3Set("ETH NGA IND CHN KOR DEU JPN USA GBR SGP SAU BRA ZAF"),
+  primaryEnergy: createExamItemLabIso3Set("CHN IND USA RUS SAU IRN NOR FRA BRA CAN DEU JPN KOR AUS ZAF"),
+  electricity: createExamItemLabIso3Set("CHN IND USA ZAF POL FRA KOR NOR BRA CAN DEU JPN RUS SAU"),
+  fossilProduction: createExamItemLabIso3Set("SAU RUS USA IRN QAT AUS CHN IND NOR CAN IRQ ZAF"),
+  solarWind: createExamItemLabIso3Set("CHN USA DEU IND ESP GBR BRA AUS JPN KOR"),
+  renewableShare: createExamItemLabIso3Set("NOR BRA CAN SWE DEU CHN USA IND SAU RUS FRA"),
+  nuclearShare: createExamItemLabIso3Set("FRA KOR USA RUS UKR JPN CHN DEU GBR CAN"),
+  religionMajor: createExamItemLabIso3Set("IND PAK BGD IDN SAU IRN TUR ISR THA MMR CHN JPN USA BRA MEX NGA ETH RUS PHL POL ITA"),
+  christianMuslim: createExamItemLabIso3Set("NGA ETH TUR RUS IDN IND PAK BGD EGY IRN USA BRA MEX PHL POL"),
+  hinduBuddhist: createExamItemLabIso3Set("IND NPL LKA BGD IDN THA MMR CHN JPN VNM KOR"),
+  christianRank: createExamItemLabIso3Set("USA BRA MEX PHL NGA COD ETH RUS ITA POL DEU FRA"),
+  muslimRank: createExamItemLabIso3Set("IDN PAK IND BGD NGA EGY IRN TUR SAU SDN"),
+  buddhistRank: createExamItemLabIso3Set("THA MMR CHN JPN VNM LKA KOR"),
+};
+const examItemLabCoreIso3ByScenario = new Map([
+  ["rankBars:population-total", examItemLabCountryPools.populationScale],
+  ["rankBars:population-density", examItemLabCountryPools.populationDensity],
+  ["rankBars:population-urban-share", examItemLabCountryPools.urbanization],
+  ["rankBars:population-birth-rate", examItemLabCountryPools.populationRates],
+  ["rankBars:population-natural-increase-rate", examItemLabCountryPools.populationRates],
+  ["rankBars:age-65plus-share", examItemLabCountryPools.ageStructure],
+  ["stacked100:urban-rural", examItemLabCountryPools.urbanization],
+  ["stacked100:age-structure", examItemLabCountryPools.ageStructure],
+  ["pairedBars:young-old-share", examItemLabCountryPools.ageStructure],
+  ["pairedBars:birth-death-rate", examItemLabCountryPools.populationRates],
+  ["timeCompare:population-total", examItemLabCountryPools.populationScale],
+  ["trendLine:population-urban-share", examItemLabCountryPools.urbanization],
+  ["scatter:population-urban-share:age-65plus-share:population-total", examItemLabCountryPools.ageStructure],
+  ["scatter:population-birth-rate:population-death-rate:population-total", examItemLabCountryPools.populationRates],
+  ["stacked100:crops-production", examItemLabCountryPools.crops],
+  ["stacked100:livestock-stocks", examItemLabCountryPools.livestockStocks],
+  ["stacked100:livestock-meat", examItemLabCountryPools.livestockMeat],
+  ["pairedBars:wheat-trade", examItemLabCountryPools.wheatTrade],
+  ["pairedBars:rice-trade", examItemLabCountryPools.riceTrade],
+  ["pairedBars:maize-trade", examItemLabCountryPools.maizeTrade],
+  ["stacked100:industry-structure", examItemLabCountryPools.industryStructure],
+  ["pairedBars:agri-services-share", examItemLabCountryPools.industryStructure],
+  ["stacked100:energy-summary", examItemLabCountryPools.primaryEnergy],
+  ["stacked100:electricity-breakdown", examItemLabCountryPools.electricity],
+  ["stacked100:fossil-production", examItemLabCountryPools.fossilProduction],
+  ["pairedBars:solar-wind-amount", examItemLabCountryPools.solarWind],
+  ["pairedBars:oil-gas-production", examItemLabCountryPools.fossilProduction],
+  ["rankBars:energy-renewables-share", examItemLabCountryPools.renewableShare],
+  ["rankBars:electricity-nuclear-share", examItemLabCountryPools.nuclearShare],
+  ["stacked100:religion-major", examItemLabCountryPools.religionMajor],
+  ["pairedBars:christians-muslims-share", examItemLabCountryPools.christianMuslim],
+  ["pairedBars:hindus-buddhists-share", examItemLabCountryPools.hinduBuddhist],
+  ["rankBars:religion-christians-share", examItemLabCountryPools.christianRank],
+  ["rankBars:religion-muslims-share", examItemLabCountryPools.muslimRank],
+  ["rankBars:religion-buddhists-share", examItemLabCountryPools.buddhistRank],
 ]);
 const KOREA_ADMIN_DATA_URL = "./data/korea-admin.js";
 const KOREA_ROUTE_DATA_URL = "./data/korea-routes.js?v=20260423g";
@@ -1996,8 +2079,8 @@ let currentRenderContext = null;
 let lastKoreaFitContextKey = null;
 let activeCanvasResizeSnapshot = null;
 let examDrillTopicKey = "auto";
+let examDrillPoolKey = "core";
 let examDrillResult = null;
-let examDrillRevealed = false;
 const examDrillRecentSignatures = [];
 let embeddedMapFontDataUrl = window.EMBEDDED_MAP_FONT_DATA_URL ?? null;
 let activeGestureScale = 1;
@@ -11740,6 +11823,37 @@ function getExamGraphRandomCountryPriority(entryOrStats) {
   return 0;
 }
 
+function getExamItemLabScenarioPoolKey(scenarioDefinition) {
+  const config = scenarioDefinition?.config ?? {};
+  if (config.presetKey === "scatter") {
+    return `${config.presetKey}:${config.scatterXKey}:${config.scatterYKey}:${config.scatterSizeKey}`;
+  }
+  const metricKey =
+    config.metricKey ??
+    config.compositionKey ??
+    config.pairKey ??
+    config.timeMetricKey ??
+    "";
+  return `${config.presetKey}:${metricKey}`;
+}
+
+function getExamItemLabCountryTier(scenarioDefinition, entryOrStats) {
+  const stats = entryOrStats?.stats ?? entryOrStats;
+  const iso3 = String(stats?.iso3 ?? "").trim().toUpperCase();
+  if (!iso3 || !isExamGraphRandomCountryAllowed(stats)) {
+    return 0;
+  }
+  const scenarioPool = examItemLabCoreIso3ByScenario.get(getExamItemLabScenarioPoolKey(scenarioDefinition));
+  const topicPool = examItemLabCoreIso3ByTopic[scenarioDefinition?.topicKey];
+  if (scenarioPool?.has(iso3) || (!scenarioPool && topicPool?.has(iso3))) {
+    return 3;
+  }
+  if (examDrillPoolKey === "extended" && topicPool?.has(iso3)) {
+    return 2;
+  }
+  return 0;
+}
+
 function shouldExamGraphMergeAmericas(grouping = state.examGraphGrouping, presetKey = state.examGraphPresetKey) {
   return Boolean(state.examGraphMergeAmericas) && (grouping === "continents" || presetKey === "top3share");
 }
@@ -12025,7 +12139,7 @@ function getExamDrillEligibleCountryIds(scenarioDefinition) {
   const groups = new Map();
   Object.keys(countryStatsById).forEach((countryId) => {
     const stats = countryStatsById[countryId];
-    if (!isExamGraphRandomCountryAllowed(stats) || !validateExamDrillSourceData(scenarioDefinition, [countryId])) {
+    if (getExamItemLabCountryTier(scenarioDefinition, stats) <= 0 || !validateExamDrillSourceData(scenarioDefinition, [countryId])) {
       return;
     }
     const yearSignature = getExamDrillSourceYearSignature(scenarioDefinition, stats);
@@ -12041,13 +12155,9 @@ function getExamDrillEligibleCountryIds(scenarioDefinition) {
   return [...groups.values()]
     .filter((countryIds) => countryIds.length >= 3)
     .sort((first, second) => {
-      const sizeDifference = second.length - first.length;
-      if (sizeDifference) {
-        return sizeDifference;
-      }
-      const firstPriority = d3.sum(first, (countryId) => getExamGraphRandomCountryPriority(countryStatsById[countryId]));
-      const secondPriority = d3.sum(second, (countryId) => getExamGraphRandomCountryPriority(countryStatsById[countryId]));
-      return secondPriority - firstPriority;
+      const firstTier = d3.sum(first, (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]));
+      const secondTier = d3.sum(second, (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]));
+      return secondTier - firstTier || second.length - first.length;
     })[0] ?? [];
 }
 
@@ -12179,6 +12289,211 @@ function buildExamDrillRowSignature(model, row) {
   return valueToken(row.displayValue ?? row.value);
 }
 
+function getExamDrillPairDistances(vectors, distanceBuilder = null) {
+  const distances = [];
+  for (let firstIndex = 0; firstIndex < vectors.length; firstIndex += 1) {
+    for (let secondIndex = firstIndex + 1; secondIndex < vectors.length; secondIndex += 1) {
+      const first = vectors[firstIndex];
+      const second = vectors[secondIndex];
+      const distance = distanceBuilder
+        ? distanceBuilder(first, second)
+        : Math.sqrt(
+            d3.mean(first.map((value, index) => Math.pow(Number(value) - Number(second[index]), 2))) ?? 0,
+          );
+      if (Number.isFinite(distance)) {
+        distances.push(distance);
+      }
+    }
+  }
+  return distances.sort((first, second) => first - second);
+}
+
+function getExamDrillAxisSpan(values) {
+  const finiteValues = (values ?? []).map(Number).filter(Number.isFinite);
+  if (!finiteValues.length) {
+    return 0;
+  }
+  return Math.max(0, ...finiteValues) - Math.min(0, ...finiteValues);
+}
+
+function buildExamDrillAuthoringMeta(model) {
+  const rows = model?.rows ?? [];
+  const invalid = { valid: false, score: 0, angle: "출제 구도를 만들기 어려운 조합", countryNotes: [] };
+  if (rows.length < 3) {
+    return invalid;
+  }
+
+  if (model.chartKind === "singleBar") {
+    const values = rows.map((row) => Number(row.displayValue ?? row.value));
+    const axisSpan = getExamDrillAxisSpan(values);
+    if (!axisSpan || values.some((value) => !Number.isFinite(value))) {
+      return invalid;
+    }
+    const orderedValues = [...values].sort((first, second) => first - second);
+    const gapRatios = orderedValues.slice(1).map((value, index) => (value - orderedValues[index]) / axisSpan);
+    const minimumGap = Math.min(...gapRatios);
+    const order = [...values.keys()].sort((first, second) => values[second] - values[first]);
+    const ranks = new Map(order.map((rowIndex, index) => [rowIndex, index]));
+    const countryNotes = rows.map((_row, rowIndex) => {
+      const rank = ranks.get(rowIndex) ?? 0;
+      if (rank === 0) {
+        return "최댓값";
+      }
+      if (rank === rows.length - 1) {
+        return "최솟값";
+      }
+      return `${rank + 1}위`;
+    });
+    return {
+      valid: minimumGap >= 0.08,
+      score: (minimumGap / 0.16) * 100,
+      angle: "상·중·하 격차가 선명한 순위형",
+      countryNotes,
+    };
+  }
+
+  if (model.chartKind === "stacked") {
+    const vectors = rows.map((row) => (row.segments ?? []).map((segment) => Number(segment.share) / 100));
+    if (vectors.some((vector) => vector.length < 2 || vector.some((value) => !Number.isFinite(value)))) {
+      return invalid;
+    }
+    const distances = getExamDrillPairDistances(
+      vectors,
+      (first, second) => d3.sum(first, (value, index) => Math.abs(value - second[index])) * 0.5,
+    );
+    const minimumDistance = distances[0] ?? 0;
+    const medianDistance = d3.median(distances) ?? 0;
+    const segmentMeans = vectors[0].map((_value, segmentIndex) => d3.mean(vectors, (vector) => vector[segmentIndex]) ?? 0);
+    const countryNotes = vectors.map((vector, rowIndex) => {
+      const deviations = vector.map((value, segmentIndex) => value - segmentMeans[segmentIndex]);
+      const segmentIndex = d3.maxIndex(deviations, (value) => Math.abs(value));
+      const segmentLabel = rows[rowIndex].segments?.[segmentIndex]?.label ?? "구성비";
+      return `${segmentLabel} 비중 ${deviations[segmentIndex] >= 0 ? "높음" : "낮음"}`;
+    });
+    const dominantLabels = new Set(
+      rows.map((row) => d3.greatest(row.segments ?? [], (segment) => Number(segment.share))?.label).filter(Boolean),
+    );
+    return {
+      valid: minimumDistance >= 0.1 && medianDistance >= 0.16,
+      score: minimumDistance * 360 + medianDistance * 160,
+      angle:
+        dominantLabels.size >= 2
+          ? "우세 항목이 갈리는 구성비형"
+          : "항목별 편차가 선명한 구성비형",
+      countryNotes,
+    };
+  }
+
+  if (model.chartKind === "pairedBar") {
+    const rawPairs = rows.map((row) => [Number(row.firstValue), Number(row.secondValue)]);
+    if (
+      model.metricKey === "hindus-buddhists-share" &&
+      rawPairs.some(([first, second]) => !Number.isFinite(first + second) || first + second < 10)
+    ) {
+      return invalid;
+    }
+    const pairs = rows.map((row) => [
+      Number(row.displayFirstValue ?? row.firstValue),
+      Number(row.displaySecondValue ?? row.secondValue),
+    ]);
+    const axisSpan = getExamDrillAxisSpan(pairs.flat());
+    if (!axisSpan || pairs.some((pair) => pair.some((value) => !Number.isFinite(value)))) {
+      return invalid;
+    }
+    const vectors = pairs.map((pair) => pair.map((value) => value / axisSpan));
+    const distances = getExamDrillPairDistances(vectors);
+    const balances = pairs.map(([first, second]) => (first - second) / Math.max(Math.abs(first) + Math.abs(second), 1e-9));
+    const balanceRange = Math.max(...balances) - Math.min(...balances);
+    const directions = balances.map((value) => (value >= 0.08 ? "first" : value <= -0.08 ? "second" : "neutral"));
+    const directionCount = new Set(directions.filter((direction) => direction !== "neutral")).size;
+    const neutralCount = directions.filter((direction) => direction === "neutral").length;
+    const [firstLabel, secondLabel] = (model.legendItems ?? []).map((item) => item.label);
+    return {
+      valid: (distances[0] ?? 0) >= 0.08 && neutralCount <= 1 && (directionCount >= 2 || balanceRange >= 0.35),
+      score: (distances[0] ?? 0) * 420 + balanceRange * 55,
+      angle:
+        directionCount >= 2
+          ? `${firstLabel ?? "첫 지표"}·${secondLabel ?? "둘째 지표"}의 우위가 뒤집히는 비교형`
+          : "두 지표 사이의 격차가 갈리는 비교형",
+      countryNotes: balances.map((balance) =>
+        balance >= 0.08
+          ? `${firstLabel ?? "첫 지표"} 우세`
+          : balance <= -0.08
+            ? `${secondLabel ?? "둘째 지표"} 우세`
+            : "두 지표 유사",
+      ),
+    };
+  }
+
+  if (model.chartKind === "timeCompare" || model.chartKind === "trendLine") {
+    const endpoints = rows.map((row) => {
+      if (model.chartKind === "timeCompare") {
+        return [Number(row.displayStartValue ?? row.startValue), Number(row.displayEndValue ?? row.endValue)];
+      }
+      const points = row.points ?? [];
+      return [
+        Number(points[0]?.displayValue ?? points[0]?.value),
+        Number(points.at(-1)?.displayValue ?? points.at(-1)?.value),
+      ];
+    });
+    const axisSpan = getExamDrillAxisSpan(endpoints.flat());
+    if (!axisSpan || endpoints.some((pair) => pair.some((value) => !Number.isFinite(value)))) {
+      return invalid;
+    }
+    const vectors = endpoints.map((pair) => pair.map((value) => value / axisSpan));
+    const distances = getExamDrillPairDistances(vectors);
+    const changes = endpoints.map(([start, end]) => (end - start) / Math.max(Math.abs(start), 1e-9));
+    const changeRange = Math.max(...changes) - Math.min(...changes);
+    const orderedChanges = [...changes].sort((first, second) => second - first);
+    return {
+      valid: (distances[0] ?? 0) >= 0.07 && changeRange >= 0.22,
+      score: (distances[0] ?? 0) * 360 + changeRange * 70,
+      angle: model.chartKind === "trendLine" ? "추세의 기울기와 도달 수준이 갈리는 시계열형" : "현재 규모와 증가 폭이 갈리는 시점 비교형",
+      countryNotes: changes.map((change) => {
+        if (change === orderedChanges[0]) {
+          return "증가 폭 최대";
+        }
+        if (change === orderedChanges.at(-1)) {
+          return change < 0 ? "감소" : "증가 폭 최소";
+        }
+        return change < 0 ? "감소" : "중간 증가";
+      }),
+    };
+  }
+
+  if (model.chartKind === "scatter") {
+    const xValues = rows.map((row) => Number(row.xValue));
+    const yValues = rows.map((row) => Number(row.yValue));
+    if ([...xValues, ...yValues].some((value) => !Number.isFinite(value))) {
+      return invalid;
+    }
+    const xAxisSpan = getExamDrillAxisSpan(xValues);
+    const yAxisSpan = getExamDrillAxisSpan(yValues);
+    if (!xAxisSpan || !yAxisSpan) {
+      return invalid;
+    }
+    const vectors = rows.map((_row, index) => [xValues[index] / xAxisSpan, yValues[index] / yAxisSpan]);
+    const distances = getExamDrillPairDistances(vectors);
+    const xMedian = d3.median(xValues) ?? 0;
+    const yMedian = d3.median(yValues) ?? 0;
+    const quadrants = rows.map((_row, index) =>
+      `${xValues[index] >= xMedian ? "right" : "left"}-${yValues[index] >= yMedian ? "top" : "bottom"}`,
+    );
+    return {
+      valid: (distances[0] ?? 0) >= 0.12 && new Set(quadrants).size >= 3,
+      score: (distances[0] ?? 0) * 240 + new Set(quadrants).size * 8,
+      angle: "서로 다른 사분면에 놓이는 관계형",
+      countryNotes: rows.map((_row, index) =>
+        `${model.xLabel ?? "X"} ${xValues[index] >= xMedian ? "높음" : "낮음"} · ${model.yLabel ?? "Y"} ${
+          yValues[index] >= yMedian ? "높음" : "낮음"
+        }`,
+      ),
+    };
+  }
+
+  return invalid;
+}
+
 function validateExamDrillCandidate(result) {
   const model = result?.model;
   const countryIds = result?.recommendation?.ids ?? [];
@@ -12198,11 +12513,17 @@ function validateExamDrillCandidate(result) {
   const actualLabels = answers.map((row) => String(row.value ?? "").trim());
   const displayLabels = rows.map((row) => String(row.displayLabel ?? "").trim());
   const signatures = rows.map((row) => buildExamDrillRowSignature(model, row));
+  const authoringMeta = result.authoringMeta ?? buildExamDrillAuthoringMeta(model);
+  const extendedCountryCount = countryIds.filter(
+    (countryId) => getExamItemLabCountryTier(result.scenarioDefinition, countryStatsById[countryId]) < 3,
+  ).length;
   return (
     actualLabels.every(Boolean) &&
     new Set(actualLabels).size === actualLabels.length &&
     displayLabels.every((label) => /^\(.+\)$/u.test(label)) &&
-    new Set(signatures).size === signatures.length
+    new Set(signatures).size === signatures.length &&
+    authoringMeta.valid &&
+    extendedCountryCount <= (examDrillPoolKey === "extended" ? 1 : 0)
   );
 }
 
@@ -12211,17 +12532,69 @@ function getExamDrillScenarioSignature(result) {
     result?.scenarioDefinition?.topicKey,
     result?.scenarioDefinition?.skillKey,
     result?.scenarioDefinition?.config,
-    result?.recommendation?.ids,
+    [...(result?.recommendation?.ids ?? [])].sort(),
   ]);
 }
 
-function buildExamDrillAnswerChoices(answerRows) {
-  const source = (answerRows ?? []).map((row) => String(row.value ?? "").trim()).filter(Boolean);
-  const shuffled = shuffleExamGraphItems(source);
-  if (shuffled.length > 1 && shuffled.every((label, index) => label === source[index])) {
-    shuffled.push(shuffled.shift());
+function getExamDrillPeriodLabel(result) {
+  const countryId = result?.recommendation?.ids?.[0];
+  const signature = countryId
+    ? getExamDrillSourceYearSignature(result.scenarioDefinition, countryStatsById[countryId])
+    : "";
+  if (!signature) {
+    return "";
   }
-  return shuffled;
+  const [startYear, endYear] = signature.split(":");
+  return endYear ? `${startYear}-${endYear}` : startYear;
+}
+
+function getWeightedExamDrillScenarios(topicKey) {
+  const weightByPreset = {
+    stacked100: 3,
+    pairedBars: 3,
+    scatter: 3,
+    trendLine: 2,
+    timeCompare: 2,
+    rankBars: 1,
+  };
+  return examDrillScenarioDefinitions
+    .filter((definition) => definition.topicKey === topicKey)
+    .map((definition) => ({
+      definition,
+      order: -Math.log(Math.max(Math.random(), 1e-9)) / (weightByPreset[definition.config.presetKey] ?? 1),
+    }))
+    .sort((first, second) => first.order - second.order)
+    .map((entry) => entry.definition);
+}
+
+function getExamDrillCountrySetSamples(scenarioDefinition, eligibleCountryIds, sampleCount = 180) {
+  const coreIds = eligibleCountryIds.filter(
+    (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]) === 3,
+  );
+  const extendedIds = eligibleCountryIds.filter(
+    (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]) === 2,
+  );
+  const resultByKey = new Map();
+  const targetCount = Math.min(4, coreIds.length + (examDrillPoolKey === "extended" ? Math.min(1, extendedIds.length) : 0));
+  if (targetCount < 3) {
+    return [];
+  }
+
+  for (let attempt = 0; attempt < sampleCount * 5 && resultByKey.size < sampleCount; attempt += 1) {
+    const useExtended = examDrillPoolKey === "extended" && extendedIds.length > 0 && targetCount >= 4;
+    const nextIds = shuffleExamGraphItems(coreIds).slice(0, targetCount - (useExtended ? 1 : 0));
+    if (useExtended) {
+      nextIds.push(shuffleExamGraphItems(extendedIds)[0]);
+    }
+    if (nextIds.length !== targetCount) {
+      continue;
+    }
+    const key = [...nextIds].sort().join(":");
+    if (!resultByKey.has(key)) {
+      resultByKey.set(key, shuffleExamGraphItems(nextIds));
+    }
+  }
+  return [...resultByKey.values()];
 }
 
 function createExamDrillResult(topicKey = examDrillTopicKey) {
@@ -12244,49 +12617,58 @@ function createExamDrillResult(topicKey = examDrillTopicKey) {
       : [topicKey];
 
     for (const candidateTopicKey of topicKeys) {
-      const candidates = shuffleExamGraphItems(
-        examDrillScenarioDefinitions.filter((definition) => definition.topicKey === candidateTopicKey),
-      );
+      const candidates = getWeightedExamDrillScenarios(candidateTopicKey);
       for (const scenarioDefinition of candidates) {
         const eligibleCountryIds = getExamDrillEligibleCountryIds(scenarioDefinition);
         if (eligibleCountryIds.length < 3) {
           continue;
         }
-        for (let recommendationAttempt = 0; recommendationAttempt < 8; recommendationAttempt += 1) {
+        const scenarioResults = [];
+        const countrySets = getExamDrillCountrySetSamples(scenarioDefinition, eligibleCountryIds);
+        for (const countryIds of countrySets) {
           restoreExamGraphStateSnapshot(drillSnapshot);
           applyExamGraphScenarioConfig(scenarioDefinition.config);
           state.examGraphFocusCountryIds = [];
           state.examGraphFocusLabel = "";
           ensureExamGraphState();
-          const recommendation = getExamGraphRecommendedFocus({ allowedCountryIds: eligibleCountryIds });
-          if (!recommendation?.ids?.length) {
-            continue;
-          }
+          const extendedCount = countryIds.filter(
+            (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]) === 2,
+          ).length;
+          const recommendation = {
+            ids: countryIds,
+            label: `Item Lab · ${extendedCount ? `핵심국 ${countryIds.length - extendedCount} + 확장국 ${extendedCount}` : `핵심국 ${countryIds.length}`}`,
+          };
           state.examGraphFocusCountryIds = recommendation.ids;
           state.examGraphFocusLabel = recommendation.label;
           state.examGraphTopN = recommendation.ids.length;
           ensureExamGraphState();
           const model = buildExamGraphModel();
+          const authoringMeta = buildExamDrillAuthoringMeta(model);
+          const relevanceScore =
+            (d3.mean(
+              recommendation.ids,
+              (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]),
+            ) ?? 0) / 3 * 100;
+          authoringMeta.score = authoringMeta.score * 0.82 + relevanceScore * 0.18;
           const result = {
             topicKey: candidateTopicKey,
             scenarioDefinition,
             recommendation,
             model,
+            authoringMeta,
           };
           const signature = getExamDrillScenarioSignature(result);
-          if (
-            validateExamDrillCandidate(result) &&
-            (!examDrillRecentSignatures.includes(signature) || candidates.length <= examDrillRecentSignatures.length)
-          ) {
-            builtResult = {
-              ...result,
-              answerChoices: buildExamDrillAnswerChoices(model.answerRows),
-              signature,
-            };
-            break;
+          if (validateExamDrillCandidate(result)) {
+            scenarioResults.push({ ...result, signature });
           }
         }
-        if (builtResult) {
+        if (scenarioResults.length) {
+          const uniqueResults = [...new Map(scenarioResults.map((result) => [result.signature, result])).values()];
+          const freshResults = uniqueResults.filter((result) => !examDrillRecentSignatures.includes(result.signature));
+          const rankedResults = (freshResults.length ? freshResults : uniqueResults)
+            .sort((first, second) => second.authoringMeta.score - first.authoringMeta.score)
+            .slice(0, 5);
+          builtResult = shuffleExamGraphItems(rankedResults)[0] ?? null;
           break;
         }
       }
@@ -12305,14 +12687,13 @@ function tryCreateExamDrillResult(topicKey = examDrillTopicKey) {
   try {
     return createExamDrillResult(topicKey);
   } catch (error) {
-    console.error("Exam Drill 자료를 생성하지 못했습니다.", error);
+    console.error("Item Lab 자료를 생성하지 못했습니다.", error);
     return null;
   }
 }
 
 function generateExamDrillResult({ focusSelector = "" } = {}) {
   examDrillResult = tryCreateExamDrillResult(examDrillTopicKey);
-  examDrillRevealed = false;
   if (examDrillResult?.signature) {
     examDrillRecentSignatures.push(examDrillResult.signature);
     if (examDrillRecentSignatures.length > 6) {
@@ -12322,30 +12703,34 @@ function generateExamDrillResult({ focusSelector = "" } = {}) {
   renderExamDrillPanel();
   if (focusSelector) {
     window.requestAnimationFrame(() => {
-      (document.querySelector(focusSelector) ?? document.querySelector("#examDrillRevealButton"))?.focus({
+      (document.querySelector(focusSelector) ?? document.querySelector("#examDrillNextButton"))?.focus({
         preventScroll: true,
       });
     });
   }
 }
 
-function buildExamDrillAnswerPanel(answerRows) {
+function buildExamDrillCountryKey(answerRows, countryNotes = []) {
   const panel = document.createElement("section");
   panel.id = "examDrillAnswers";
   panel.className = "exam-drill-answers";
-  panel.setAttribute("aria-live", "polite");
   const title = document.createElement("strong");
   title.lang = "en";
-  title.textContent = "Answer";
+  title.textContent = "Key";
   const list = document.createElement("dl");
   list.className = "exam-drill-answer-list";
-  answerRows.forEach((row) => {
+  answerRows.forEach((row, index) => {
     const item = document.createElement("div");
     const term = document.createElement("dt");
     term.textContent = row.label;
     const value = document.createElement("dd");
-    value.lang = /[가-힣]/u.test(String(row.value ?? "")) ? "ko" : "en";
-    value.textContent = row.value;
+    const country = document.createElement("strong");
+    country.lang = /[가-힣]/u.test(String(row.value ?? "")) ? "ko" : "en";
+    country.textContent = row.value;
+    const note = document.createElement("small");
+    note.lang = "ko";
+    note.textContent = countryNotes[index] ?? "";
+    value.append(country, note);
     item.append(term, value);
     list.appendChild(item);
   });
@@ -12358,7 +12743,7 @@ function applyExamDrillResultToBuilder() {
     return;
   }
   const { scenarioDefinition, recommendation } = examDrillResult;
-  beginHistoryStep("수능 통계 드릴 적용");
+  beginHistoryStep("출제 시드 적용");
   state.worldStatsYearMode = "exam";
   applyExamGraphScenarioConfig(scenarioDefinition.config);
   state.examGraphFocusCountryIds = [...recommendation.ids];
@@ -12387,7 +12772,7 @@ function applyExamDrillResultToBuilder() {
       elements.examGraphModule.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
-  setStatus("현재 자료를 Graph Builder로 옮겼습니다.");
+  setStatus("현재 출제 시드를 Graph Builder로 옮겼습니다.");
 }
 
 function renderExamDrillPanel() {
@@ -12428,16 +12813,36 @@ function renderExamDrillPanel() {
     generateExamDrillResult({ focusSelector: "#examDrillTopicSelect" });
   });
   topicField.append(topicLabel, topicSelect);
-  toolbar.appendChild(topicField);
+  const poolField = document.createElement("label");
+  poolField.className = "tw-field exam-drill-topic exam-drill-pool";
+  const poolLabel = document.createElement("span");
+  poolLabel.lang = "en";
+  poolLabel.textContent = "Pool";
+  const poolSelect = document.createElement("select");
+  poolSelect.id = "examDrillPoolSelect";
+  examDrillPoolDefinitions.forEach((definition) => {
+    const option = document.createElement("option");
+    option.value = definition.key;
+    option.textContent = definition.label;
+    option.selected = definition.key === examDrillPoolKey;
+    poolSelect.appendChild(option);
+  });
+  poolSelect.addEventListener("change", () => {
+    examDrillPoolKey = poolSelect.value;
+    generateExamDrillResult({ focusSelector: "#examDrillPoolSelect" });
+  });
+  poolField.append(poolLabel, poolSelect);
+  toolbar.append(topicField, poolField);
   shell.appendChild(toolbar);
 
   if (!examDrillResult?.model) {
-    const empty = createEmptyState("표시할 수 있는 통계 조합을 찾지 못했습니다.");
+    const empty = createEmptyState("출제 구도가 선명한 통계 조합을 찾지 못했습니다.");
     const retry = document.createElement("button");
     retry.id = "examDrillRetryButton";
     retry.type = "button";
     retry.className = "tw-chip";
-    retry.textContent = "다시 생성";
+    retry.lang = "en";
+    retry.textContent = "Generate";
     retry.addEventListener("click", () => generateExamDrillResult({ focusSelector: "#examDrillRetryButton" }));
     empty.appendChild(retry);
     shell.appendChild(empty);
@@ -12454,45 +12859,31 @@ function renderExamDrillPanel() {
   const title = document.createElement("h3");
   title.className = "exam-drill-title";
   title.textContent = examDrillResult.model.title;
-  const prompt = document.createElement("p");
-  prompt.textContent = examDrillSkillPrompts[examDrillResult.scenarioDefinition.skillKey] ?? examDrillSkillPrompts.rank;
-  const candidateBank = document.createElement("div");
-  candidateBank.className = "exam-drill-candidate-bank";
-  const candidateLabel = document.createElement("strong");
-  candidateLabel.lang = "en";
-  candidateLabel.textContent = "Candidates";
-  const candidateValues = document.createElement("p");
-  candidateValues.lang = "en";
-  candidateValues.textContent = examDrillResult.answerChoices.join(" · ");
-  candidateBank.append(candidateLabel, candidateValues);
-  heading.append(title, prompt, candidateBank);
+  const angle = document.createElement("div");
+  angle.className = "exam-drill-angle";
+  const angleLabel = document.createElement("strong");
+  angleLabel.lang = "en";
+  angleLabel.textContent = "Angle";
+  const angleText = document.createElement("p");
+  const angleDescription =
+    examDrillResult.authoringMeta?.angle ??
+    examDrillSkillPrompts[examDrillResult.scenarioDefinition.skillKey] ??
+    examDrillSkillPrompts.rank;
+  angleText.textContent = [angleDescription, getExamDrillPeriodLabel(examDrillResult)].filter(Boolean).join(" · ");
+  angle.append(angleLabel, angleText);
+  heading.append(title, angle);
   const preview = buildExamGraphPreviewCard({ model: examDrillResult.model });
   preview.classList.add("exam-drill-preview");
   stage.append(heading, preview);
 
   const rail = document.createElement("div");
   rail.className = "exam-drill-rail";
-  const revealButton = document.createElement("button");
-  revealButton.id = "examDrillRevealButton";
-  revealButton.type = "button";
-  revealButton.className = "tw-chip exam-drill-button exam-drill-button--primary";
-  revealButton.textContent = examDrillRevealed ? "정답 숨기기" : "정답 보기";
-  revealButton.setAttribute("aria-expanded", String(examDrillRevealed));
-  if (examDrillRevealed) {
-    revealButton.setAttribute("aria-controls", "examDrillAnswers");
-  }
-  revealButton.addEventListener("click", () => {
-    examDrillRevealed = !examDrillRevealed;
-    renderExamDrillPanel();
-    window.requestAnimationFrame(() => {
-      document.querySelector("#examDrillRevealButton")?.focus({ preventScroll: true });
-    });
-  });
   const nextButton = document.createElement("button");
   nextButton.id = "examDrillNextButton";
   nextButton.type = "button";
-  nextButton.className = "tw-chip exam-drill-button";
-  nextButton.textContent = "다음 자료";
+  nextButton.className = "tw-chip exam-drill-button exam-drill-button--primary";
+  nextButton.lang = "en";
+  nextButton.textContent = "New Seed";
   nextButton.addEventListener("click", () => generateExamDrillResult({ focusSelector: "#examDrillNextButton" }));
   const builderButton = document.createElement("button");
   builderButton.id = "examDrillBuilderButton";
@@ -12501,11 +12892,14 @@ function renderExamDrillPanel() {
   builderButton.lang = "en";
   builderButton.textContent = "Graph Builder";
   builderButton.addEventListener("click", applyExamDrillResultToBuilder);
-  rail.append(revealButton, nextButton);
-  if (examDrillRevealed) {
-    rail.appendChild(builderButton);
-    rail.appendChild(buildExamDrillAnswerPanel(examDrillResult.model.answerRows));
-  }
+  rail.append(
+    nextButton,
+    builderButton,
+    buildExamDrillCountryKey(
+      examDrillResult.model.answerRows,
+      examDrillResult.authoringMeta?.countryNotes,
+    ),
+  );
   workspace.append(stage, rail);
   shell.appendChild(workspace);
   elements.examDrillPanel.appendChild(shell);
@@ -14090,7 +14484,7 @@ function buildExamScatterGraphModel() {
     chartKind: "scatter",
     metricKey: `${xDefinition.key}:${yDefinition.key}:${sizeDefinition.key}`,
     presetLabel: getExamGraphPresetDefinition().label,
-    title: `${xDefinition.label}와 ${yDefinition.label}`,
+    title: `${xDefinition.label} / ${yDefinition.label}`,
     description: `버블 크기 ${sizeDefinition.label}`,
     metricLabel: `${xDefinition.label} / ${yDefinition.label}`,
     metricDetail: `버블 ${sizeDefinition.label}`,
