@@ -1427,13 +1427,9 @@ function renderQuestionSearchResults(event = null) {
   renderQuestionExamSelect();
   const filtered = filteredQuestionItems();
   const shown = filtered.slice(0, 60);
-  const matchSummary = filtered.reduce((acc, item) => {
-    acc[item.match_status] = (acc[item.match_status] || 0) + 1;
-    return acc;
-  }, {});
   elements.questionBankBadge.textContent = `${questionBankItems.length}문항 DB`;
   elements.questionBankBadge.classList.add("is-solid");
-  elements.questionSearchMeta.textContent = `${filtered.length}개 · EBSi ${matchSummary.exact || 0} · 보충 ${matchSummary.inferred || 0} · 표시 ${shown.length}`;
+  elements.questionSearchMeta.textContent = `${filtered.length}문항`;
 
   if (!shown.length) {
     elements.questionResultGrid.innerHTML = '<div class="question-card"><strong>검색 결과 없음</strong></div>';

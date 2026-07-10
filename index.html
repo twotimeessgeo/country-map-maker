@@ -1,11 +1,14 @@
 <!doctype html>
-<html lang="ko">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Promenade Geography</title>
-    <meta name="description" content="지도, 기후, 지리 기출을 다루는 제작 도구입니다." />
-    <meta name="theme-color" content="#f6f6f4" />
+    <meta
+      name="description"
+      content="Maps, climate graphics, statistics, and exam data for geography work."
+    />
+    <meta name="theme-color" content="#efefec" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
@@ -13,92 +16,50 @@
     <link rel="stylesheet" href="./tokens.css" />
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="./components.css" />
-    <link rel="stylesheet" href="./portal.css?v=20260710d" />
+    <link rel="stylesheet" href="./portal.css?v=20260710e" />
   </head>
   <body>
-    <a class="portal-skip-link" href="#tools">도구로 이동</a>
-
     <div class="portal-shell">
-      <header class="portal-topbar">
-        <a class="portal-brand" href="./index.html" aria-current="page">
-          <strong>Promenade</strong>
-          <span>Geography</span>
-        </a>
-        <span class="portal-shortcut-help"><kbd>1</kbd>–<kbd>3</kbd> 바로 열기</span>
-      </header>
+      <nav class="app-context-bar portal-home-bar" aria-label="Promenade Geography">
+        <details class="app-context-menu">
+          <summary>
+            <span class="app-menu-mark" aria-hidden="true"></span>
+            <span>Menu</span>
+          </summary>
+          <div class="app-context-menu-panel">
+            <a href="./map.html">Map Editor</a>
+            <a href="./tools/climate/index.html">Climate Database</a>
+            <a href="./tools/cut/index.html">Exam Archive</a>
+          </div>
+        </details>
+      </nav>
 
       <main>
-        <section class="portal-intro" aria-labelledby="portalTitle">
-          <div>
-            <h1 id="portalTitle">작업 도구</h1>
+        <section class="portal-hero" aria-labelledby="portalTitle">
+          <div class="portal-hero-copy">
+            <h1 id="portalTitle">Promenade</h1>
+            <p class="portal-kicker">THE GEOGRAPHY WORKROOM</p>
           </div>
-
-          <a class="portal-continue" id="continueTool" href="./map.html" data-tool-id="map">
-            <span>
-              <small id="continueKicker">바로 시작</small>
-              <strong id="continueLabel">지도 편집기</strong>
-            </span>
-            <span aria-hidden="true">→</span>
-          </a>
         </section>
 
-        <section class="portal-tools" id="tools" aria-labelledby="toolsTitle">
-          <h2 id="toolsTitle">도구</h2>
-
-          <div class="portal-tool-grid">
-            <a class="portal-tool-card" href="./map.html" data-tool-id="map" aria-keyshortcuts="1">
-              <header>
-                <span>01</span>
-                <kbd aria-label="단축키 1">1</kbd>
-              </header>
-              <h3>지도 편집기</h3>
-              <p>세계·한국 지도를 편집하고 SVG·PNG로 내보냄.</p>
-              <ul aria-label="주요 기능">
-                <li>통계 결합</li>
-                <li>자동 저장</li>
-              </ul>
-            </a>
-
-            <a
-              class="portal-tool-card"
-              href="./tools/climate/index.html"
-              data-tool-id="climate"
-              aria-keyshortcuts="2"
-            >
-              <header>
-                <span>02</span>
-                <kbd aria-label="단축키 2">2</kbd>
-              </header>
-              <h3>기후 자료</h3>
-              <p>129개 지역의 월별 기온·강수량을 비교함.</p>
-              <ul aria-label="주요 기능">
-                <li>1991–2020</li>
-                <li>CSV</li>
-              </ul>
-            </a>
-
-            <a
-              class="portal-tool-card"
-              href="./tools/cut/index.html"
-              data-tool-id="exam"
-              aria-keyshortcuts="3"
-            >
-              <header>
-                <span>03</span>
-                <kbd aria-label="단축키 3">3</kbd>
-              </header>
-              <h3>기출·등급컷</h3>
-              <p>기출 문항을 찾고 등급컷 가정을 계산함.</p>
-              <ul aria-label="주요 기능">
-                <li>조건 검색</li>
-                <li>CSV</li>
-              </ul>
-            </a>
-          </div>
+        <section class="portal-index" aria-label="Promenade Geography tools">
+          <a href="./map.html">
+            <span>01</span>
+            <strong>Map Editor with Statistics Archive</strong>
+            <em>World and Korea map data</em>
+          </a>
+          <a href="./tools/climate/index.html">
+            <span>02</span>
+            <strong>Climate Database and Graphics</strong>
+            <em>JMA normals and comparison charts</em>
+          </a>
+          <a href="./tools/cut/index.html">
+            <span>03</span>
+            <strong>Exam Database with Simulator</strong>
+            <em>Past papers, cut prediction, choice rates</em>
+          </a>
         </section>
       </main>
     </div>
-
-    <script src="./portal.js?v=20260710d" defer></script>
   </body>
 </html>

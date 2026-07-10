@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="../../base.css" />
     <link rel="stylesheet" href="../../components.css" />
     <link rel="stylesheet" href="../../patterns.css" />
-    <link rel="stylesheet" href="./cut.css?v=20260710c" />
+    <link rel="stylesheet" href="./cut.css?v=20260710d" />
   </head>
   <body>
     <div class="tw-page tw-stack cut-page">
@@ -31,17 +31,17 @@
             <span>Menu</span>
           </summary>
           <div class="app-context-menu-panel">
-            <a href="../../map.html">지도</a>
-            <a href="../climate/index.html">기후</a>
-            <a class="is-active" href="./index.html">기출·컷</a>
+            <a href="../../map.html">Map Editor</a>
+            <a href="../climate/index.html">Climate Database</a>
+            <a class="is-active" href="./index.html">Exam Archive</a>
           </div>
         </details>
       </nav>
       <header class="tw-hero cut-hero">
         <div class="tw-hero-copy">
-          <h1 class="tw-hero-title">기출·컷</h1>
+          <h1 class="tw-hero-title">Exam Archive</h1>
         </div>
-        <aside class="cut-hero-note" aria-label="현재 모델">
+        <aside class="cut-hero-note" aria-label="현재 모델" hidden>
           <strong id="modelBadge" aria-live="polite">로딩</strong>
         </aside>
       </header>
@@ -56,7 +56,7 @@
           aria-controls="questionsPanel"
           tabindex="0"
           data-tool-tab="questions"
-        >기출</button>
+        >기출 검색</button>
         <button
           class="tw-switch-item"
           id="predictTab"
@@ -66,7 +66,7 @@
           aria-controls="predictPanel"
           tabindex="-1"
           data-tool-tab="predict"
-        >컷</button>
+        >등급컷</button>
         <button
           class="tw-switch-item"
           id="solutionsTab"
@@ -107,13 +107,13 @@
                     </select>
                   </label>
                   <label class="tw-field">
-                    <span>기준</span>
+                    <span>정답률 기준</span>
                     <select id="modeSelect" name="mode">
                       <option value="national">전국 정답률</option>
                       <option value="academy">시대인재N 정답률</option>
                     </select>
                   </label>
-                  <div class="cut-relation" id="relationText">모델 준비 중</div>
+                  <div class="cut-relation" id="relationText" hidden>모델 준비 중</div>
                 </div>
 
                 <div class="cut-history-row">
@@ -411,6 +411,6 @@
       crossorigin="anonymous"
     ></script>
     <script src="./data/cut-data.js"></script>
-    <script src="./cut.js?v=20260710c"></script>
+    <script src="./cut.js?v=20260710d"></script>
   </body>
 </html>

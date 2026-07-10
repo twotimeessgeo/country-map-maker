@@ -837,16 +837,10 @@ function renderRegionCard(region, sharedChartScale) {
             </div>
             <div class="selection-summary is-muted">${escapeHtml(region.nation)} · ${escapeHtml(region.zone)}</div>
           </div>
-          <div class="region-meta">
-            <span class="meta-pill">${escapeHtml(region.officialName)}</span>
-            <span class="meta-pill">${region.stationId} · ${escapeHtml(formatCoordinatePair(region.coordinates))} · ${formatMeters(region.elevationM)}</span>
-          </div>
           <div class="stats-row">
             <span class="stat-pill">연평균 ${formatTemp(region.annualMeanTemperatureC)}</span>
             <span class="stat-pill">연강수 ${formatMm(region.annualPrecipitationMm)}</span>
             <span class="stat-pill">연교차 ${formatTemp(annualRange)}</span>
-            <span class="stat-pill">연간 일최저 &lt;0℃ ${formatDays(region.annualColdDaysBelowZero)}</span>
-            <span class="stat-pill">연간 일최저 ≥25℃ ${formatDays(region.annualHotDaysAboveTwentyFiveMin)}</span>
           </div>
         </div>
         <div class="region-card-chart">

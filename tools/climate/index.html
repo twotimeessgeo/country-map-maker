@@ -13,7 +13,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260710d" />
+    <link rel="stylesheet" href="styles.css?v=20260710e" />
   </head>
   <body data-app-mode="world">
     <div class="page-shell">
@@ -27,9 +27,9 @@
             <span>Menu</span>
           </summary>
           <div class="app-context-menu-panel">
-            <a href="../../map.html">지도</a>
-            <a class="is-active" href="./index.html">기후</a>
-            <a href="../cut/index.html">기출·컷</a>
+            <a href="../../map.html">Map Editor</a>
+            <a class="is-active" href="./index.html">Climate Database</a>
+            <a href="../cut/index.html">Exam Archive</a>
           </div>
         </details>
       </nav>
@@ -118,7 +118,7 @@
                 <div>
                   <h2>지도</h2>
                 </div>
-                <div class="selection-summary is-muted" id="mapSummary" role="status" aria-live="polite" aria-atomic="true">지도 준비 중</div>
+                <div class="selection-summary is-muted" id="mapSummary" role="status" aria-live="polite" aria-atomic="true" hidden>지도 준비 중</div>
               </div>
               <div class="map-toolbar">
                 <div class="filter-group">
@@ -147,7 +147,7 @@
                 <div>
                   <h2>지역 추가</h2>
                 </div>
-                <div class="selection-summary is-muted" id="apiStatusSummary" role="status" aria-live="polite" aria-atomic="true">
+                <div class="selection-summary is-muted" id="apiStatusSummary" role="status" aria-live="polite" aria-atomic="true" hidden>
                   JMA 기본 자료 + 온라인 검색
                 </div>
               </div>
@@ -201,6 +201,6 @@
     <script src="data/world-countries-50m.js"></script>
     <script src="data/vendor-d3.min.js"></script>
     <script src="data/vendor-topojson-client.min.js"></script>
-    <script src="app.js?v=20260710d"></script>
+    <script src="app.js?v=20260710e"></script>
   </body>
 </html>

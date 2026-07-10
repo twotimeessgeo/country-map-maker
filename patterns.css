@@ -15,8 +15,8 @@
 .tw-card-title {
   margin: 0;
   font-family: var(--tw-font-sans);
-  font-weight: 600;
-  letter-spacing: 0;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .tw-hero-title {
@@ -51,9 +51,9 @@
   display: block;
   margin-bottom: 4px;
   font-size: 1.95rem;
-  font-weight: 600;
+  font-weight: 800;
   line-height: 0.98;
-  letter-spacing: 0;
+  letter-spacing: -0.03em;
 }
 
 .tw-hero-note span {
@@ -78,7 +78,7 @@
 }
 
 .tw-section-title {
-  font-size: 1.85rem;
+  font-size: clamp(1.4rem, 1.7vw, 1.9rem);
   line-height: 1.16;
 }
 
@@ -130,7 +130,7 @@
   padding: 6px 9px;
   border: var(--tw-border);
   background: #ffffff;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 @media (max-width: 980px) {
@@ -161,10 +161,6 @@
   .tw-hero-title {
     max-width: 100%;
     line-height: 1;
-  }
-
-  .tw-section-title {
-    font-size: 1.42rem;
   }
 
   .app-context-bar {

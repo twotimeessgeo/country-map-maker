@@ -33,7 +33,7 @@
   --tw-text-md: 1rem;
   --tw-text-lg: 1.18rem;
   --tw-text-xl: 1.45rem;
-  --tw-text-hero: 4.15rem;
+  --tw-text-hero: clamp(2.45rem, 4.2vw, 4.25rem);
 
   --tw-space-1: 6px;
   --tw-space-2: 8px;
@@ -52,16 +52,4 @@
   --tw-chip-height: 40px;
   --tw-switch-height: 34px;
   --tw-border: 1px solid var(--tw-line);
-}
-
-@media (max-width: 980px) {
-  :root {
-    --tw-text-hero: 3.2rem;
-  }
-}
-
-@media (max-width: 640px) {
-  :root {
-    --tw-text-hero: 2.55rem;
-  }
 }
