@@ -3291,7 +3291,7 @@ body[data-map-version="korea"] .stats-workspace .app-detail-card {
 
 .exam-drill-filter-grid {
   display: grid;
-  grid-template-columns: minmax(140px, 1.15fr) minmax(130px, 1fr) auto minmax(110px, 0.7fr);
+  grid-template-columns: minmax(140px, 1.15fr) minmax(130px, 1fr) auto auto minmax(110px, 0.7fr);
   align-items: end;
   gap: var(--tw-space-3);
 }
@@ -3305,6 +3305,7 @@ body[data-map-version="korea"] .stats-workspace .app-detail-card {
 
 .exam-drill-topic > span,
 .exam-item-panel-count legend,
+.exam-item-row-count legend,
 .exam-drill-answers > strong {
   font-family: var(--tw-font-latin);
   font-size: 0.7rem;
@@ -3319,7 +3320,8 @@ body[data-map-version="korea"] .stats-workspace .app-detail-card {
   padding: 12px 38px 12px 14px;
 }
 
-.exam-item-panel-count {
+.exam-item-panel-count,
+.exam-item-row-count {
   display: grid;
   gap: 6px;
   min-width: 108px;
@@ -3335,12 +3337,27 @@ body[data-map-version="korea"] .stats-workspace .app-detail-card {
   padding: 0;
 }
 
+.exam-item-row-count {
+  min-width: 142px;
+}
+
+.exam-item-row-count legend {
+  float: left;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 .exam-item-segmented {
   display: grid;
   grid-template-columns: repeat(2, minmax(46px, 1fr));
   min-height: var(--tw-field-height);
   border: var(--tw-border);
   background: #ffffff;
+}
+
+.exam-item-segmented--rows {
+  grid-template-columns: repeat(3, minmax(40px, 1fr));
 }
 
 .exam-item-segmented label {
@@ -3781,14 +3798,14 @@ body[data-map-version="korea"] .stats-workspace .app-detail-card {
 
 .exam-item-context-key {
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
-  gap: var(--tw-space-2);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--tw-space-3);
   padding-top: var(--tw-space-3);
   border-top: 1px solid var(--tw-line-faint);
 }
 
-.exam-item-context-key p {
-  color: var(--tw-muted);
+.exam-item-context-list {
+  min-width: 0;
 }
 
 @container (min-width: 900px) {
@@ -3801,7 +3818,7 @@ body[data-map-version="korea"] .stats-workspace .app-detail-card {
   }
 }
 
-@container (max-width: 820px) {
+@container (max-width: 980px) {
   .exam-drill-toolbar {
     grid-template-columns: minmax(0, 1fr);
   }
