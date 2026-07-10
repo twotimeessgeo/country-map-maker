@@ -73,8 +73,7 @@
   line-height: 1;
   cursor: pointer;
   list-style: none;
-  transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease,
-    color 0.18s ease, box-shadow 0.18s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
 .app-context-menu summary::-webkit-details-marker {
@@ -88,18 +87,13 @@
 
 .app-context-menu summary:hover,
 .app-context-menu summary:focus-visible {
-  transform: translateY(-1px);
   background: var(--tw-panel-soft);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.05);
-}
-
-.app-context-menu summary:active {
-  transform: translateY(0.5px);
+  border-color: var(--tw-ink);
 }
 
 .app-context-menu[open] summary {
   background: var(--tw-panel-soft);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.06);
+  border-color: var(--tw-ink);
 }
 
 .app-menu-mark {
@@ -129,14 +123,11 @@
   width: min(280px, calc(100vw - 32px));
   border: var(--tw-border);
   background: #ffffff;
-  box-shadow: 0 12px 0 rgba(0, 0, 0, 0.04);
   overflow: hidden;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-4px);
-  transform-origin: top right;
   visibility: hidden;
-  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+  transition: opacity 0.16s ease, visibility 0.16s ease;
 }
 
 .app-context-menu-panel::after {
@@ -151,7 +142,6 @@
 .app-context-menu[open] .app-context-menu-panel {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(0);
   visibility: visible;
 }
 
@@ -170,28 +160,13 @@
   font-weight: 300;
   line-height: 1.1;
   text-decoration: none;
-  transition: background-color 0.18s ease, color 0.18s ease, padding-left 0.18s ease;
-}
-
-.app-context-menu-panel a::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  background: transparent;
-  transition: background-color 0.18s ease;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
 .app-context-menu-panel a:hover,
 .app-context-menu-panel a:focus-visible {
   background: #f6f6f6;
   color: var(--tw-ink);
-  padding-left: 18px;
-}
-
-.app-context-menu-panel a:hover::before,
-.app-context-menu-panel a:focus-visible::before {
-  background: var(--tw-ink);
 }
 
 .app-context-menu-panel a:focus-visible {
@@ -206,10 +181,6 @@
 .app-context-menu-panel a.is-active {
   background: var(--tw-ink);
   color: #ffffff;
-}
-
-.app-context-menu-panel a.is-active::before {
-  background: #ffffff;
 }
 
 .app-context-menu-panel a.is-active:hover,
@@ -260,8 +231,7 @@
   min-height: var(--tw-chip-height);
   padding: 9px 14px;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.2s ease,
-    color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .tw-button:hover,
@@ -270,9 +240,7 @@
 .tw-switch-item:focus-visible,
 .tw-chip:hover,
 .tw-chip:focus-visible {
-  transform: translateY(-1px);
   border-color: var(--tw-ink);
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.04);
 }
 
 .tw-button:hover,
@@ -295,12 +263,6 @@
 .tw-chip:focus-visible {
   outline: 2px solid rgba(17, 17, 17, 0.28);
   outline-offset: 2px;
-}
-
-.tw-button:active,
-.tw-switch-item:active,
-.tw-chip:active {
-  transform: translateY(0.5px) scale(0.995);
 }
 
 .tw-chip.is-active,

@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Climate Database and Graphics | Promenade Geography</title>
+    <title>세계 기후 | Promenade Geography</title>
     <meta
       name="description"
-      content="Compare climate database records and render geography graphics for world climate study."
+      content="세계 지역의 월별 기온과 강수량을 비교하고 기후 그래프를 만듭니다."
     />
     <meta name="theme-color" content="#111111" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260710c" />
+    <link rel="stylesheet" href="styles.css?v=20260710d" />
   </head>
   <body data-app-mode="world">
     <div class="page-shell">
@@ -27,29 +27,23 @@
             <span>Menu</span>
           </summary>
           <div class="app-context-menu-panel">
-            <a href="../../map.html">Map Editor</a>
-            <a class="is-active" href="./index.html">Climate Database</a>
-            <a href="../cut/index.html">Exam Simulator</a>
+            <a href="../../map.html">지도</a>
+            <a class="is-active" href="./index.html">기후</a>
+            <a href="../cut/index.html">기출·컷</a>
           </div>
         </details>
       </nav>
       <header class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">PROMENADE GEOGRAPHY</p>
-          <nav class="app-switch" aria-label="버전 선택">
-            <a class="app-switch-link is-active" href="./index.html">세계지리</a>
-            <a class="app-switch-link" href="./korea.html">한국지리</a>
+          <h1>세계 기후</h1>
+          <nav class="app-switch" aria-label="기후 자료 선택">
+            <a class="app-switch-link is-active" href="./index.html">세계</a>
+            <a class="app-switch-link" href="./korea.html">한국</a>
           </nav>
-          <h1>Climate Database and Graphics</h1>
-          <p class="hero-text">
-            지역을 고르면 월별 기온과 강수량을 표와 기후 그래프로 확인하고,
-            여러 지역을 함께 선택하면 1월과 7월의 편차를 예시 이미지처럼 한눈에 비교할 수 있습니다.
-          </p>
         </div>
         <div class="hero-note">
-          <p class="hero-note-label">현재 기준</p>
           <strong id="heroCount">129개 지역</strong>
-          <span id="heroCaption">JMA 1991-2020 평년값 기반</span>
+          <span id="heroCaption">JMA 1991-2020</span>
         </div>
       </header>
 
@@ -57,8 +51,7 @@
         <section class="panel controls-panel">
           <div class="section-heading">
             <div>
-              <p class="section-kicker">1. 지역 선택</p>
-              <h2>검색하고 지도에서도 골라보세요</h2>
+              <h2>지역 선택</h2>
             </div>
             <div class="selection-summary" id="selectionSummary" role="status" aria-live="polite" aria-atomic="true">0개 선택됨</div>
           </div>
@@ -86,23 +79,19 @@
             </label>
             <div class="action-row">
               <button type="button" class="ghost-button" id="randomClimateSelectionButton">
-                기후 다른 4지역 랜덤
+                4곳 랜덤
               </button>
               <button type="button" class="ghost-button" id="clearSelectionButton">선택 해제</button>
             </div>
           </div>
 
           <div class="selection-utility-bar" aria-label="선택 결과 내보내기">
-            <div class="selection-utility-copy">
-              <strong>현재 비교 묶음</strong>
-              <span>고른 지역과 필터, 편차 기준을 그대로 공유하거나 한 파일로 저장합니다.</span>
-            </div>
             <div class="selection-utility-actions">
               <button type="button" class="ghost-button" id="downloadSelectedCsvButton" disabled>
-                선택 데이터 CSV
+                CSV
               </button>
               <button type="button" class="ghost-button utility-primary-button" id="copyShareLinkButton">
-                비교 링크 복사
+                링크 복사
               </button>
             </div>
             <span class="selection-utility-status" id="selectionUtilityStatus" role="status" aria-live="polite" aria-atomic="true"></span>
@@ -110,15 +99,15 @@
 
           <div class="filter-stack">
             <div class="filter-group">
-              <p class="filter-label">대륙 필터</p>
+              <p class="filter-label">대륙</p>
               <div class="chip-row" id="continentChips"></div>
             </div>
             <div class="filter-group">
-              <p class="filter-label">반구 필터</p>
+              <p class="filter-label">반구</p>
               <div class="chip-row" id="hemisphereChips"></div>
             </div>
             <div class="filter-group">
-              <p class="filter-label">기후 구분 필터</p>
+              <p class="filter-label">기후</p>
               <div class="chip-row" id="climateChips"></div>
             </div>
           </div>
@@ -127,23 +116,17 @@
             <article class="world-stage">
               <div class="section-heading compact nested-heading">
                 <div>
-                  <p class="section-kicker">지도 선택</p>
-                  <h2>세계 지도에서 지역 고르기</h2>
+                  <h2>지도</h2>
                 </div>
                 <div class="selection-summary is-muted" id="mapSummary" role="status" aria-live="polite" aria-atomic="true">지도 준비 중</div>
               </div>
               <div class="map-toolbar">
                 <div class="filter-group">
-                  <p class="filter-label">지도 표시</p>
+                  <p class="filter-label">표시</p>
                   <div class="chip-row" id="mapScopeChips"></div>
                 </div>
               </div>
               <div id="worldMap"></div>
-              <p class="map-note">
-                * 점을 누르면 선택/해제됩니다. 위도·경도 기준으로 점을 찍고, "선택 지역만"으로 바꾸면
-                현재 고른 지역들만 따로 볼 수 있습니다. 지도 점은 대표 도시 좌표이며, 기후값을 가져온
-                JMA 관측 지점은 지역 카드의 출처 표시에 따로 적었습니다.
-              </p>
             </article>
 
             <article class="region-picker">
@@ -151,10 +134,8 @@
                 <summary class="region-picker-summary">
                   <div class="section-heading compact nested-heading">
                     <div>
-                      <p class="section-kicker">목록 선택</p>
                       <h2>지역 목록</h2>
                     </div>
-                    <span class="collapse-hint">접기 / 펼치기</span>
                   </div>
                 </summary>
                 <div class="region-list" id="regionList"></div>
@@ -164,8 +145,7 @@
             <article class="api-stage">
               <div class="section-heading compact nested-heading">
                 <div>
-                  <p class="section-kicker">온라인 확장</p>
-                  <h2>Open-Meteo로 새 지역 추가</h2>
+                  <h2>지역 추가</h2>
                 </div>
                 <div class="selection-summary is-muted" id="apiStatusSummary" role="status" aria-live="polite" aria-atomic="true">
                   JMA 기본 자료 + 온라인 검색
@@ -173,7 +153,7 @@
               </div>
               <div class="control-bar api-control-bar">
                 <label class="search-field" for="apiSearchInput">
-                  <span>도시 / 지역명 검색</span>
+                  <span>도시·지역</span>
                   <input
                     id="apiSearchInput"
                     type="search"
@@ -182,15 +162,14 @@
                   />
                 </label>
                 <div class="action-row">
-                  <button type="button" class="ghost-button" id="apiSearchButton">API 검색</button>
+                  <button type="button" class="ghost-button" id="apiSearchButton">검색</button>
                   <button type="button" class="ghost-button" id="resetCustomRegionsButton" disabled>
                     추가 지역 없음
                   </button>
                 </div>
               </div>
               <p class="map-note" id="apiStatusText">
-                * 기본 자료는 일본 기상청(JMA) 1991-2020 평년값을 우선하며, JMA 미수록 지점과 사용자가
-                추가하는 지점만 Open-Meteo ERA5 자료로 보완합니다.
+                JMA 미수록 지역은 Open-Meteo 1991-2020으로 보완합니다.
               </p>
               <div class="api-results" id="apiResults"></div>
             </article>
@@ -200,8 +179,7 @@
         <section class="panel" id="selectedPanel">
           <div class="section-heading">
             <div>
-              <p class="section-kicker">2. 지역별 보기</p>
-              <h2>월별 기온·강수량 표와 기후 그래프</h2>
+              <h2>지역별 기후</h2>
             </div>
           </div>
           <div id="selectedRegionsContent" class="selected-grid"></div>
@@ -210,15 +188,8 @@
         <section class="panel comparison-panel" id="comparisonPanel">
           <div class="section-heading">
             <div>
-              <p class="section-kicker">3. 지역 간 비교</p>
-              <h2>1월과 7월 편차 비교</h2>
+              <h2>비교</h2>
             </div>
-          </div>
-          <div class="comparison-intro">
-            <p>
-              편차 기준은 선택 지역 평균이나 특정 지역으로 바꿀 수 있고,
-              예시 문제처럼 온도는 점, 강수량은 막대로 표현했습니다.
-            </p>
           </div>
           <div id="comparisonContent"></div>
         </section>
@@ -230,6 +201,6 @@
     <script src="data/world-countries-50m.js"></script>
     <script src="data/vendor-d3.min.js"></script>
     <script src="data/vendor-topojson-client.min.js"></script>
-    <script src="app.js?v=20260710c"></script>
+    <script src="app.js?v=20260710d"></script>
   </body>
 </html>

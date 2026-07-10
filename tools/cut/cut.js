@@ -1245,9 +1245,7 @@ function renderResult(data, resultMode = "prediction") {
       <article class="cut-card">
         <p class="cut-kicker">${cut} CUT</p>
         <strong>${item.suggested_cut}점</strong>
-        <span>연속값 ${formatFixed(item.predicted_cut)}점</span>
-        <span>범위 ${item.range_low}~${item.range_high}점</span>
-        <span>RMSE ±${formatFixed(item.rmse)}점</span>
+        <span>${formatFixed(item.predicted_cut)} · ${item.range_low}~${item.range_high}점 · ±${formatFixed(item.rmse)}</span>
       </article>
     `;
   }).join("");
@@ -1435,7 +1433,7 @@ function renderQuestionSearchResults(event = null) {
   }, {});
   elements.questionBankBadge.textContent = `${questionBankItems.length}문항 DB`;
   elements.questionBankBadge.classList.add("is-solid");
-  elements.questionSearchMeta.textContent = `${filtered.length}개 검색됨 · EBSi ${matchSummary.exact || 0}개 · 보충 ${matchSummary.inferred || 0}개 · 정보 없음 ${matchSummary.unmatched || 0}개 · 최대 ${shown.length}개 표시`;
+  elements.questionSearchMeta.textContent = `${filtered.length}개 · EBSi ${matchSummary.exact || 0} · 보충 ${matchSummary.inferred || 0} · 표시 ${shown.length}`;
 
   if (!shown.length) {
     elements.questionResultGrid.innerHTML = '<div class="question-card"><strong>검색 결과 없음</strong></div>';
@@ -1443,7 +1441,6 @@ function renderQuestionSearchResults(event = null) {
   }
 
   elements.questionResultGrid.innerHTML = shown.map((item) => {
-    const cutText = item.cuts?.["1"] ? `${item.cuts["1"]}/${item.cuts["2"]}/${item.cuts["3"]}` : "-";
     const imageHtml = item.image_url
       ? `<a class="question-image-frame" href="${escapeHtml(item.image_url)}" target="_blank" rel="noreferrer">
           <img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.label)}" loading="lazy" />
@@ -1460,10 +1457,7 @@ function renderQuestionSearchResults(event = null) {
           <span>${escapeHtml(item.match_label)}</span>
           <span>${escapeHtml(item.difficulty_label)}</span>
           <span class="is-strong">오답률 ${formatPercentValue(item.wrong_rate)}</span>
-          <span>정답률 ${formatPercentValue(item.correct_rate)}</span>
           <span>${item.points ? formatFixed(item.points, 0) : "-"}점</span>
-          <span>컷 ${cutText}</span>
-          ${item.image_url ? `<span>${escapeHtml(item.image_source_label || item.image_variant || "문항 이미지")}</span>` : ""}
         </div>
         ${questionChoiceRatesHtml(item)}
       </article>
@@ -1682,7 +1676,7 @@ async function handleSolutionCsv(event) {
   event.preventDefault();
   const file = elements.csvInput.files?.[0];
   if (!file) {
-    renderSolutionMatch("CSV 파일을 선택해주세요.");
+    renderSolutionMatch("CSV를 선택하세요");
     return;
   }
   currentCsvFilename = file.name || "solutions.csv";
@@ -1696,7 +1690,7 @@ async function handleSolutionCsv(event) {
     renderSolutions();
     elements.solutionStatusBadge.textContent = `${currentSolutions.length}문항`;
     elements.solutionStatusBadge.classList.add("is-solid");
-    renderSolutionMatch(`CSV ${currentSolutions.length}문항 적용 · 정답률 ${importedRates}개 반영`);
+    renderSolutionMatch(`${currentSolutions.length}문항 · 정답률 ${importedRates}개`);
   } catch (error) {
     renderSolutionMatch(error.message);
   }
@@ -1857,7 +1851,7 @@ elements.solutionForm.addEventListener("submit", handleSolutionCsv);
 elements.csvInput.addEventListener("change", () => {
   const file = elements.csvInput.files?.[0];
   elements.csvLabel.textContent = file?.name || "CSV 선택";
-  elements.csvMeta.textContent = file ? `${formatFixed(file.size / 1024, 1)} KB` : "문항 번호와 예상 정답률을 읽어 컷 보기에 반영합니다";
+  elements.csvMeta.textContent = file ? `${formatFixed(file.size / 1024, 1)} KB` : "문항 번호·예상 정답률";
   if (file) {
     void handleSolutionCsv(new Event("submit"));
   }

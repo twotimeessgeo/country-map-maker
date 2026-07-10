@@ -3,12 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Promenade Geography Workbench</title>
-    <meta
-      name="description"
-      content="지도 편집, 기후 평년값 비교, 지리 기출 검색과 컷 시뮬레이션을 한곳에서 이어 쓰는 Promenade Geography 작업실입니다."
-    />
-    <meta name="theme-color" content="#efefec" />
+    <title>Promenade Geography</title>
+    <meta name="description" content="지도, 기후, 지리 기출을 다루는 제작 도구입니다." />
+    <meta name="theme-color" content="#f6f6f4" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
@@ -16,242 +13,92 @@
     <link rel="stylesheet" href="./tokens.css" />
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="./components.css" />
-    <link rel="stylesheet" href="./portal.css?v=20260710c" />
+    <link rel="stylesheet" href="./portal.css?v=20260710d" />
   </head>
   <body>
-    <a class="portal-skip-link" href="#workbenchTools">도구 목록으로 바로가기</a>
+    <a class="portal-skip-link" href="#tools">도구로 이동</a>
 
     <div class="portal-shell">
       <header class="portal-topbar">
         <a class="portal-brand" href="./index.html" aria-current="page">
           <strong>Promenade</strong>
-          <span>Geography Workbench</span>
+          <span>Geography</span>
         </a>
-
-        <div class="portal-topbar-actions">
-          <span class="portal-system-state">
-            <span aria-hidden="true"></span>
-            Local workbench
-          </span>
-          <details class="app-context-menu">
-            <summary>
-              <span class="app-menu-mark" aria-hidden="true"></span>
-              <span>Tools</span>
-            </summary>
-            <div class="app-context-menu-panel">
-              <a href="./map.html" data-tool-id="map">01 · Map Editor</a>
-              <a href="./tools/climate/index.html" data-tool-id="climate">02 · Climate Database</a>
-              <a href="./tools/cut/index.html" data-tool-id="exam">03 · Exam Simulator</a>
-            </div>
-          </details>
-        </div>
+        <span class="portal-shortcut-help"><kbd>1</kbd>–<kbd>3</kbd> 바로 열기</span>
       </header>
 
       <main>
-        <section class="portal-hero" aria-labelledby="portalTitle">
-          <div class="portal-hero-copy">
-            <p class="portal-eyebrow">PROMENADE / GEOGRAPHY WORKBENCH</p>
-            <h1 id="portalTitle">
-              <span>Geography,</span>
-              <span>ready to publish.</span>
-            </h1>
-            <p class="portal-hero-lead">
-              지도 한 장, 기후 비교표 한 벌, 문항 근거까지. 수업과 출판에 바로 쓰는 지리 제작 도구를
-              하나의 작업대에 묶었습니다.
-            </p>
-
-            <div class="portal-hero-actions">
-              <a
-                class="portal-continue"
-                id="continueTool"
-                href="./map.html"
-                data-tool-id="map"
-                aria-describedby="continueMeta"
-              >
-                <span class="portal-continue-kicker" id="continueKicker">FIRST RUN</span>
-                <strong id="continueLabel">Map Editor로 시작</strong>
-                <span id="continueMeta">첫 작업으로 지도의 범위와 출력 규격을 잡아보세요.</span>
-                <span class="portal-continue-arrow" aria-hidden="true">↗</span>
-              </a>
-              <a class="portal-all-tools" href="#workbenchTools">
-                <span>도구 전체 보기</span>
-                <span aria-hidden="true">↓</span>
-              </a>
-            </div>
+        <section class="portal-intro" aria-labelledby="portalTitle">
+          <div>
+            <h1 id="portalTitle">작업 도구</h1>
           </div>
 
-          <aside class="portal-data-board" aria-labelledby="dataBoardTitle">
-            <div class="portal-data-board-head">
-              <div>
-                <p>LOCAL DATA INDEX</p>
-                <h2 id="dataBoardTitle">Workbench status</h2>
-              </div>
-              <span class="portal-data-status">READY</span>
-            </div>
-
-            <dl class="portal-metrics">
-              <div>
-                <dt>Production modules</dt>
-                <dd><strong>03</strong><span>tools</span></dd>
-              </div>
-              <div>
-                <dt>Climate coverage</dt>
-                <dd><strong>129</strong><span>regions</span></dd>
-              </div>
-              <div>
-                <dt>Question archive</dt>
-                <dd><strong>879</strong><span>images</span></dd>
-              </div>
-            </dl>
-
-            <div class="portal-data-foot">
-              <span>JMA-centered 1991–2020 normals</span>
-              <span>Device-local history</span>
-            </div>
-          </aside>
-
-          <ol class="portal-workflow" aria-label="권장 제작 흐름">
-            <li><span>01</span><strong>Frame</strong><small>범위와 투영 설정</small></li>
-            <li><span>02</span><strong>Compare</strong><small>자료와 지역 비교</small></li>
-            <li><span>03</span><strong>Verify</strong><small>문항 근거 점검</small></li>
-            <li><span>04</span><strong>Export</strong><small>수업·출판물 출력</small></li>
-          </ol>
+          <a class="portal-continue" id="continueTool" href="./map.html" data-tool-id="map">
+            <span>
+              <small id="continueKicker">바로 시작</small>
+              <strong id="continueLabel">지도 편집기</strong>
+            </span>
+            <span aria-hidden="true">→</span>
+          </a>
         </section>
 
-        <section class="portal-tools" id="workbenchTools" aria-labelledby="toolsTitle">
-          <div class="portal-section-heading">
-            <div>
-              <p class="portal-eyebrow">THREE PRODUCTION MODULES</p>
-              <h2 id="toolsTitle">Choose a work surface.</h2>
-            </div>
-            <p>
-              카드 클릭 또는 키보드 <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd>으로 바로 진입
-            </p>
-          </div>
+        <section class="portal-tools" id="tools" aria-labelledby="toolsTitle">
+          <h2 id="toolsTitle">도구</h2>
 
           <div class="portal-tool-grid">
-            <article class="portal-tool-card portal-tool-card-map">
-              <a href="./map.html" data-tool-id="map" aria-keyshortcuts="1">
-                <header>
-                  <span class="portal-tool-number">01</span>
-                  <span class="portal-tool-type">CARTOGRAPHY / STATISTICS</span>
-                  <kbd aria-label="단축키 1">1</kbd>
-                </header>
+            <a class="portal-tool-card" href="./map.html" data-tool-id="map" aria-keyshortcuts="1">
+              <header>
+                <span>01</span>
+                <kbd aria-label="단축키 1">1</kbd>
+              </header>
+              <h3>지도 편집기</h3>
+              <p>세계·한국 지도를 편집하고 SVG·PNG로 내보냄.</p>
+              <ul aria-label="주요 기능">
+                <li>통계 결합</li>
+                <li>자동 저장</li>
+              </ul>
+            </a>
 
-                <div class="portal-tool-visual portal-map-visual" aria-hidden="true">
-                  <span class="portal-coordinate portal-coordinate-x">126° 58′ E</span>
-                  <span class="portal-coordinate portal-coordinate-y">37° 34′ N</span>
-                  <i></i><i></i><i></i><i></i><i></i>
-                </div>
+            <a
+              class="portal-tool-card"
+              href="./tools/climate/index.html"
+              data-tool-id="climate"
+              aria-keyshortcuts="2"
+            >
+              <header>
+                <span>02</span>
+                <kbd aria-label="단축키 2">2</kbd>
+              </header>
+              <h3>기후 자료</h3>
+              <p>129개 지역의 월별 기온·강수량을 비교함.</p>
+              <ul aria-label="주요 기능">
+                <li>1991–2020</li>
+                <li>CSV</li>
+              </ul>
+            </a>
 
-                <div class="portal-tool-copy">
-                  <p>Map Editor</p>
-                  <h3>지도를 만들고, 통계를 얹고, 바로 출력</h3>
-                  <ul>
-                    <li>세계·한국 행정구역과 권역 편집</li>
-                    <li>국가·시도·시군 통계 아카이브</li>
-                    <li>SVG · 500 DPI PNG 내보내기</li>
-                  </ul>
-                </div>
-
-                <footer>
-                  <span>Open workspace</span>
-                  <span aria-hidden="true">↗</span>
-                </footer>
-              </a>
-            </article>
-
-            <article class="portal-tool-card portal-tool-card-climate">
-              <a href="./tools/climate/index.html" data-tool-id="climate" aria-keyshortcuts="2">
-                <header>
-                  <span class="portal-tool-number">02</span>
-                  <span class="portal-tool-type">CLIMATE / COMPARISON</span>
-                  <kbd aria-label="단축키 2">2</kbd>
-                </header>
-
-                <div class="portal-tool-visual portal-climate-visual" aria-hidden="true">
-                  <div class="portal-climate-bars">
-                    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-                  </div>
-                  <div class="portal-climate-line">
-                    <span></span><span></span><span></span><span></span><span></span><span></span>
-                  </div>
-                  <small>JAN</small><small>JUL</small><small>DEC</small>
-                </div>
-
-                <div class="portal-tool-copy">
-                  <p>Climate Database</p>
-                  <h3>129개 지역의 평년값을 같은 기준으로 비교</h3>
-                  <ul>
-                    <li>월별 기온·강수량 표와 기후 그래프</li>
-                    <li>지도 선택·검색·다중 지역 비교</li>
-                    <li>JMA 1991–2020 평년값 중심</li>
-                  </ul>
-                </div>
-
-                <footer>
-                  <span>Open database</span>
-                  <span aria-hidden="true">↗</span>
-                </footer>
-              </a>
-            </article>
-
-            <article class="portal-tool-card portal-tool-card-exam">
-              <a href="./tools/cut/index.html" data-tool-id="exam" aria-keyshortcuts="3">
-                <header>
-                  <span class="portal-tool-number">03</span>
-                  <span class="portal-tool-type">EXAM / EVIDENCE</span>
-                  <kbd aria-label="단축키 3">3</kbd>
-                </header>
-
-                <div class="portal-tool-visual portal-exam-visual" aria-hidden="true">
-                  <span>Q. 20</span>
-                  <div><i></i><i></i><i></i><i></i><i></i></div>
-                  <dl>
-                    <dt>CORRECT</dt><dd>38.4</dd>
-                    <dt>GRADE 1</dt><dd>47</dd>
-                  </dl>
-                </div>
-
-                <div class="portal-tool-copy">
-                  <p>Exam Simulator</p>
-                  <h3>기출 근거를 찾고 등급컷 가정을 검산</h3>
-                  <ul>
-                    <li>879개 한국·세계지리 문항 이미지</li>
-                    <li>정답률·오답률 조건 검색과 정렬</li>
-                    <li>등급컷 시뮬레이션 · CSV 작업</li>
-                  </ul>
-                </div>
-
-                <footer>
-                  <span>Open archive</span>
-                  <span aria-hidden="true">↗</span>
-                </footer>
-              </a>
-            </article>
+            <a
+              class="portal-tool-card"
+              href="./tools/cut/index.html"
+              data-tool-id="exam"
+              aria-keyshortcuts="3"
+            >
+              <header>
+                <span>03</span>
+                <kbd aria-label="단축키 3">3</kbd>
+              </header>
+              <h3>기출·등급컷</h3>
+              <p>기출 문항을 찾고 등급컷 가정을 계산함.</p>
+              <ul aria-label="주요 기능">
+                <li>조건 검색</li>
+                <li>CSV</li>
+              </ul>
+            </a>
           </div>
-        </section>
-
-        <section class="portal-output-ledger" aria-labelledby="outputTitle">
-          <div>
-            <p class="portal-eyebrow">FROM SOURCE TO PAGE</p>
-            <h2 id="outputTitle">한 작업대에서 제작과 검증을 왕복</h2>
-          </div>
-          <ol>
-            <li><span>INPUT</span><strong>지역·통계·문항을 선택</strong></li>
-            <li><span>INSPECT</span><strong>같은 기준으로 비교</strong></li>
-            <li><span>OUTPUT</span><strong>SVG·PNG·CSV로 회수</strong></li>
-          </ol>
         </section>
       </main>
-
-      <footer class="portal-footer">
-        <p>Promenade Geography · Production workbench</p>
-        <p>최근 도구 기록은 이 기기의 브라우저에만 저장됩니다.</p>
-      </footer>
     </div>
 
-    <p class="portal-shortcut-status" id="shortcutStatus" role="status" aria-live="polite"></p>
-    <script src="./portal.js?v=20260710c" defer></script>
+    <script src="./portal.js?v=20260710d" defer></script>
   </body>
 </html>

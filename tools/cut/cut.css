@@ -1,5 +1,5 @@
 .cut-page {
-  gap: 18px;
+  gap: 12px;
 }
 
 .cut-page [hidden] {
@@ -28,47 +28,89 @@
   font-family: var(--tw-font-latin);
 }
 
+.cut-page .tw-badge {
+  min-height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tw-muted);
+  font-size: 0.8rem;
+}
+
+.cut-page .tw-badge.is-solid {
+  background: transparent;
+  color: var(--tw-ink);
+}
+
+.cut-page .tw-button:hover,
+.cut-page .tw-button:focus-visible,
+.cut-tool-tabs .tw-switch-item:hover,
+.cut-tool-tabs .tw-switch-item:focus-visible {
+  transform: none;
+  box-shadow: none;
+}
+
 .cut-hero {
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
-  gap: 40px;
-  padding-top: 34px;
-  padding-bottom: 34px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0 14px;
+  border-width: 0 0 1px;
+  border-color: var(--tw-line-faint);
+  background: transparent;
 }
 
 .cut-hero .tw-hero-title {
-  max-width: 13.2ch;
-  font-weight: 200;
-  line-height: 0.98;
-  text-wrap: balance;
+  max-width: none;
+  font-size: 2.1rem;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .cut-hero-note strong {
-  font-size: 2.2rem;
-  font-weight: 600;
+  color: var(--tw-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
 }
 
 .cut-tool-tabs {
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: 8px;
-  border: var(--tw-border);
+  gap: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: var(--tw-border);
   background: var(--tw-paper);
 }
 
 .cut-tool-tabs [role="tab"] {
-  flex: 1 1 140px;
+  flex: 1 1 0;
+  min-width: 0;
+  border-width: 0 1px 0 0;
+  background: transparent;
+  color: var(--tw-muted);
+}
+
+.cut-tool-tabs [role="tab"]:last-child {
+  border-right: 0;
+}
+
+.cut-tool-tabs [role="tab"].is-active {
+  background: var(--tw-ink);
+  color: #ffffff;
 }
 
 .cut-tool-stack {
   display: grid;
-  gap: 18px;
+  gap: 12px;
 }
 
 .cut-predict-layout {
   display: grid;
   grid-template-columns: minmax(440px, 0.9fr) minmax(560px, 1.1fr);
-  gap: 18px;
+  gap: 12px;
   align-items: start;
 }
 
@@ -77,7 +119,8 @@
 .question-panel,
 .solution-panel {
   min-width: 0;
-  padding: 18px;
+  padding: 16px;
+  border-color: var(--tw-line-faint);
 }
 
 .cut-form {
@@ -94,8 +137,8 @@
   align-items: center;
   min-height: var(--tw-field-height);
   padding: 10px 12px;
-  border: var(--tw-border);
-  background: var(--tw-panel-soft);
+  border: 1px solid var(--tw-line-faint);
+  background: transparent;
   color: var(--tw-muted);
   font-weight: 500;
 }
@@ -126,7 +169,7 @@
   align-items: end;
   min-width: 0;
   padding: 8px;
-  border: var(--tw-border);
+  border: 1px solid var(--tw-line-faint);
   background: #ffffff;
 }
 
@@ -134,7 +177,7 @@
   display: grid;
   place-items: center;
   height: 38px;
-  background: var(--tw-panel-soft);
+  background: transparent;
   font-weight: 600;
 }
 
@@ -178,9 +221,9 @@
 .cut-result-empty {
   display: grid;
   place-items: center;
-  min-height: 360px;
-  border: 1px dashed var(--tw-line);
-  background: var(--tw-panel-soft);
+  min-height: 220px;
+  border: 1px solid var(--tw-line-faint);
+  background: transparent;
 }
 
 .cut-result-empty strong {
@@ -203,7 +246,7 @@
   gap: 6px;
   min-width: 0;
   padding: 14px;
-  border: var(--tw-border);
+  border: 1px solid var(--tw-line-faint);
   background: #ffffff;
 }
 
@@ -229,10 +272,11 @@
 .solution-match-row span,
 .question-search-meta {
   min-height: 34px;
-  padding: 8px 10px;
-  border: var(--tw-border);
-  background: #ffffff;
-  font-weight: 600;
+  padding: 7px 0;
+  border: 0;
+  border-bottom: 1px solid var(--tw-line-faint);
+  background: transparent;
+  font-weight: 500;
 }
 
 .cut-warning {
@@ -242,7 +286,7 @@
 
 .cut-result-section,
 .solution-overview {
-  border: var(--tw-border);
+  border: 1px solid var(--tw-line-faint);
   background: #ffffff;
 }
 
@@ -251,8 +295,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 56px;
-  padding: 10px 12px;
+  min-height: 48px;
+  padding: 9px 10px;
   cursor: pointer;
 }
 
@@ -268,7 +312,7 @@
 
 .cut-subtitle {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: 1rem;
   line-height: 1.15;
 }
 
@@ -320,9 +364,10 @@
 .question-filter-group {
   min-width: 0;
   margin: 0;
-  padding: 12px;
-  border: var(--tw-border);
-  background: #ffffff;
+  padding: 10px 0 0;
+  border: 0;
+  border-top: 1px solid var(--tw-line-faint);
+  background: transparent;
 }
 
 .question-filter-group.is-search {
@@ -330,7 +375,7 @@
 }
 
 .question-filter-group legend {
-  padding: 0 6px;
+  padding: 0 8px 0 0;
   font-weight: 600;
 }
 
@@ -382,7 +427,7 @@
 }
 
 .question-search-meta {
-  margin: 14px 0;
+  margin: 10px 0;
 }
 
 .question-result-grid {
@@ -398,7 +443,7 @@
   gap: 12px;
   min-width: 0;
   padding: 12px;
-  border: var(--tw-border);
+  border: 1px solid var(--tw-line-faint);
   background: #ffffff;
 }
 
@@ -456,17 +501,18 @@
 .question-choice-list span {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding: 5px 8px;
-  border: 1px solid var(--tw-line);
-  background: var(--tw-panel-soft);
+  min-height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
   font-size: 0.8rem;
   font-weight: 500;
 }
 
 .question-card-badges .is-strong {
-  background: var(--tw-ink);
-  color: #ffffff;
+  border-bottom: 1px solid var(--tw-ink);
+  background: transparent;
+  color: var(--tw-ink);
 }
 
 .question-choice-rates {
@@ -545,15 +591,15 @@
 
 .solution-upload {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    "icon title"
-    "icon meta";
+    "title"
+    "meta";
   gap: 4px 12px;
   align-items: center;
-  min-height: 88px;
-  padding: 14px;
-  border: var(--tw-border);
+  min-height: 76px;
+  padding: 12px;
+  border: 1px solid var(--tw-line-faint);
   background: #ffffff;
   cursor: pointer;
 }
@@ -573,12 +619,12 @@
 
 .solution-upload-icon {
   grid-area: icon;
-  display: grid;
+  display: none;
   place-items: center;
   width: 48px;
   height: 48px;
-  border: var(--tw-border);
-  background: var(--tw-panel-soft);
+  border: 0;
+  background: transparent;
 }
 
 .solution-upload-title {
@@ -611,7 +657,7 @@
   gap: 10px;
   min-width: 0;
   padding: 12px;
-  border: var(--tw-border);
+  border: 1px solid var(--tw-line-faint);
   background: #ffffff;
 }
 
