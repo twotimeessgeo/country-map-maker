@@ -1560,10 +1560,10 @@ function getMapRegions(visibleRegions, selectedRegions) {
 function buildHeroCaption() {
   const summary = state.dataset?.summary ?? {};
   const openMeteoFallback = summary.openMeteoFallback ?? 0;
-  const period = summary.period ?? API_NORMAL_PERIOD.label;
+  const period = String(summary.period ?? API_NORMAL_PERIOD.label).replace("-", "–");
   const liveApiCount = state.regions.filter((region) => region.source?.type === "open-meteo-live").length;
 
-  const parts = [`JMA ${period}`];
+  const parts = [`JMA · ${period}`];
   if (openMeteoFallback > 0) parts.push(`보완 ${openMeteoFallback}`);
   if (liveApiCount > 0) parts.push(`추가 ${liveApiCount}`);
   return parts.join(" · ");

@@ -18,9 +18,7 @@
 | 1 | `data/korea-stats.js` | 한국 시도·시군·서울/부산 구군 공식 통계 | 한국지리 통계머신의 핵심 원천 |
 | 1 | `tools/climate/data/climate-data.json` | 세계 주요 지역 월별 기후 통계 | 세계지리 기후 그래프 원천 |
 | 1 | `tools/climate/data/korea-climate-data.json` | 한국·북한 기후 평년값 | 한국지리 기후 그래프 원천 |
-| 1 | `tools/cut/data/ebsi_geo_data.json` | EBSi 기반 지리 기출 정답률·등급컷 | Exam Database의 실제 시험 데이터 |
-| 2 | `tools/cut/data/geo_cut_model.json` | 컷 추정 모델과 학습 메타데이터 | 예측/컷 보기 로직에 필요 |
-| 2 | `tools/cut/data/question-image-manifest.json` | 문항 이미지 매니페스트 | 문항 이미지 연결용 |
+| 1 | `tools/cut/data/ebsi_geo_data.json` | EBSi 기반 실제 지리 등급컷 | Grade Cut Archive 원천 |
 | 2 | `tools/climate/data/exam-climate-statements.js` | 기후 문항 진술/태그/메트릭 | 기후 문항 생성 보조 |
 | 3 | `data/korea-routes.js` | 한국 주요 노선 오버레이 | 지도 문항 제작 보조 |
 
@@ -30,7 +28,6 @@
 | --- | --- |
 | `tools/climate/data/climate-data.js` | `climate-data.json`의 브라우저 번들로 취급 |
 | `tools/climate/data/korea-climate-data.js` | `korea-climate-data.json`의 브라우저 번들로 취급 |
-| `tools/cut/data/cut-data.js` | `ebsi_geo_data.json`, `geo_cut_model.json`, `question-image-manifest.json`을 합친 브라우저 번들 |
 | `data/korea-admin.js` | 한국 행정구역 지오메트리/지역명 보조 데이터 |
 | `data/world-atlas.js`, `data/world-atlas-variants.js`, `data/world-lakes.js` | 세계 지도 토폴로지/호수 지오메트리 |
 | `tools/climate/data/world-countries-110m.json`, `tools/climate/data/world-countries-50m.json` | 세계지도 TopoJSON |
@@ -293,73 +290,6 @@ record 주요 필드:
 - 쉬운 문항 중 누락 정답률 보정 방식은 `easy_missing_rate_method`에 적혀 있다.
 - 실제 시행 시험은 예측값이 아니라 저장된 실제 등급컷·정답률을 우선 사용한다.
 
-## 컷 모델 데이터
-
-파일: `tools/cut/data/geo_cut_model.json`
-
-모델 메타:
-
-- `version`: `geo-cut-v8-easy-midpoint-imputation`
-- `built_at`: `2026-04-26T17:03:15`
-- 과목: 한국지리, 세계지리
-- 학습 anchor: 66개
-- training record: 5개
-
-주요 필드:
-
-- `cuts`
-- `features`
-- `sd_features`
-- `ridge_alpha`
-- `sd_model`
-- `cut_models`
-- `academy_to_national_rate`
-- `item_rate_mapping`
-- `historical_anchors`
-- `runtime_corrections`
-- `default_points`
-- `training_records`
-
-모델 입력 feature:
-
-- `mean`
-- `nat_sd`
-- `hard15_rate`
-- `hard15_sd`
-- `under40_points`
-- `easy5_rate`
-
-표준편차 모델 feature:
-
-- `mean`
-- `hard15_rate`
-- `hard15_sd`
-- `under40_points`
-- `under50_points`
-- `easy5_rate`
-
-## 문항 이미지 매니페스트
-
-파일: `tools/cut/data/question-image-manifest.json`
-
-규모:
-
-- 이미지 항목 879개
-- `source_count`: 879
-- `generated_at`: `2026-04-26`
-
-주요 필드:
-
-- `id`
-- `subject`
-- `exam_year`
-- `school_year`
-- `month`
-- `question`
-- `url`
-- `variant`
-- `source_label`
-
 ## 한국 지도 노선 데이터
 
 파일: `data/korea-routes.js`
@@ -420,7 +350,6 @@ const worldClimate = JSON.parse(fs.readFileSync("tools/climate/data/climate-data
 세계 국가 통계는 data/country-stats.js의 COUNTRY_STATS_BY_ID와 COUNTRY_STATS_META를 우선한다.
 한국 지역 통계는 data/korea-stats.js의 KOREA_GEO_STATS_*를 우선한다.
 세계 기후는 tools/climate/data/climate-data.json, 한국 기후는 tools/climate/data/korea-climate-data.json을 우선한다.
-시험/컷 데이터는 tools/cut/data/ebsi_geo_data.json과 tools/cut/data/geo_cut_model.json을 구분해서 사용한다.
-실제 시행 시험은 저장된 실제 결과를 우선하고, 모델 예측값과 섞어 말하지 않는다.
+시험/컷 데이터는 tools/cut/data/ebsi_geo_data.json의 실제 시행 결과만 사용한다.
 질문에 필요한 조인 키, 단위, 기준 연도, 출처를 함께 표시한다.
 ```
