@@ -423,6 +423,12 @@ const examDrillPoolDefinitions = [
   { key: "core", label: "Core" },
   { key: "extended", label: "Extended" },
 ];
+const examItemLabPatternDefinitions = [
+  { key: "auto", label: "Auto" },
+  { key: "scale", label: "Scale Ladder" },
+  { key: "parallel", label: "Parallel" },
+  { key: "cross", label: "Cross Metric" },
+];
 const examDrillSkillPrompts = {
   rank: "순위와 격차를 이용한 배열·판별형",
   composition: "구성비 편차를 이용한 우세 구조 판별형",
@@ -467,6 +473,317 @@ const examDrillScenarioDefinitions = [
   { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-muslims-share", valueMode: "amount", grouping: "countries" } },
   { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-buddhists-share", valueMode: "amount", grouping: "countries" } },
 ];
+const examItemLabTemplateDefinitions = [
+  {
+    key: "demography-structure-scale",
+    topicKey: "demography",
+    patternKey: "scale",
+    label: "인구 구조의 스케일 전환",
+    angle: "국가 내부 구조와 인구 변화, 대륙별 도시화 추이를 교차",
+    inference: "연령 구조만으로 남는 후보를 규모 변화와 대륙 추이로 고정",
+    distractors: ["총량·비율 혼동", "현재 규모·증가 폭 역전"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가 내",
+        scope: "seed",
+        config: { presetKey: "stacked100", compositionKey: "age-structure", valueMode: "share", grouping: "countries" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가별",
+        scope: "seed",
+        config: { presetKey: "timeCompare", timeMetricKey: "population-total", valueMode: "relative", grouping: "countries", yearStart: 1970, yearEnd: 2023 },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "세계 · 대륙별",
+        scope: "world",
+        config: { presetKey: "trendLine", timeMetricKey: "population-urban-share", valueMode: "amount", grouping: "continents", yearStart: 1970, yearEnd: 2023 },
+      },
+    ],
+  },
+  {
+    key: "demography-transition-cross",
+    topicKey: "demography",
+    patternKey: "cross",
+    label: "인구 변천과 규모 변화",
+    angle: "출생·사망의 관계와 총인구 변화, 대륙별 성장 폭을 분리",
+    inference: "비슷한 자연 증가를 보이는 국가를 규모와 대륙 변화로 재판별",
+    distractors: ["출생률·사망률 교환", "국가·대륙 변화 혼동"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가별",
+        scope: "seed",
+        config: { presetKey: "pairedBars", pairKey: "birth-death-rate", valueMode: "amount", grouping: "countries" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가별 · 3변수",
+        scope: "seed",
+        config: { presetKey: "scatter", grouping: "countries", scatterXKey: "population-birth-rate", scatterYKey: "population-death-rate", scatterSizeKey: "population-total" },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "세계 · 대륙별",
+        scope: "world",
+        config: { presetKey: "timeCompare", timeMetricKey: "population-total", valueMode: "relative", grouping: "continents", yearStart: 1970, yearEnd: 2023 },
+      },
+    ],
+  },
+  {
+    key: "demography-urban-parallel",
+    topicKey: "demography",
+    patternKey: "parallel",
+    label: "도시화의 상태와 궤적",
+    angle: "도시화율·고령화의 현재 위치와 장기 추이를 병렬 비교",
+    inference: "현재 수준이 비슷한 국가를 변화 경로로 구분",
+    distractors: ["현재값·추세 혼동", "버블 규모 과대해석"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가별 · 3변수",
+        scope: "seed",
+        config: { presetKey: "scatter", grouping: "countries", scatterXKey: "population-urban-share", scatterYKey: "age-65plus-share", scatterSizeKey: "population-total" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가별 · 시계열",
+        scope: "seed",
+        config: { presetKey: "trendLine", timeMetricKey: "population-urban-share", valueMode: "amount", grouping: "countries", yearStart: 1970, yearEnd: 2023 },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "세계 · 대륙 내",
+        scope: "world",
+        config: { presetKey: "stacked100", compositionKey: "age-structure", valueMode: "share", grouping: "continents" },
+      },
+    ],
+  },
+  {
+    key: "agriculture-grain-scale",
+    topicKey: "agriculture",
+    patternKey: "scale",
+    label: "곡물 생산과 교역의 스케일 전환",
+    angle: "국가 내부 작물 구성, 국가별 교역, 대륙 내 생산 집중도를 연결",
+    inference: "생산 구성과 교역 방향을 대륙 내 핵심 생산국과 결합",
+    distractors: ["생산·수출 혼동", "국가·대륙 순위 혼동"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가 내",
+        scope: "seed",
+        config: { presetKey: "stacked100", compositionKey: "crops-production", valueMode: "share", grouping: "countries" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가별",
+        scope: "seed",
+        config: { presetKey: "pairedBars", pairKey: "grain-total-trade", valueMode: "amount", grouping: "countries" },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "대륙 내",
+        scope: "world",
+        config: { presetKey: "top3share", topShareMetricKey: "crops-total-production", grouping: "continents", valueMode: "share" },
+      },
+    ],
+  },
+  {
+    key: "agriculture-commodity-parallel",
+    topicKey: "agriculture",
+    patternKey: "parallel",
+    label: "3대 곡물 교역 병렬 비교",
+    angle: "동일 국가군을 밀·쌀·옥수수의 수출입에서 반복 비교",
+    inference: "한 품목에서 유사한 국가를 다른 품목의 교역 방향으로 구분",
+    distractors: ["품목 교환", "수출·수입 역전"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가별 · 밀",
+        scope: "seed",
+        config: { presetKey: "pairedBars", pairKey: "wheat-trade", valueMode: "amount", grouping: "countries" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가별 · 쌀",
+        scope: "seed",
+        config: { presetKey: "pairedBars", pairKey: "rice-trade", valueMode: "amount", grouping: "countries" },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "국가별 · 옥수수",
+        scope: "seed",
+        config: { presetKey: "pairedBars", pairKey: "maize-trade", valueMode: "amount", grouping: "countries" },
+      },
+    ],
+  },
+  {
+    key: "agriculture-livestock-parallel",
+    topicKey: "agriculture",
+    patternKey: "parallel",
+    label: "가축 사육과 육류 생산",
+    angle: "동일 국가의 사육 구조와 육류 생산 구조, 대륙 내 집중도를 분리",
+    inference: "사육 두수와 육류 생산이 어긋나는 국가를 판별",
+    distractors: ["사육·도축 혼동", "절대량·구성비 혼동"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가 내 · 사육",
+        scope: "seed",
+        config: { presetKey: "stacked100", compositionKey: "livestock-stocks", valueMode: "share", grouping: "countries" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가 내 · 생산",
+        scope: "seed",
+        config: { presetKey: "stacked100", compositionKey: "livestock-meat", valueMode: "share", grouping: "countries" },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "대륙 내",
+        scope: "world",
+        config: { presetKey: "top3share", topShareMetricKey: "livestock-stock-total", grouping: "continents", valueMode: "share" },
+      },
+    ],
+  },
+  {
+    key: "economy-structure-cross",
+    topicKey: "economy",
+    patternKey: "cross",
+    label: "산업 구조와 수출 규모",
+    angle: "산업 구조, 수출액, 3변수 산포도를 같은 국가군에 교차",
+    inference: "산업 구조가 비슷한 국가를 수출 규모와 서비스업 비중으로 구분",
+    distractors: ["산업 비중·총생산 혼동", "수출액·수출 의존도 혼동"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가 내",
+        scope: "seed",
+        config: { presetKey: "stacked100", compositionKey: "industry-structure", valueMode: "share", grouping: "countries" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가별 · 절대량",
+        scope: "seed",
+        config: { presetKey: "rankBars", metricKey: "exports-value", valueMode: "amount", grouping: "countries" },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "국가별 · 3변수",
+        scope: "seed",
+        config: { presetKey: "scatter", grouping: "countries", scatterXKey: "industry-agriculture-share", scatterYKey: "industry-services-share", scatterSizeKey: "exports-value" },
+      },
+    ],
+  },
+  {
+    key: "energy-balance-parallel",
+    topicKey: "energy",
+    patternKey: "parallel",
+    label: "에너지 소비·발전·생산",
+    angle: "국가별 소비·발전 구조와 대륙 내 화석연료 생산 집중도를 연결",
+    inference: "소비 구조와 발전 구조가 비슷한 국가를 대륙 생산 구도로 분리",
+    distractors: ["소비·발전 혼동", "생산국·소비국 교환"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가 내 · 소비",
+        scope: "seed",
+        config: { presetKey: "stacked100", compositionKey: "energy-summary", valueMode: "share", grouping: "countries" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가 내 · 발전",
+        scope: "seed",
+        config: { presetKey: "stacked100", compositionKey: "electricity-breakdown", valueMode: "share", grouping: "countries" },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "대륙 내 · 생산",
+        scope: "world",
+        config: { presetKey: "top3share", topShareMetricKey: "fossil-production-total", grouping: "continents", valueMode: "share" },
+      },
+    ],
+  },
+  {
+    key: "energy-production-scale",
+    topicKey: "energy",
+    patternKey: "scale",
+    label: "화석연료 생산의 규모 전환",
+    angle: "국가별 석유·가스 생산, 1인당 소비, 대륙 내 생산 집중도를 연결",
+    inference: "생산량 우위와 소비 수준을 분리해 대륙 내 핵심국을 판별",
+    distractors: ["생산·소비 혼동", "총량·1인당 값 혼동"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가별",
+        scope: "seed",
+        config: { presetKey: "pairedBars", pairKey: "oil-gas-production", valueMode: "amount", grouping: "countries" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가별 · 1인당",
+        scope: "seed",
+        config: { presetKey: "rankBars", metricKey: "energy-consumption-per-capita", valueMode: "amount", grouping: "countries" },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "대륙 내",
+        scope: "world",
+        config: { presetKey: "top3share", topShareMetricKey: "fossil-production-total", grouping: "continents", valueMode: "share" },
+      },
+    ],
+  },
+  {
+    key: "religion-scale",
+    topicKey: "religion",
+    patternKey: "scale",
+    label: "종교 구성의 국가·대륙 전환",
+    angle: "국가 내부 종교 구성과 주요 종교 대비, 대륙별 전체 구도를 연결",
+    inference: "국가별 우세 종교를 대륙 전체 구성과 교차해 위치 후보를 좁힘",
+    distractors: ["신자 수·비율 혼동", "국가·대륙 구성 혼동"],
+    panels: [
+      {
+        label: "(가)",
+        scaleLabel: "국가 내",
+        scope: "seed",
+        config: { presetKey: "stacked100", compositionKey: "religion-major", valueMode: "share", grouping: "countries" },
+      },
+      {
+        label: "(나)",
+        scaleLabel: "국가별",
+        scope: "seed",
+        config: { presetKey: "pairedBars", pairKey: "christians-muslims-share", valueMode: "share", grouping: "countries" },
+      },
+      {
+        label: "(다)",
+        scaleLabel: "세계 · 대륙 내",
+        scope: "world",
+        config: { presetKey: "stacked100", compositionKey: "religion-major", valueMode: "share", grouping: "continents" },
+      },
+    ],
+  },
+].map((definition) => {
+  const panels = definition.panels.map((panel, index) => ({
+    ...panel,
+    label: String.fromCharCode(65 + index),
+  }));
+  return {
+    ...definition,
+    panels,
+    scenarioDefinition: {
+      topicKey: definition.topicKey,
+      skillKey:
+        definition.patternKey === "parallel"
+          ? "compare"
+          : definition.patternKey === "cross"
+            ? "scatter"
+            : "composition",
+      config: panels[0].config,
+    },
+  };
+});
 let koreaGeoStatsMeta = { categories: {}, levels: {} };
 let koreaGeoStatsRegionOrderByLevel = {
   provinces: [],
@@ -1319,6 +1636,7 @@ const examGraphRandomExcludedIso3 = new Set([
   "VGB",
   "VIR",
   "WLF",
+  "FJI",
   "PNG",
 ]);
 const examGraphTextbookPriorityIso3 = new Set([
@@ -1452,13 +1770,17 @@ const examItemLabCoreIso3ByScenario = new Map([
   ["pairedBars:wheat-trade", examItemLabCountryPools.wheatTrade],
   ["pairedBars:rice-trade", examItemLabCountryPools.riceTrade],
   ["pairedBars:maize-trade", examItemLabCountryPools.maizeTrade],
+  ["pairedBars:grain-total-trade", examItemLabCountryPools.crops],
   ["stacked100:industry-structure", examItemLabCountryPools.industryStructure],
   ["pairedBars:agri-services-share", examItemLabCountryPools.industryStructure],
+  ["rankBars:exports-value", examItemLabCountryPools.industryStructure],
+  ["scatter:industry-agriculture-share:industry-services-share:exports-value", examItemLabCountryPools.industryStructure],
   ["stacked100:energy-summary", examItemLabCountryPools.primaryEnergy],
   ["stacked100:electricity-breakdown", examItemLabCountryPools.electricity],
   ["stacked100:fossil-production", examItemLabCountryPools.fossilProduction],
   ["pairedBars:solar-wind-amount", examItemLabCountryPools.solarWind],
   ["pairedBars:oil-gas-production", examItemLabCountryPools.fossilProduction],
+  ["rankBars:energy-consumption-per-capita", examItemLabCountryPools.primaryEnergy],
   ["rankBars:energy-renewables-share", examItemLabCountryPools.renewableShare],
   ["rankBars:electricity-nuclear-share", examItemLabCountryPools.nuclearShare],
   ["stacked100:religion-major", examItemLabCountryPools.religionMajor],
@@ -2079,6 +2401,7 @@ let currentRenderContext = null;
 let lastKoreaFitContextKey = null;
 let activeCanvasResizeSnapshot = null;
 let examDrillTopicKey = "auto";
+let examDrillPatternKey = "auto";
 let examDrillPoolKey = "core";
 let examDrillResult = null;
 const examDrillRecentSignatures = [];
@@ -9140,7 +9463,7 @@ function getMetricExplorerResults(definition = getMetricExplorerDefinition(), gr
     .filter(([countryId]) => !useSelectedScope || selectedIdSet.has(countryId))
     .map(([countryId, stats]) => {
       const metric = definition.getValue(stats);
-      if (!metric || !Number.isFinite(Number(metric.value))) {
+      if (metric?.value === null || metric?.value === undefined || !Number.isFinite(Number(metric.value))) {
         return null;
       }
 
@@ -11704,6 +12027,13 @@ function getExamGraphAlias(index) {
   return `(${token})`;
 }
 
+function getExamGraphAliasIndex(row, fallbackIndex) {
+  const focusIds = Array.isArray(state.examGraphFocusCountryIds) ? state.examGraphFocusCountryIds : [];
+  const sourceIds = focusIds.length ? focusIds : (state.selected ?? []).map((country) => country.id);
+  const fixedIndex = sourceIds.findIndex((countryId) => String(countryId) === String(row?.id));
+  return fixedIndex >= 0 ? fixedIndex : fallbackIndex;
+}
+
 function getExamGraphPresetDefinition(presetKey = state.examGraphPresetKey) {
   return examGraphPresetDefinitions.find((definition) => definition.key === presetKey) ?? null;
 }
@@ -11859,7 +12189,10 @@ function shouldExamGraphMergeAmericas(grouping = state.examGraphGrouping, preset
 }
 
 function getExamGraphContinentGroupName(continentName, { grouping = state.examGraphGrouping, presetKey = state.examGraphPresetKey } = {}) {
-  const rawName = String(continentName || "미분류");
+  const rawName = String(continentName || "").trim();
+  if (!rawName) {
+    return "";
+  }
   if (shouldExamGraphMergeAmericas(grouping, presetKey) && (rawName === "North America" || rawName === "South America")) {
     return "Americas";
   }
@@ -11998,13 +12331,13 @@ function getExamGraphPopulationRow(stats, year) {
 function getExamGraphPopulationMetricValue(stats, year, key) {
   const row = getExamGraphPopulationRow(stats, year);
   const value = row?.[key];
-  return Number.isFinite(Number(value)) ? Number(value) : null;
+  return value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
 }
 
 function getExamGraphPopulationRateMetricValue(stats, year, key) {
   const row = getPopulationRateRow(stats?.population, year);
   const value = row?.[key];
-  return Number.isFinite(Number(value)) ? Number(value) : null;
+  return value !== null && value !== undefined && Number.isFinite(Number(value)) ? Number(value) : null;
 }
 
 function isExamGraphNormalizedModeAllowedForMetric(metricDefinition) {
@@ -12090,7 +12423,9 @@ function updateExamGraphState(label, updater) {
 
 function getExamDrillMetricEntry(definition, stats) {
   const entry = definition?.getValue?.(stats);
-  return entry && Number.isFinite(Number(entry.value)) ? entry : null;
+  return entry?.value !== null && entry?.value !== undefined && Number.isFinite(Number(entry.value))
+    ? entry
+    : null;
 }
 
 function getExamDrillSourceYearSignature(scenarioDefinition, stats) {
@@ -12132,6 +12467,10 @@ function getExamDrillSourceYearSignature(scenarioDefinition, stats) {
       ),
     );
   }
+  if (config.presetKey === "top3share") {
+    const definition = examGraphTopShareMetricDefinitions.find((item) => item.key === config.topShareMetricKey);
+    return buildSingleYearSignature([definition?.getValue?.(stats)?.year]);
+  }
   return "";
 }
 
@@ -12157,6 +12496,56 @@ function getExamDrillEligibleCountryIds(scenarioDefinition) {
     .sort((first, second) => {
       const firstTier = d3.sum(first, (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]));
       const secondTier = d3.sum(second, (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]));
+      return secondTier - firstTier || second.length - first.length;
+    })[0] ?? [];
+}
+
+function getExamItemLabTemplateCountryTier(templateDefinition, entryOrStats) {
+  return Math.max(
+    0,
+    ...templateDefinition.panels
+      .filter((panel) => panel.scope === "seed")
+      .map((panel) =>
+        getExamItemLabCountryTier(
+          { topicKey: templateDefinition.topicKey, config: panel.config },
+          entryOrStats,
+        ),
+      ),
+  );
+}
+
+function getExamItemLabTemplateEligibleCountryIds(templateDefinition) {
+  const seedPanels = templateDefinition.panels.filter((panel) => panel.scope === "seed");
+  const groups = new Map();
+  Object.keys(countryStatsById).forEach((countryId) => {
+    const stats = countryStatsById[countryId];
+    if (getExamItemLabTemplateCountryTier(templateDefinition, stats) <= 0) {
+      return;
+    }
+    const signatures = seedPanels.map((panel) => {
+      const scenarioDefinition = { topicKey: templateDefinition.topicKey, config: panel.config };
+      return validateExamDrillSourceData(scenarioDefinition, [countryId])
+        ? getExamDrillSourceYearSignature(scenarioDefinition, stats)
+        : "";
+    });
+    if (signatures.some((signature) => !signature)) {
+      return;
+    }
+    const signatureKey = signatures.join("||");
+    if (!groups.has(signatureKey)) {
+      groups.set(signatureKey, []);
+    }
+    groups.get(signatureKey).push(countryId);
+  });
+  return [...groups.values()]
+    .filter((countryIds) => countryIds.length >= 3)
+    .sort((first, second) => {
+      const firstTier = d3.sum(first, (countryId) =>
+        getExamItemLabTemplateCountryTier(templateDefinition, countryStatsById[countryId]),
+      );
+      const secondTier = d3.sum(second, (countryId) =>
+        getExamItemLabTemplateCountryTier(templateDefinition, countryStatsById[countryId]),
+      );
       return secondTier - firstTier || second.length - first.length;
     })[0] ?? [];
 }
@@ -12494,6 +12883,68 @@ function buildExamDrillAuthoringMeta(model) {
   return invalid;
 }
 
+function isExamItemLabPanelReadable(model) {
+  const rows = model?.rows ?? [];
+  if (rows.length < 3) {
+    return false;
+  }
+  if (model.chartKind === "singleBar") {
+    const values = rows.map((row) => Number(row.displayValue ?? row.value));
+    const axisSpan = getExamDrillAxisSpan(values);
+    const ordered = [...values].sort((first, second) => first - second);
+    const minimumGap = Math.min(
+      ...ordered.slice(1).map((value, index) => (value - ordered[index]) / Math.max(axisSpan, 1e-9)),
+    );
+    return axisSpan > 0 && minimumGap >= 0.035;
+  }
+  if (model.chartKind === "stacked") {
+    const vectors = rows.map((row) => (row.segments ?? []).map((segment) => Number(segment.share) / 100));
+    if (vectors.some((vector) => vector.length < 2 || vector.some((value) => !Number.isFinite(value)))) {
+      return false;
+    }
+    const distances = getExamDrillPairDistances(
+      vectors,
+      (first, second) => d3.sum(first, (value, index) => Math.abs(value - second[index])) * 0.5,
+    );
+    return (distances[0] ?? 0) >= 0.05 && (d3.median(distances) ?? 0) >= 0.09;
+  }
+  if (model.chartKind === "pairedBar" || model.chartKind === "timeCompare" || model.chartKind === "trendLine") {
+    const pairs = rows.map((row) => {
+      if (model.chartKind === "pairedBar") {
+        return [Number(row.displayFirstValue ?? row.firstValue), Number(row.displaySecondValue ?? row.secondValue)];
+      }
+      if (model.chartKind === "timeCompare") {
+        return [Number(row.displayStartValue ?? row.startValue), Number(row.displayEndValue ?? row.endValue)];
+      }
+      const points = row.points ?? [];
+      return [
+        Number(points[0]?.displayValue ?? points[0]?.value),
+        Number(points.at(-1)?.displayValue ?? points.at(-1)?.value),
+      ];
+    });
+    const axisSpan = getExamDrillAxisSpan(pairs.flat());
+    if (!axisSpan || pairs.some((pair) => pair.some((value) => !Number.isFinite(value)))) {
+      return false;
+    }
+    const distances = getExamDrillPairDistances(pairs.map((pair) => pair.map((value) => value / axisSpan)));
+    return (distances[0] ?? 0) >= 0.04;
+  }
+  if (model.chartKind === "scatter") {
+    const xValues = rows.map((row) => Number(row.xValue));
+    const yValues = rows.map((row) => Number(row.yValue));
+    const xSpan = getExamDrillAxisSpan(xValues);
+    const ySpan = getExamDrillAxisSpan(yValues);
+    if (!xSpan || !ySpan || [...xValues, ...yValues].some((value) => !Number.isFinite(value))) {
+      return false;
+    }
+    const distances = getExamDrillPairDistances(
+      rows.map((_row, index) => [xValues[index] / xSpan, yValues[index] / ySpan]),
+    );
+    return (distances[0] ?? 0) >= 0.06;
+  }
+  return false;
+}
+
 function validateExamDrillCandidate(result) {
   const model = result?.model;
   const countryIds = result?.recommendation?.ids ?? [];
@@ -12529,6 +12980,7 @@ function validateExamDrillCandidate(result) {
 
 function getExamDrillScenarioSignature(result) {
   return JSON.stringify([
+    result?.templateDefinition?.key ?? "single",
     result?.scenarioDefinition?.topicKey,
     result?.scenarioDefinition?.skillKey,
     result?.scenarioDefinition?.config,
@@ -12546,6 +12998,229 @@ function getExamDrillPeriodLabel(result) {
   }
   const [startYear, endYear] = signature.split(":");
   return endYear ? `${startYear}-${endYear}` : startYear;
+}
+
+function getExamItemLabPanelPeriodLabel(panelDefinition, countryIds = []) {
+  const config = panelDefinition?.config ?? {};
+  if (Number.isFinite(Number(config.yearStart)) && Number.isFinite(Number(config.yearEnd))) {
+    return `${config.yearStart}-${config.yearEnd}`;
+  }
+  const sourceIds = panelDefinition?.scope === "world" ? Object.keys(countryStatsById) : countryIds;
+  const signatures = new Set(
+    sourceIds
+      .map((countryId) => getExamDrillSourceYearSignature({ config }, countryStatsById[countryId]))
+      .filter(Boolean),
+  );
+  if (signatures.size === 1) {
+    return [...signatures][0];
+  }
+  return signatures.size > 1 ? "Mixed years" : "";
+}
+
+function applyExamItemLabSharedAliases(model, countryIds) {
+  if (!model || !Array.isArray(model.rows)) {
+    return model;
+  }
+  const aliasById = new Map(countryIds.map((countryId, index) => [String(countryId), getExamGraphAlias(index)]));
+  const detailByActualLabel = new Map(
+    (model.answerRows ?? []).map((row) => [String(row.value ?? ""), row.detail ?? ""]),
+  );
+  const rows = model.rows.map((row) => ({
+    ...row,
+    displayLabel: aliasById.get(String(row.id)) ?? row.displayLabel,
+  }));
+  return {
+    ...model,
+    rows,
+    answerRows: rows.map((row) => {
+      const actualLabel = getExamGraphReadableLabel(row.actualLabel ?? row.label);
+      return {
+        label: row.displayLabel,
+        value: actualLabel,
+        detail: detailByActualLabel.get(actualLabel) ?? "",
+      };
+    }),
+  };
+}
+
+function getExamItemLabRowFeatureValues(model, row) {
+  if (model?.chartKind === "stacked") {
+    return (row?.segments ?? []).map((segment) => Number(segment.share));
+  }
+  if (model?.chartKind === "pairedBar") {
+    return [Number(row?.displayFirstValue ?? row?.firstValue), Number(row?.displaySecondValue ?? row?.secondValue)];
+  }
+  if (model?.chartKind === "timeCompare") {
+    return [Number(row?.displayStartValue ?? row?.startValue), Number(row?.displayEndValue ?? row?.endValue)];
+  }
+  if (model?.chartKind === "trendLine") {
+    const points = row?.points ?? [];
+    const first = Number(points[0]?.displayValue ?? points[0]?.value);
+    const last = Number(points.at(-1)?.displayValue ?? points.at(-1)?.value);
+    return [first, last, last - first];
+  }
+  if (model?.chartKind === "scatter") {
+    return [Number(row?.xValue), Number(row?.yValue)];
+  }
+  return [Number(row?.displayValue ?? row?.value)];
+}
+
+function buildExamItemLabNormalizedFeatureMap(model, countryIds) {
+  const rowById = new Map((model?.rows ?? []).map((row) => [String(row.id), row]));
+  const rawVectors = countryIds.map((countryId) => getExamItemLabRowFeatureValues(model, rowById.get(String(countryId))));
+  if (
+    rawVectors.some(
+      (vector) => !vector?.length || vector.some((value) => !Number.isFinite(Number(value))),
+    )
+  ) {
+    return null;
+  }
+  const dimensionCount = Math.max(...rawVectors.map((vector) => vector.length));
+  const normalizedVectors = rawVectors.map((vector) => [...vector]);
+  for (let dimensionIndex = 0; dimensionIndex < dimensionCount; dimensionIndex += 1) {
+    const values = rawVectors.map((vector) => Number(vector[dimensionIndex]));
+    const span = model?.chartKind === "stacked" ? 100 : getExamDrillAxisSpan(values);
+    normalizedVectors.forEach((vector, rowIndex) => {
+      vector[dimensionIndex] = span > 0 ? values[rowIndex] / span : 0;
+    });
+  }
+  return new Map(countryIds.map((countryId, index) => [String(countryId), normalizedVectors[index]]));
+}
+
+function getExamItemLabPairDistanceVector(countryIds, featureMap) {
+  const distances = [];
+  for (let firstIndex = 0; firstIndex < countryIds.length; firstIndex += 1) {
+    for (let secondIndex = firstIndex + 1; secondIndex < countryIds.length; secondIndex += 1) {
+      const first = featureMap.get(String(countryIds[firstIndex])) ?? [];
+      const second = featureMap.get(String(countryIds[secondIndex])) ?? [];
+      const distance = Math.sqrt(
+        d3.mean(first.map((value, index) => Math.pow(Number(value) - Number(second[index]), 2))) ?? 0,
+      );
+      distances.push(distance);
+    }
+  }
+  return distances;
+}
+
+function getExamItemLabCorrelation(firstValues, secondValues) {
+  if (firstValues.length !== secondValues.length || firstValues.length < 2) {
+    return 0;
+  }
+  const firstMean = d3.mean(firstValues) ?? 0;
+  const secondMean = d3.mean(secondValues) ?? 0;
+  const numerator = d3.sum(firstValues, (value, index) => (value - firstMean) * (secondValues[index] - secondMean));
+  const denominator = Math.sqrt(
+    d3.sum(firstValues, (value) => Math.pow(value - firstMean, 2)) *
+      d3.sum(secondValues, (value) => Math.pow(value - secondMean, 2)),
+  );
+  return denominator > 0 ? numerator / denominator : 0;
+}
+
+function buildExamItemLabCompositeMeta(panelResults, countryIds) {
+  const seedPanels = panelResults.filter((panel) => panel.definition.scope === "seed");
+  const featureMaps = seedPanels.map((panel) => buildExamItemLabNormalizedFeatureMap(panel.model, countryIds));
+  if (featureMaps.length < 2 || featureMaps.some((featureMap) => !featureMap)) {
+    return { valid: false, score: 0, combinedMinimumDistance: 0, complementarity: 0 };
+  }
+
+  const panelDistanceVectors = featureMaps.map((featureMap) => getExamItemLabPairDistanceVector(countryIds, featureMap));
+  const panelMinimumDistances = panelDistanceVectors.map((distances) => Math.min(...distances));
+  const combinedFeatureMap = new Map(
+    countryIds.map((countryId) => [
+      String(countryId),
+      featureMaps.flatMap((featureMap) => featureMap.get(String(countryId)) ?? []),
+    ]),
+  );
+  const combinedDistances = getExamItemLabPairDistanceVector(countryIds, combinedFeatureMap);
+  const combinedMinimumDistance = Math.min(...combinedDistances);
+  const combinedSignatures = countryIds.map((countryId) =>
+    (combinedFeatureMap.get(String(countryId)) ?? []).map((value) => Number(value).toFixed(3)).join(":"),
+  );
+  const correlations = [];
+  for (let firstIndex = 0; firstIndex < panelDistanceVectors.length; firstIndex += 1) {
+    for (let secondIndex = firstIndex + 1; secondIndex < panelDistanceVectors.length; secondIndex += 1) {
+      correlations.push(
+        Math.abs(getExamItemLabCorrelation(panelDistanceVectors[firstIndex], panelDistanceVectors[secondIndex])),
+      );
+    }
+  }
+  const maximumCorrelation = correlations.length ? Math.max(...correlations) : 0;
+  const complementarity = 1 - maximumCorrelation;
+  const informativePanelCount = panelMinimumDistances.filter((distance) => distance >= 0.045).length;
+  const strictPanelCount = seedPanels.filter((panel) => panel.authoringMeta.valid).length;
+  const valid =
+    Number.isFinite(combinedMinimumDistance) &&
+    combinedMinimumDistance >= 0.13 &&
+    informativePanelCount >= 2 &&
+    strictPanelCount >= Math.ceil(seedPanels.length / 2) &&
+    new Set(combinedSignatures).size === countryIds.length;
+  return {
+    valid,
+    score:
+      combinedMinimumDistance * 210 +
+      complementarity * 42 +
+      d3.mean(panelMinimumDistances.map((distance) => Math.min(distance, 0.5))) * 45 +
+      strictPanelCount * 8,
+    combinedMinimumDistance,
+    complementarity,
+    panelMinimumDistances,
+    strictPanelCount,
+  };
+}
+
+function buildExamItemLabPanelResult(panelDefinition, countryIds) {
+  applyExamGraphScenarioConfig(panelDefinition.config);
+  state.examGraphFocusCountryIds = panelDefinition.scope === "seed" ? [...countryIds] : [];
+  state.examGraphFocusLabel = panelDefinition.scope === "seed" ? "Item Lab · shared countries" : "World dataset";
+  state.examGraphTopN = panelDefinition.scope === "seed" ? countryIds.length : 6;
+  state.examGraphAliasMode = true;
+  state.examGraphOrientation = "auto";
+  state.examGraphPreviewCount = 1;
+  ensureExamGraphState();
+  const rawModel = buildExamGraphModel();
+  const model = panelDefinition.scope === "seed"
+    ? applyExamItemLabSharedAliases(rawModel, countryIds)
+    : rawModel;
+  return {
+    definition: panelDefinition,
+    model,
+    authoringMeta: buildExamDrillAuthoringMeta(model),
+    periodLabel: getExamItemLabPanelPeriodLabel(panelDefinition, countryIds),
+  };
+}
+
+function validateExamItemLabPanelResult(panelResult, countryIds) {
+  const { definition, model } = panelResult;
+  if (!model || !Array.isArray(model.rows) || model.rows.length < 3 || model.answerRows?.length !== model.rows.length) {
+    return false;
+  }
+  const signatures = model.rows.map((row) => buildExamDrillRowSignature(model, row));
+  if (new Set(signatures).size < Math.max(2, model.rows.length - 1)) {
+    return false;
+  }
+  if (definition.scope === "seed") {
+    const modelIds = new Set(model.rows.map((row) => String(row.id)));
+    return (
+      countryIds.every((countryId) => modelIds.has(String(countryId))) &&
+      validateExamDrillSourceData({ config: definition.config }, countryIds) &&
+      isExamItemLabPanelReadable(model)
+    );
+  }
+  return true;
+}
+
+function getExamItemLabTemplateCandidates(topicKey, patternKey = examDrillPatternKey, templateKey = "") {
+  return shuffleExamGraphItems(
+    examItemLabTemplateDefinitions.filter((definition) => {
+      if (templateKey && definition.key !== templateKey) {
+        return false;
+      }
+      if (topicKey !== "auto" && definition.topicKey !== topicKey) {
+        return false;
+      }
+      return patternKey === "auto" || definition.patternKey === patternKey;
+    }),
+  );
 }
 
 function getWeightedExamDrillScenarios(topicKey) {
@@ -12567,12 +13242,17 @@ function getWeightedExamDrillScenarios(topicKey) {
     .map((entry) => entry.definition);
 }
 
-function getExamDrillCountrySetSamples(scenarioDefinition, eligibleCountryIds, sampleCount = 180) {
+function getExamDrillCountrySetSamples(
+  scenarioDefinition,
+  eligibleCountryIds,
+  sampleCount = 180,
+  tierGetter = (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]),
+) {
   const coreIds = eligibleCountryIds.filter(
-    (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]) === 3,
+    (countryId) => tierGetter(countryId) === 3,
   );
   const extendedIds = eligibleCountryIds.filter(
-    (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]) === 2,
+    (countryId) => tierGetter(countryId) === 2,
   );
   const resultByKey = new Map();
   const targetCount = Math.min(4, coreIds.length + (examDrillPoolKey === "extended" ? Math.min(1, extendedIds.length) : 0));
@@ -12597,10 +13277,15 @@ function getExamDrillCountrySetSamples(scenarioDefinition, eligibleCountryIds, s
   return [...resultByKey.values()];
 }
 
-function createExamDrillResult(topicKey = examDrillTopicKey) {
+function createExamDrillResult(
+  topicKey = examDrillTopicKey,
+  { templateKey = "", patternKey = examDrillPatternKey } = {},
+) {
   const originalSnapshot = captureExamGraphStateSnapshot();
+  const originalSelected = state.selected;
   let builtResult = null;
   try {
+    state.selected = [];
     state.worldStatsYearMode = "exam";
     state.examGraphAliasMode = true;
     state.examGraphTopN = 4;
@@ -12612,90 +13297,137 @@ function createExamDrillResult(topicKey = examDrillTopicKey) {
     state.examGraphFocusLabel = "";
     ensureExamGraphState();
     const drillSnapshot = captureExamGraphStateSnapshot();
-    const topicKeys = topicKey === "auto"
-      ? shuffleExamGraphItems(examDrillTopicDefinitions.filter((definition) => definition.key !== "auto").map((definition) => definition.key))
-      : [topicKey];
-
-    for (const candidateTopicKey of topicKeys) {
-      const candidates = getWeightedExamDrillScenarios(candidateTopicKey);
-      for (const scenarioDefinition of candidates) {
-        const eligibleCountryIds = getExamDrillEligibleCountryIds(scenarioDefinition);
-        if (eligibleCountryIds.length < 3) {
+    const templateCandidates = getExamItemLabTemplateCandidates(topicKey, patternKey, templateKey);
+    const countrySampleCount = templateKey || templateCandidates.length === 1 ? 160 : 48;
+    for (const templateDefinition of templateCandidates) {
+      const { scenarioDefinition } = templateDefinition;
+      const eligibleCountryIds = getExamItemLabTemplateEligibleCountryIds(templateDefinition);
+      if (eligibleCountryIds.length < 3) {
+        continue;
+      }
+      const contextPanelResults = new Map();
+      let contextPanelsValid = true;
+      templateDefinition.panels.forEach((panelDefinition, panelIndex) => {
+        if (panelDefinition.scope !== "world") {
+          return;
+        }
+        restoreExamGraphStateSnapshot(drillSnapshot);
+        const panelResult = buildExamItemLabPanelResult(panelDefinition, []);
+        if (!validateExamItemLabPanelResult(panelResult, [])) {
+          contextPanelsValid = false;
+          return;
+        }
+        contextPanelResults.set(panelIndex, panelResult);
+      });
+      if (!contextPanelsValid) {
+        continue;
+      }
+      const templateResults = [];
+      const countrySets = getExamDrillCountrySetSamples(
+        scenarioDefinition,
+        eligibleCountryIds,
+        countrySampleCount,
+        (countryId) => getExamItemLabTemplateCountryTier(templateDefinition, countryStatsById[countryId]),
+      );
+      for (const countryIds of countrySets) {
+        const panelResults = templateDefinition.panels.map((panelDefinition, panelIndex) => {
+          if (panelDefinition.scope === "world") {
+            return contextPanelResults.get(panelIndex);
+          }
+          restoreExamGraphStateSnapshot(drillSnapshot);
+          return buildExamItemLabPanelResult(panelDefinition, countryIds);
+        });
+        if (
+          panelResults.some((panelResult) => !validateExamItemLabPanelResult(panelResult, countryIds))
+        ) {
           continue;
         }
-        const scenarioResults = [];
-        const countrySets = getExamDrillCountrySetSamples(scenarioDefinition, eligibleCountryIds);
-        for (const countryIds of countrySets) {
-          restoreExamGraphStateSnapshot(drillSnapshot);
-          applyExamGraphScenarioConfig(scenarioDefinition.config);
-          state.examGraphFocusCountryIds = [];
-          state.examGraphFocusLabel = "";
-          ensureExamGraphState();
-          const extendedCount = countryIds.filter(
-            (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]) === 2,
-          ).length;
-          const recommendation = {
-            ids: countryIds,
-            label: `Item Lab · ${extendedCount ? `핵심국 ${countryIds.length - extendedCount} + 확장국 ${extendedCount}` : `핵심국 ${countryIds.length}`}`,
-          };
-          state.examGraphFocusCountryIds = recommendation.ids;
-          state.examGraphFocusLabel = recommendation.label;
-          state.examGraphTopN = recommendation.ids.length;
-          ensureExamGraphState();
-          const model = buildExamGraphModel();
-          const authoringMeta = buildExamDrillAuthoringMeta(model);
-          const relevanceScore =
-            (d3.mean(
-              recommendation.ids,
-              (countryId) => getExamItemLabCountryTier(scenarioDefinition, countryStatsById[countryId]),
-            ) ?? 0) / 3 * 100;
-          authoringMeta.score = authoringMeta.score * 0.82 + relevanceScore * 0.18;
-          const result = {
-            topicKey: candidateTopicKey,
-            scenarioDefinition,
-            recommendation,
-            model,
-            authoringMeta,
-          };
-          const signature = getExamDrillScenarioSignature(result);
-          if (validateExamDrillCandidate(result)) {
-            scenarioResults.push({ ...result, signature });
-          }
+        const compositeMeta = buildExamItemLabCompositeMeta(panelResults, countryIds);
+        if (!compositeMeta.valid) {
+          continue;
         }
-        if (scenarioResults.length) {
-          const uniqueResults = [...new Map(scenarioResults.map((result) => [result.signature, result])).values()];
-          const freshResults = uniqueResults.filter((result) => !examDrillRecentSignatures.includes(result.signature));
-          const rankedResults = (freshResults.length ? freshResults : uniqueResults)
-            .sort((first, second) => second.authoringMeta.score - first.authoringMeta.score)
-            .slice(0, 5);
-          builtResult = shuffleExamGraphItems(rankedResults)[0] ?? null;
-          break;
-        }
+        const extendedCount = countryIds.filter(
+          (countryId) =>
+            getExamItemLabTemplateCountryTier(templateDefinition, countryStatsById[countryId]) === 2,
+        ).length;
+        const recommendation = {
+          ids: countryIds,
+          label: `Item Lab · ${templateDefinition.panels.length} panels · ${
+            extendedCount
+              ? `Core ${countryIds.length - extendedCount} + Extended ${extendedCount}`
+              : `Core ${countryIds.length}`
+          }`,
+        };
+        const relevanceScore =
+          ((d3.mean(
+            countryIds,
+            (countryId) =>
+              getExamItemLabTemplateCountryTier(templateDefinition, countryStatsById[countryId]),
+          ) ?? 0) /
+            3) *
+          100;
+        const primaryMeta = panelResults[0].authoringMeta;
+        const authoringMeta = {
+          ...primaryMeta,
+          valid: true,
+          angle: templateDefinition.angle,
+          score: compositeMeta.score * 0.82 + relevanceScore * 0.18,
+          composite: compositeMeta,
+        };
+        const result = {
+          topicKey: templateDefinition.topicKey,
+          templateDefinition,
+          scenarioDefinition,
+          recommendation,
+          panels: panelResults,
+          model: panelResults[0].model,
+          authoringMeta,
+        };
+        templateResults.push({ ...result, signature: getExamDrillScenarioSignature(result) });
       }
+      if (!templateResults.length) {
+        continue;
+      }
+      const uniqueResults = [...new Map(templateResults.map((result) => [result.signature, result])).values()];
+      const freshResults = uniqueResults.filter((result) => !examDrillRecentSignatures.includes(result.signature));
+      const rankedResults = (freshResults.length ? freshResults : uniqueResults)
+        .sort((first, second) => second.authoringMeta.score - first.authoringMeta.score)
+        .slice(0, 5);
+      builtResult = shuffleExamGraphItems(rankedResults)[0] ?? null;
       if (builtResult) {
         break;
       }
     }
   } finally {
+    state.selected = originalSelected;
     restoreExamGraphStateSnapshot(originalSnapshot);
     ensureExamGraphState();
   }
   return builtResult;
 }
 
-function tryCreateExamDrillResult(topicKey = examDrillTopicKey) {
+function tryCreateExamDrillResult(
+  topicKey = examDrillTopicKey,
+  { templateKey = "", patternKey = examDrillPatternKey } = {},
+) {
   try {
-    return createExamDrillResult(topicKey);
+    return createExamDrillResult(topicKey, { templateKey, patternKey });
   } catch (error) {
     console.error("Item Lab 자료를 생성하지 못했습니다.", error);
     return null;
   }
 }
 
-function generateExamDrillResult({ focusSelector = "" } = {}) {
-  examDrillResult = tryCreateExamDrillResult(examDrillTopicKey);
-  if (examDrillResult?.signature) {
-    examDrillRecentSignatures.push(examDrillResult.signature);
+function generateExamDrillResult({ focusSelector = "", templateKey = "" } = {}) {
+  const nextResult = tryCreateExamDrillResult(examDrillTopicKey, {
+    templateKey,
+    patternKey: examDrillPatternKey,
+  });
+  if (nextResult) {
+    examDrillResult = nextResult;
+  }
+  if (nextResult?.signature) {
+    examDrillRecentSignatures.push(nextResult.signature);
     if (examDrillRecentSignatures.length > 6) {
       examDrillRecentSignatures.shift();
     }
@@ -12710,7 +13442,7 @@ function generateExamDrillResult({ focusSelector = "" } = {}) {
   }
 }
 
-function buildExamDrillCountryKey(answerRows, countryNotes = []) {
+function buildExamDrillCountryKey(answerRows, countryNotes = [], contextPanels = []) {
   const panel = document.createElement("section");
   panel.id = "examDrillAnswers";
   panel.className = "exam-drill-answers";
@@ -12735,27 +13467,148 @@ function buildExamDrillCountryKey(answerRows, countryNotes = []) {
     list.appendChild(item);
   });
   panel.append(title, list);
+  contextPanels.forEach((panelResult) => {
+    const group = document.createElement("div");
+    group.className = "exam-item-context-key";
+    const groupTitle = document.createElement("strong");
+    groupTitle.textContent = panelResult.definition.label;
+    const values = document.createElement("p");
+    values.textContent = (panelResult.model.answerRows ?? [])
+      .map((row) => `${row.label} ${row.value}`)
+      .join(" · ");
+    group.append(groupTitle, values);
+    panel.appendChild(group);
+  });
   return panel;
 }
 
-function applyExamDrillResultToBuilder() {
-  if (!examDrillResult?.model) {
+function buildExamItemLabLocator(countryIds) {
+  const figure = document.createElement("figure");
+  figure.className = "exam-item-locator";
+  const caption = document.createElement("figcaption");
+  caption.lang = "en";
+  caption.textContent = "Locator";
+  const svg = createSvgElement("svg");
+  svg.setAttribute("viewBox", "0 0 560 230");
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", "Item Lab 국가 위치도");
+  const projection = d3.geoNaturalEarth1().fitExtent(
+    [[10, 10], [550, 220]],
+    { type: "FeatureCollection", features: countryFeatures },
+  );
+  const path = d3.geoPath(projection);
+  const selectedIds = new Set(countryIds.map(String));
+  countryFeatures.forEach((feature) => {
+    const countryPath = createSvgElement("path");
+    countryPath.setAttribute("d", path(feature) ?? "");
+    countryPath.classList.add("exam-item-locator__country");
+    if (selectedIds.has(String(feature.id))) {
+      countryPath.classList.add("is-selected");
+    }
+    svg.appendChild(countryPath);
+  });
+  countryIds.forEach((countryId, index) => {
+    const feature = countryById.get(countryId);
+    if (!feature) {
+      return;
+    }
+    const [x, y] = path.centroid(feature);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      return;
+    }
+    const marker = createSvgElement("circle");
+    marker.setAttribute("cx", String(x));
+    marker.setAttribute("cy", String(y));
+    marker.setAttribute("r", "3.1");
+    marker.classList.add("exam-item-locator__marker");
+    const label = createSvgElement("text");
+    label.setAttribute("x", String(x + 6));
+    label.setAttribute("y", String(y - 5));
+    label.textContent = getExamGraphAlias(index);
+    label.classList.add("exam-item-locator__label");
+    svg.append(marker, label);
+  });
+  figure.append(caption, svg);
+  return figure;
+}
+
+function buildExamItemLabPanelCard(panelResult, panelIndex) {
+  const card = document.createElement("article");
+  card.className = "exam-item-panel";
+  card.dataset.chartKind = panelResult.model.chartKind;
+  const header = document.createElement("header");
+  header.className = "exam-item-panel__header";
+  const copy = document.createElement("div");
+  const label = document.createElement("strong");
+  label.textContent = `${panelResult.definition.label} ${panelResult.definition.scaleLabel}`;
+  const title = document.createElement("span");
+  title.textContent = panelResult.model.title;
+  copy.append(label, title);
+  const editButton = document.createElement("button");
+  editButton.type = "button";
+  editButton.className = "tw-chip exam-item-panel__edit";
+  editButton.lang = "en";
+  editButton.textContent = "Edit";
+  editButton.addEventListener("click", () => applyExamDrillResultToBuilder(panelIndex));
+  header.append(copy, editButton);
+  const preview = buildExamGraphPreviewCard({ model: panelResult.model });
+  preview.classList.add("exam-drill-preview");
+  const footer = document.createElement("footer");
+  footer.className = "exam-item-panel__footer";
+  footer.textContent = panelResult.periodLabel || panelResult.model.scopeLabel;
+  card.append(header, preview, footer);
+  return card;
+}
+
+function buildExamItemLabBriefCard(labelText, valueText, chips = []) {
+  const card = document.createElement("section");
+  card.className = "exam-item-brief-card";
+  const label = document.createElement("strong");
+  label.lang = "en";
+  label.textContent = labelText;
+  card.appendChild(label);
+  if (valueText) {
+    const value = document.createElement("p");
+    value.textContent = valueText;
+    card.appendChild(value);
+  }
+  if (chips.length) {
+    const chipRow = document.createElement("div");
+    chipRow.className = "exam-item-brief-card__chips";
+    chips.forEach((chipText) => {
+      const chip = document.createElement("span");
+      chip.textContent = chipText;
+      chipRow.appendChild(chip);
+    });
+    card.appendChild(chipRow);
+  }
+  return card;
+}
+
+function applyExamDrillResultToBuilder(panelIndex = 0) {
+  const panelResult = examDrillResult?.panels?.[panelIndex] ?? null;
+  if (!panelResult?.model) {
     return;
   }
-  const { scenarioDefinition, recommendation } = examDrillResult;
+  const { recommendation } = examDrillResult;
+  const panelDefinition = panelResult.definition;
+  const focusIds = panelDefinition.scope === "world"
+    ? Object.keys(countryStatsById)
+    : [...recommendation.ids];
   beginHistoryStep("출제 시드 적용");
   state.worldStatsYearMode = "exam";
-  applyExamGraphScenarioConfig(scenarioDefinition.config);
-  state.examGraphFocusCountryIds = [...recommendation.ids];
-  state.examGraphFocusLabel = recommendation.label;
+  applyExamGraphScenarioConfig(panelDefinition.config);
+  state.examGraphFocusCountryIds = focusIds;
+  state.examGraphFocusLabel = panelDefinition.scope === "world" ? "World dataset" : recommendation.label;
   state.examGraphAliasMode = true;
-  state.examGraphTopN = recommendation.ids.length;
+  state.examGraphTopN = panelResult.model.rows.length;
   state.examGraphOrientation = "auto";
   state.examGraphPreviewCount = 1;
   state.examGraphFontSizePt = 8;
+  state.examGraphMergeAmericas = false;
   state.examGraphActionsExpanded = false;
-  if (scenarioDefinition.config.metricKey) {
-    const definition = getMetricExplorerDefinitionByKey(getMetricExplorerDefinitions(), scenarioDefinition.config.metricKey);
+  if (panelDefinition.config.metricKey) {
+    const definition = getMetricExplorerDefinitionByKey(getMetricExplorerDefinitions(), panelDefinition.config.metricKey);
     if (definition) {
       state.metricExplorerCategoryKey = getMetricExplorerDefinitionCategoryKey(definition);
       state.metricExplorerDisplayMode = "overview";
@@ -12772,7 +13625,7 @@ function applyExamDrillResultToBuilder() {
       elements.examGraphModule.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
-  setStatus("현재 출제 시드를 Graph Builder로 옮겼습니다.");
+  setStatus(`${panelDefinition.label} 패널을 Graph Builder로 옮겼습니다.`);
 }
 
 function renderExamDrillPanel() {
@@ -12794,6 +13647,7 @@ function renderExamDrillPanel() {
   shell.className = "exam-drill-shell";
   const toolbar = document.createElement("div");
   toolbar.className = "exam-drill-toolbar";
+
   const topicField = document.createElement("label");
   topicField.className = "tw-field exam-drill-topic";
   const topicLabel = document.createElement("span");
@@ -12810,9 +13664,45 @@ function renderExamDrillPanel() {
   });
   topicSelect.addEventListener("change", () => {
     examDrillTopicKey = topicSelect.value;
+    const hasPattern = examItemLabTemplateDefinitions.some(
+      (definition) =>
+        (examDrillTopicKey === "auto" || definition.topicKey === examDrillTopicKey) &&
+        (examDrillPatternKey === "auto" || definition.patternKey === examDrillPatternKey),
+    );
+    if (!hasPattern) {
+      examDrillPatternKey = "auto";
+    }
     generateExamDrillResult({ focusSelector: "#examDrillTopicSelect" });
   });
   topicField.append(topicLabel, topicSelect);
+
+  const patternField = document.createElement("label");
+  patternField.className = "tw-field exam-drill-topic exam-drill-pattern";
+  const patternLabel = document.createElement("span");
+  patternLabel.lang = "en";
+  patternLabel.textContent = "Pattern";
+  const patternSelect = document.createElement("select");
+  patternSelect.id = "examDrillPatternSelect";
+  examItemLabPatternDefinitions.forEach((definition) => {
+    const option = document.createElement("option");
+    option.value = definition.key;
+    option.textContent = definition.label;
+    option.selected = definition.key === examDrillPatternKey;
+    option.disabled =
+      definition.key !== "auto" &&
+      !examItemLabTemplateDefinitions.some(
+        (template) =>
+          template.patternKey === definition.key &&
+          (examDrillTopicKey === "auto" || template.topicKey === examDrillTopicKey),
+      );
+    patternSelect.appendChild(option);
+  });
+  patternSelect.addEventListener("change", () => {
+    examDrillPatternKey = patternSelect.value;
+    generateExamDrillResult({ focusSelector: "#examDrillPatternSelect" });
+  });
+  patternField.append(patternLabel, patternSelect);
+
   const poolField = document.createElement("label");
   poolField.className = "tw-field exam-drill-topic exam-drill-pool";
   const poolLabel = document.createElement("span");
@@ -12832,7 +13722,7 @@ function renderExamDrillPanel() {
     generateExamDrillResult({ focusSelector: "#examDrillPoolSelect" });
   });
   poolField.append(poolLabel, poolSelect);
-  toolbar.append(topicField, poolField);
+  toolbar.append(topicField, patternField, poolField);
   shell.appendChild(toolbar);
 
   if (!examDrillResult?.model) {
@@ -12858,46 +13748,68 @@ function renderExamDrillPanel() {
   heading.className = "exam-drill-heading";
   const title = document.createElement("h3");
   title.className = "exam-drill-title";
-  title.textContent = examDrillResult.model.title;
+  title.textContent = examDrillResult.templateDefinition.label;
   const angle = document.createElement("div");
   angle.className = "exam-drill-angle";
   const angleLabel = document.createElement("strong");
   angleLabel.lang = "en";
   angleLabel.textContent = "Angle";
   const angleText = document.createElement("p");
-  const angleDescription =
-    examDrillResult.authoringMeta?.angle ??
-    examDrillSkillPrompts[examDrillResult.scenarioDefinition.skillKey] ??
-    examDrillSkillPrompts.rank;
-  angleText.textContent = [angleDescription, getExamDrillPeriodLabel(examDrillResult)].filter(Boolean).join(" · ");
+  angleText.textContent = examDrillResult.authoringMeta?.angle ?? examDrillResult.templateDefinition.angle;
   angle.append(angleLabel, angleText);
   heading.append(title, angle);
-  const preview = buildExamGraphPreviewCard({ model: examDrillResult.model });
-  preview.classList.add("exam-drill-preview");
-  stage.append(heading, preview);
+  const scalePath = document.createElement("ol");
+  scalePath.className = "exam-item-scale-path";
+  examDrillResult.panels.forEach((panelResult) => {
+    const item = document.createElement("li");
+    item.textContent = panelResult.definition.scaleLabel;
+    scalePath.appendChild(item);
+  });
+  const panels = document.createElement("div");
+  panels.className = "exam-item-panels";
+  examDrillResult.panels.forEach((panelResult, panelIndex) => {
+    panels.appendChild(buildExamItemLabPanelCard(panelResult, panelIndex));
+  });
+  stage.append(
+    heading,
+    scalePath,
+    buildExamItemLabLocator(examDrillResult.recommendation.ids),
+    panels,
+  );
 
   const rail = document.createElement("div");
   rail.className = "exam-drill-rail";
+  const actionRow = document.createElement("div");
+  actionRow.className = "exam-item-actions";
   const nextButton = document.createElement("button");
   nextButton.id = "examDrillNextButton";
   nextButton.type = "button";
   nextButton.className = "tw-chip exam-drill-button exam-drill-button--primary";
   nextButton.lang = "en";
-  nextButton.textContent = "New Seed";
+  nextButton.textContent = "New Brief";
   nextButton.addEventListener("click", () => generateExamDrillResult({ focusSelector: "#examDrillNextButton" }));
-  const builderButton = document.createElement("button");
-  builderButton.id = "examDrillBuilderButton";
-  builderButton.type = "button";
-  builderButton.className = "tw-chip exam-drill-button";
-  builderButton.lang = "en";
-  builderButton.textContent = "Graph Builder";
-  builderButton.addEventListener("click", applyExamDrillResultToBuilder);
+  const countriesButton = document.createElement("button");
+  countriesButton.id = "examDrillCountriesButton";
+  countriesButton.type = "button";
+  countriesButton.className = "tw-chip exam-drill-button";
+  countriesButton.lang = "en";
+  countriesButton.textContent = "New Countries";
+  countriesButton.addEventListener("click", () =>
+    generateExamDrillResult({
+      focusSelector: "#examDrillCountriesButton",
+      templateKey: examDrillResult.templateDefinition.key,
+    }),
+  );
+  actionRow.append(nextButton, countriesButton);
+  const contextPanels = examDrillResult.panels.filter((panelResult) => panelResult.definition.scope === "world");
   rail.append(
-    nextButton,
-    builderButton,
+    actionRow,
+    buildExamItemLabBriefCard("Inference", examDrillResult.templateDefinition.inference),
+    buildExamItemLabBriefCard("Distractor levers", "", examDrillResult.templateDefinition.distractors),
     buildExamDrillCountryKey(
       examDrillResult.model.answerRows,
       examDrillResult.authoringMeta?.countryNotes,
+      contextPanels,
     ),
   );
   workspace.append(stage, rail);
@@ -12926,7 +13838,7 @@ function renderExamGraphPanel() {
     shell.appendChild(
       createEmptyState(
         state.examGraphPresetKey
-          ? "현재 선택에 표시할 값이 없습니다. 지표를 바꾸거나 More에서 세트 랜덤을 실행해 보세요."
+          ? "현재 범위에 표시할 값이 없습니다. Data에서 지표나 비교 단위를 바꿔 보세요."
           : "‘순위 막대’를 선택해 기본 그래프를 불러오세요.",
       ),
     );
@@ -12999,23 +13911,8 @@ function buildExamGraphControls() {
           state.examGraphFocusCountryIds = [];
           state.examGraphFocusLabel = "";
         });
-        setStatus("비교 그래프 대상을 지도 선택 또는 자동 상위 추출 기준으로 되돌렸습니다.");
+        setStatus("그래프 범위를 지도 선택 기준으로 되돌렸습니다.");
       },
-    },
-    {
-      label: "국가 랜덤",
-      active: false,
-      handler: () => applyExamGraphRandomCountries(),
-    },
-    {
-      label: "통계 랜덤",
-      active: false,
-      handler: () => applyExamGraphRandomScenario({ graphOnly: true }),
-    },
-    {
-      label: "세트 랜덤",
-      active: false,
-      handler: () => applyExamGraphRandomScenario({ graphOnly: false }),
     },
   ].forEach((config) => {
     const button = document.createElement("button");
@@ -13027,8 +13924,8 @@ function buildExamGraphControls() {
     actionRow.appendChild(button);
   });
   const actionDisclosure = buildControlDisclosure({
-    title: "More",
-    detail: "지도 선택 · 무작위 조합",
+    title: "Scope",
+    detail: "지도 선택 기준으로 되돌리기",
     contentNode: actionRow,
     open: state.examGraphActionsExpanded,
     onToggle: (nextOpen) => {
@@ -13450,10 +14347,12 @@ function buildExamGraphAllCountryCompositionRows(definition) {
   return getExamGraphAllCountryRows()
     .map((entry) => {
       const components = (definition.getComponents(entry.stats) ?? [])
-        .map((component) => ({
-          ...component,
-          value: Number(component?.value),
-        }))
+        .map((component) =>
+          component?.value === null || component?.value === undefined
+            ? null
+            : { ...component, value: Number(component.value) },
+        )
+        .filter(Boolean)
         .filter((component) => Number.isFinite(component.value) && component.value >= 0);
       const total = d3.sum(components, (component) => component.value);
       if (!components.length || total <= 0) {
@@ -13464,7 +14363,7 @@ function buildExamGraphAllCountryCompositionRows(definition) {
         id: entry.id,
         label: entry.label,
         actualLabel: entry.label,
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
         total,
         segments: components.map((component) => ({
           ...component,
@@ -13490,7 +14389,7 @@ function buildExamGraphAllCountryMetricRows(definition) {
         value: Number(metric.value),
         year: metric.year ?? null,
         detail: [metric.detail, entry.stats?.continent?.name].filter(Boolean).join(" · "),
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
       };
     })
     .filter(Boolean)
@@ -13516,7 +14415,7 @@ function buildExamGraphAllCountryPairRows(pairDefinition) {
         id: entry.id,
         label: entry.label,
         actualLabel: entry.label,
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
         firstValue: Number(firstMetric.value),
         secondValue: Number(secondMetric.value),
         totalValue: Number(firstMetric.value) + Number(secondMetric.value),
@@ -13538,7 +14437,7 @@ function buildExamGraphAllCountryTimeRows(definition, yearStart, yearEnd) {
         id: entry.id,
         label: entry.label,
         actualLabel: entry.label,
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
         startValue: Number(startValue),
         endValue: Number(endValue),
       };
@@ -13564,7 +14463,7 @@ function buildExamGraphAllCountryTrendRows(definition, yearStart, yearEnd) {
         id: entry.id,
         label: entry.label,
         actualLabel: entry.label,
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
         points,
       };
     })
@@ -13604,7 +14503,7 @@ function buildExamGraphAllCountryTopShareContributors(definition) {
       return {
         id: entry.id,
         label: entry.label,
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
         value: Number(metric.value),
       };
     })
@@ -14476,7 +15375,7 @@ function buildExamScatterGraphModel() {
   const displayRows = rows.map((row, index) => ({
     ...row,
     actualLabel: row.label,
-    displayLabel: state.examGraphAliasMode ? getExamGraphAlias(index) : row.label,
+    displayLabel: state.examGraphAliasMode ? getExamGraphAlias(getExamGraphAliasIndex(row, index)) : row.label,
   }));
 
   return {
@@ -14541,6 +15440,7 @@ function buildExamTopShareGraphModel() {
     .filter(Boolean);
 
   const rows = [...d3.group(contributors, (entry) => entry.continent).entries()]
+    .filter(([continent]) => Boolean(continent))
     .map(([continent, entries]) => {
       const ordered = [...entries].sort((a, b) => Number(b.value) - Number(a.value));
       const total = d3.sum(ordered, (entry) => Number(entry.value) || 0);
@@ -14644,7 +15544,7 @@ function getExamGraphCompositionRows(definition, grouping) {
         id: entry.id,
         label: entry.label,
         actualLabel: entry.label,
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
         total,
         segments: components.map((component) => ({
           ...component,
@@ -14662,6 +15562,7 @@ function getExamGraphCompositionRows(definition, grouping) {
   }
 
   const groupedRows = [...d3.group(countryRows, (row) => getExamGraphContinentGroupName(row.continent, { grouping })).entries()]
+    .filter(([continent]) => Boolean(continent))
     .map(([continent, rows]) => {
       const componentMeta = new Map();
       rows.forEach((row) => {
@@ -14676,7 +15577,9 @@ function getExamGraphCompositionRows(definition, grouping) {
         .map(([key, label]) => {
           const values = rows
             .map((row) => row.segments.find((segment) => segment.key === key)?.value)
-            .filter((value) => Number.isFinite(Number(value)));
+            .filter(
+              (value) => value !== null && value !== undefined && Number.isFinite(Number(value)),
+            );
           if (!values.length) {
             return null;
           }
@@ -14729,7 +15632,14 @@ function getExamGraphTimeRows(definition, grouping, yearStart, yearEnd) {
       .map((entry) => {
         const startValue = definition.getYearValue(entry.stats, yearStart);
         const endValue = definition.getYearValue(entry.stats, yearEnd);
-        if (!Number.isFinite(Number(startValue)) || !Number.isFinite(Number(endValue))) {
+        if (
+          startValue === null ||
+          startValue === undefined ||
+          endValue === null ||
+          endValue === undefined ||
+          !Number.isFinite(Number(startValue)) ||
+          !Number.isFinite(Number(endValue))
+        ) {
           return null;
         }
         return {
@@ -14749,10 +15659,18 @@ function getExamGraphTimeRows(definition, grouping, yearStart, yearEnd) {
   }
 
   const rows = [...d3.group(sourceRows, (entry) => getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping })).entries()]
+    .filter(([continent]) => Boolean(continent))
     .map(([continent, entries]) => {
       const startValue = getExamGraphTimeGroupValue(definition, entries, yearStart);
       const endValue = getExamGraphTimeGroupValue(definition, entries, yearEnd);
-      if (!Number.isFinite(Number(startValue)) || !Number.isFinite(Number(endValue))) {
+      if (
+        startValue === null ||
+        startValue === undefined ||
+        endValue === null ||
+        endValue === undefined ||
+        !Number.isFinite(Number(startValue)) ||
+        !Number.isFinite(Number(endValue))
+      ) {
         return null;
       }
       return {
@@ -14782,7 +15700,9 @@ function getExamGraphTimeGroupValue(definition, entries, year) {
 
   const values = entries
     .map((entry) => definition.getYearValue(entry.stats, year))
-    .filter((value) => Number.isFinite(Number(value)));
+    .filter(
+      (value) => value !== null && value !== undefined && Number.isFinite(Number(value)),
+    );
   if (!values.length) {
     return null;
   }
@@ -14798,7 +15718,7 @@ function getExamGraphMetricRows(definition, grouping) {
   const countryRows = sourceRows
     .map((entry) => {
       const metric = definition.getValue(entry.stats);
-      if (!metric || !Number.isFinite(Number(metric.value))) {
+      if (metric?.value === null || metric?.value === undefined || !Number.isFinite(Number(metric.value))) {
         return null;
       }
 
@@ -14809,7 +15729,7 @@ function getExamGraphMetricRows(definition, grouping) {
         value: Number(metric.value),
         year: metric.year ?? null,
         detail: [metric.detail, entry.stats?.continent?.name].filter(Boolean).join(" · "),
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
       };
     })
     .filter(Boolean)
@@ -14825,6 +15745,7 @@ function getExamGraphMetricRows(definition, grouping) {
   }
 
   const rows = [...d3.group(countryRows, (entry) => getExamGraphContinentGroupName(entry.continent, { grouping })).entries()]
+    .filter(([continent]) => Boolean(continent))
     .map(([continent, entries]) => {
       const values = entries.map((entry) => Number(entry.value));
       const aggregateValue =
@@ -14869,7 +15790,14 @@ function getExamGraphPairRows(pairDefinition, grouping) {
       if (!firstMetric || !secondMetric) {
         return null;
       }
-      if (!Number.isFinite(Number(firstMetric.value)) || !Number.isFinite(Number(secondMetric.value))) {
+      if (
+        firstMetric.value === null ||
+        firstMetric.value === undefined ||
+        secondMetric.value === null ||
+        secondMetric.value === undefined ||
+        !Number.isFinite(Number(firstMetric.value)) ||
+        !Number.isFinite(Number(secondMetric.value))
+      ) {
         return null;
       }
 
@@ -14881,7 +15809,7 @@ function getExamGraphPairRows(pairDefinition, grouping) {
         secondValue: Number(secondMetric.value),
         totalValue: Number(firstMetric.value) + Number(secondMetric.value),
         detail: [entry.stats?.continent?.name].filter(Boolean).join(" · "),
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
       };
     })
     .filter(Boolean)
@@ -14898,6 +15826,7 @@ function getExamGraphPairRows(pairDefinition, grouping) {
   }
 
   const rows = [...d3.group(countryRows, (entry) => getExamGraphContinentGroupName(entry.continent, { grouping })).entries()]
+    .filter(([continent]) => Boolean(continent))
     .map(([continent, entries]) => {
       const firstValues = entries.map((entry) => Number(entry.firstValue));
       const secondValues = entries.map((entry) => Number(entry.secondValue));
@@ -14944,7 +15873,9 @@ function getExamGraphTrendRows(definition, grouping, yearStart, yearEnd) {
         const points = years
           .map((year) => {
             const value = definition.getYearValue(entry.stats, year);
-            return Number.isFinite(Number(value)) ? { year, value: Number(value) } : null;
+            return value !== null && value !== undefined && Number.isFinite(Number(value))
+              ? { year, value: Number(value) }
+              : null;
           })
           .filter(Boolean);
         if (points.length < 2) {
@@ -14971,11 +15902,14 @@ function getExamGraphTrendRows(definition, grouping, yearStart, yearEnd) {
   }
 
   const rows = [...d3.group(sourceRows, (entry) => getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping })).entries()]
+    .filter(([continent]) => Boolean(continent))
     .map(([continent, entries]) => {
       const points = years
         .map((year) => {
           const value = getExamGraphTimeGroupValue(definition, entries, year);
-          return Number.isFinite(Number(value)) ? { year, value: Number(value) } : null;
+          return value !== null && value !== undefined && Number.isFinite(Number(value))
+            ? { year, value: Number(value) }
+            : null;
         })
         .filter(Boolean);
       if (points.length < 2) {
@@ -15012,6 +15946,12 @@ function getExamGraphScatterRows(xDefinition, yDefinition, sizeDefinition, group
         return null;
       }
       if (
+        xMetric.value === null ||
+        xMetric.value === undefined ||
+        yMetric.value === null ||
+        yMetric.value === undefined ||
+        sizeMetric.value === null ||
+        sizeMetric.value === undefined ||
         !Number.isFinite(Number(xMetric.value)) ||
         !Number.isFinite(Number(yMetric.value)) ||
         !Number.isFinite(Number(sizeMetric.value))
@@ -15022,7 +15962,7 @@ function getExamGraphScatterRows(xDefinition, yDefinition, sizeDefinition, group
         id: entry.id,
         label: entry.label,
         actualLabel: entry.label,
-        continent: entry.stats?.continent?.name ?? "미분류",
+        continent: entry.stats?.continent?.name ?? "",
         xValue: Number(xMetric.value),
         yValue: Number(yMetric.value),
         sizeValue: Math.abs(Number(sizeMetric.value) || 0),
@@ -15039,6 +15979,7 @@ function getExamGraphScatterRows(xDefinition, yDefinition, sizeDefinition, group
     definition.aggregation === "mean" ? d3.mean(values) ?? null : d3.sum(values);
 
   return [...d3.group(countryRows, (entry) => getExamGraphContinentGroupName(entry.continent, { grouping })).entries()]
+    .filter(([continent]) => Boolean(continent))
     .map(([continent, entries]) => {
       const xValue = aggregateForDefinition(entries.map((entry) => Number(entry.xValue)), xDefinition);
       const yValue = aggregateForDefinition(entries.map((entry) => Number(entry.yValue)), yDefinition);
@@ -15334,7 +16275,9 @@ function getExamGraphReadableLabel(label) {
 function applyExamGraphDisplayLabels(rows) {
   return rows.map((row, index) => ({
     ...row,
-    displayLabel: state.examGraphAliasMode ? getExamGraphAlias(index) : getExamGraphReadableLabel(row.label),
+    displayLabel: state.examGraphAliasMode
+      ? getExamGraphAlias(getExamGraphAliasIndex(row, index))
+      : getExamGraphReadableLabel(row.label),
   }));
 }
 
