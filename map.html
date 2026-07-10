@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./base.css?v=20260710h" />
     <link rel="stylesheet" href="./components.css?v=20260710h" />
     <link rel="stylesheet" href="./patterns.css?v=20260710h" />
-    <link rel="stylesheet" href="./styles.css?v=20260710l" />
+    <link rel="stylesheet" href="./styles.css?v=20260710m" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
@@ -199,18 +199,18 @@
                 </div>
               </details>
 
-              <article class="tw-data-card app-control-card">
+              <article class="tw-data-card app-control-card app-control-card--wide canvas-size-card">
                 <div class="canvas-size-header">
                   <h3 class="tw-card-title" lang="en">Canvas Size</h3>
-                  <output id="canvasSizeValue" class="canvas-size-value">310 × 310 px</output>
+                  <output id="canvasSizeValue" class="canvas-size-value" lang="en">310 × 310 px</output>
                 </div>
-                <div class="chip-grid">
-                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="310">1:1</button>
-                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="233">4:3</button>
-                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="174">16:9</button>
-                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="413">3:4</button>
-                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="551">9:16</button>
-                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="440">A4</button>
+                <div class="chip-grid canvas-size-presets">
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="310" lang="en">1:1</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="233" lang="en">4:3</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="174" lang="en">16:9</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="413" lang="en">3:4</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="551" lang="en">9:16</button>
+                  <button class="tw-chip preset-button" type="button" data-width="310" data-height="440" lang="en">A4</button>
                 </div>
                 <div class="number-grid">
                   <label class="tw-field">
@@ -235,7 +235,7 @@
                       <path d="m12.8 7.2 1.5-1.5a3 3 0 0 1 4.2 4.2L16 12.4a3 3 0 0 1-4.2 0" />
                       <path d="m7 13 6-6" />
                     </svg>
-                    <span>비율 잠금</span>
+                    <span lang="en">Lock ratio</span>
                   </button>
                   <button
                     id="swapCanvasDimensionsButton"
@@ -249,7 +249,7 @@
                       <path d="M17 14H4" />
                       <path d="m7 11-3 3 3 3" />
                     </svg>
-                    <span>가로 · 세로</span>
+                    <span lang="en">Swap</span>
                   </button>
                 </div>
               </article>
@@ -443,8 +443,8 @@
                       <button id="zoomOutButton" class="tw-chip preview-quick-button world-only" type="button" hidden>
                         줌 아웃
                       </button>
-                      <button id="resetViewButton" class="tw-chip preview-quick-button world-only" type="button" hidden>
-                        전체 보기
+                      <button id="resetViewButton" class="tw-chip preview-quick-button" type="button" lang="en">
+                        Fit
                       </button>
                     </div>
                   </section>
@@ -588,6 +588,6 @@
     <script src="./data/world-lakes.js"></script>
     <script src="./data/country-stats.js?v=20260428a"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260710l"></script>
+    <script src="./app.js?v=20260710m"></script>
   </body>
 </html>

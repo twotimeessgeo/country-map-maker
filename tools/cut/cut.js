@@ -186,6 +186,72 @@ function correctChoice(record, question) {
   return answer >= 1 && answer <= 5 ? answer : null;
 }
 
+function questionChoiceRates(record, question) {
+  const row = (record.wrong_top15 || []).find(
+    (item) => Number(item.question) === Number(question),
+  );
+  if (!Array.isArray(row?.choices) || row.choices.length !== 5) return null;
+
+  const rates = row.choices.map((value) => Number(value));
+  return rates.every((value) => Number.isFinite(value) && value >= 0 && value <= 100)
+    ? rates
+    : null;
+}
+
+function createChoiceDistribution(rates, answer) {
+  const distribution = document.createElement("div");
+  distribution.className = "cut-choice-distribution";
+  distribution.setAttribute("role", "group");
+  distribution.setAttribute(
+    "aria-label",
+    answer === null
+      ? "선택지별 선택률"
+      : `선택지별 선택률, 정답 ${answer}번`,
+  );
+
+  const title = document.createElement("span");
+  title.className = "cut-choice-title";
+  title.setAttribute("aria-hidden", "true");
+  title.textContent = "선택률";
+
+  const list = document.createElement("ul");
+  list.className = "cut-choice-list";
+  list.setAttribute("role", "list");
+
+  rates.forEach((rate, index) => {
+    const choice = index + 1;
+    const isAnswer = choice === answer;
+    const item = document.createElement("li");
+    item.className = "cut-choice-item";
+    if (isAnswer) item.classList.add("is-answer");
+    item.setAttribute(
+      "aria-label",
+      `${choice}번 선택지 선택률 ${formatPercent(rate)}${isAnswer ? ", 정답" : ""}`,
+    );
+
+    const symbol = document.createElement("span");
+    symbol.className = "cut-choice-symbol";
+    symbol.setAttribute("aria-hidden", "true");
+    symbol.textContent = CIRCLED_CHOICES[choice];
+
+    const value = document.createElement("span");
+    value.className = "cut-choice-value";
+    value.setAttribute("aria-hidden", "true");
+    value.textContent = formatPercent(rate);
+
+    const bar = document.createElement("span");
+    bar.className = "cut-choice-bar";
+    bar.setAttribute("aria-hidden", "true");
+    bar.style.setProperty("--choice-rate", `${Math.max(0, Math.min(100, rate))}%`);
+
+    item.append(symbol, value, bar);
+    list.appendChild(item);
+  });
+
+  distribution.append(title, list);
+  return distribution;
+}
+
 function createEmptyQuestionImage() {
   const empty = document.createElement("div");
   empty.className = "cut-question-image-frame is-empty";
@@ -235,6 +301,7 @@ function renderQuestionAnalysis(record) {
   const imageCount = QUESTION_NUMBERS.filter((question) => questionImageByKey.has(
     questionImageKey(record.subject, record.exam_year, record.month, question),
   )).length;
+  const choiceRateCount = QUESTION_NUMBERS.filter((question) => questionChoiceRates(record, question)).length;
   elements.questionGrid.classList.toggle("is-rate-only", imageCount === 0);
 
   for (const question of QUESTION_NUMBERS) {
@@ -244,6 +311,7 @@ function renderQuestionAnalysis(record) {
       : null;
     const wrongRate = correctRate === null ? null : 100 - correctRate;
     const answer = correctChoice(record, question);
+    const choiceRates = questionChoiceRates(record, question);
     const imageData = questionImageByKey.get(
       questionImageKey(record.subject, record.exam_year, record.month, question),
     );
@@ -304,12 +372,17 @@ function renderQuestionAnalysis(record) {
       body.appendChild(answerLabel);
     }
 
+    if (choiceRates) {
+      body.appendChild(createChoiceDistribution(choiceRates, answer));
+    }
+
     card.appendChild(body);
     fragment.appendChild(card);
   }
 
   elements.questionGrid.replaceChildren(fragment);
-  elements.questionCount.textContent = imageCount > 0 ? `20문항 · 이미지 ${imageCount}장` : "20문항 · 사진 없음";
+  const imageSummary = imageCount > 0 ? `이미지 ${imageCount}장` : "사진 없음";
+  elements.questionCount.textContent = `20문항 · ${imageSummary} · 선택률 ${choiceRateCount}문항`;
 }
 
 function createHistoryCell(text) {
