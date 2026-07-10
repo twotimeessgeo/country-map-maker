@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./base.css?v=20260710h" />
     <link rel="stylesheet" href="./components.css?v=20260710h" />
     <link rel="stylesheet" href="./patterns.css?v=20260710h" />
-    <link rel="stylesheet" href="./styles.css?v=20260710h" />
+    <link rel="stylesheet" href="./styles.css?v=20260710l" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
@@ -50,6 +50,7 @@
         <div class="tw-section-heading">
           <h2 class="tw-section-title" lang="en">Canvas</h2>
           <div class="workspace-export-actions">
+            <a class="tw-button workspace-jump-button" href="#statisticsSection" lang="en">Data</a>
             <button id="downloadSvgButton" class="tw-button export-button" lang="en" type="button">SVG</button>
             <button id="downloadPngButton" class="tw-button export-button ghost-button" lang="en" type="button">PNG</button>
           </div>
@@ -199,7 +200,10 @@
               </details>
 
               <article class="tw-data-card app-control-card">
-                <h3 class="tw-card-title" lang="en">Canvas Size</h3>
+                <div class="canvas-size-header">
+                  <h3 class="tw-card-title" lang="en">Canvas Size</h3>
+                  <output id="canvasSizeValue" class="canvas-size-value">310 × 310 px</output>
+                </div>
                 <div class="chip-grid">
                   <button class="tw-chip preset-button" type="button" data-width="310" data-height="310">1:1</button>
                   <button class="tw-chip preset-button" type="button" data-width="310" data-height="233">4:3</button>
@@ -211,20 +215,43 @@
                 <div class="number-grid">
                   <label class="tw-field">
                     <span>너비</span>
-                    <input id="widthInput" type="number" min="140" max="310" step="5" value="310" />
+                    <input id="widthInput" type="number" min="140" max="310" step="1" value="310" inputmode="numeric" />
                   </label>
                   <label class="tw-field">
                     <span>높이</span>
-                    <input id="heightInput" type="number" min="120" max="3200" step="5" value="310" />
+                    <input id="heightInput" type="number" min="120" max="3200" step="1" value="310" inputmode="numeric" />
                   </label>
                 </div>
-                <label class="range-field canvas-ratio-field">
-                  <span lang="en">Height</span>
-                  <div class="range-row">
-                    <input id="heightSlider" type="range" min="120" max="620" step="1" value="310" />
-                    <strong id="heightSliderValue">310px</strong>
-                  </div>
-                </label>
+                <div class="canvas-size-actions" aria-label="캔버스 크기 옵션">
+                  <button
+                    id="aspectRatioLockButton"
+                    class="tw-chip canvas-size-action"
+                    type="button"
+                    aria-pressed="false"
+                    title="너비와 높이의 비율 잠금"
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 20 20">
+                      <path d="M7.2 12.8 5.7 14.3a3 3 0 0 1-4.2-4.2L4 7.6a3 3 0 0 1 4.2 0" />
+                      <path d="m12.8 7.2 1.5-1.5a3 3 0 0 1 4.2 4.2L16 12.4a3 3 0 0 1-4.2 0" />
+                      <path d="m7 13 6-6" />
+                    </svg>
+                    <span>비율 잠금</span>
+                  </button>
+                  <button
+                    id="swapCanvasDimensionsButton"
+                    class="tw-chip canvas-size-action"
+                    type="button"
+                    title="가로와 세로 바꾸기"
+                  >
+                    <svg aria-hidden="true" viewBox="0 0 20 20">
+                      <path d="M3 6h13" />
+                      <path d="m13 3 3 3-3 3" />
+                      <path d="M17 14H4" />
+                      <path d="m7 11-3 3 3 3" />
+                    </svg>
+                    <span>가로 · 세로</span>
+                  </button>
+                </div>
               </article>
 
               <details class="tw-data-card app-control-card app-control-disclosure world-only" hidden>
@@ -496,7 +523,7 @@
         </div>
       </section>
 
-      <section class="tw-panel">
+      <section id="statisticsSection" class="tw-panel">
         <div class="tw-section-heading">
           <h2 id="detailSectionTitle" class="tw-section-title" lang="en">Statistics</h2>
           <span id="detailSectionBadge" hidden>구성비 · 변화 · 국가 프로필</span>
@@ -544,7 +571,7 @@
               </div>
             </section>
 
-            <details class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
+            <details id="countryProfileModule" class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
               <summary><strong lang="en">Country Profile</strong></summary>
               <div id="countryStatsPanel" class="country-stats-panel"></div>
             </details>
@@ -561,6 +588,6 @@
     <script src="./data/world-lakes.js"></script>
     <script src="./data/country-stats.js?v=20260428a"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260710h"></script>
+    <script src="./app.js?v=20260710l"></script>
   </body>
 </html>

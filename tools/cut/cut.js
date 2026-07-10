@@ -1,6 +1,9 @@
 const EBSI_URL = "./data/ebsi_geo_data.json";
+const QUESTION_IMAGE_MANIFEST_URL = "./data/question-image-manifest.json";
 const SUPPORTED_SUBJECTS = ["한국지리", "세계지리"];
 const GRADE_KEYS = ["1", "2", "3"];
+const QUESTION_NUMBERS = Array.from({ length: 20 }, (_, index) => index + 1);
+const CIRCLED_CHOICES = ["", "①", "②", "③", "④", "⑤"];
 
 const elements = {
   form: document.querySelector("#cutLookupForm"),
@@ -16,12 +19,15 @@ const elements = {
   standardDeviation: document.querySelector("#sdValue"),
   examYear: document.querySelector("#examYearValue"),
   sourceLink: document.querySelector("#sourceLink"),
+  questionCount: document.querySelector("#questionAnalysisCount"),
+  questionGrid: document.querySelector("#questionAnalysisGrid"),
   historyCount: document.querySelector("#historyCount"),
   historyBody: document.querySelector("#historyTableBody"),
 };
 
 let payload = null;
 let records = [];
+let questionImageByKey = new Map();
 
 function isFiniteNumber(value) {
   return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
@@ -44,6 +50,10 @@ function recordKey(record) {
 
 function recordTitle(record) {
   return `${record.school_year}학년도 ${monthLabel(record.month)}`;
+}
+
+function questionImageKey(subject, examYear, month, question) {
+  return [subject, examYear, String(month).padStart(2, "0"), question].join("|");
 }
 
 function sortRecords(left, right) {
@@ -164,6 +174,144 @@ function renderResult(record) {
   renderGradeCards(record);
 }
 
+function formatPercent(value) {
+  return isFiniteNumber(value) ? `${formatNumber(value)}%` : "-";
+}
+
+function correctChoice(record, question) {
+  const row = (record.wrong_top15 || []).find(
+    (item) => Number(item.question) === Number(question),
+  );
+  const answer = Number(row?.answer);
+  return answer >= 1 && answer <= 5 ? answer : null;
+}
+
+function createEmptyQuestionImage() {
+  const empty = document.createElement("div");
+  empty.className = "cut-question-image-frame is-empty";
+  const label = document.createElement("span");
+  label.textContent = "문항 이미지 없음";
+  empty.appendChild(label);
+  return empty;
+}
+
+function createQuestionImage(record, question, imageData) {
+  if (!imageData?.url) return createEmptyQuestionImage();
+
+  const link = document.createElement("a");
+  link.className = "cut-question-image-frame";
+  link.href = imageData.url;
+  link.target = "_blank";
+  link.rel = "noreferrer";
+  link.setAttribute(
+    "aria-label",
+    `${recordTitle(record)} ${record.subject} ${question}번 문항 원본 보기`,
+  );
+
+  const image = document.createElement("img");
+  image.src = imageData.url;
+  image.alt = `${recordTitle(record)} ${record.subject} ${question}번 문항`;
+  image.loading = "lazy";
+  image.decoding = "async";
+  image.addEventListener("error", () => {
+    link.replaceWith(createEmptyQuestionImage());
+  }, { once: true });
+  link.appendChild(image);
+  return link;
+}
+
+function renderQuestionAnalysis(record) {
+  if (!record) {
+    elements.questionGrid.replaceChildren();
+    elements.questionGrid.classList.remove("is-rate-only");
+    elements.questionCount.textContent = "0문항";
+    return;
+  }
+
+  const itemByQuestion = new Map(
+    (record.items || []).map((item) => [Number(item.question), item]),
+  );
+  const fragment = document.createDocumentFragment();
+  const imageCount = QUESTION_NUMBERS.filter((question) => questionImageByKey.has(
+    questionImageKey(record.subject, record.exam_year, record.month, question),
+  )).length;
+  elements.questionGrid.classList.toggle("is-rate-only", imageCount === 0);
+
+  for (const question of QUESTION_NUMBERS) {
+    const item = itemByQuestion.get(question) || {};
+    const correctRate = isFiniteNumber(item.national_rate)
+      ? Number(item.national_rate)
+      : null;
+    const wrongRate = correctRate === null ? null : 100 - correctRate;
+    const answer = correctChoice(record, question);
+    const imageData = questionImageByKey.get(
+      questionImageKey(record.subject, record.exam_year, record.month, question),
+    );
+
+    const card = document.createElement("article");
+    card.className = "cut-question-card";
+    card.setAttribute(
+      "aria-label",
+      `${question}번 ${formatNumber(item.points, 0)}점, 오답률 ${formatPercent(wrongRate)}, 정답률 ${formatPercent(correctRate)}`,
+    );
+
+    if (imageCount > 0) {
+      card.appendChild(createQuestionImage(record, question, imageData));
+    } else {
+      card.classList.add("is-rate-only");
+    }
+
+    const body = document.createElement("div");
+    body.className = "cut-question-body";
+
+    const heading = document.createElement("div");
+    heading.className = "cut-question-card-heading";
+    const number = document.createElement("strong");
+    number.textContent = `${question}번`;
+    const points = document.createElement("span");
+    points.textContent = isFiniteNumber(item.points) ? `${formatNumber(item.points, 0)}점` : "배점 -";
+    heading.append(number, points);
+
+    if (String(item.source || "").includes("inferred")) {
+      const inferred = document.createElement("span");
+      inferred.className = "cut-question-inferred";
+      inferred.textContent = "추정";
+      inferred.title = "EBSi 오답률 상위 문항 밖의 보완값";
+      heading.appendChild(inferred);
+    }
+
+    const rates = document.createElement("div");
+    rates.className = "cut-question-rates";
+    const wrong = document.createElement("strong");
+    wrong.textContent = `오답률 ${formatPercent(wrongRate)}`;
+    const correct = document.createElement("span");
+    correct.textContent = `정답률 ${formatPercent(correctRate)}`;
+    rates.append(wrong, correct);
+
+    const rateBar = document.createElement("span");
+    rateBar.className = "cut-question-rate-bar";
+    rateBar.setAttribute("aria-hidden", "true");
+    if (wrongRate !== null) {
+      rateBar.style.setProperty("--wrong-rate", `${Math.max(0, Math.min(100, wrongRate))}%`);
+    }
+
+    body.append(heading, rates, rateBar);
+
+    if (answer !== null) {
+      const answerLabel = document.createElement("span");
+      answerLabel.className = "cut-question-answer";
+      answerLabel.textContent = `정답 ${CIRCLED_CHOICES[answer]}`;
+      body.appendChild(answerLabel);
+    }
+
+    card.appendChild(body);
+    fragment.appendChild(card);
+  }
+
+  elements.questionGrid.replaceChildren(fragment);
+  elements.questionCount.textContent = imageCount > 0 ? `20문항 · 이미지 ${imageCount}장` : "20문항 · 사진 없음";
+}
+
 function createHistoryCell(text) {
   const cell = document.createElement("td");
   cell.textContent = text;
@@ -220,6 +368,7 @@ function syncUrl(record) {
 function renderSelection() {
   const record = selectedRecord();
   renderResult(record);
+  renderQuestionAnalysis(record);
   renderHistory(record);
   syncUrl(record);
 }
@@ -247,6 +396,12 @@ async function loadData() {
   return response.json();
 }
 
+async function loadQuestionImageManifest() {
+  const response = await fetch(QUESTION_IMAGE_MANIFEST_URL);
+  if (!response.ok) return { items: [] };
+  return response.json();
+}
+
 function initialSelectionFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const subject = params.get("subject");
@@ -259,7 +414,17 @@ function initialSelectionFromUrl() {
 async function initialize() {
   setLoadingState(true);
   try {
-    payload = await loadData();
+    const [loadedPayload, imageManifest] = await Promise.all([
+      loadData(),
+      loadQuestionImageManifest().catch(() => ({ items: [] })),
+    ]);
+    payload = loadedPayload;
+    questionImageByKey = new Map(
+      (imageManifest.items || []).map((item) => [
+        questionImageKey(item.subject, item.exam_year, item.month, item.question),
+        item,
+      ]),
+    );
     records = (payload.records || []).filter(usableRecord).sort(sortRecords);
     const initial = initialSelectionFromUrl();
     populateYears(initial.year);
@@ -279,6 +444,7 @@ async function initialize() {
     elements.recordCount.textContent = "Load failed";
     elements.status.textContent = error instanceof Error ? error.message : "자료를 불러오지 못했습니다.";
     renderResult(null);
+    renderQuestionAnalysis(null);
     renderHistory(null);
   } finally {
     setLoadingState(false);
