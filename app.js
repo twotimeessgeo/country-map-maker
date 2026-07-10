@@ -803,35 +803,42 @@ const examGraphStyleModeDefinitions = [
   { key: "basic", label: "기본" },
 ];
 const EXAM_GRAPH_FONT_BASE_PT = 8;
+const EXAM_GRAPH_CLIMATE_SERIES = ["#111111", "#666666", "#a9a9a9", "#dedede"];
+const EXAM_GRAPH_CLIMATE_LINE_STYLES = [
+  { marker: "circle", dasharray: "" },
+  { marker: "square", dasharray: "10 7" },
+  { marker: "triangle", dasharray: "5 7" },
+  { marker: "diamond", dasharray: "2 6" },
+];
 const examGraphPresetDefinitions = [
   {
-    key: "stacked100",
-    label: "구성 누적막대",
-    description: "구성 비중 또는 실제 양을 누적막대로 비교",
-    allowedValueModes: ["share", "amount"],
-  },
-  {
     key: "rankBars",
-    label: "단일 순위막대",
-    description: "한 지표를 막대로 비교하는 기본형 그래프",
+    label: "순위 막대",
+    description: "한 지표를 크기순으로 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
+    key: "stacked100",
+    label: "누적 막대",
+    description: "구성 비중 또는 실제 양을 누적으로 비교",
+    allowedValueModes: ["share", "amount"],
+  },
+  {
     key: "pairedBars",
-    label: "짝막대 비교",
-    description: "두 지표를 같은 행에서 나란히 비교",
+    label: "비교 막대",
+    description: "두 지표를 나란히 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
     key: "timeCompare",
-    label: "2시점 비교",
-    description: "두 시점 값을 나란히 두는 가로 막대",
+    label: "2시점 막대",
+    description: "두 시점의 값을 나란히 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
     key: "trendLine",
-    label: "시계열 선그래프",
-    description: "여러 국가·대륙의 시계열을 한 축에서 비교",
+    label: "시계열 선",
+    description: "여러 국가·대륙의 변화를 선으로 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
@@ -842,11 +849,25 @@ const examGraphPresetDefinitions = [
   },
   {
     key: "top3share",
-    label: "상위 3개국+기타",
-    description: "대륙별 상위 3개국 비중을 한 번에 비교",
+    label: "상위 3개 누적",
+    description: "대륙별 상위 3개국과 기타 비중을 비교",
     allowedValueModes: ["share"],
   },
 ];
+const examGraphReadableLabelMap = new Map([
+  ["Bolivia, Plurinational State of", "Bolivia"],
+  ["Congo, the Democratic Republic of the", "DR Congo"],
+  ["Congo, the Republic of", "Congo"],
+  ["Iran, Islamic Republic of", "Iran"],
+  ["Korea, Democratic People's Republic of", "North Korea"],
+  ["Korea, Republic of", "South Korea"],
+  ["Lao People's Democratic Republic", "Laos"],
+  ["Moldova, Republic of", "Moldova"],
+  ["Russian Federation", "Russia"],
+  ["Syrian Arab Republic", "Syria"],
+  ["Tanzania, United Republic of", "Tanzania"],
+  ["Venezuela, Bolivarian Republic of", "Venezuela"],
+]);
 const examGraphCompositionDefinitions = [
   {
     key: "urban-rural",
@@ -1719,7 +1740,7 @@ const state = {
   koreaGeoStatsTrendStartPeriodKey: "",
   koreaGeoStatsTrendEndPeriodKey: "",
   koreaGeoStatsActionsExpanded: false,
-  examGraphPresetKey: "",
+  examGraphPresetKey: "rankBars",
   examGraphMetricKey: "population-total",
   examGraphPairKey: "urban-rural-total",
   examGraphCompositionKey: "urban-rural",
@@ -11622,7 +11643,7 @@ function isExamGraphNormalizedModeAllowedForMetric(metricDefinition) {
 
 function ensureExamGraphState() {
   if (!examGraphPresetDefinitions.some((definition) => definition.key === state.examGraphPresetKey)) {
-    state.examGraphPresetKey = "";
+    state.examGraphPresetKey = "rankBars";
   }
   const metricDefinitions = getMetricExplorerDefinitions();
   const metricKeys = new Set(metricDefinitions.map((definition) => definition.key));
@@ -11718,8 +11739,8 @@ function renderExamGraphPanel() {
     shell.appendChild(
       createEmptyState(
         state.examGraphPresetKey
-          ? "비교 그래프에 쓸 수 있는 통계가 아직 부족합니다. 다른 그래프 종류나 국가 조합을 골라 보세요."
-          : "그래프 종류와 지표를 선택하면 비교 그래프가 표시됩니다.",
+          ? "현재 선택에 표시할 값이 없습니다. 지표를 바꾸거나 ‘빠른 추천과 대상 변경’에서 ‘세트 랜덤’을 실행해 보세요."
+          : "‘순위 막대’를 선택해 기본 그래프를 불러오세요.",
       ),
     );
     elements.examGraphPanel.appendChild(shell);
@@ -11754,14 +11775,22 @@ function buildExamGraphControls() {
   const wrapper = document.createElement("div");
   wrapper.className = "exam-graph-control-shell";
 
+  const presetLegend = document.createElement("p");
+  presetLegend.className = "exam-graph-guide";
+  presetLegend.textContent = `Chart Type · ${examGraphPresetDefinitions.length}`;
+  wrapper.appendChild(presetLegend);
+
   const presetRow = document.createElement("div");
   presetRow.className = "exam-graph-chip-row";
   examGraphPresetDefinitions.forEach((definition) => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "exam-graph-chip";
+    button.dataset.examGraphPreset = definition.key;
     button.classList.toggle("is-active", definition.key === state.examGraphPresetKey);
     button.textContent = definition.label;
+    button.title = definition.description;
+    button.setAttribute("aria-pressed", String(definition.key === state.examGraphPresetKey));
     button.addEventListener("click", () => {
       updateExamGraphState("비교 그래프 변경", () => {
         state.examGraphPresetKey = definition.key;
@@ -11820,10 +11849,6 @@ function buildExamGraphControls() {
       },
     }),
   );
-
-  const guide = document.createElement("p");
-  guide.className = "exam-graph-guide";
-  guide.textContent = getExamGraphGuideText();
 
   if (!getExamGraphPresetDefinition()) {
     return wrapper;
@@ -12073,20 +12098,6 @@ function buildExamGraphControls() {
     }),
   );
   return wrapper;
-}
-
-function getExamGraphGuideText() {
-  if (!getExamGraphPresetDefinition()) {
-    return "위에서 그래프 종류를 먼저 선택하세요. 선택 전에는 자동 추천 그래프를 만들지 않습니다.";
-  }
-  const scopeMode = getExamGraphScopeMode();
-  if (scopeMode === "focus") {
-    return `${getExamGraphScopeSourceText()} 기준 추천 대상을 우선 사용합니다. 랜덤 추천은 수능특강에 실제로 자주 등장하는 국가를 먼저 고릅니다. '지도 선택 사용'을 누르면 다시 지도 선택 또는 자동 상위 추출 기준으로 돌아갑니다.`;
-  }
-  if (scopeMode === "selected") {
-    return "지도에서 고른 국가를 우선 사용합니다. 필요하면 랜덤 버튼으로 수능특강 등장국 위주의 추천 국가나 통계를 바로 섞을 수 있습니다.";
-  }
-  return "선택 국가가 없으면 전체 자료에서 수능특강 등장국을 우선으로 골라 비교 그래프를 만듭니다. 랜덤 버튼은 출제에 잘 맞는 통계·국가 조합을 추천합니다.";
 }
 
 function getExamGraphValueModeOptionsForCurrentPreset() {
@@ -14100,21 +14111,6 @@ function buildExamGraphAmountFormatter(rows, metricKey = "") {
   return (value) => formatStatNumber(value, 1);
 }
 
-const examGraphReadableLabelMap = new Map([
-  ["Bolivia, Plurinational State of", "Bolivia"],
-  ["Congo, the Democratic Republic of the", "DR Congo"],
-  ["Congo, the Republic of", "Congo"],
-  ["Iran, Islamic Republic of", "Iran"],
-  ["Korea, Democratic People's Republic of", "North Korea"],
-  ["Korea, Republic of", "South Korea"],
-  ["Lao People's Democratic Republic", "Laos"],
-  ["Moldova, Republic of", "Moldova"],
-  ["Russian Federation", "Russia"],
-  ["Syrian Arab Republic", "Syria"],
-  ["Tanzania, United Republic of", "Tanzania"],
-  ["Venezuela, Bolivarian Republic of", "Venezuela"],
-]);
-
 function getExamGraphReadableLabel(label) {
   const normalized = String(label ?? "").trim();
   return examGraphReadableLabelMap.get(normalized) ?? normalized;
@@ -14609,14 +14605,6 @@ function appendExamGraphNativeLegend(chart, legendItems = []) {
   });
   chart.appendChild(legend);
 }
-
-const EXAM_GRAPH_CLIMATE_SERIES = ["#111111", "#666666", "#a9a9a9", "#dedede"];
-const EXAM_GRAPH_CLIMATE_LINE_STYLES = [
-  { marker: "circle", dasharray: "" },
-  { marker: "square", dasharray: "10 7" },
-  { marker: "triangle", dasharray: "5 7" },
-  { marker: "diamond", dasharray: "2 6" },
-];
 
 function setExamGraphClimateSvgAttributes(node, attributes = {}) {
   Object.entries(attributes).forEach(([key, value]) => {

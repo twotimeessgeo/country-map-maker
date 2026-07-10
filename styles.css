@@ -1496,7 +1496,7 @@ kbd {
 }
 
 .exam-graph-grid {
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr);
   align-items: start;
 }
 
@@ -2935,17 +2935,33 @@ kbd {
   box-shadow: none;
 }
 
-.app-detail-grid,
-body[data-map-version="world"] .app-detail-grid,
-body[data-map-version="korea"] .app-detail-grid {
-  grid-template-columns: minmax(0, 1fr);
+.app-detail-grid.stats-workspace,
+body[data-map-version="world"] .app-detail-grid.stats-workspace,
+body[data-map-version="korea"] .app-detail-grid.stats-workspace {
+  grid-template-columns: minmax(0, 1.65fr) minmax(300px, 0.75fr);
+  align-items: start;
 }
 
-body[data-map-version="world"] .app-detail-card--stats.world-only,
-body[data-map-version="world"] .app-detail-card--selection,
-body[data-map-version="korea"] .app-detail-card--stats.korea-only,
-body[data-map-version="korea"] .app-detail-card--selection {
-  grid-column: 1;
+.stats-workspace__main,
+.stats-workspace__sidebar {
+  display: grid;
+  min-width: 0;
+  gap: var(--tw-space-6);
+  align-content: start;
+}
+
+@media (min-width: 901px) {
+  .stats-workspace__sidebar {
+    position: sticky;
+    top: var(--tw-space-7);
+  }
+}
+
+.stats-workspace .app-detail-card,
+body[data-map-version="world"] .stats-workspace .app-detail-card,
+body[data-map-version="korea"] .stats-workspace .app-detail-card {
+  min-width: 0;
+  grid-column: auto;
   grid-row: auto;
 }
 
@@ -2960,7 +2976,16 @@ body[data-map-version="korea"] .app-detail-card--selection {
   border-bottom: var(--tw-border);
 }
 
-.stats-module > summary strong {
+.stats-module__header {
+  display: flex;
+  align-items: center;
+  min-height: 50px;
+  padding: var(--tw-space-5) var(--tw-space-6);
+  border-bottom: var(--tw-border);
+}
+
+.stats-module > summary strong,
+.stats-module__header strong {
   font-size: 0.98rem;
 }
 
@@ -3063,15 +3088,15 @@ body[data-map-version="korea"] .app-detail-card--selection {
 }
 
 .exam-graph-chip-row {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: var(--tw-space-2);
+  overflow: visible;
+  padding-bottom: 0;
 }
 
 .exam-graph-chip-row .exam-graph-chip {
-  flex: 0 0 auto;
-  min-height: 36px;
+  min-height: var(--tw-chip-height);
   padding: var(--tw-space-2) var(--tw-space-3);
 }
 
@@ -3095,7 +3120,7 @@ code {
   font-size: 0.92em;
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1020px) {
   .workspace-shell {
     grid-template-columns: 1fr;
   }
@@ -3154,6 +3179,18 @@ code {
 
   .app-detail-card--selection {
     grid-row: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .app-detail-grid.stats-workspace,
+  body[data-map-version="world"] .app-detail-grid.stats-workspace,
+  body[data-map-version="korea"] .app-detail-grid.stats-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-workspace__sidebar {
+    order: -1;
   }
 }
 
@@ -3237,7 +3274,6 @@ code {
   }
 
   .country-stats-tabs,
-  .exam-graph-chip-row,
   .exam-graph-action-row,
   .exam-graph-controls,
   .exam-graph-summary,
@@ -3248,6 +3284,10 @@ code {
   .country-stats-metric-grid,
   .country-stats-source-row {
     grid-template-columns: 1fr;
+  }
+
+  .exam-graph-chip-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .country-stats-line-legend {
