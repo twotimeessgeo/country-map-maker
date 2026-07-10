@@ -9,10 +9,10 @@
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
     <link rel="stylesheet" href="./tokens.css" />
-    <link rel="stylesheet" href="./base.css" />
+    <link rel="stylesheet" href="./base.css?v=20260710f" />
     <link rel="stylesheet" href="./components.css" />
     <link rel="stylesheet" href="./patterns.css" />
-    <link rel="stylesheet" href="./styles.css?v=20260710e" />
+    <link rel="stylesheet" href="./styles.css?v=20260710f" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
@@ -502,50 +502,53 @@
           <span id="detailSectionBadge" hidden>구성비 · 변화 · 국가 프로필</span>
         </div>
 
-        <div class="app-detail-grid">
-          <details class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden open>
-            <summary><strong>Graph Builder</strong></summary>
-            <div id="examGraphPanel" class="exam-graph-panel"></div>
-          </details>
+        <div class="app-detail-grid stats-workspace">
+          <div class="stats-workspace__main">
+            <section class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
+              <header class="stats-module__header"><strong>Graph Builder</strong></header>
+              <div id="examGraphPanel" class="exam-graph-panel"></div>
+            </section>
 
-          <details class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-            <summary><strong>World Data</strong></summary>
-            <div id="metricExplorerPanel" class="metric-explorer-panel"></div>
-          </details>
+            <section class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
+              <header class="stats-module__header"><strong>World Data</strong></header>
+              <div id="metricExplorerPanel" class="metric-explorer-panel"></div>
+            </section>
 
-          <details class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-            <summary><strong>Country Profile</strong></summary>
-            <div id="countryStatsPanel" class="country-stats-panel"></div>
-          </details>
+            <section class="tw-data-card app-detail-card app-detail-card--stats stats-module korea-only" hidden>
+              <header class="stats-module__header"><strong>Korea Data</strong></header>
+              <div id="koreaGeoStatsPanel" class="metric-explorer-panel"></div>
+            </section>
+          </div>
 
-          <details class="tw-data-card app-detail-card app-detail-card--stats stats-module korea-only" hidden open>
-            <summary><strong>Korea Data</strong></summary>
-            <div id="koreaGeoStatsPanel" class="metric-explorer-panel"></div>
-          </details>
-
-          <details class="tw-data-card app-detail-card app-detail-card--selection stats-module" open>
-            <summary><strong id="selectionDetailTitle">Selection</strong></summary>
-            <div class="selection-module-body">
-              <p id="selectionDetailHint" class="hint" hidden>선택 항목 관리</p>
-              <div id="selectionCompareActions" class="inline-actions korea-only" hidden>
-                <button id="groupSelectedKoreaRegionsButton" class="tw-chip" type="button">
-                  체크한 권역 비교
-                </button>
-                <button id="ungroupSelectedKoreaRegionsButton" class="tw-chip" type="button">
-                  비교 해제
-                </button>
+          <aside class="stats-workspace__sidebar">
+            <section class="tw-data-card app-detail-card app-detail-card--selection stats-module">
+              <header class="stats-module__header"><strong id="selectionDetailTitle">Selection</strong></header>
+              <div class="selection-module-body">
+                <p id="selectionDetailHint" class="hint" hidden>선택 항목 관리</p>
+                <div id="selectionCompareActions" class="inline-actions korea-only" hidden>
+                  <button id="groupSelectedKoreaRegionsButton" class="tw-chip" type="button">
+                    체크한 권역 비교
+                  </button>
+                  <button id="ungroupSelectedKoreaRegionsButton" class="tw-chip" type="button">
+                    비교 해제
+                  </button>
+                </div>
+                <div class="selection-tools">
+                  <label class="tw-field utility-search-field">
+                    <span id="selectionFilterLabel">선택 항목 찾기</span>
+                    <input id="selectionFilterInput" type="search" placeholder="선택 항목 검색" autocomplete="off" />
+                  </label>
+                  <p id="selectionFilterMeta" class="utility-meta">선택 없음</p>
+                </div>
+                <ul id="selectedCountryList" class="selected-country-list"></ul>
               </div>
-              <div class="selection-tools">
-                <label class="tw-field utility-search-field">
-                  <span id="selectionFilterLabel">선택 항목 찾기</span>
-                  <input id="selectionFilterInput" type="search" placeholder="선택 항목 검색" autocomplete="off" />
-                </label>
-                <p id="selectionFilterMeta" class="utility-meta">선택 없음</p>
-              </div>
-              <ul id="selectedCountryList" class="selected-country-list"></ul>
-            </div>
-          </details>
+            </section>
 
+            <details class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
+              <summary><strong>Country Profile</strong></summary>
+              <div id="countryStatsPanel" class="country-stats-panel"></div>
+            </details>
+          </aside>
         </div>
       </section>
     </div>
@@ -558,6 +561,6 @@
     <script src="./data/world-lakes.js"></script>
     <script src="./data/country-stats.js?v=20260428a"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260710e"></script>
+    <script src="./app.js?v=20260710f"></script>
   </body>
 </html>
