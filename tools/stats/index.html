@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="../../tokens.css?v=20260716d" />
     <link rel="stylesheet" href="../../base.css?v=20260716d" />
     <link rel="stylesheet" href="../../components.css?v=20260716d" />
-    <link rel="stylesheet" href="./styles.css?v=20260716d" />
+    <link rel="stylesheet" href="./styles.css?v=20260716u" />
   </head>
   <body>
     <div class="tw-page tw-stack data-page">
@@ -49,7 +49,6 @@
         </div>
         <dl class="data-coverage" aria-label="자료 수록 현황">
           <div><dt lang="en">Metrics</dt><dd id="metricCoverage">—</dd></div>
-          <div><dt lang="en">References</dt><dd id="referenceCoverage">—</dd></div>
           <div><dt lang="en">World</dt><dd id="worldCoverage">—</dd></div>
           <div><dt lang="en">Korea</dt><dd id="koreaCoverage">—</dd></div>
         </dl>
@@ -67,25 +66,10 @@
           <div class="workflow-grid" id="workflowGrid"></div>
         </section>
 
-        <section class="tw-panel data-panel" aria-labelledby="patternTitle">
-          <div class="data-section-heading">
-            <div>
-              <p class="data-section-index" lang="en">02 · EXAM PATTERNS</p>
-              <h2 id="patternTitle">기존 SVG에서 확인한 수능형 자료 구조</h2>
-            </div>
-            <p id="patternSummary">—</p>
-          </div>
-          <p class="section-lead">
-            단순 상위 국가 순위는 최종 문항 형식으로 보지 않음. 같은 후보 3~5개를 구성·관계·변화에서 교차시키고,
-            익명 기호는 모든 패널에서 같은 대상을 가리키는 구조를 우선함.
-          </p>
-          <div class="pattern-grid" id="patternGrid"></div>
-        </section>
-
         <section class="tw-panel data-panel" aria-labelledby="metricIndexTitle">
           <div class="data-section-heading">
             <div>
-              <p class="data-section-index" lang="en">03 · METRIC INDEX</p>
+              <p class="data-section-index" lang="en">02 · METRIC INDEX</p>
               <h2 id="metricIndexTitle">최신 통계 색인</h2>
             </div>
             <p id="metricResultCount" aria-live="polite">—</p>
@@ -107,16 +91,6 @@
                 <span>분류</span>
                 <select id="categoryFilter"><option value="all">전체 분류</option></select>
               </label>
-              <label class="data-field">
-                <span>활용</span>
-                <select id="useFilter">
-                  <option value="all">전체 활용</option>
-                  <option value="교차">교차 비교</option>
-                  <option value="구성">구성비</option>
-                  <option value="변화">변화·지수</option>
-                  <option value="Climate Atlas">Climate Atlas</option>
-                </select>
-              </label>
             </div>
           </div>
 
@@ -128,7 +102,6 @@
                   <th scope="col">지표</th>
                   <th scope="col">최신 수록 시점</th>
                   <th scope="col">수록률</th>
-                  <th scope="col">수능형 활용</th>
                   <th scope="col">출처</th>
                 </tr>
               </thead>
@@ -137,27 +110,11 @@
           </div>
           <button class="load-more-button" id="loadMoreMetrics" type="button" hidden>더 보기</button>
         </section>
-
-        <section class="tw-panel data-panel" aria-labelledby="sourceTitle">
-          <div class="data-section-heading">
-            <div>
-              <p class="data-section-index" lang="en">04 · SOURCES</p>
-              <h2 id="sourceTitle">보완 통계와 출처 상태</h2>
-            </div>
-            <p id="sourceSummary">—</p>
-          </div>
-          <div class="source-audit" id="sourceAudit"></div>
-          <label class="data-field source-search-field">
-            <span>자료·기관 검색</span>
-            <input id="sourceSearch" type="search" placeholder="예: FAOSTAT, 에너지, 인구" autocomplete="off" />
-          </label>
-          <div class="source-grid" id="sourceGrid"></div>
-        </section>
       </main>
     </div>
 
     <noscript>통계 색인을 검색하려면 JavaScript가 필요함.</noscript>
     <script src="../../data/statistics-index.js?v=20260716d"></script>
-    <script src="./app.js?v=20260716d"></script>
+    <script src="./app.js?v=20260716u"></script>
   </body>
 </html>

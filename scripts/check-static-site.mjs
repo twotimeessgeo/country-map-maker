@@ -75,11 +75,44 @@ const statsUiText = [
   fs.readFileSync(path.join(rootDir, "tools", "stats", "index.html"), "utf8"),
   fs.readFileSync(path.join(rootDir, "tools", "stats", "app.js"), "utf8"),
 ].join("\n");
-for (const forbidden of ["SidaeAi_S", "downloadSvgButton", "downloadCurrentSvg", "탐색기에서 열기"]) {
+for (const forbidden of [
+  "SidaeAi_S",
+  "downloadSvgButton",
+  "downloadCurrentSvg",
+  "탐색기에서 열기",
+  "기존 SVG에서 확인한 수능형 자료 구조",
+  "보완 통계와 출처 상태",
+  "patternGrid",
+  "sourceAudit",
+]) {
   if (statsUiText.includes(forbidden)) errors.push(`Data Library에 제거 대상 기능이 남아 있습니다: ${forbidden}`);
 }
 
 const mapAppText = fs.readFileSync(path.join(rootDir, "app.js"), "utf8");
+const mapHtmlText = fs.readFileSync(path.join(rootDir, "map.html"), "utf8");
+for (const required of ["stats-module--builder", "examGraphModule", "examGraphPanel"]) {
+  if (!mapHtmlText.includes(required)) errors.push(`Map Editor Graph Builder 구조가 누락되었습니다: ${required}`);
+}
+for (const required of [
+  "Exam Material Builder",
+  "examGraphPresetGroupDefinitions",
+  "buildExamGraphScopeCard",
+  "후보 추천",
+  "자료 추천",
+  "세트 추천",
+]) {
+  if (!mapAppText.includes(required)) errors.push(`Map Editor Graph Builder 제작 흐름이 누락되었습니다: ${required}`);
+}
+const compactMapAppText = mapAppText.replace(/\s+/g, " ");
+for (const required of [
+  "if (!selectedRows.length) { countryRows.sort((a, b) => Number(b.value) - Number(a.value)); }",
+  "if (!selectedRows.length) { countryRows.sort((a, b) => Number(b.totalValue) - Number(a.totalValue)); }",
+  "if (!selectedRows.length) { rows.sort((a, b) => Number(b.lastValue) - Number(a.lastValue)); }",
+]) {
+  if (!compactMapAppText.includes(required)) {
+    errors.push("Graph Builder가 선택 후보 순서를 값순으로 다시 정렬할 수 있습니다.");
+  }
+}
 const randomScenarioStart = mapAppText.indexOf("function getExamGraphRandomScenarioPool()");
 const randomScenarioEnd = mapAppText.indexOf("\nfunction ", randomScenarioStart + 1);
 const randomScenarioText = randomScenarioStart >= 0
@@ -98,6 +131,18 @@ if (!drillScenarioText || /skillKey:\s*["']rank["']/.test(drillScenarioText)) {
 }
 if (/state\.examGraphPresetKey\s*=\s*["']rankBars["']/.test(mapAppText)) {
   errors.push("일반 탐색 동작이 Graph Builder를 단일 지표 순위로 강제합니다.");
+}
+
+for (const climateAppPath of [
+  path.join(rootDir, "tools", "climate", "app.js"),
+  path.join(rootDir, "tools", "climate", "korea-app.js"),
+]) {
+  const climateAppText = fs.readFileSync(climateAppPath, "utf8");
+  for (const required of ["collectNearbyMapCandidates", "renderMapCandidatePicker", "data-map-candidate-id"]) {
+    if (!climateAppText.includes(required)) {
+      errors.push(`${path.relative(rootDir, climateAppPath)}: 밀집 지점 선택 기능이 누락되었습니다: ${required}`);
+    }
+  }
 }
 
 const supplementalPath = path.join(rootDir, "data", "supplemental-stats.json");

@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./base.css?v=20260710h" />
     <link rel="stylesheet" href="./components.css?v=20260710h" />
     <link rel="stylesheet" href="./patterns.css?v=20260710h" />
-    <link rel="stylesheet" href="./styles.css?v=20260716d" />
+    <link rel="stylesheet" href="./styles.css?v=20260716u" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
@@ -534,6 +534,22 @@
         </div>
 
         <div class="app-detail-grid stats-workspace">
+          <details
+            id="examGraphModule"
+            class="tw-data-card app-detail-card app-detail-card--stats stats-module stats-module--builder world-only"
+            hidden
+            open
+          >
+            <summary>
+              <span class="stats-module-summary-copy">
+                <strong lang="en">Graph Builder</strong>
+                <small>후보 → 자료 구조 → 통계 → 출력</small>
+              </span>
+              <span class="tw-badge" lang="en">World</span>
+            </summary>
+            <div id="examGraphPanel" class="exam-graph-panel"></div>
+          </details>
+
           <div class="stats-workspace__main">
             <section
               id="examDrillModule"
@@ -544,11 +560,6 @@
               <header class="stats-module__header"><strong id="examDrillHeading" lang="en">Item Lab</strong></header>
               <div id="examDrillPanel" class="exam-drill-panel"></div>
             </section>
-
-            <details id="examGraphModule" class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-              <summary><strong lang="en">Graph Builder</strong></summary>
-              <div id="examGraphPanel" class="exam-graph-panel"></div>
-            </details>
 
             <details id="metricExplorerModule" class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
               <summary><strong lang="en">World Data</strong></summary>
@@ -602,6 +613,6 @@
     <script src="./data/world-lakes.js"></script>
     <script src="./data/country-stats.js?v=20260716"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260716d"></script>
+    <script src="./app.js?v=20260716u"></script>
   </body>
 </html>

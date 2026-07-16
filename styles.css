@@ -4347,3 +4347,397 @@ code {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Graph Builder workbench */
+.stats-module--builder {
+  grid-column: 1 / -1;
+}
+
+.stats-module--builder > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tw-space-6);
+  min-height: 64px;
+  padding: var(--tw-space-5) var(--tw-space-6);
+}
+
+.stats-module-summary-copy {
+  display: grid;
+  gap: var(--tw-space-1);
+}
+
+.stats-module-summary-copy small {
+  color: var(--tw-muted);
+  font-size: 0.74rem;
+  font-weight: var(--tw-weight-body);
+}
+
+.stats-module--builder > summary .tw-badge {
+  margin-left: auto;
+}
+
+.stats-module--builder .exam-graph-panel {
+  padding: 0;
+}
+
+.exam-graph-workbench {
+  display: grid;
+  grid-template-columns: minmax(340px, 410px) minmax(0, 1fr);
+  align-items: stretch;
+  min-width: 0;
+}
+
+.exam-graph-control-shell {
+  order: 0;
+  gap: 0;
+  padding: var(--tw-space-9);
+  border-right: var(--tw-border);
+  background: var(--tw-panel-soft);
+}
+
+.exam-graph-builder-head {
+  display: grid;
+  gap: var(--tw-space-6);
+  padding-bottom: var(--tw-space-8);
+}
+
+.exam-graph-builder-head__eyebrow,
+.exam-graph-output__eyebrow {
+  margin: 0 0 var(--tw-space-2);
+  color: var(--tw-muted);
+  font-family: var(--tw-font-latin);
+  font-size: 0.68rem;
+  font-weight: var(--tw-weight-latin-ui);
+  letter-spacing: var(--tw-track-kicker);
+  text-transform: uppercase;
+}
+
+.exam-graph-builder-head h3,
+.exam-graph-output__copy h3 {
+  margin: 0;
+  font-size: 1.22rem;
+  letter-spacing: var(--tw-track-heading);
+}
+
+.exam-graph-builder-head > div:first-child > p:last-child,
+.exam-graph-output__copy > p:last-child {
+  margin: var(--tw-space-2) 0 0;
+  color: var(--tw-muted);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.exam-graph-builder-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--tw-space-2);
+}
+
+.exam-graph-builder-action {
+  min-height: 44px;
+  padding: var(--tw-space-2) var(--tw-space-3);
+  border: var(--tw-border);
+  border-radius: 0;
+  background: #ffffff;
+  color: var(--tw-ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: var(--tw-weight-ui);
+  cursor: pointer;
+}
+
+.exam-graph-builder-action:hover,
+.exam-graph-builder-action:focus-visible,
+.exam-graph-builder-action.is-primary {
+  background: var(--tw-ink);
+  color: #ffffff;
+}
+
+.exam-graph-builder-action:focus-visible,
+.exam-graph-preset-card:focus-visible,
+.exam-graph-scope-card__reset:focus-visible {
+  outline: 2px solid var(--tw-ink);
+  outline-offset: 2px;
+}
+
+.exam-graph-step {
+  display: grid;
+  gap: var(--tw-space-5);
+  padding: var(--tw-space-8) 0;
+  border-top: 1px solid var(--tw-line-soft);
+}
+
+.exam-graph-step__header {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: var(--tw-space-3);
+  align-items: start;
+}
+
+.exam-graph-step__index {
+  padding-top: 2px;
+  color: var(--tw-muted);
+  font-family: var(--tw-font-latin);
+  font-size: 0.7rem;
+  font-weight: var(--tw-weight-latin-ui);
+}
+
+.exam-graph-step__header h4 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.exam-graph-step__header p {
+  margin: var(--tw-space-1) 0 0;
+  color: var(--tw-muted);
+  font-size: 0.73rem;
+  line-height: 1.55;
+}
+
+.exam-graph-step__body {
+  min-width: 0;
+  padding-left: 40px;
+}
+
+.exam-graph-scope-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--tw-space-3);
+  align-items: start;
+  padding: var(--tw-space-4);
+  border: var(--tw-border);
+  background: #ffffff;
+}
+
+.exam-graph-scope-card__copy {
+  min-width: 0;
+}
+
+.exam-graph-scope-card__copy strong {
+  font-size: 0.84rem;
+}
+
+.exam-graph-scope-card__copy p {
+  margin: var(--tw-space-1) 0 0;
+  color: var(--tw-muted);
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.exam-graph-scope-card__badge {
+  padding: 4px 7px;
+  border: 1px solid var(--tw-line-soft);
+  color: var(--tw-muted);
+  font-size: 0.66rem;
+  font-weight: var(--tw-weight-ui);
+  white-space: nowrap;
+}
+
+.exam-graph-scope-card__reset {
+  grid-column: 1 / -1;
+  min-height: 40px;
+  padding: var(--tw-space-2) var(--tw-space-3);
+  border: var(--tw-border);
+  background: var(--tw-panel-soft);
+  color: var(--tw-ink);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: var(--tw-weight-ui);
+  cursor: pointer;
+}
+
+.exam-graph-preset-groups {
+  display: grid;
+  gap: var(--tw-space-5);
+}
+
+.exam-graph-preset-group {
+  display: grid;
+  gap: var(--tw-space-2);
+}
+
+.exam-graph-preset-group > header {
+  display: grid;
+  gap: 2px;
+}
+
+.exam-graph-preset-group > header strong {
+  font-size: 0.76rem;
+}
+
+.exam-graph-preset-group > header span {
+  color: var(--tw-muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.exam-graph-preset-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--tw-space-2);
+}
+
+.exam-graph-preset-card {
+  display: grid;
+  min-width: 0;
+  min-height: 76px;
+  align-content: start;
+  gap: var(--tw-space-1);
+  padding: var(--tw-space-3);
+  border: var(--tw-border);
+  border-radius: 0;
+  background: #ffffff;
+  color: var(--tw-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.exam-graph-preset-card strong {
+  font-size: 0.78rem;
+}
+
+.exam-graph-preset-card span {
+  color: var(--tw-muted);
+  font-size: 0.67rem;
+  line-height: 1.42;
+}
+
+.exam-graph-preset-card:hover,
+.exam-graph-preset-card.is-active {
+  background: var(--tw-ink);
+  color: #ffffff;
+}
+
+.exam-graph-preset-card:hover span,
+.exam-graph-preset-card.is-active span {
+  color: #d6d6d6;
+}
+
+.exam-graph-step .exam-graph-controls {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--tw-space-3);
+}
+
+.exam-graph-step .exam-graph-control,
+.exam-graph-step .exam-graph-toggle {
+  min-width: 0;
+}
+
+.exam-graph-step .exam-graph-control input,
+.exam-graph-step .exam-graph-control select,
+.exam-graph-step .exam-graph-toggle {
+  min-height: 46px;
+}
+
+.exam-graph-output-hint {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: var(--tw-space-3);
+  border: 1px solid var(--tw-line-soft);
+  color: var(--tw-muted);
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+.exam-graph-output {
+  order: 1;
+  min-width: 0;
+  padding: var(--tw-space-9);
+  background: #ffffff;
+}
+
+.exam-graph-output__header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--tw-space-6);
+  margin-bottom: var(--tw-space-8);
+  padding-bottom: var(--tw-space-6);
+  border-bottom: 1px solid var(--tw-line-soft);
+}
+
+.exam-graph-readiness {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--tw-space-2);
+}
+
+.exam-graph-readiness span {
+  padding: 5px 8px;
+  border: 1px solid var(--tw-line-soft);
+  color: var(--tw-muted);
+  font-size: 0.68rem;
+  font-weight: var(--tw-weight-ui);
+  white-space: nowrap;
+}
+
+.exam-graph-output .exam-graph-grid {
+  grid-template-columns: minmax(0, 1.55fr) minmax(220px, 0.65fr);
+  gap: var(--tw-space-7);
+}
+
+.exam-graph-output .exam-graph-side-column {
+  position: sticky;
+  top: var(--tw-space-7);
+}
+
+@media (max-width: 1180px) {
+  .exam-graph-workbench {
+    grid-template-columns: minmax(300px, 360px) minmax(0, 1fr);
+  }
+
+  .exam-graph-output .exam-graph-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-graph-output .exam-graph-side-column {
+    position: static;
+  }
+}
+
+@media (max-width: 900px) {
+  .exam-graph-workbench {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-graph-control-shell {
+    border-right: 0;
+    border-bottom: var(--tw-border);
+  }
+}
+
+@media (max-width: 620px) {
+  .exam-graph-output__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .stats-module--builder > summary .tw-badge {
+    display: none;
+  }
+
+  .exam-graph-control-shell,
+  .exam-graph-output {
+    padding: var(--tw-space-6);
+  }
+
+  .exam-graph-builder-actions,
+  .exam-graph-step .exam-graph-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .exam-graph-step__body {
+    padding-left: 0;
+  }
+
+  .exam-graph-preset-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .exam-graph-readiness {
+    justify-content: flex-start;
+  }
+}

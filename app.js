@@ -1162,53 +1162,80 @@ const EXAM_GRAPH_CLIMATE_LINE_STYLES = [
 const examGraphPresetDefinitions = [
   {
     key: "stacked100",
-    label: "누적 막대",
+    label: "구성비 누적",
     description: "구성 비중 또는 실제 양을 누적으로 비교",
     allowedValueModes: ["share", "amount"],
   },
   {
     key: "groupedBars",
-    label: "묶음 막대",
+    label: "구성 요소 비교",
     description: "여러 구성 지표를 같은 축에서 나란히 비교",
     allowedValueModes: ["amount", "share"],
   },
   {
     key: "pairedBars",
-    label: "비교 막대",
+    label: "두 지표 비교",
     description: "두 지표를 나란히 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
     key: "timeCompare",
-    label: "2시점 막대",
+    label: "두 시점 변화",
     description: "두 시점의 값을 나란히 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
     key: "trendLine",
-    label: "시계열 선",
+    label: "변화 추이",
     description: "여러 국가·대륙의 변화를 선으로 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
     key: "scatter",
-    label: "산포도",
+    label: "관계·규모",
     description: "두 지표의 관계를 흑백 산포도로 정리",
     allowedValueModes: [],
   },
   {
     key: "top3share",
-    label: "상위 3개 누적",
+    label: "대륙 내 집중도",
     description: "대륙별 상위 3개국과 기타 비중을 비교",
     allowedValueModes: ["share"],
   },
   {
     key: "rankBars",
-    label: "단일 지표 막대",
+    label: "단일 지표 비교",
     description: "직접 고른 후보 안에서 한 지표를 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
 ];
+const examGraphPresetGroupDefinitions = [
+  {
+    key: "comparison",
+    label: "구성·대조",
+    description: "같은 후보의 내부 구조와 두 지표를 비교",
+    presetKeys: ["stacked100", "groupedBars", "pairedBars"],
+  },
+  {
+    key: "change",
+    label: "변화·시계열",
+    description: "두 시점의 차이와 변화 경로를 비교",
+    presetKeys: ["timeCompare", "trendLine"],
+  },
+  {
+    key: "relationship",
+    label: "관계·분포",
+    description: "두 변수의 관계와 예외 후보를 확인",
+    presetKeys: ["scatter"],
+  },
+  {
+    key: "support",
+    label: "보조 자료",
+    description: "지역 내 집중도나 직접 고른 후보를 확인",
+    presetKeys: ["top3share", "rankBars"],
+  },
+];
+let examGraphControlIdSequence = 0;
 const examGraphReadableLabelMap = new Map([
   ["Bolivia, Plurinational State of", "Bolivia"],
   ["Congo, the Democratic Republic of the", "DR Congo"],
@@ -2226,9 +2253,6 @@ const state = {
   examGraphScatterSizeKey: "population-total",
   examGraphFocusCountryIds: [],
   examGraphFocusLabel: "",
-  examGraphDesignExpanded: false,
-  examGraphDataExpanded: false,
-  examGraphActionsExpanded: false,
   guides: {
     equator: false,
     lat30: false,
@@ -13843,7 +13867,6 @@ function applyExamDrillResultToBuilder(panelIndex = 0) {
   state.examGraphPreviewCount = 1;
   state.examGraphFontSizePt = 8;
   state.examGraphMergeAmericas = false;
-  state.examGraphActionsExpanded = false;
   if (panelDefinition.config.metricKey) {
     const definition = getMetricExplorerDefinitionByKey(getMetricExplorerDefinitions(), panelDefinition.config.metricKey);
     if (definition) {
@@ -14158,28 +14181,59 @@ function renderExamGraphPanel() {
   const model = buildExamGraphModel();
   const shell = document.createElement("div");
   shell.className = "exam-graph-shell";
-  shell.appendChild(buildExamGraphControls());
+  const workbench = document.createElement("div");
+  workbench.className = "exam-graph-workbench";
+  examGraphControlIdSequence = 0;
+  workbench.appendChild(buildExamGraphControls());
+
+  const output = document.createElement("section");
+  output.className = "exam-graph-output";
+  output.setAttribute("aria-label", "그래프 미리보기와 값");
 
   if (!model) {
-    shell.appendChild(
+    output.appendChild(
       createEmptyState(
         state.examGraphPresetKey
-          ? "현재 범위에 표시할 값이 없습니다. Data에서 지표나 비교 단위를 바꿔 보세요."
-          : "‘누적 막대’를 선택해 후보 간 구성 차이를 불러오세요.",
+          ? "현재 후보와 지표로 만들 수 있는 자료가 없습니다. 후보 또는 통계 설정을 바꿔 보세요."
+          : "‘구성비 누적’을 선택해 후보 간 구성 차이를 불러오세요.",
       ),
     );
+    workbench.appendChild(output);
+    shell.appendChild(workbench);
     elements.examGraphPanel.appendChild(shell);
     return;
   }
 
-  const summary = document.createElement("div");
-  summary.className = "exam-graph-summary";
-  summary.append(
-    createMetricExplorerSummaryCard("프리셋", model.presetLabel, model.title),
-    createMetricExplorerSummaryCard("비교 단위", model.groupLabel, model.scopeLabel),
-    createMetricExplorerSummaryCard("표시 방식", model.displayModeLabel ?? "기본", model.displayModeDetail ?? model.metricDetail),
-    createMetricExplorerSummaryCard("데이터", model.metricLabel, model.metricDetail),
-  );
+  const outputHeader = document.createElement("header");
+  outputHeader.className = "exam-graph-output__header";
+  const outputCopy = document.createElement("div");
+  outputCopy.className = "exam-graph-output__copy";
+  const outputEyebrow = document.createElement("p");
+  outputEyebrow.className = "exam-graph-output__eyebrow";
+  outputEyebrow.lang = "en";
+  outputEyebrow.textContent = "Live Preview";
+  const outputTitle = document.createElement("h3");
+  outputTitle.textContent = model.title;
+  const outputMeta = document.createElement("p");
+  outputMeta.textContent = [model.presetLabel, model.scopeLabel, model.displayModeLabel, state.examGraphAliasMode ? "가명 적용" : "실명 표시"]
+    .filter(Boolean)
+    .join(" · ");
+  outputCopy.append(outputEyebrow, outputTitle, outputMeta);
+
+  const readiness = document.createElement("div");
+  readiness.className = "exam-graph-readiness";
+  const scopeCount = Array.isArray(model.rows) ? model.rows.length : getExamGraphSelectedCountryRows().length || getExamGraphTopN();
+  [
+    `${scopeCount}개 후보`,
+    `${formatExamGraphPtLabel()}`,
+    state.examGraphAliasMode ? "문항 라벨" : "원래 이름",
+  ].forEach((label) => {
+    const item = document.createElement("span");
+    item.textContent = label;
+    readiness.appendChild(item);
+  });
+  outputHeader.append(outputCopy, readiness);
+
   const grid = document.createElement("div");
   grid.className = "exam-graph-grid";
   grid.appendChild(buildExamGraphPreviewGallery(model));
@@ -14192,80 +14246,58 @@ function renderExamGraphPanel() {
   }
   grid.appendChild(sideColumn);
 
-  shell.appendChild(grid);
+  output.append(outputHeader, grid);
+  workbench.appendChild(output);
+  shell.appendChild(workbench);
   elements.examGraphPanel.appendChild(shell);
 }
 
 function buildExamGraphControls() {
   const wrapper = document.createElement("div");
   wrapper.className = "exam-graph-control-shell";
+  const activePreset = getExamGraphPresetDefinition();
 
-  const presetLegend = document.createElement("p");
-  presetLegend.className = "exam-graph-guide";
-  presetLegend.lang = "en";
-  presetLegend.textContent = "Chart Type";
-  wrapper.appendChild(presetLegend);
+  const heading = document.createElement("header");
+  heading.className = "exam-graph-builder-head";
+  const headingCopy = document.createElement("div");
+  const eyebrow = document.createElement("p");
+  eyebrow.className = "exam-graph-builder-head__eyebrow";
+  eyebrow.lang = "en";
+  eyebrow.textContent = "Exam Material Builder";
+  const title = document.createElement("h3");
+  title.textContent = activePreset?.label ?? "자료 구조 선택";
+  const description = document.createElement("p");
+  description.textContent = activePreset?.description ?? "후보와 자료 구조를 고르면 미리보기가 즉시 갱신됩니다.";
+  headingCopy.append(eyebrow, title, description);
 
-  const referenceNote = document.createElement("p");
-  referenceNote.className = "exam-graph-reference-note";
-  referenceNote.textContent = "기존 통계 SVG 레퍼런스를 기준으로 구성·교차 지표·변화·관계형을 앞에 배치함. 단일 지표 막대는 직접 고른 후보의 확인용임.";
-  wrapper.appendChild(referenceNote);
+  const quickActions = document.createElement("div");
+  quickActions.className = "exam-graph-builder-actions";
+  quickActions.append(
+    buildExamGraphActionButton("후보 추천", () => applyExamGraphRandomCountries(), "출제에 적합한 후보군을 추천"),
+    buildExamGraphActionButton("자료 추천", () => applyExamGraphRandomScenario({ graphOnly: true }), "현재 후보에 맞는 통계를 추천"),
+    buildExamGraphActionButton("세트 추천", () => applyExamGraphRandomScenario(), "후보와 통계를 함께 추천", true),
+  );
+  heading.append(headingCopy, quickActions);
+  wrapper.appendChild(heading);
 
-  const presetRow = document.createElement("div");
-  presetRow.className = "exam-graph-chip-row";
-  examGraphPresetDefinitions.forEach((definition) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "exam-graph-chip";
-    button.dataset.examGraphPreset = definition.key;
-    button.classList.toggle("is-active", definition.key === state.examGraphPresetKey);
-    button.textContent = definition.label;
-    button.title = definition.description;
-    button.setAttribute("aria-pressed", String(definition.key === state.examGraphPresetKey));
-    button.addEventListener("click", () => {
-      updateExamGraphState("비교 그래프 변경", () => {
-        state.examGraphPresetKey = definition.key;
-      });
-    });
-    presetRow.appendChild(button);
-  });
-  wrapper.appendChild(presetRow);
+  wrapper.appendChild(
+    buildExamGraphWorkflowStep({
+      number: 1,
+      title: "후보",
+      detail: "지도에서 직접 고르거나 출제용 조합을 추천받음",
+      contentNode: buildExamGraphScopeCard(),
+    }),
+  );
+  wrapper.appendChild(
+    buildExamGraphWorkflowStep({
+      number: 2,
+      title: "자료 구조",
+      detail: "순위가 아니라 구성·변화·관계 중 판별 논리를 먼저 선택",
+      contentNode: buildExamGraphPresetPicker(),
+    }),
+  );
 
-  const actionRow = document.createElement("div");
-  actionRow.className = "exam-graph-action-row";
-  [
-    {
-      label: "지도 선택 사용",
-      active: getExamGraphScopeMode() !== "focus",
-      handler: () => {
-        updateExamGraphState("비교 그래프 대상 복귀", () => {
-          state.examGraphFocusCountryIds = [];
-          state.examGraphFocusLabel = "";
-        });
-        setStatus("그래프 범위를 지도 선택 기준으로 되돌렸습니다.");
-      },
-    },
-  ].forEach((config) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "exam-graph-chip exam-graph-chip--action";
-    button.classList.toggle("is-active", Boolean(config.active));
-    button.textContent = config.label;
-    button.addEventListener("click", config.handler);
-    actionRow.appendChild(button);
-  });
-  const actionDisclosure = buildControlDisclosure({
-    title: "Scope",
-    detail: "지도 선택 기준으로 되돌리기",
-    contentNode: actionRow,
-    open: state.examGraphActionsExpanded,
-    onToggle: (nextOpen) => {
-      state.examGraphActionsExpanded = nextOpen;
-    },
-  });
-
-  if (!getExamGraphPresetDefinition()) {
-    wrapper.appendChild(actionDisclosure);
+  if (!activePreset) {
     return wrapper;
   }
 
@@ -14348,10 +14380,15 @@ function buildExamGraphControls() {
       : null;
   const shouldShowMergeAmericas = state.examGraphGrouping === "continents" || state.examGraphPresetKey === "top3share";
 
+  designControls.appendChild(aliasField);
   if (shouldShowMergeAmericas) {
     designControls.appendChild(mergeAmericasField);
   }
-  designControls.append(orientationField, previewCountField, fontSizeField, aliasField);
+  designControls.append(orientationField, previewCountField, fontSizeField);
+  const outputHint = document.createElement("p");
+  outputHint.className = "exam-graph-output-hint";
+  outputHint.textContent = "그래프 값 CSV와 가명 정답표는 미리보기 옆에서 바로 확인할 수 있음.";
+  designControls.appendChild(outputHint);
 
   if (state.examGraphPresetKey === "stacked100" || state.examGraphPresetKey === "groupedBars") {
     coreControls.append(
@@ -14501,29 +14538,145 @@ function buildExamGraphControls() {
   }
 
   wrapper.appendChild(
-    buildControlDisclosure({
-      title: "Data",
-      detail: getExamGraphPresetDefinition()?.label ?? "그래프 설정",
+    buildExamGraphWorkflowStep({
+      number: 3,
+      title: "통계 설정",
+      detail: `${activePreset.label}에 들어갈 지표·단위·시점을 조정`,
       contentNode: coreControls,
-      open: state.examGraphDataExpanded,
-      onToggle: (nextOpen) => {
-        state.examGraphDataExpanded = nextOpen;
-      },
     }),
   );
   wrapper.appendChild(
-    buildControlDisclosure({
-      title: "Appearance",
-      detail: `${getExamGraphStyleModeDefinition().label} · ${getExamGraphOrientationLabel()} · ${getExamGraphPreviewCount()}개 나란히 · ${formatExamGraphPtLabel()}`,
+    buildExamGraphWorkflowStep({
+      number: 4,
+      title: "출력 설정",
+      detail: `${getExamGraphOrientationLabel()} · ${getExamGraphPreviewCount()}개 · ${formatExamGraphPtLabel()}`,
       contentNode: designControls,
-      open: state.examGraphDesignExpanded,
-      onToggle: (nextOpen) => {
-        state.examGraphDesignExpanded = nextOpen;
-      },
     }),
   );
-  wrapper.appendChild(actionDisclosure);
   return wrapper;
+}
+
+function buildExamGraphActionButton(label, onClick, title = "", primary = false) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "exam-graph-builder-action";
+  button.classList.toggle("is-primary", primary);
+  button.textContent = label;
+  button.title = title;
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function buildExamGraphWorkflowStep({ number, title, detail, contentNode }) {
+  const section = document.createElement("section");
+  section.className = "exam-graph-step";
+  section.dataset.step = String(number);
+
+  const header = document.createElement("header");
+  header.className = "exam-graph-step__header";
+  const index = document.createElement("span");
+  index.className = "exam-graph-step__index";
+  index.textContent = String(number).padStart(2, "0");
+  const copy = document.createElement("div");
+  const heading = document.createElement("h4");
+  heading.textContent = title;
+  const description = document.createElement("p");
+  description.textContent = detail;
+  copy.append(heading, description);
+  header.append(index, copy);
+
+  const body = document.createElement("div");
+  body.className = "exam-graph-step__body";
+  body.appendChild(contentNode);
+  section.append(header, body);
+  return section;
+}
+
+function buildExamGraphScopeCard() {
+  const scopeMode = getExamGraphScopeMode();
+  const rows = getExamGraphSelectedCountryRows();
+  const card = document.createElement("div");
+  card.className = "exam-graph-scope-card";
+
+  const copy = document.createElement("div");
+  copy.className = "exam-graph-scope-card__copy";
+  const label = document.createElement("strong");
+  label.textContent = getExamGraphScopeSourceText();
+  const detail = document.createElement("p");
+  if (rows.length) {
+    const visibleNames = rows.slice(0, 5).map((row) => getExamGraphReadableLabel(row.label));
+    detail.textContent = `${visibleNames.join(" · ")}${rows.length > visibleNames.length ? ` 외 ${rows.length - visibleNames.length}개` : ""}`;
+  } else {
+    detail.textContent = `지도에서 3~5개 국가를 고르거나 후보 추천을 사용함 · 현재 ${getExamGraphTopN()}개 자동 추출`;
+  }
+  copy.append(label, detail);
+
+  const badge = document.createElement("span");
+  badge.className = "exam-graph-scope-card__badge";
+  badge.textContent = scopeMode === "focus" ? "추천 후보" : scopeMode === "selected" ? `${rows.length}개 선택` : "자동 범위";
+  card.append(copy, badge);
+
+  if (scopeMode === "focus") {
+    const reset = document.createElement("button");
+    reset.type = "button";
+    reset.className = "exam-graph-scope-card__reset";
+    reset.textContent = "지도 선택으로 복귀";
+    reset.addEventListener("click", () => {
+      updateExamGraphState("비교 그래프 대상 복귀", () => {
+        state.examGraphFocusCountryIds = [];
+        state.examGraphFocusLabel = "";
+      });
+      setStatus("그래프 범위를 지도 선택 기준으로 되돌렸습니다.");
+    });
+    card.appendChild(reset);
+  }
+  return card;
+}
+
+function buildExamGraphPresetPicker() {
+  const picker = document.createElement("div");
+  picker.className = "exam-graph-preset-groups";
+  examGraphPresetGroupDefinitions.forEach((groupDefinition) => {
+    const group = document.createElement("section");
+    group.className = "exam-graph-preset-group";
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", groupDefinition.label);
+    const heading = document.createElement("header");
+    const title = document.createElement("strong");
+    title.textContent = groupDefinition.label;
+    const description = document.createElement("span");
+    description.textContent = groupDefinition.description;
+    heading.append(title, description);
+
+    const options = document.createElement("div");
+    options.className = "exam-graph-preset-options";
+    groupDefinition.presetKeys.forEach((presetKey) => {
+      const definition = examGraphPresetDefinitions.find((entry) => entry.key === presetKey);
+      if (!definition) {
+        return;
+      }
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "exam-graph-preset-card";
+      button.dataset.examGraphPreset = definition.key;
+      button.classList.toggle("is-active", definition.key === state.examGraphPresetKey);
+      button.setAttribute("aria-pressed", String(definition.key === state.examGraphPresetKey));
+      const label = document.createElement("strong");
+      label.textContent = definition.label;
+      const detail = document.createElement("span");
+      detail.textContent = definition.description;
+      button.append(label, detail);
+      button.addEventListener("click", () => {
+        updateExamGraphState("비교 그래프 변경", () => {
+          state.examGraphPresetKey = definition.key;
+        });
+      });
+      options.appendChild(button);
+    });
+    group.append(heading, options);
+    picker.appendChild(group);
+  });
+  return picker;
 }
 
 function getExamGraphValueModeOptionsForCurrentPreset() {
@@ -14562,6 +14715,9 @@ function buildExamGraphSelectField(labelText, options, activeValue, onChange) {
   const label = document.createElement("label");
   label.textContent = labelText;
   const select = document.createElement("select");
+  examGraphControlIdSequence += 1;
+  select.id = `examGraphControl${examGraphControlIdSequence}`;
+  label.htmlFor = select.id;
   options.forEach((optionConfig) => {
     const option = document.createElement("option");
     option.value = optionConfig.key;
@@ -14580,12 +14736,15 @@ function buildExamGraphNumberField(labelText, value, min, max, onChange, { step 
   const label = document.createElement("label");
   label.textContent = labelText;
   const input = document.createElement("input");
+  examGraphControlIdSequence += 1;
+  input.id = `examGraphControl${examGraphControlIdSequence}`;
+  label.htmlFor = input.id;
   input.type = "number";
   input.min = String(min);
   input.max = String(max);
   input.step = String(step);
   input.value = String(value);
-  input.addEventListener("input", () => {
+  input.addEventListener("change", () => {
     onChange(clamp(roundToStep(Number(input.value) || value, step), min, max));
   });
   field.append(label, input);
@@ -16152,8 +16311,11 @@ function getExamGraphMetricRows(definition, grouping) {
         continent: entry.stats?.continent?.name ?? "",
       };
     })
-    .filter(Boolean)
-    .sort((a, b) => Number(b.value) - Number(a.value));
+    .filter(Boolean);
+
+  if (!selectedRows.length) {
+    countryRows.sort((a, b) => Number(b.value) - Number(a.value));
+  }
 
   if (grouping === "countries") {
     const rows = selectedRows.length ? countryRows : countryRows.slice(0, getExamGraphTopN());
@@ -16232,8 +16394,11 @@ function getExamGraphPairRows(pairDefinition, grouping) {
         continent: entry.stats?.continent?.name ?? "",
       };
     })
-    .filter(Boolean)
-    .sort((a, b) => Number(b.totalValue) - Number(a.totalValue));
+    .filter(Boolean);
+
+  if (!selectedRows.length) {
+    countryRows.sort((a, b) => Number(b.totalValue) - Number(a.totalValue));
+  }
 
   if (grouping === "countries") {
     const rows = selectedRows.length ? countryRows : countryRows.slice(0, getExamGraphTopN());
@@ -16309,8 +16474,11 @@ function getExamGraphTrendRows(definition, grouping, yearStart, yearEnd) {
           lastValue: Number(points[points.length - 1]?.value) || 0,
         };
       })
-      .filter(Boolean)
-      .sort((a, b) => Number(b.lastValue) - Number(a.lastValue));
+      .filter(Boolean);
+
+    if (!selectedRows.length) {
+      rows.sort((a, b) => Number(b.lastValue) - Number(a.lastValue));
+    }
 
     const limitedRows = selectedRows.length ? rows : rows.slice(0, clamp(getExamGraphTopN(), 2, 6));
     return {

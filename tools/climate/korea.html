@@ -13,7 +13,7 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260710h" />
+    <link rel="stylesheet" href="styles.css?v=20260716t" />
   </head>
   <body data-app-mode="korea">
     <div class="page-shell">
@@ -124,6 +124,17 @@
                 </div>
               </div>
               <div id="worldMap"></div>
+              <p class="map-selection-help" id="mapSelectionHelp">
+                점이 밀집된 곳은 점을 누르면 클릭 위치에 가까운 후보를 펼칩니다.
+              </p>
+              <div
+                class="map-candidate-picker"
+                id="mapCandidatePicker"
+                role="region"
+                aria-label="지도 주변 지점 선택"
+                aria-live="polite"
+                hidden
+              ></div>
             </article>
 
             <article class="region-picker">
@@ -165,6 +176,6 @@
     <script src="data/korea-climate-data.js?v=20260716"></script>
     <script src="data/korea-peninsula-geo.js"></script>
     <script src="data/vendor-d3.min.js"></script>
-    <script src="korea-app.js?v=20260716s"></script>
+    <script src="korea-app.js?v=20260716t"></script>
   </body>
 </html>
