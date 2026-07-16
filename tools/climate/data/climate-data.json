@@ -10970,6 +10970,3549 @@
         "status": "aligned",
         "appDerivedGroup": "Cfa"
       }
+    },
+    {
+      "name": "킨샤사",
+      "englishName": "Kinshasa",
+      "aliases": [
+        "킨샤사",
+        "Kinshasa"
+      ],
+      "continent": "아프리카",
+      "country": "Democratic Republic of the Congo",
+      "countryCode": "CD",
+      "timezone": "Africa/Kinshasa",
+      "elevationM": 309,
+      "climateCode": "Aw",
+      "climateGroup": "Aw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        26.1,
+        26.6,
+        26.9,
+        26.6,
+        26.2,
+        24.3,
+        23.5,
+        24.3,
+        25.7,
+        26.1,
+        25.9,
+        25.9
+      ],
+      "monthlyPrecipitationMm": [
+        190.8,
+        167.2,
+        188.1,
+        248.9,
+        169.6,
+        14.6,
+        4.5,
+        8.7,
+        49.3,
+        136.4,
+        273.6,
+        274.3
+      ],
+      "annualMeanTemperatureC": 25.7,
+      "annualPrecipitationMm": 1726,
+      "coordinates": {
+        "latitude": -4.38,
+        "longitude": 15.43
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "64210",
+        "jmaStationName": "キンシャサ",
+        "country": "コンゴ（民主共和国）",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=64210",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=12820",
+        "rawCacheFile": "kinshasa_jma_1991_2020_64210.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-130",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Aw"
+      }
+    },
+    {
+      "name": "안타나나리보",
+      "englishName": "Antananarivo",
+      "aliases": [
+        "안타나나리보",
+        "Antananarivo"
+      ],
+      "continent": "아프리카",
+      "country": "Madagascar",
+      "countryCode": "MG",
+      "timezone": "Indian/Antananarivo",
+      "elevationM": 1279,
+      "climateCode": "Cw",
+      "climateGroup": "Cw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        21.3,
+        21.4,
+        21.1,
+        20.1,
+        17.9,
+        15.5,
+        14.6,
+        15.6,
+        17.3,
+        19.4,
+        20.8,
+        21.4
+      ],
+      "monthlyPrecipitationMm": [
+        379.4,
+        286.3,
+        227.5,
+        43.9,
+        11.6,
+        3.8,
+        5.9,
+        4.9,
+        9.8,
+        44.7,
+        143.4,
+        283.2
+      ],
+      "annualMeanTemperatureC": 18.9,
+      "annualPrecipitationMm": 1444.4,
+      "coordinates": {
+        "latitude": -18.8,
+        "longitude": 47.48
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "67083",
+        "jmaStationName": "アンタナナリボ",
+        "country": "マダガスカル",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=67083",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=14300",
+        "rawCacheFile": "antananarivo_jma_1991_2020_67083.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-131",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cw"
+      }
+    },
+    {
+      "name": "바마코",
+      "englishName": "Bamako",
+      "aliases": [
+        "바마코",
+        "Bamako"
+      ],
+      "continent": "아프리카",
+      "country": "Mali",
+      "countryCode": "ML",
+      "timezone": "Africa/Bamako",
+      "elevationM": 380,
+      "climateCode": "Aw",
+      "climateGroup": "Aw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        25,
+        28.1,
+        30.9,
+        32.4,
+        31.4,
+        28.8,
+        26.4,
+        25.6,
+        26.1,
+        27.2,
+        26.8,
+        25.2
+      ],
+      "monthlyPrecipitationMm": [
+        0.4,
+        0,
+        5.4,
+        14.8,
+        72.3,
+        116.5,
+        239.3,
+        270.3,
+        176.1,
+        54.3,
+        1.9,
+        0
+      ],
+      "annualMeanTemperatureC": 27.8,
+      "annualPrecipitationMm": 951.3,
+      "coordinates": {
+        "latitude": 12.53,
+        "longitude": -7.95
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "61291",
+        "jmaStationName": "バマコ",
+        "country": "マリ",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=61291",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=10600",
+        "rawCacheFile": "bamako_jma_1991_2020_61291.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-132",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Aw"
+      }
+    },
+    {
+      "name": "베이라",
+      "englishName": "Beira",
+      "aliases": [
+        "베이라",
+        "Beira"
+      ],
+      "continent": "아프리카",
+      "country": "Mozambique",
+      "countryCode": "MZ",
+      "timezone": "Africa/Maputo",
+      "elevationM": 8,
+      "climateCode": "Aw",
+      "climateGroup": "Aw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        28.2,
+        28.1,
+        27.4,
+        25.7,
+        23.6,
+        21.6,
+        21.1,
+        22,
+        23.7,
+        25.3,
+        26.9,
+        27.6
+      ],
+      "monthlyPrecipitationMm": [
+        293.5,
+        312.9,
+        206.3,
+        133.9,
+        47.1,
+        42.9,
+        56,
+        20.5,
+        21.3,
+        37.5,
+        81.9,
+        221.3
+      ],
+      "annualMeanTemperatureC": 25.1,
+      "annualPrecipitationMm": 1475.1,
+      "coordinates": {
+        "latitude": -19.8,
+        "longitude": 34.9
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "67297",
+        "jmaStationName": "ベイラ",
+        "country": "モザンビーク",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=67297",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=14400",
+        "rawCacheFile": "beira_jma_1991_2020_67297.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-133",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Aw"
+      }
+    },
+    {
+      "name": "불라와요",
+      "englishName": "Bulawayo",
+      "aliases": [
+        "불라와요",
+        "Bulawayo"
+      ],
+      "continent": "아프리카",
+      "country": "Zimbabwe",
+      "countryCode": "ZW",
+      "timezone": "Africa/Harare",
+      "elevationM": 1343,
+      "climateCode": "BS",
+      "climateGroup": "BS",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        21.9,
+        21.7,
+        20.9,
+        19.2,
+        16.8,
+        14.5,
+        14.2,
+        16.7,
+        20.8,
+        22.5,
+        22.7,
+        22.2
+      ],
+      "monthlyPrecipitationMm": [
+        126.3,
+        115.6,
+        71.5,
+        35.3,
+        4.1,
+        5.2,
+        0.8,
+        0,
+        5.4,
+        29.2,
+        65,
+        105.3
+      ],
+      "annualMeanTemperatureC": 19.5,
+      "annualPrecipitationMm": 563.7,
+      "coordinates": {
+        "latitude": -20.15,
+        "longitude": 28.62
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "67964",
+        "jmaStationName": "ブラワヨ",
+        "country": "ジンバブエ",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=67964",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=14700",
+        "rawCacheFile": "bulawayo_jma_1991_2020_67964.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-134",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "BS"
+      }
+    },
+    {
+      "name": "아부다비",
+      "englishName": "Abu Dhabi",
+      "aliases": [
+        "아부다비",
+        "Abu Dhabi"
+      ],
+      "continent": "아시아",
+      "country": "United Arab Emirates",
+      "countryCode": "AE",
+      "timezone": "Asia/Dubai",
+      "elevationM": 16,
+      "climateCode": "Bw",
+      "climateGroup": "Bw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        19.2,
+        20.6,
+        23.4,
+        27.7,
+        31.8,
+        33.8,
+        35.5,
+        36,
+        33.3,
+        29.8,
+        25.2,
+        21.1
+      ],
+      "monthlyPrecipitationMm": [
+        9.1,
+        6.1,
+        12.6,
+        4.8,
+        0.3,
+        0,
+        0.1,
+        0,
+        0,
+        0.3,
+        3,
+        6.9
+      ],
+      "annualMeanTemperatureC": 28.1,
+      "annualPrecipitationMm": 43.2,
+      "coordinates": {
+        "latitude": 24.43,
+        "longitude": 54.65
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "41217",
+        "jmaStationName": "アブダビ国際空港",
+        "country": "アラブ首長国連邦",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=41217",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=20360",
+        "rawCacheFile": "abu_dhabi_jma_1991_2020_41217.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-135",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Bw"
+      }
+    },
+    {
+      "name": "아스타나",
+      "englishName": "Astana",
+      "aliases": [
+        "아스타나",
+        "Astana"
+      ],
+      "continent": "유라시아",
+      "country": "Kazakhstan",
+      "countryCode": "KZ",
+      "timezone": "Asia/Almaty",
+      "elevationM": null,
+      "climateCode": "Df",
+      "climateGroup": "Df",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        -14.5,
+        -13.5,
+        -6,
+        6.6,
+        14.5,
+        19.6,
+        20.7,
+        19.2,
+        12.6,
+        5.2,
+        -5.2,
+        -12
+      ],
+      "monthlyPrecipitationMm": [
+        18.3,
+        16.5,
+        19.2,
+        22.1,
+        33.8,
+        41.1,
+        53.8,
+        29.4,
+        20.9,
+        26.6,
+        27.3,
+        24.6
+      ],
+      "annualMeanTemperatureC": 3.9,
+      "annualPrecipitationMm": 333.6,
+      "coordinates": {
+        "latitude": 51.13,
+        "longitude": 71.37
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "35188",
+        "jmaStationName": "アスタナ",
+        "country": "カザフスタン",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=35188",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=20120",
+        "rawCacheFile": "astana_jma_1991_2020_35188.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-136",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Df"
+      }
+    },
+    {
+      "name": "알마티",
+      "englishName": "Almaty",
+      "aliases": [
+        "알마티",
+        "Almaty"
+      ],
+      "continent": "유라시아",
+      "country": "Kazakhstan",
+      "countryCode": "KZ",
+      "timezone": "Asia/Almaty",
+      "elevationM": null,
+      "climateCode": "Df",
+      "climateGroup": "Df",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        -4.5,
+        -2.4,
+        4.3,
+        12.1,
+        17.1,
+        22.1,
+        24.5,
+        23.3,
+        18,
+        10.5,
+        2.9,
+        -2.7
+      ],
+      "monthlyPrecipitationMm": [
+        35.2,
+        42.7,
+        71.9,
+        108.8,
+        98.8,
+        59.8,
+        42.2,
+        33.4,
+        27.7,
+        49.8,
+        55.3,
+        44.9
+      ],
+      "annualMeanTemperatureC": 10.4,
+      "annualPrecipitationMm": 670.5,
+      "coordinates": {
+        "latitude": 43.23,
+        "longitude": 76.93
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "36870",
+        "jmaStationName": "アルマトイ",
+        "country": "カザフスタン",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=36870",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=20120",
+        "rawCacheFile": "almaty_jma_1991_2020_36870.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-137",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Df"
+      }
+    },
+    {
+      "name": "타슈켄트",
+      "englishName": "Tashkent",
+      "aliases": [
+        "타슈켄트",
+        "Tashkent"
+      ],
+      "continent": "유라시아",
+      "country": "Uzbekistan",
+      "countryCode": "UZ",
+      "timezone": "Asia/Tashkent",
+      "elevationM": 489,
+      "climateCode": "Cs",
+      "climateGroup": "Cs",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        2.4,
+        4.5,
+        10.5,
+        16.1,
+        21.5,
+        26.3,
+        28.3,
+        26.9,
+        21.4,
+        14.6,
+        7.9,
+        3.4
+      ],
+      "monthlyPrecipitationMm": [
+        56.4,
+        70.4,
+        70.5,
+        60.5,
+        35.5,
+        15.9,
+        3.5,
+        2.2,
+        4,
+        26.4,
+        55.3,
+        54.1
+      ],
+      "annualMeanTemperatureC": 15.3,
+      "annualPrecipitationMm": 454.7,
+      "coordinates": {
+        "latitude": 41.33,
+        "longitude": 69.3
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "38457",
+        "jmaStationName": "タシケント",
+        "country": "ウズベキスタン",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=38457",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=20140",
+        "rawCacheFile": "tashkent_jma_1991_2020_38457.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-138",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cs"
+      }
+    },
+    {
+      "name": "카라치",
+      "englishName": "Karachi",
+      "aliases": [
+        "카라치",
+        "Karachi"
+      ],
+      "continent": "유라시아",
+      "country": "Pakistan",
+      "countryCode": "PK",
+      "timezone": "Asia/Karachi",
+      "elevationM": 21,
+      "climateCode": "Bw",
+      "climateGroup": "Bw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        19.4,
+        22.1,
+        26.1,
+        29.3,
+        31.2,
+        31.8,
+        30.6,
+        29.4,
+        29.5,
+        29.2,
+        25.2,
+        21
+      ],
+      "monthlyPrecipitationMm": [
+        9.5,
+        5.8,
+        2.8,
+        1.3,
+        0.2,
+        15,
+        59.5,
+        70,
+        22.8,
+        2.6,
+        0.7,
+        5.9
+      ],
+      "annualMeanTemperatureC": 27.1,
+      "annualPrecipitationMm": 196.1,
+      "coordinates": {
+        "latitude": 24.9,
+        "longitude": 67.13
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "41780",
+        "jmaStationName": "カラチ国際空港",
+        "country": "パキスタン",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=41780",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=20900",
+        "rawCacheFile": "karachi_jma_1991_2020_41780.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-139",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Bw"
+      }
+    },
+    {
+      "name": "프놈펜",
+      "englishName": "Phnom Penh",
+      "aliases": [
+        "프놈펜",
+        "Phnom Penh"
+      ],
+      "continent": "유라시아",
+      "country": "Cambodia",
+      "countryCode": "KH",
+      "timezone": "Asia/Phnom_Penh",
+      "elevationM": 10,
+      "climateCode": "Aw",
+      "climateGroup": "Aw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        27,
+        28,
+        29.7,
+        30.3,
+        30.5,
+        29.6,
+        29,
+        29,
+        28.4,
+        28.3,
+        28.1,
+        26.9
+      ],
+      "monthlyPrecipitationMm": [
+        15,
+        4.6,
+        31.8,
+        92.8,
+        128.4,
+        166.3,
+        171.3,
+        181.4,
+        266.2,
+        260.2,
+        103.5,
+        33.5
+      ],
+      "annualMeanTemperatureC": 28.7,
+      "annualPrecipitationMm": 1455,
+      "coordinates": {
+        "latitude": 11.6,
+        "longitude": 104.87
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "48991",
+        "jmaStationName": "プノンペン",
+        "country": "カンボジア",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=48991",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=22400",
+        "rawCacheFile": "phnom_penh_jma_1991_2020_48991.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-140",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Aw"
+      }
+    },
+    {
+      "name": "광저우",
+      "englishName": "Guangzhou",
+      "aliases": [
+        "광저우",
+        "Guangzhou",
+        "Canton",
+        "广州"
+      ],
+      "continent": "유라시아",
+      "country": "China",
+      "countryCode": "CN",
+      "timezone": "Asia/Shanghai",
+      "elevationM": null,
+      "climateCode": "Cw",
+      "climateGroup": "Cw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        13.8,
+        15.5,
+        18.3,
+        22.5,
+        26,
+        27.9,
+        28.9,
+        28.6,
+        27.4,
+        24.5,
+        20.1,
+        15.5
+      ],
+      "monthlyPrecipitationMm": [
+        50.9,
+        54.4,
+        96.2,
+        193.3,
+        330.1,
+        364.6,
+        242.5,
+        270.2,
+        202.3,
+        67.3,
+        37.4,
+        34.3
+      ],
+      "annualMeanTemperatureC": 22.4,
+      "annualPrecipitationMm": 1943.5,
+      "coordinates": {
+        "latitude": 23.22,
+        "longitude": 113.48
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "59287",
+        "jmaStationName": "コワンチョウ（広州）〔コワントン（広東）省〕",
+        "country": "中華人民共和国",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=59287",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=22500",
+        "rawCacheFile": "guangzhou_jma_1991_2020_59287.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-141",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cw"
+      }
+    },
+    {
+      "name": "충칭",
+      "englishName": "Chongqing",
+      "aliases": [
+        "충칭",
+        "Chongqing",
+        "Chungking",
+        "重庆"
+      ],
+      "continent": "유라시아",
+      "country": "China",
+      "countryCode": "CN",
+      "timezone": "Asia/Shanghai",
+      "elevationM": null,
+      "climateCode": "Cfa",
+      "climateGroup": "Cfa",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        8.2,
+        10.5,
+        15,
+        19.5,
+        22.9,
+        25.6,
+        29.4,
+        29.5,
+        24.6,
+        19.2,
+        14.6,
+        9.5
+      ],
+      "monthlyPrecipitationMm": [
+        22.8,
+        21.6,
+        63.8,
+        110.6,
+        124.6,
+        210.3,
+        180.8,
+        124.6,
+        141.7,
+        107.6,
+        48.6,
+        23.9
+      ],
+      "annualMeanTemperatureC": 19,
+      "annualPrecipitationMm": 1180.9,
+      "coordinates": {
+        "latitude": 29.58,
+        "longitude": 106.47
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "57516",
+        "jmaStationName": "チョンチン（重慶）〔チョンチン（重慶）市〕",
+        "country": "中華人民共和国",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=57516",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=22500",
+        "rawCacheFile": "chongqing_jma_1991_2020_57516.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-142",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfa"
+      }
+    },
+    {
+      "name": "난징",
+      "englishName": "Nanjing",
+      "aliases": [
+        "난징",
+        "Nanjing",
+        "Nanking",
+        "南京"
+      ],
+      "continent": "유라시아",
+      "country": "China",
+      "countryCode": "CN",
+      "timezone": "Asia/Shanghai",
+      "elevationM": 32,
+      "climateCode": "Cfa",
+      "climateGroup": "Cfa",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        3.2,
+        5.6,
+        10.2,
+        16.2,
+        21.5,
+        25,
+        28.4,
+        27.9,
+        23.7,
+        18,
+        11.6,
+        5.4
+      ],
+      "monthlyPrecipitationMm": [
+        50,
+        54.2,
+        80.2,
+        82.4,
+        83.9,
+        193.5,
+        231.8,
+        156.9,
+        71.8,
+        55.4,
+        52.3,
+        35.1
+      ],
+      "annualMeanTemperatureC": 16.4,
+      "annualPrecipitationMm": 1147.5,
+      "coordinates": {
+        "latitude": 31.93,
+        "longitude": 118.9
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "58238",
+        "jmaStationName": "ナンキン（南京）〔チアンスー（江蘇）省〕",
+        "country": "中華人民共和国",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=58238",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=22500",
+        "rawCacheFile": "nanjing_jma_1991_2020_58238.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-143",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfa"
+      }
+    },
+    {
+      "name": "쿠알라룸푸르",
+      "englishName": "Kuala Lumpur",
+      "aliases": [
+        "쿠알라룸푸르",
+        "Kuala Lumpur"
+      ],
+      "continent": "유라시아",
+      "country": "Malaysia",
+      "countryCode": "MY",
+      "timezone": "Asia/Kuala_Lumpur",
+      "elevationM": 27,
+      "climateCode": "Af",
+      "climateGroup": "Af",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        27.3,
+        27.7,
+        28.1,
+        28.1,
+        28.5,
+        28.4,
+        28,
+        28,
+        27.7,
+        27.5,
+        27.1,
+        27
+      ],
+      "monthlyPrecipitationMm": [
+        231.3,
+        195.6,
+        271.5,
+        303.6,
+        220.1,
+        141.5,
+        166.2,
+        172.6,
+        218.3,
+        280.5,
+        356.5,
+        283.9
+      ],
+      "annualMeanTemperatureC": 27.8,
+      "annualPrecipitationMm": 2841.6,
+      "coordinates": {
+        "latitude": 3.12,
+        "longitude": 101.55
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "48647",
+        "jmaStationName": "クアラルンプール",
+        "country": "マレーシア",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=48647",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=50100",
+        "rawCacheFile": "kuala_lumpur_jma_1991_2020_48647.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-144",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Af"
+      }
+    },
+    {
+      "name": "자카르타",
+      "englishName": "Jakarta",
+      "aliases": [
+        "자카르타",
+        "Jakarta",
+        "Jakarta Soekarno-Hatta"
+      ],
+      "continent": "유라시아",
+      "country": "Indonesia",
+      "countryCode": "ID",
+      "timezone": "Asia/Jakarta",
+      "elevationM": null,
+      "climateCode": "Aw",
+      "climateGroup": "Aw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        26.9,
+        26.8,
+        27.4,
+        27.9,
+        28,
+        27.7,
+        27.3,
+        27.6,
+        27.8,
+        27.9,
+        27.7,
+        27.3
+      ],
+      "monthlyPrecipitationMm": [
+        307.1,
+        359.5,
+        166.5,
+        107.4,
+        90.1,
+        50.6,
+        84.9,
+        36.2,
+        42.6,
+        56.7,
+        80.4,
+        180.4
+      ],
+      "annualMeanTemperatureC": 27.5,
+      "annualPrecipitationMm": 1562.4,
+      "coordinates": {
+        "latitude": -6.12,
+        "longitude": 106.65
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "96749",
+        "jmaStationName": "ジャカルタ/スカルノハッタ国際空港",
+        "country": "インドネシア",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=96749",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=53300",
+        "rawCacheFile": "jakarta_soekarno_hatta_jma_1991_2020_96749.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-145",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Aw"
+      }
+    },
+    {
+      "name": "콜롬보",
+      "englishName": "Colombo",
+      "aliases": [
+        "콜롬보",
+        "Colombo"
+      ],
+      "continent": "유라시아",
+      "country": "Sri Lanka",
+      "countryCode": "LK",
+      "timezone": "Asia/Colombo",
+      "elevationM": 7,
+      "climateCode": "Af",
+      "climateGroup": "Af",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        27.2,
+        27.6,
+        28.4,
+        28.6,
+        28.9,
+        28.3,
+        28.1,
+        28.1,
+        27.9,
+        27.5,
+        27.3,
+        27.2
+      ],
+      "monthlyPrecipitationMm": [
+        86.7,
+        81.4,
+        111.6,
+        229.4,
+        303.4,
+        198.4,
+        120.4,
+        119.5,
+        263.7,
+        347.4,
+        322.2,
+        187.1
+      ],
+      "annualMeanTemperatureC": 27.9,
+      "annualPrecipitationMm": 2371.2,
+      "coordinates": {
+        "latitude": 6.9,
+        "longitude": 79.87
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "43466",
+        "jmaStationName": "コロンボ",
+        "country": "スリランカ",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=43466",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=21200",
+        "rawCacheFile": "colombo_jma_1991_2020_43466.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-146",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Af"
+      }
+    },
+    {
+      "name": "텔아비브",
+      "englishName": "Tel Aviv",
+      "aliases": [
+        "텔아비브",
+        "Tel Aviv",
+        "Tel Aviv-Yafo"
+      ],
+      "continent": "유라시아",
+      "country": "Israel",
+      "countryCode": "IL",
+      "timezone": "Asia/Jerusalem",
+      "elevationM": 40,
+      "climateCode": "Cs",
+      "climateGroup": "Cs",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        13,
+        13.8,
+        16.1,
+        19.3,
+        22.7,
+        25.4,
+        27.4,
+        27.9,
+        26.6,
+        23.9,
+        19.3,
+        14.9
+      ],
+      "monthlyPrecipitationMm": [
+        149.1,
+        96.9,
+        59.4,
+        14.8,
+        2.1,
+        0.3,
+        0,
+        0,
+        0.7,
+        22.2,
+        70.8,
+        133.6
+      ],
+      "annualMeanTemperatureC": 20.9,
+      "annualPrecipitationMm": 549.9,
+      "coordinates": {
+        "latitude": 32,
+        "longitude": 34.9
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "40180",
+        "jmaStationName": "テルアビブヤフォ/ベングリオン",
+        "country": "イスラエル",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=40180",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=63400",
+        "rawCacheFile": "tel_aviv_jma_1991_2020_40180.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-147",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cs"
+      }
+    },
+    {
+      "name": "포트모르즈비",
+      "englishName": "Port Moresby",
+      "aliases": [
+        "포트모르즈비",
+        "Port Moresby"
+      ],
+      "continent": "오세아니아",
+      "country": "Papua New Guinea",
+      "countryCode": "PG",
+      "timezone": "Pacific/Port_Moresby",
+      "elevationM": 48,
+      "climateCode": "Aw",
+      "climateGroup": "Aw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        27.8,
+        27.6,
+        27.3,
+        27.4,
+        27,
+        26.7,
+        26.1,
+        26.2,
+        26.7,
+        27.4,
+        28.1,
+        28.1
+      ],
+      "monthlyPrecipitationMm": [
+        210.8,
+        166.8,
+        214.9,
+        131.3,
+        87.1,
+        58.7,
+        22.4,
+        25.8,
+        28.9,
+        33,
+        87.6,
+        116.1
+      ],
+      "annualMeanTemperatureC": 27.2,
+      "annualPrecipitationMm": 1183.4,
+      "coordinates": {
+        "latitude": -9.38,
+        "longitude": 147.22
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "92035",
+        "jmaStationName": "ポートモレスビー",
+        "country": "パプアニューギニア",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=92035",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=52400",
+        "rawCacheFile": "port_moresby_jma_1991_2020_92035.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-148",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Aw"
+      }
+    },
+    {
+      "name": "바르샤바",
+      "englishName": "Warsaw",
+      "aliases": [
+        "바르샤바",
+        "Warsaw",
+        "Warszawa"
+      ],
+      "continent": "유라시아",
+      "country": "Poland",
+      "countryCode": "PL",
+      "timezone": "Europe/Warsaw",
+      "elevationM": 107,
+      "climateCode": "Df",
+      "climateGroup": "Df",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        -1.5,
+        -0.4,
+        3.2,
+        9.2,
+        14.3,
+        17.7,
+        19.7,
+        19.1,
+        14,
+        8.6,
+        3.9,
+        -0.1
+      ],
+      "monthlyPrecipitationMm": [
+        32.6,
+        29.6,
+        29.2,
+        34.4,
+        56.2,
+        61.8,
+        82.3,
+        60.6,
+        51.6,
+        41.1,
+        36.2,
+        36.6
+      ],
+      "annualMeanTemperatureC": 9,
+      "annualPrecipitationMm": 552.2,
+      "coordinates": {
+        "latitude": 52.16,
+        "longitude": 20.96
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "12375",
+        "jmaStationName": "ワルシャワ/オケンツィエ",
+        "country": "ポーランド",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=12375",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=62000",
+        "rawCacheFile": "warsaw_jma_1991_2020_12375.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-149",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Df"
+      }
+    },
+    {
+      "name": "더블린",
+      "englishName": "Dublin",
+      "aliases": [
+        "더블린",
+        "Dublin"
+      ],
+      "continent": "유라시아",
+      "country": "Ireland",
+      "countryCode": "IE",
+      "timezone": "Europe/Dublin",
+      "elevationM": 68,
+      "climateCode": "Cfb",
+      "climateGroup": "Cfb",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        5.3,
+        5.5,
+        6.5,
+        8.1,
+        10.8,
+        13.4,
+        15.1,
+        15,
+        13,
+        10.3,
+        7.3,
+        5.6
+      ],
+      "monthlyPrecipitationMm": [
+        61.7,
+        52.6,
+        53.2,
+        54.8,
+        56.8,
+        64.1,
+        63.3,
+        71.8,
+        61,
+        80.1,
+        86,
+        72.9
+      ],
+      "annualMeanTemperatureC": 9.7,
+      "annualPrecipitationMm": 778.3,
+      "coordinates": {
+        "latitude": 53.43,
+        "longitude": -6.25
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "03969",
+        "jmaStationName": "ダブリン",
+        "country": "アイルランド",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=03969",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=60500",
+        "rawCacheFile": "dublin_jma_1991_2020_03969.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-150",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfb"
+      }
+    },
+    {
+      "name": "코펜하겐",
+      "englishName": "Copenhagen",
+      "aliases": [
+        "코펜하겐",
+        "Copenhagen",
+        "Kobenhavn",
+        "København"
+      ],
+      "continent": "유라시아",
+      "country": "Denmark",
+      "countryCode": "DK",
+      "timezone": "Europe/Copenhagen",
+      "elevationM": 7,
+      "climateCode": "Cfb",
+      "climateGroup": "Cfb",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        1.8,
+        1.9,
+        3.8,
+        8.2,
+        12.5,
+        15.9,
+        18.4,
+        18.1,
+        14.4,
+        10,
+        6.1,
+        3.1
+      ],
+      "monthlyPrecipitationMm": [
+        43.7,
+        32,
+        34,
+        30.5,
+        44.7,
+        60.5,
+        59.8,
+        76.7,
+        58.9,
+        62.3,
+        52.9,
+        50.1
+      ],
+      "annualMeanTemperatureC": 9.5,
+      "annualPrecipitationMm": 606.1,
+      "coordinates": {
+        "latitude": 55.69,
+        "longitude": 12.54
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "06186",
+        "jmaStationName": "コペンハーゲン",
+        "country": "デンマーク・フェロー諸島",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=06186",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=60800",
+        "rawCacheFile": "copenhagen_jma_1991_2020_06186.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-151",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfb"
+      }
+    },
+    {
+      "name": "취리히",
+      "englishName": "Zurich",
+      "aliases": [
+        "취리히",
+        "Zurich",
+        "Zürich"
+      ],
+      "continent": "유라시아",
+      "country": "Switzerland",
+      "countryCode": "CH",
+      "timezone": "Europe/Zurich",
+      "elevationM": 556,
+      "climateCode": "Cfb",
+      "climateGroup": "Cfb",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        1,
+        1.8,
+        5.7,
+        9.7,
+        13.6,
+        17.2,
+        19,
+        18.6,
+        14.4,
+        10,
+        4.9,
+        1.7
+      ],
+      "monthlyPrecipitationMm": [
+        62.9,
+        59.2,
+        71.3,
+        80.4,
+        127,
+        127.7,
+        126.1,
+        119.1,
+        87.4,
+        85.2,
+        75.1,
+        83.5
+      ],
+      "annualMeanTemperatureC": 9.8,
+      "annualPrecipitationMm": 1104.9,
+      "coordinates": {
+        "latitude": 47.38,
+        "longitude": 8.57
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "06660",
+        "jmaStationName": "チューリヒ",
+        "country": "スイス・リヒテンシュタイン",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=06660",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=61200",
+        "rawCacheFile": "zurich_jma_1991_2020_06660.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-152",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfb"
+      }
+    },
+    {
+      "name": "마드리드",
+      "englishName": "Madrid",
+      "aliases": [
+        "마드리드",
+        "Madrid",
+        "Madrid-Barajas"
+      ],
+      "continent": "유라시아",
+      "country": "Spain",
+      "countryCode": "ES",
+      "timezone": "Europe/Madrid",
+      "elevationM": 609,
+      "climateCode": "BS",
+      "climateGroup": "BS",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        5.8,
+        7.1,
+        10.4,
+        12.9,
+        17,
+        22.3,
+        25.6,
+        25.2,
+        20.6,
+        15.2,
+        9.6,
+        6.4
+      ],
+      "monthlyPrecipitationMm": [
+        30.2,
+        28.8,
+        34.9,
+        40.6,
+        40.2,
+        19.6,
+        9.2,
+        10,
+        25.7,
+        54.4,
+        51.2,
+        36.3
+      ],
+      "annualMeanTemperatureC": 14.8,
+      "annualPrecipitationMm": 381.1,
+      "coordinates": {
+        "latitude": 40.47,
+        "longitude": -3.56
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "08221",
+        "jmaStationName": "マドリード・バラハス",
+        "country": "スペイン",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=08221",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=61400",
+        "rawCacheFile": "madrid_jma_1991_2020_08221.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-153",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "BS"
+      }
+    },
+    {
+      "name": "리스본",
+      "englishName": "Lisbon",
+      "aliases": [
+        "리스본",
+        "Lisbon",
+        "Lisboa"
+      ],
+      "continent": "유라시아",
+      "country": "Portugal",
+      "countryCode": "PT",
+      "timezone": "Europe/Lisbon",
+      "elevationM": 77,
+      "climateCode": "Cs",
+      "climateGroup": "Cs",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        11.6,
+        12.3,
+        14.5,
+        15.8,
+        18.3,
+        20.9,
+        22.6,
+        23.2,
+        21.5,
+        18.6,
+        14.7,
+        12.4
+      ],
+      "monthlyPrecipitationMm": [
+        95.8,
+        76.3,
+        73.7,
+        71.7,
+        51.7,
+        16.3,
+        2.3,
+        7.6,
+        35.5,
+        100.1,
+        132,
+        99.6
+      ],
+      "annualMeanTemperatureC": 17.2,
+      "annualPrecipitationMm": 762.6,
+      "coordinates": {
+        "latitude": 38.72,
+        "longitude": -9.15
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "08535",
+        "jmaStationName": "リスボン",
+        "country": "ポルトガル",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=08535",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=61600",
+        "rawCacheFile": "lisbon_jma_1991_2020_08535.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-154",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cs"
+      }
+    },
+    {
+      "name": "프라하",
+      "englishName": "Prague",
+      "aliases": [
+        "프라하",
+        "Prague",
+        "Praha"
+      ],
+      "continent": "유라시아",
+      "country": "Czechia",
+      "countryCode": "CZ",
+      "timezone": "Europe/Prague",
+      "elevationM": 302,
+      "climateCode": "Cfb",
+      "climateGroup": "Cfb",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        0.1,
+        1.2,
+        4.8,
+        9.9,
+        14.3,
+        17.8,
+        19.7,
+        19.4,
+        14.6,
+        9.4,
+        4.5,
+        1.1
+      ],
+      "monthlyPrecipitationMm": [
+        25.6,
+        21.8,
+        31,
+        26.4,
+        64.8,
+        79.4,
+        75,
+        76.8,
+        43,
+        36,
+        30.3,
+        28.5
+      ],
+      "annualMeanTemperatureC": 9.7,
+      "annualPrecipitationMm": 538.6,
+      "coordinates": {
+        "latitude": 50.01,
+        "longitude": 14.45
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "11520",
+        "jmaStationName": "プラハ/LIBUS",
+        "country": "チェコ",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=11520",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=61900",
+        "rawCacheFile": "prague_jma_1991_2020_11520.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-155",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfb"
+      }
+    },
+    {
+      "name": "부다페스트",
+      "englishName": "Budapest",
+      "aliases": [
+        "부다페스트",
+        "Budapest"
+      ],
+      "continent": "유라시아",
+      "country": "Hungary",
+      "countryCode": "HU",
+      "timezone": "Europe/Budapest",
+      "elevationM": 138,
+      "climateCode": "Df",
+      "climateGroup": "Df",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        0,
+        2,
+        6.5,
+        12.4,
+        16.9,
+        20.7,
+        22.5,
+        22.2,
+        16.9,
+        11.4,
+        5.9,
+        0.9
+      ],
+      "monthlyPrecipitationMm": [
+        31,
+        31,
+        31.9,
+        34.5,
+        66.2,
+        65.5,
+        73.6,
+        58.8,
+        51.4,
+        44.1,
+        46.8,
+        38.5
+      ],
+      "annualMeanTemperatureC": 11.5,
+      "annualPrecipitationMm": 573.3,
+      "coordinates": {
+        "latitude": 47.43,
+        "longitude": 19.18
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "12843",
+        "jmaStationName": "ブダペスト",
+        "country": "ハンガリー",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=12843",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=62100",
+        "rawCacheFile": "budapest_jma_1991_2020_12843.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-156",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Df"
+      }
+    },
+    {
+      "name": "부쿠레슈티",
+      "englishName": "Bucharest",
+      "aliases": [
+        "부쿠레슈티",
+        "Bucharest",
+        "Bucuresti",
+        "București"
+      ],
+      "continent": "유라시아",
+      "country": "Romania",
+      "countryCode": "RO",
+      "timezone": "Europe/Bucharest",
+      "elevationM": 90,
+      "climateCode": "Df",
+      "climateGroup": "Df",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        -1.5,
+        0.7,
+        5.6,
+        11.4,
+        16.8,
+        21.1,
+        23,
+        22.4,
+        16.9,
+        10.8,
+        5.3,
+        0
+      ],
+      "monthlyPrecipitationMm": [
+        41.1,
+        33.8,
+        41.7,
+        53.8,
+        71.3,
+        82.5,
+        68.4,
+        47.5,
+        63.6,
+        58.9,
+        44,
+        46.5
+      ],
+      "annualMeanTemperatureC": 11,
+      "annualPrecipitationMm": 653.1,
+      "coordinates": {
+        "latitude": 44.51,
+        "longitude": 26.08
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "15420",
+        "jmaStationName": "ブカレスト",
+        "country": "ルーマニア",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=15420",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=62400",
+        "rawCacheFile": "bucharest_jma_1991_2020_15420.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-157",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Df"
+      }
+    },
+    {
+      "name": "키이우",
+      "englishName": "Kyiv",
+      "aliases": [
+        "키이우",
+        "Kyiv",
+        "Kiev"
+      ],
+      "continent": "유라시아",
+      "country": "Ukraine",
+      "countryCode": "UA",
+      "timezone": "Europe/Kyiv",
+      "elevationM": 167,
+      "climateCode": "Df",
+      "climateGroup": "Df",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        -3.2,
+        -2.3,
+        2.4,
+        10,
+        15.8,
+        19.5,
+        21.3,
+        20.5,
+        14.9,
+        8.6,
+        2.6,
+        -1.7
+      ],
+      "monthlyPrecipitationMm": [
+        37.4,
+        38.1,
+        39.2,
+        41.7,
+        63.4,
+        73.7,
+        69.1,
+        53,
+        57.2,
+        45.1,
+        46.2,
+        47.6
+      ],
+      "annualMeanTemperatureC": 9,
+      "annualPrecipitationMm": 611.7,
+      "coordinates": {
+        "latitude": 50.39,
+        "longitude": 30.54
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "33345",
+        "jmaStationName": "キーウ",
+        "country": "ウクライナ",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=33345",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=63200",
+        "rawCacheFile": "kyiv_jma_1991_2020_33345.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-158",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Df"
+      }
+    },
+    {
+      "name": "시카고",
+      "englishName": "Chicago",
+      "aliases": [
+        "시카고",
+        "Chicago"
+      ],
+      "continent": "아메리카",
+      "country": "United States of America",
+      "countryCode": "US",
+      "timezone": "America/Chicago",
+      "elevationM": 203,
+      "climateCode": "Df",
+      "climateGroup": "Df",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        -4.3,
+        -2.3,
+        3.4,
+        9.4,
+        15.4,
+        20.9,
+        23.7,
+        22.7,
+        18.6,
+        11.8,
+        4.7,
+        -1.3
+      ],
+      "monthlyPrecipitationMm": [
+        50.4,
+        48.4,
+        62.5,
+        92.9,
+        114.3,
+        104.2,
+        92.7,
+        107.6,
+        79.7,
+        87.2,
+        60.7,
+        53.2
+      ],
+      "annualMeanTemperatureC": 10.2,
+      "annualPrecipitationMm": 953.8,
+      "coordinates": {
+        "latitude": 41.98,
+        "longitude": -87.9
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "72530",
+        "jmaStationName": "シカゴ〔イリノイ州〕",
+        "country": "アメリカ合衆国",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=72530",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=40300",
+        "rawCacheFile": "chicago_jma_1991_2020_72530.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-159",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Df"
+      }
+    },
+    {
+      "name": "시애틀",
+      "englishName": "Seattle",
+      "aliases": [
+        "시애틀",
+        "Seattle"
+      ],
+      "continent": "아메리카",
+      "country": "United States of America",
+      "countryCode": "US",
+      "timezone": "America/Los_Angeles",
+      "elevationM": 130,
+      "climateCode": "Cs",
+      "climateGroup": "Cs",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        5.7,
+        6.3,
+        8,
+        10.4,
+        13.8,
+        16.3,
+        19.2,
+        19.3,
+        16.6,
+        11.7,
+        7.7,
+        5.2
+      ],
+      "monthlyPrecipitationMm": [
+        146.8,
+        96,
+        106.2,
+        81.1,
+        49,
+        36.8,
+        15.1,
+        24.6,
+        40.6,
+        99.2,
+        159.5,
+        148.4
+      ],
+      "annualMeanTemperatureC": 11.7,
+      "annualPrecipitationMm": 1003.3,
+      "coordinates": {
+        "latitude": 47.45,
+        "longitude": -122.3
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "72793",
+        "jmaStationName": "シアトル〔ワシントン州〕",
+        "country": "アメリカ合衆国",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=72793",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=40300",
+        "rawCacheFile": "seattle_jma_1991_2020_72793.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-160",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cs"
+      }
+    },
+    {
+      "name": "덴버",
+      "englishName": "Denver",
+      "aliases": [
+        "덴버",
+        "Denver"
+      ],
+      "continent": "아메리카",
+      "country": "United States of America",
+      "countryCode": "US",
+      "timezone": "America/Denver",
+      "elevationM": 1611,
+      "climateCode": "BS",
+      "climateGroup": "BS",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        -0.2,
+        0.6,
+        5.3,
+        8.8,
+        14,
+        20,
+        23.6,
+        22.3,
+        17.5,
+        10.5,
+        4.3,
+        -0.4
+      ],
+      "monthlyPrecipitationMm": [
+        11.5,
+        10.9,
+        25.9,
+        48.3,
+        53.1,
+        42.7,
+        61.9,
+        52,
+        29.4,
+        25.1,
+        24.5,
+        12.6
+      ],
+      "annualMeanTemperatureC": 10.5,
+      "annualPrecipitationMm": 397.9,
+      "coordinates": {
+        "latitude": 39.77,
+        "longitude": -104.87
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "72469",
+        "jmaStationName": "デンバー〔コロラド州〕",
+        "country": "アメリカ合衆国",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=72469",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=40300",
+        "rawCacheFile": "denver_jma_1991_2020_72469.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-161",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "review-required",
+        "appDerivedGroup": "H"
+      }
+    },
+    {
+      "name": "피닉스",
+      "englishName": "Phoenix",
+      "aliases": [
+        "피닉스",
+        "Phoenix"
+      ],
+      "continent": "아메리카",
+      "country": "United States of America",
+      "countryCode": "US",
+      "timezone": "America/Phoenix",
+      "elevationM": 344,
+      "climateCode": "Bw",
+      "climateGroup": "Bw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        13.8,
+        15.6,
+        19,
+        22.8,
+        27.8,
+        33,
+        35.2,
+        34.6,
+        31.8,
+        25.2,
+        18.3,
+        13.2
+      ],
+      "monthlyPrecipitationMm": [
+        22.9,
+        23,
+        22.9,
+        5.9,
+        3.2,
+        0.6,
+        23.1,
+        23.7,
+        15.1,
+        14.8,
+        16.1,
+        19.3
+      ],
+      "annualMeanTemperatureC": 24.2,
+      "annualPrecipitationMm": 190.6,
+      "coordinates": {
+        "latitude": 33.43,
+        "longitude": -112.02
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "72278",
+        "jmaStationName": "フェニックス〔アリゾナ州〕",
+        "country": "アメリカ合衆国",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=72278",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=40300",
+        "rawCacheFile": "phoenix_jma_1991_2020_72278.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-162",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Bw"
+      }
+    },
+    {
+      "name": "휴스턴",
+      "englishName": "Houston",
+      "aliases": [
+        "휴스턴",
+        "Houston"
+      ],
+      "continent": "아메리카",
+      "country": "United States of America",
+      "countryCode": "US",
+      "timezone": "America/Chicago",
+      "elevationM": 30,
+      "climateCode": "Cfa",
+      "climateGroup": "Cfa",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        11.9,
+        14.1,
+        17.5,
+        20.9,
+        25.1,
+        28.1,
+        29.3,
+        29.4,
+        26.8,
+        22,
+        16.5,
+        12.8
+      ],
+      "monthlyPrecipitationMm": [
+        96,
+        74.3,
+        89.2,
+        101.1,
+        130,
+        151.1,
+        93.8,
+        92,
+        119.9,
+        138.6,
+        98.3,
+        102.8
+      ],
+      "annualMeanTemperatureC": 21.2,
+      "annualPrecipitationMm": 1287.1,
+      "coordinates": {
+        "latitude": 29.97,
+        "longitude": -95.35
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "72243",
+        "jmaStationName": "ヒューストン〔テキサス州〕",
+        "country": "アメリカ合衆国",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=72243",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=40300",
+        "rawCacheFile": "houston_jma_1991_2020_72243.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-163",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfa"
+      }
+    },
+    {
+      "name": "워싱턴 D.C.",
+      "englishName": "Washington, D.C.",
+      "aliases": [
+        "워싱턴 D.C.",
+        "Washington, D.C.",
+        "Washington DC",
+        "Washington"
+      ],
+      "continent": "아메리카",
+      "country": "United States of America",
+      "countryCode": "US",
+      "timezone": "America/New_York",
+      "elevationM": 5,
+      "climateCode": "Cfa",
+      "climateGroup": "Cfa",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        2.8,
+        4.2,
+        8.4,
+        14.2,
+        19.3,
+        24.3,
+        27,
+        26,
+        22.2,
+        15.7,
+        9.7,
+        5.1
+      ],
+      "monthlyPrecipitationMm": [
+        73.4,
+        64.6,
+        88.9,
+        81.8,
+        100.5,
+        106.7,
+        109.8,
+        82.6,
+        99.8,
+        93,
+        73.8,
+        86
+      ],
+      "annualMeanTemperatureC": 14.9,
+      "annualPrecipitationMm": 1060.9,
+      "coordinates": {
+        "latitude": 38.85,
+        "longitude": -77.03
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "72405",
+        "jmaStationName": "ワシントン・ナショナル空港〔バージニア州〕",
+        "country": "アメリカ合衆国",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=72405",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=40300",
+        "rawCacheFile": "washington_dc_jma_1991_2020_72405.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-164",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfa"
+      }
+    },
+    {
+      "name": "산호세",
+      "englishName": "San Jose",
+      "aliases": [
+        "산호세",
+        "San Jose",
+        "San José"
+      ],
+      "continent": "아메리카",
+      "country": "Costa Rica",
+      "countryCode": "CR",
+      "timezone": "America/Costa_Rica",
+      "elevationM": null,
+      "climateCode": "Aw",
+      "climateGroup": "Aw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        22.9,
+        23.2,
+        23.9,
+        24.1,
+        23.2,
+        23,
+        23.1,
+        22.8,
+        22.4,
+        22.1,
+        22.4,
+        22.6
+      ],
+      "monthlyPrecipitationMm": [
+        10.2,
+        13.1,
+        24.5,
+        80.2,
+        273,
+        230.4,
+        168.4,
+        221.9,
+        333.4,
+        334,
+        166.5,
+        39.9
+      ],
+      "annualMeanTemperatureC": 23,
+      "annualPrecipitationMm": 1895.5,
+      "coordinates": {
+        "latitude": 9.98,
+        "longitude": -84.18
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "78762",
+        "jmaStationName": "サンホセ",
+        "country": "コスタリカ",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=78762",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=41800",
+        "rawCacheFile": "san_jose_costa_rica_jma_1991_2020_78762.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "북반구",
+      "id": "region-165",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Aw"
+      }
+    },
+    {
+      "name": "아순시온",
+      "englishName": "Asuncion",
+      "aliases": [
+        "아순시온",
+        "Asuncion",
+        "Asunción"
+      ],
+      "continent": "아메리카",
+      "country": "Paraguay",
+      "countryCode": "PY",
+      "timezone": "America/Asuncion",
+      "elevationM": null,
+      "climateCode": "Cfa",
+      "climateGroup": "Cfa",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        27.8,
+        27,
+        25.9,
+        23.2,
+        19.4,
+        18.1,
+        17.5,
+        19.5,
+        21.6,
+        24.3,
+        25.2,
+        26.9
+      ],
+      "monthlyPrecipitationMm": [
+        145.1,
+        162.7,
+        136.3,
+        150.7,
+        133.7,
+        69.5,
+        57.1,
+        38,
+        70,
+        172.4,
+        173.2,
+        187.7
+      ],
+      "annualMeanTemperatureC": 23,
+      "annualPrecipitationMm": 1496.4,
+      "coordinates": {
+        "latitude": -25.27,
+        "longitude": -57.63
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "86218",
+        "jmaStationName": "アスンシオン",
+        "country": "パラグアイ",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=86218",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=31100",
+        "rawCacheFile": "asuncion_jma_1991_2020_86218.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-166",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfa"
+      }
+    },
+    {
+      "name": "포르투알레그리",
+      "englishName": "Porto Alegre",
+      "aliases": [
+        "포르투알레그리",
+        "Porto Alegre"
+      ],
+      "continent": "아메리카",
+      "country": "Brazil",
+      "countryCode": "BR",
+      "timezone": "America/Sao_Paulo",
+      "elevationM": 47,
+      "climateCode": "Cfa",
+      "climateGroup": "Cfa",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        25.4,
+        25,
+        23.7,
+        21,
+        17.2,
+        15.2,
+        14.3,
+        15.9,
+        17.6,
+        19.9,
+        21.9,
+        23.9
+      ],
+      "monthlyPrecipitationMm": [
+        123.6,
+        113.9,
+        100.8,
+        117,
+        125,
+        130.8,
+        159.4,
+        118.9,
+        149.2,
+        150.4,
+        100,
+        112.4
+      ],
+      "annualMeanTemperatureC": 20.1,
+      "annualPrecipitationMm": 1501.4,
+      "coordinates": {
+        "latitude": -30.02,
+        "longitude": -51.22
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "83967",
+        "jmaStationName": "ポルトアレグレ",
+        "country": "ブラジル",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=83967",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=30600",
+        "rawCacheFile": "porto_alegre_jma_1991_2020_83967.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-167",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Cfa"
+      }
+    },
+    {
+      "name": "멘도사",
+      "englishName": "Mendoza",
+      "aliases": [
+        "멘도사",
+        "Mendoza",
+        "Mendoza Airport"
+      ],
+      "continent": "아메리카",
+      "country": "Argentina",
+      "countryCode": "AR",
+      "timezone": "America/Argentina/Mendoza",
+      "elevationM": 705,
+      "climateCode": "Bw",
+      "climateGroup": "Bw",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        25.9,
+        24,
+        21.5,
+        16.6,
+        12.2,
+        8.7,
+        8,
+        10.9,
+        14.5,
+        18.7,
+        22.2,
+        25
+      ],
+      "monthlyPrecipitationMm": [
+        43.6,
+        39.7,
+        32.8,
+        18.3,
+        9.1,
+        4.3,
+        4.9,
+        6.7,
+        10.5,
+        11.1,
+        19.9,
+        24.4
+      ],
+      "annualMeanTemperatureC": 17.3,
+      "annualPrecipitationMm": 225.3,
+      "coordinates": {
+        "latitude": -32.83,
+        "longitude": -68.78
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "87418",
+        "jmaStationName": "メンドーサ空港",
+        "country": "アルゼンチン",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=87418",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=31300",
+        "rawCacheFile": "mendoza_airport_jma_1991_2020_87418.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-168",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "aligned",
+        "appDerivedGroup": "Bw"
+      }
+    },
+    {
+      "name": "애들레이드",
+      "englishName": "Adelaide",
+      "aliases": [
+        "애들레이드",
+        "Adelaide"
+      ],
+      "continent": "오세아니아",
+      "country": "Australia",
+      "countryCode": "AU",
+      "timezone": "Australia/Adelaide",
+      "elevationM": 6,
+      "climateCode": "Cs",
+      "climateGroup": "Cs",
+      "months": [
+        "1월",
+        "2월",
+        "3월",
+        "4월",
+        "5월",
+        "6월",
+        "7월",
+        "8월",
+        "9월",
+        "10월",
+        "11월",
+        "12월"
+      ],
+      "monthlyTemperatureC": [
+        22.4,
+        22.3,
+        20.1,
+        17.2,
+        14.3,
+        11.9,
+        11.3,
+        11.9,
+        14,
+        16.3,
+        18.9,
+        20.6
+      ],
+      "monthlyPrecipitationMm": [
+        18.8,
+        18.7,
+        18.8,
+        30.4,
+        46,
+        59,
+        50.7,
+        49.4,
+        47,
+        33.8,
+        23.8,
+        22.7
+      ],
+      "annualMeanTemperatureC": 16.8,
+      "annualPrecipitationMm": 419.1,
+      "coordinates": {
+        "latitude": -34.95,
+        "longitude": 138.52
+      },
+      "source": {
+        "type": "jma",
+        "label": "気象庁 世界の地点別平年値 (JMA World Station Normals)",
+        "url": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/",
+        "period": "1991-2020",
+        "stn": "94672",
+        "jmaStationName": "アデレード",
+        "country": "オーストラリア",
+        "apiUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/NrmMonth.php?stn=94672",
+        "stationListUrl": "https://www.data.jma.go.jp/cpd/monitor/nrmlist/StationList.php?ccode=52500",
+        "rawCacheFile": "adelaide_jma_1991_2020_94672.html",
+        "sourceKind": "jma-world-normals",
+        "note": "일본 기상청(JMA) 1991-2020 지점별 평년값을 사용했습니다.",
+        "variableSources": {
+          "temperature": "jma",
+          "precipitation": "jma"
+        }
+      },
+      "hemisphere": "남반구",
+      "id": "region-169",
+      "classificationBasis": "curriculum-curated",
+      "classificationReview": {
+        "status": "review-required",
+        "appDerivedGroup": "BS"
+      }
     }
   ],
   "sources": [
@@ -10996,21 +14539,21 @@
     }
   ],
   "summary": {
-    "regionCount": 129,
+    "regionCount": 169,
     "period": "1991-2020",
     "primarySource": "jma",
     "sourceBreakdown": {
       "open-meteo": 20,
-      "jma": 109
+      "jma": 149
     },
-    "jmaFull": 105,
+    "jmaFull": 145,
     "jmaTemperatureOnly": 4,
     "openMeteoFallback": 20
   },
   "meta": {
     "jmaMerge": {
-      "date": "20260703",
-      "jma_full": 105,
+      "date": "20260716",
+      "jma_full": 145,
       "jma_temp_only": 4,
       "open_meteo_kept": 20,
       "period": "1991-2020",

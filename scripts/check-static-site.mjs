@@ -9,6 +9,7 @@ const rootDir = rootArgument ? path.resolve(projectRoot, rootArgument) : project
 const htmlFiles = [
   path.join(rootDir, "index.html"),
   path.join(rootDir, "map.html"),
+  path.join(rootDir, "tools", "stats", "index.html"),
   path.join(rootDir, "tools", "climate", "index.html"),
   path.join(rootDir, "tools", "climate", "korea.html"),
   path.join(rootDir, "tools", "cut", "index.html"),
@@ -38,6 +39,134 @@ for (const htmlPath of htmlFiles) {
       );
     }
   }
+}
+
+const graphCatalogPath = path.join(rootDir, "data", "graph-catalog.json");
+const graphCatalog = JSON.parse(fs.readFileSync(graphCatalogPath, "utf8"));
+const graphItems = Array.isArray(graphCatalog.items) ? graphCatalog.items : [];
+if (graphItems.length === 0 || Number(graphCatalog.meta?.itemCount) !== graphItems.length) {
+  errors.push(`기존 그래프 카탈로그 수 불일치: ${graphCatalog.meta?.itemCount} / ${graphItems.length}`);
+}
+if (graphCatalog.meta?.schemaVersion !== 2 || graphItems.some((item) => !item.examPattern)) {
+  errors.push("기존 그래프 카탈로그에 수능형 패턴 분류가 없습니다.");
+}
+const catalogReferenceOnlyCount = graphItems.filter((item) => item.examPattern === "reference-only").length;
+if (Number(graphCatalog.meta?.referenceOnlyCount) !== catalogReferenceOnlyCount) {
+  errors.push(`기존 그래프 참고 전용 수 불일치: ${graphCatalog.meta?.referenceOnlyCount} / ${catalogReferenceOnlyCount}`);
+}
+
+const statisticsIndexPath = path.join(rootDir, "data", "statistics-index.json");
+const statisticsIndex = JSON.parse(fs.readFileSync(statisticsIndexPath, "utf8"));
+const indexedMetrics = Array.isArray(statisticsIndex.metrics) ? statisticsIndex.metrics : [];
+const examPatterns = Array.isArray(statisticsIndex.graphPatterns) ? statisticsIndex.graphPatterns : [];
+if (indexedMetrics.length !== Number(statisticsIndex.coverage?.metricIndexEntries)) {
+  errors.push(`통계 색인 지표 수 불일치: ${indexedMetrics.length} / ${statisticsIndex.coverage?.metricIndexEntries}`);
+}
+const indexedExamReferenceCount = examPatterns.reduce((sum, pattern) => sum + Number(pattern.count || 0), 0);
+if (
+  examPatterns.length !== 7 ||
+  indexedExamReferenceCount !== Number(statisticsIndex.coverage?.examPatternReferences) ||
+  catalogReferenceOnlyCount !== Number(statisticsIndex.coverage?.referenceOnlyReferences) ||
+  indexedExamReferenceCount + catalogReferenceOnlyCount !== graphItems.length
+) {
+  errors.push("통계 색인의 수능형 SVG 패턴 수가 맞지 않습니다.");
+}
+const statsUiText = [
+  fs.readFileSync(path.join(rootDir, "tools", "stats", "index.html"), "utf8"),
+  fs.readFileSync(path.join(rootDir, "tools", "stats", "app.js"), "utf8"),
+].join("\n");
+for (const forbidden of [
+  "SidaeAi_S",
+  "downloadSvgButton",
+  "downloadCurrentSvg",
+  "탐색기에서 열기",
+  "기존 SVG에서 확인한 수능형 자료 구조",
+  "보완 통계와 출처 상태",
+  "patternGrid",
+  "sourceAudit",
+]) {
+  if (statsUiText.includes(forbidden)) errors.push(`Data Library에 제거 대상 기능이 남아 있습니다: ${forbidden}`);
+}
+
+const mapAppText = fs.readFileSync(path.join(rootDir, "app.js"), "utf8");
+const mapHtmlText = fs.readFileSync(path.join(rootDir, "map.html"), "utf8");
+for (const required of ["stats-module--builder", "examGraphModule", "examGraphPanel"]) {
+  if (!mapHtmlText.includes(required)) errors.push(`Map Editor Graph Builder 구조가 누락되었습니다: ${required}`);
+}
+for (const required of [
+  "Exam Material Builder",
+  "examGraphPresetGroupDefinitions",
+  "buildExamGraphScopeCard",
+  "후보 추천",
+  "자료 추천",
+  "세트 추천",
+]) {
+  if (!mapAppText.includes(required)) errors.push(`Map Editor Graph Builder 제작 흐름이 누락되었습니다: ${required}`);
+}
+const compactMapAppText = mapAppText.replace(/\s+/g, " ");
+for (const required of [
+  "if (!selectedRows.length) { countryRows.sort((a, b) => Number(b.value) - Number(a.value)); }",
+  "if (!selectedRows.length) { countryRows.sort((a, b) => Number(b.totalValue) - Number(a.totalValue)); }",
+  "if (!selectedRows.length) { rows.sort((a, b) => Number(b.lastValue) - Number(a.lastValue)); }",
+]) {
+  if (!compactMapAppText.includes(required)) {
+    errors.push("Graph Builder가 선택 후보 순서를 값순으로 다시 정렬할 수 있습니다.");
+  }
+}
+const randomScenarioStart = mapAppText.indexOf("function getExamGraphRandomScenarioPool()");
+const randomScenarioEnd = mapAppText.indexOf("\nfunction ", randomScenarioStart + 1);
+const randomScenarioText = randomScenarioStart >= 0
+  ? mapAppText.slice(randomScenarioStart, randomScenarioEnd >= 0 ? randomScenarioEnd : undefined)
+  : "";
+const drillScenarioStart = mapAppText.indexOf("const examDrillScenarioDefinitions = [");
+const drillScenarioEnd = mapAppText.indexOf("\n];", drillScenarioStart + 1);
+const drillScenarioText = drillScenarioStart >= 0
+  ? mapAppText.slice(drillScenarioStart, drillScenarioEnd >= 0 ? drillScenarioEnd + 3 : undefined)
+  : "";
+if (!randomScenarioText || /presetKey:\s*["']rankBars["']/.test(randomScenarioText)) {
+  errors.push("Graph Builder 랜덤 추천에 단일 지표 순위가 남아 있습니다.");
+}
+if (!drillScenarioText || /skillKey:\s*["']rank["']/.test(drillScenarioText)) {
+  errors.push("Exam Drill 자동 후보에 단일 지표 순위가 남아 있습니다.");
+}
+if (/state\.examGraphPresetKey\s*=\s*["']rankBars["']/.test(mapAppText)) {
+  errors.push("일반 탐색 동작이 Graph Builder를 단일 지표 순위로 강제합니다.");
+}
+
+for (const climateAppPath of [
+  path.join(rootDir, "tools", "climate", "app.js"),
+  path.join(rootDir, "tools", "climate", "korea-app.js"),
+]) {
+  const climateAppText = fs.readFileSync(climateAppPath, "utf8");
+  for (const required of ["collectNearbyMapCandidates", "renderMapCandidatePicker", "data-map-candidate-id"]) {
+    if (!climateAppText.includes(required)) {
+      errors.push(`${path.relative(rootDir, climateAppPath)}: 밀집 지점 선택 기능이 누락되었습니다: ${required}`);
+    }
+  }
+}
+
+const supplementalPath = path.join(rootDir, "data", "supplemental-stats.json");
+const supplemental = JSON.parse(fs.readFileSync(supplementalPath, "utf8"));
+const supplementalDatasets = Array.isArray(supplemental.datasets) ? supplemental.datasets : [];
+const supplementalPointers = Array.isArray(supplemental.sourcePointers) ? supplemental.sourcePointers : [];
+if (supplementalDatasets.length === 0 || Number(supplemental.meta?.normalizedDatasetCount) !== supplementalDatasets.length) {
+  errors.push("보완 통계 공개 레지스트리의 데이터셋 수가 비어 있거나 메타와 다릅니다.");
+}
+if (Number(supplemental.meta?.sourcePointerCount) !== supplementalPointers.length) {
+  errors.push("보완 통계 공개 레지스트리의 원천 포인터 수가 메타와 다릅니다.");
+}
+const supplementalText = JSON.stringify(supplemental);
+for (const forbidden of ["sourceRootConfig", "data_downloads/", "/Users/", "Documents/New project", "Fieldwork_"]) {
+  if (supplementalText.includes(forbidden)) errors.push(`보완 통계 공개본에 내부 경로 단서가 남아 있습니다: ${forbidden}`);
+}
+
+const worldClimate = JSON.parse(fs.readFileSync(path.join(rootDir, "tools", "climate", "data", "climate-data.json"), "utf8"));
+const koreaClimate = JSON.parse(fs.readFileSync(path.join(rootDir, "tools", "climate", "data", "korea-climate-data.json"), "utf8"));
+if (worldClimate.regions?.length !== worldClimate.summary?.regionCount) {
+  errors.push(`세계 기후 지점 수 불일치: ${worldClimate.regions?.length} / ${worldClimate.summary?.regionCount}`);
+}
+if (koreaClimate.regions?.length !== koreaClimate.summary?.regionCount) {
+  errors.push(`한국 기후 지점 수 불일치: ${koreaClimate.regions?.length} / ${koreaClimate.summary?.regionCount}`);
 }
 
 const cutDataPath = path.join(rootDir, "tools", "cut", "data", "ebsi_geo_data.json");
@@ -121,6 +250,7 @@ if (errors.length > 0) {
 console.log(
   `정적 사이트 검증 완료(${path.relative(projectRoot, rootDir) || "source"}): ` +
     `HTML ${htmlFiles.length}개 · 로컬 링크/에셋 ${localReferenceCount}개 · ` +
+    `통계 색인 ${indexedMetrics.length}개 · SVG 패턴 ${examPatterns.length}종 · 보완 자료 ${supplementalDatasets.length}개 · ` +
     `등급컷 기록 ${cutRecords.length}개 · 문항 이미지 검증 완료`
 );
 

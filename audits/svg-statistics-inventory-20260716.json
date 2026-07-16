@@ -1,0 +1,5227 @@
+{
+  "meta": {
+    "schemaVersion": 1,
+    "snapshotDate": "2026-07-16",
+    "description": "수능 지리 제작 폴더의 SVG를 통계·지도·로고·교육 도식으로 구분하고 보조 통계 레지스트리와 연결한 로컬 감사 인벤토리",
+    "scanRootIds": [
+      "new-project-8",
+      "codex-documents",
+      "map"
+    ],
+    "ignoredDirectories": [
+      ".cache",
+      ".git",
+      "dist",
+      "node_modules"
+    ],
+    "totalFileCount": 268,
+    "categoryCounts": {
+      "brandAsset": 7,
+      "educationalDiagram": 3,
+      "mapAsset": 147,
+      "statistics": 111
+    },
+    "statisticsSourceResolutionCounts": {
+      "embeddedSourceHint": 38,
+      "knownProvenanceGap": 6,
+      "relatedSupplementalSource": 12,
+      "supplementalDataset": 13,
+      "supplementalSourcePointer": 39,
+      "unresolvedSource": 3
+    },
+    "mappedSupplementalDatasetCount": 10,
+    "mappedSupplementalSourcePointerCount": 15,
+    "provenanceGapStatisticsCount": 6,
+    "unresolvedStatisticsCount": 3
+  },
+  "registrySnapshot": {
+    "schemaVersion": 1,
+    "generatedAt": "2026-07-16T06:57:05.335Z",
+    "datasetIds": [
+      "wits-export-product-groups-2023",
+      "wto-africa-export-commodity-groups-2021",
+      "irena-electricity-capacity-mix-2024",
+      "irena-fossil-capacity-mix-2024",
+      "irena-electricity-capacity-mix-2025",
+      "irena-fossil-capacity-mix-2025",
+      "un-wpp2024-natural-change-net-migration-rates",
+      "cia-ethnic-composition-jm-col-bra-ury",
+      "faostat-crop-area-shares-2022",
+      "ei-regional-primary-energy-renewables-share-2023",
+      "ei-regional-renewable-primary-energy-mix-2023",
+      "ei-regional-renewables-consumption-growth-2014-2024"
+    ],
+    "sourcePointerIds": [
+      "kosis-e-region-cache-20260716",
+      "kma-climate-normals-1991-2020",
+      "us-census-aies-state-manufacturing-2023",
+      "opentopodata-srtm30m-gurye-profile",
+      "world-bank-population-structure-local-cache",
+      "energy-transition-forum-renewable-generation-2020-local-script",
+      "local-inline-chart-values-upstream-unrecorded",
+      "rte-eco2mix-france-hourly-20260601-06",
+      "un-wpp-world-bank-population-indicators-2023",
+      "keei-regional-energy-yearbook-2025",
+      "mois-local-foreign-residents-2024",
+      "capss-emissions-by-admin-2022",
+      "khoa-coastline-by-local-2014-2024",
+      "kosis-local-cache",
+      "un-wup2025-cities-population-surface",
+      "un-desa-international-migrant-stock-2020",
+      "un-wpp2024-demographic-indicators-raw"
+    ]
+  },
+  "files": [
+    {
+      "root": "codex-documents",
+      "relativePath": "2026-07-10/svg/outputs/_final_primary.svg",
+      "category": "brandAsset",
+      "sizeBytes": 1648,
+      "sha256": "9078b2bc393ba6b5ed43207a0f33df55d64446ae9d418ffcf173fe476b4d1758",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "codex-documents",
+      "relativePath": "2026-07-10/svg/outputs/_final_wire.svg",
+      "category": "brandAsset",
+      "sizeBytes": 754,
+      "sha256": "f7cebe66a845291a035adbbb2a1abb972347f69bfaee8f388e43564fe786d67f",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "codex-documents",
+      "relativePath": "2026-07-10/svg/outputs/_pm_clean.svg",
+      "category": "brandAsset",
+      "sizeBytes": 686,
+      "sha256": "1b0deaf3a2d0ae3244acc5f756e429ed208b961b0e6e21ff17dba808d10d6674",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "codex-documents",
+      "relativePath": "2026-07-10/svg/outputs/_pm_outline.svg",
+      "category": "brandAsset",
+      "sizeBytes": 674,
+      "sha256": "09243686521ab992910235bb591bf2f3b51b58f7926319740b97b4080ab20123",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "codex-documents",
+      "relativePath": "2026-07-10/svg/outputs/prime-meridian-logo-solid.svg",
+      "category": "brandAsset",
+      "sizeBytes": 821,
+      "sha256": "0a978c49099882068fd5e61afeb7f2951215917a5dd08f1ee75331d982a10351",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "codex-documents",
+      "relativePath": "2026-07-10/svg/outputs/prime-meridian-logo-wire.svg",
+      "category": "brandAsset",
+      "sizeBytes": 795,
+      "sha256": "acaf8ee403f2574877c01c81292e2be076dfdcdf28b34fa4663481128c807672",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "codex-documents",
+      "relativePath": "2026-07-10/svg/outputs/prime-meridian-logo.svg",
+      "category": "brandAsset",
+      "sizeBytes": 1672,
+      "sha256": "c01d7328b5f11c5bcf33af52707d47d9f673af4c64dba957dbf8550c6c13526a",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "basel_rhine_pollution_1986_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 9033,
+      "sha256": "9997c011c1e5e07572c9747675a44a58cfdbd9999fc7eb8a2be897b595a5db88",
+      "years": [
+        1986
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "Capel et al. (1988)"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "china_saudi_niger_japan_sex_ratio_population_2023_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 7524,
+      "sha256": "d0b096bfe2388e58b0dfa379a792ba8efee039216d441069e01de9e73b9f9e91",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-wpp-world-bank-population-indicators-2023"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WPP",
+        "World Bank"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "dry_asia_country_crossword_310px_font_rule.svg",
+      "category": "educationalDiagram",
+      "sizeBytes": 4826,
+      "sha256": "1ae7c58a4d14e324e9e82f55ccdd91533e2cabce078bf6a56ae9d3e9c3a6b536",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "dry_asia_country_crossword_310px.svg",
+      "category": "educationalDiagram",
+      "sizeBytes": 7188,
+      "sha256": "52ed78e361368b6535e0c706a73e08159913d8222549395e53b58554573bd4f7",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "dry_asia_country_crossword_620px.svg",
+      "category": "educationalDiagram",
+      "sizeBytes": 7187,
+      "sha256": "0154ff8dd3a26e2847621ec08b80fa3a06d23a63ddc3c9ee058458922d1eb8e8",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "france_generation_demand_hourly_20260601_05_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 28983,
+      "sha256": "32f51943e75cb3f7d763c843636eafc22b80b1334a38601d914e69e88ec893d3",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "rte-eco2mix-france-hourly-20260601-06"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "france_generation_demand_hourly_20260601_06_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 34127,
+      "sha256": "b42a5b307e215eacab20a600e596b4d7fd22aa9205bf4d7b851bab2a738171a2",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "rte-eco2mix-france-hourly-20260601-06"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "france_renewables_demand_hourly_20260601_05_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 18183,
+      "sha256": "1af244b2fa950e9ac2990d18c3755425f50f169140424a827fd56df6f962b43a",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "rte-eco2mix-france-hourly-20260601-06"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "france_renewables_demand_hourly_20260601_05_smooth_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 27044,
+      "sha256": "244299c820424dd683b78e0d46469f218ce98f8e6c736d6a96628c7644c66a23",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "rte-eco2mix-france-hourly-20260601-06"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "geum_estuary_waterlevel_20260105_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 7426,
+      "sha256": "9fdbb384b143acccebdd0b30b821a096292ecfbeeacb683628ada485a1068c1b",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "WAMIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "han_geum_waterlevel_barrage_20260105_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 7879,
+      "sha256": "7e4936ea05b69edc31113c9f6c27ee15e6e1d7f6ce162cd19739bcb239c21fb0",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "WAMIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "jma_jan_jul_precip_addis_brisbane_alger_sf_200px.svg",
+      "category": "statistics",
+      "sizeBytes": 3200,
+      "sha256": "0fd0bbc50f4b12a4ac0cd0b41f28a9a57636b06ef144512ae7e4e383f7ae239f",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "JMA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "jma_jan_jul_precip_addis_brisbane_perth_sf_150px.svg",
+      "category": "statistics",
+      "sizeBytes": 3004,
+      "sha256": "00e2899701e9b11064b528e2c4a1a4b0d78005fc6813ba4e03acb55873f26560",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "JMA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "korea_geo_q9_coast_landform_A_vector.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1487394,
+      "sha256": "6e378af7b89b13d5ad826fa9d3555f255c755453417a49c1c429d7f6e004dec0",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "korea_geo_q9_coast_landform_B_vector.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1487485,
+      "sha256": "30f6e18368c5f29e8dfd9d6eb0c26a8ad2a92a6a587cc782935d0dccf95194da",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "korea_geo_q9_coast_landform_C_vector.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1487548,
+      "sha256": "4493ab394b4ecdbc339b84cb909cbd82a0378dd23e404fb12750cacb86622fc5",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "korea_geo_q9_coast_landform_maps_vector.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1487355,
+      "sha256": "d13c10528a91ffa6ebe43db619305b492c04fc3ba20cdf7b57b76555c4e7061f",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "korea_geography_coast_landform_q11_map_vector.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1830131,
+      "sha256": "ce41434ab7f6fbcf2815e84df6b4a63116332d219013a0395b3c8691ffbec3fc",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/africa_export_commodity_groups_2021_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 6457,
+      "sha256": "80479d93d876fcbc4bd2fc3ba04550dd5a943ab33e73bd1e51041ec85ee08769",
+      "years": [
+        2021
+      ],
+      "registryDatasetIds": [
+        "wto-africa-export-commodity-groups-2021"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/africa_welfare_birth_life_literacy_2024_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 5352,
+      "sha256": "7c95afb3e803e8496269c5fb83470c450964ff941567ad2912f7caeec0c77587",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "World Bank WDI"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/age_sex_ratio_seoul_chuncheon_hwacheon_pyeongchang_2023_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 14212,
+      "sha256": "5dcb16ed367e12ad6844007208d56d3d8b93d05e2569235d223ad13ec8342cbd",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/aus_nzl_jpn_sgp_density_industry_gdp_table_wdi_latest_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 3032,
+      "sha256": "b313aa34ebf628c8226957739677b803fbd06e3a9c8c3f314cd76308d1faabf0",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "World Bank WDI"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/brics-energy-supply-share.svg",
+      "category": "statistics",
+      "sizeBytes": 9110,
+      "sha256": "88663ebac6badfda9ff000e2284f3440713b4d2643f56f8ebfcfcb467c1035e4",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "local-inline-chart-values-upstream-unrecorded"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "knownProvenanceGap",
+      "provenanceGap": true,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/busan_commute_yangsan_geoje_changnyeong_2020_150px.svg",
+      "category": "statistics",
+      "sizeBytes": 4034,
+      "sha256": "031f22905695092e9a550f803d9ced73e826e35298d05b0b0389277c6e57b2df",
+      "years": [
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/capital_region_expressways_2026_250px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 6392,
+      "sha256": "49a4b600867c930b9d519a75611dd52eac66e7788d6d8af482efff30fc1ad662",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/climate_range_precip_deviation_seoul_1991_2020_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 13259,
+      "sha256": "11d0132f4cb286d0c26264bd8f87fb5faf52f81bf700b50976441b4cb41d7e31",
+      "years": [
+        1991,
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "JMA",
+        "기상청"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/climate_seoul_difference_wonsan_pyongyang_chongjin_1991_2020_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 10422,
+      "sha256": "2938e1c2e3e204c9b1ec1b9f3e4c549c44366acccb7e9012acd63df87d395578",
+      "years": [
+        1991,
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "기상청"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/cobalt-coffee-cacao-production-share.svg",
+      "category": "statistics",
+      "sizeBytes": 6231,
+      "sha256": "31099ed073d0c5817cdc1f248612b924b475460757c427a17a1f77b5fd4c3ad6",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "local-inline-chart-values-upstream-unrecorded"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "knownProvenanceGap",
+      "provenanceGap": true,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/crop_test_direct.svg",
+      "category": "statistics",
+      "sizeBytes": 764214,
+      "sha256": "70274426ee9ea42ac851aa23cc7978277ad54bf386a8952f2c6f3a246c2fa76c",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "unresolvedSource",
+      "provenanceGap": false,
+      "unresolvedSource": true
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/crop_test_offset.svg",
+      "category": "statistics",
+      "sizeBytes": 767068,
+      "sha256": "3afacf0b4d3233e502068ef3d55be9df14576f7837a508fcd6a3927b280b027c",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "unresolvedSource",
+      "provenanceGap": false,
+      "unresolvedSource": true
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/drc_botswana_south_africa_exports_2024_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 6960,
+      "sha256": "bdfddc42e6fed5e2abeafd465ddfc492e101aa243175fb23119b3a7d0d0f9057",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "BACI·OEC"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/ebs_2018_daedongyeojido_detail_tight_vector.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1496385,
+      "sha256": "06a209271dccde4430e876247eba293bee2176d131b9ddcb1269e7b7bdb4c6f8",
+      "years": [
+        2018
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/ebs_worldgeo_26019_0058_map_310px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1135657,
+      "sha256": "5cd246ea5526ca0f8e0865f8eb100111f42d6a11daa8059c1c4a84228797cecb",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/energy-source-donut-nepal-india-france.svg",
+      "category": "statistics",
+      "sizeBytes": 5431,
+      "sha256": "79a56b61a44e7a32db4b1445483201ce05eb4c177a4de32f38815b0c6d079ff0",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "local-inline-chart-values-upstream-unrecorded"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "knownProvenanceGap",
+      "provenanceGap": true,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/ethnic_composition_jm_co_br_uy_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 5368,
+      "sha256": "422ebac4e4f13ab4e5909947717d2be252b3b2574e2dc687fbb50efa841d1b0d",
+      "registryDatasetIds": [
+        "cia-ethnic-composition-jm-col-bra-ury"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "CIA World Factbook"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/europe_grain_top3_share_2024_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 4903,
+      "sha256": "f9920879423475f2d51d30fd667a3de8214cd4a8cfe64e826a95904eed863a16",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "FAOSTAT"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/export_product_composition_tur_tun_kaz_are_2023_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 6191,
+      "sha256": "5725b50029d6f92a84e1a2b5ab298dccf3a4097c3d3a442ed9f0fccbaf52e9ac",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [
+        "wits-export-product-groups-2023"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "WITS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/export-top5-products.svg",
+      "category": "statistics",
+      "sizeBytes": 8405,
+      "sha256": "35c1a249f8197951ad4c7fb33ec43f6e9257b39c74fecf43aff64c8c09623864",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "local-inline-chart-values-upstream-unrecorded"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "knownProvenanceGap",
+      "provenanceGap": true,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/foreign_national_population_abc_2020_150px_v2.svg",
+      "category": "statistics",
+      "sizeBytes": 3461,
+      "sha256": "3699c0eabbccf47cd951031fed890722827a1416c28813e3457cd18cd4e5984a",
+      "years": [
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-desa-international-migrant-stock-2020"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN DESA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/foreign_national_population_abc_2020_150px.svg",
+      "category": "statistics",
+      "sizeBytes": 3313,
+      "sha256": "6dc4c530fc3f2876426be174ec25b12f51beec1efa5c223f50cbe45023b3110c",
+      "years": [
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-desa-international-migrant-stock-2020"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN DESA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/foreign_resident_three_type_share_all_sido_2023_points_250px.svg",
+      "category": "statistics",
+      "sizeBytes": 6312,
+      "sha256": "bbeefddf2a82efd233d775539878e6b8b5ffaf63ebf57bd29ad76c5ba3a4772b",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "mois-local-foreign-residents-2024"
+      ],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/foreign_resident_three_type_share_chungnam_jeonbuk_daegu_jeju_2023_250px.svg",
+      "category": "statistics",
+      "sizeBytes": 4656,
+      "sha256": "2c220dbeac46b039dbec74b04389b0ef6b75ad18e31c017da8974a4ac88a5bc8",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "mois-local-foreign-residents-2024"
+      ],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/foreign_resident_worker_marriage_chungnam_jeonbuk_daegu_jeju_2023_250px.svg",
+      "category": "statistics",
+      "sizeBytes": 4669,
+      "sha256": "74b4359a07548f946c8c843f821df47d7b2f6dd4e89b1d8625ab55b511631122",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "mois-local-foreign-residents-2024"
+      ],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/foreign_resident_worker_marriage_chungnam_jeonbuk_daegu_jeju_2023_zoom_250px.svg",
+      "category": "statistics",
+      "sizeBytes": 4622,
+      "sha256": "5a0b7061dbf466913a76d18e30d13972069ff3de4d0ecb8a09e27b843eb30ae8",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "mois-local-foreign-residents-2024"
+      ],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/freight_loaded_empty_distance_time_2022_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 5161,
+      "sha256": "66e161728f18fb5400709c26f3d77c0ba26648f012f5352c978b91ae99ac0867",
+      "years": [
+        2022
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "국토교통부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/gangneung_mokpo_daejeon_seogwipo_climate_deviation_1991_2020_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 4779,
+      "sha256": "fff7f50025804379d4b0da5126d465e4a2e70c44db6f412713be6a5207668247",
+      "years": [
+        1991,
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kma-climate-normals-1991-2020"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "기상청"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/gangwon_age_sex_ratio_wonju_chuncheon_hwacheon_pyeongchang_2023_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 14212,
+      "sha256": "0ab85cf6e5d5b70a608905bdb0cdbc935f2aacd53a7ccd04fada074676cc1665",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/gangwon_young_male_aging_2024_150px.svg",
+      "category": "statistics",
+      "sizeBytes": 4862,
+      "sha256": "db2d2d8a77473469398fdb1f40c12958e5ffdf33d8eb792ac5b8bd95202034cb",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/gurye_hwaeomsa_alluvial_fan_profile_srtm30m_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 6328,
+      "sha256": "5a879e2c9e6c7bd1c37840ac187818308125ab48b263ed6b0131dfe77ec229f9",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "opentopodata-srtm30m-gurye-profile"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/hwaseong_icheon_gimpo_goyang_paddy_mfg_seoul_commute_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 6289,
+      "sha256": "33cc4b14df8e98c7675bde314972ab571a8d55b1797131fd9d7bc5dca604808c",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/internet_map_candidates/seoul_gu_hangang_osm_scale_20260615_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 275034,
+      "sha256": "20e8f278a74e2e39de09adc6b4b3e8d38b0c36cc8dfd69262af142fa5ffca2e5",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "국토지리정보원·OSM"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/internet_map_candidates/statgarten/statgarten_full_서울특별시_시군구_경계.svg",
+      "category": "mapAsset",
+      "sizeBytes": 80192,
+      "sha256": "3ab168a9b846a5ae33f41db1d0b9f55a9575ad666b40a9cafc61f40f8b121ae7",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/internet_map_candidates/statgarten/statgarten_simple_서울특별시_시군구_경계.svg",
+      "category": "mapAsset",
+      "sizeBytes": 6822,
+      "sha256": "4793189b2dcfaca1080b7d3adc8b3ef0814593628c4f0150bac204c5096d8866",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/internet_map_candidates/statgarten/statgarten_simple_전국_시도_경계.svg",
+      "category": "mapAsset",
+      "sizeBytes": 155028,
+      "sha256": "dcecee0bdd300ed041853e4055973f0113529d91b6d39ba9dac76b84474b1150",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/internet_map_candidates/statgarten/statgarten_simple_충청남도_시군구_경계.svg",
+      "category": "mapAsset",
+      "sizeBytes": 29454,
+      "sha256": "c0acf41ae0566c0521880d418e92248d1e95c3f8f28bd28785743361937d4c9f",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/internet_map_candidates/서울시_지도_v1_cantips.svg",
+      "category": "mapAsset",
+      "sizeBytes": 525711,
+      "sha256": "bc8a335a0ee7fcc914e26fee263d110c9c5baf386a1eb6005354d3632c61fe71",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/internet_map_candidates/한반도_대한민국_지도_v1.1_cantips.svg",
+      "category": "mapAsset",
+      "sizeBytes": 144820,
+      "sha256": "8d9056d3ed48a55f5ee8873321ad02375078fb15b4e534b34cba692183fb132b",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/japan_thailand_china_natural_increase_net_migration_1950_2020_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 8053,
+      "sha256": "94b87986a4f693ec65cb52d9728f57c1f4123b438d0e869af1bf5a85ed1db69f",
+      "years": [
+        1950,
+        2020
+      ],
+      "registryDatasetIds": [
+        "un-wpp2024-natural-change-net-migration-rates"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WPP 2024",
+        "UN DESA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/japan_thailand_china_natural_increase_net_migration_1950_2020_three_panel_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 9751,
+      "sha256": "925da1f670d3cf2bbaac686e5cc22637e009f3f29ed4a79f08b347886cb6305d",
+      "years": [
+        1950,
+        2020
+      ],
+      "registryDatasetIds": [
+        "un-wpp2024-natural-change-net-migration-rates"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WPP 2024",
+        "UN DESA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/japan_thailand_china_natural_increase_net_migration_1950_2020_three_panel_xscaled_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 9968,
+      "sha256": "c4cf0b325d724e3744dd780bf2bd0aee68594f5e55cdb2375f5d4bf722897958",
+      "years": [
+        1950,
+        2020
+      ],
+      "registryDatasetIds": [
+        "un-wpp2024-natural-change-net-migration-rates"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WPP 2024",
+        "UN DESA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/japan_thailand_china_natural_increase_net_migration_1950_2020_three_panel_xscaled_fine_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 10333,
+      "sha256": "d6b15bd194197cd12e3724038f827182e1add48212c814b681d7011d9a746c5e",
+      "years": [
+        1950,
+        2020
+      ],
+      "registryDatasetIds": [
+        "un-wpp2024-natural-change-net-migration-rates"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WPP 2024",
+        "UN DESA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/jeju_foehn_temperature_humidity_20230516_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 8321,
+      "sha256": "14219246ddc26b264c96772952b6de2a1d69f3576fc9c8c51281cf20deca6f12",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "기상청"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/jeonnam_gyeongbuk_ulsan_energy_consumption_supply_2023_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 8621,
+      "sha256": "b79de3f835069cf45af01fb05fb628447c266c0fcf1ae67ba6a1ea182503ae33",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "keei-regional-energy-yearbook-2025"
+      ],
+      "sourceHints": [
+        "에너지경제연구원"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/jinju_geoje_busan_yangsan_population_index_2005_150px.svg",
+      "category": "statistics",
+      "sizeBytes": 5127,
+      "sha256": "44ab1c81e436bdb65ac78b3665f86c0083467752a249c743016c7d4b827ce3ab",
+      "years": [
+        2005
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "unresolvedSource",
+      "provenanceGap": false,
+      "unresolvedSource": true
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/kazakhstan_iran_turkiye_egypt_crop_area_share_2022_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 9564,
+      "sha256": "d6bb22bf815dd5eb24dc66bc89ba90df6bf914ca5864b63db72a1c523d7226fc",
+      "years": [
+        2022
+      ],
+      "registryDatasetIds": [
+        "faostat-crop-area-shares-2022"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "FAOSTAT"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_11_seoul_gu_gun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 120239,
+      "sha256": "643d2f512840fcc5024cc03082e368da4fa774205c5bac16b2d59a74ae0d88cd",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_26_busan_gu_gun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 98758,
+      "sha256": "3a1510a55f87614cb5e4aa88060a2c12dc634633972022bb333c919dae1c9a6a",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_27_daegu_gu_gun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 145105,
+      "sha256": "c9051807be96e845a04bd899ea948845bf928afd3ebbd8c8dfadb9b7285338b5",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_28_incheon_gu_gun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 200282,
+      "sha256": "5c3c67643bdb224fe9e05eb6b72647339b0ec78ff6fa8ac6cf94697d5aa058a5",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_29_gwangju_gu_gun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 44213,
+      "sha256": "8a5d68ceb321667d0ef9b81333b4dddc78f42740f8bd46e4335045c090b07109",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_30_daejeon_gu_gun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 57254,
+      "sha256": "3e0faaf9b3d54d456b2594e6be56f61ef4cd218f5f8fa665f83cf19fb39f342f",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_31_ulsan_gu_gun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 63638,
+      "sha256": "946fca0adc44106301798f9d39172a07bcccff5f45312fffb9b91ffa2879832c",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_36_sejong_si_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 34820,
+      "sha256": "305bcc9fc2bb5863200d695b1bc0866886989f1dce4b5027573b1ab28def7bac",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_41_gyeonggi_sigun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 648028,
+      "sha256": "4133c921675dbd48c3a1dae9e3e8b7cfa1d80ac3449d540da6a7c272a626f3a8",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_43_chungbuk_sigun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 356003,
+      "sha256": "b9ed9de658857c48b351697aaf703f86cbec3797dca6a054a68e0e15ce0564c5",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_44_chungnam_sigun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 473157,
+      "sha256": "c14f0515e8900ccbff5085e5afbce4b704d75728f67fc7162df02f44c4007090",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_46_jeonnam_sigun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1673967,
+      "sha256": "e267295ea16b9ff24db25d7e0efb146607dfb3633f8e43982b63a7ae16eec70c",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_47_gyeongbuk_sigun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 835271,
+      "sha256": "dab778469fff12455b5b57788802306fa082a841ad34eda24f54950dd197cf22",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_48_gyeongnam_sigun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 855251,
+      "sha256": "1137849b3e1a9c54ed74f24d11408137933fa70b5e72c98c981fd5a7bb132b69",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_50_jeju_sigun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 92634,
+      "sha256": "fc436822591372a4826f3de03ec5b142efea600d897f89db2cbf37f2b7f6bc3e",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_51_gangwon_sigun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 602812,
+      "sha256": "e4830b6dbe2e95320bca82e341d47d8183800a3a108c404a23e3974c10981eee",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_52_jeonbuk_sigun_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 458827,
+      "sha256": "84f6af5f12276a7eddb7e79cc1f6032bc9476904af338a75589ad614879154ff",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_ready/korea_sigungu_full_sido_brushready_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 6357570,
+      "sha256": "cb912fc630878be1dd5e8e7386574ac00a30b1d3375e32f33a59c84b51e51651",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_11_seoul_gu_gun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 102307,
+      "sha256": "578b22aa5d32ee48c3cb11e1c9aca0e28b587e34e9aa3b24728d32b5f2fd6748",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_26_busan_gu_gun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 77780,
+      "sha256": "14c0af028be1506774803927c07fa59108e8ca2bc4745b195f64a55f6a97cb6f",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_27_daegu_gu_gun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 98518,
+      "sha256": "af962339da607b8514fd669ec2b7c62ef3112f2544b19be2e197a5440e03e099",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_28_incheon_gu_gun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 120430,
+      "sha256": "e572733229f858ec5ac3452a17e0b79b56cbd40e6b3e429a5272b7a95406c690",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_29_gwangju_gu_gun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 35482,
+      "sha256": "e235abac6261d6a2c26f9638dc7dd017d5b20b54e692b4eda33f9fceeccc3e82",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_30_daejeon_gu_gun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 43577,
+      "sha256": "9331e9c47df868f9f87c2e4cc8ef418ece50e85bf3b8fb026afba7013b77519b",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_31_ulsan_gu_gun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 46564,
+      "sha256": "83399e43ac5c4e7f6a0669853fa13e77ef4eb414dfb67c026d42287d637b0fd1",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_36_sejong_si_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 21671,
+      "sha256": "ed14aa1781709355bb8c87ff1ad217d347fc9119e84c23946404488a1f6b6651",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_41_gyeonggi_sigun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 534940,
+      "sha256": "475fde6a4d8926aefd06c6564810a8a79e79244ebae599c6c6801b05c513adc5",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_43_chungbuk_sigun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 269711,
+      "sha256": "abdfbd4ed61f6fab8c4138d7e74d5692703ec3bb489c44902db58560bd96fec3",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_44_chungnam_sigun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 349795,
+      "sha256": "837aac993e8ac7bf96bd3dcfc67fc8428cb2b90681e9ac12e7b74c477b60ebc7",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_46_jeonnam_sigun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1000452,
+      "sha256": "89d9473507a5d2caec00126d3c31fd5cac3d756ece50b11504b4721f1d579cc2",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_47_gyeongbuk_sigun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 698589,
+      "sha256": "7f2fa0e960ccca5ec6edc03b6258aa5f7bb6fd1914ff4918e541618dae8d042b",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_48_gyeongnam_sigun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 612261,
+      "sha256": "512561089aa20bf462dd951fa99d9d0a8a0dd04dc6e19a16db8f545a0b93521c",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_50_jeju_sigun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 64168,
+      "sha256": "45746b778f39028c8c9d53a899f064e02f91736219eaf2f20a8f192f22b3792c",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_51_gangwon_sigun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 513271,
+      "sha256": "c42d88193fe72e20447a720fa714173056bf765410767098d773aee30b52fcc8",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_52_jeonbuk_sigun_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 347576,
+      "sha256": "2417671e2d7d899249c757c16513754c7f3ad84d79d1b23f8eb0eacc1e3fe2fd",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_brush_safe_simplified/korea_sigungu_full_sido_brushsafe_simplified_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 4807681,
+      "sha256": "aae0fcf7c43477d450f1361110588edcbeccaecba030cd42af50f99b05f6ac6d",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_11_seoul_gu_gun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 95373,
+      "sha256": "8baf0de2bb5706194b8455c503a2484a6256da23cdbb6d7e5a9dedc7dd7a2082",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_26_busan_gu_gun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 68006,
+      "sha256": "380320a2d751e66f5a6dfcae8e8d2aba2bd4aac7c0c07afca9dee66fbb5cf63a",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_27_daegu_gu_gun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 131540,
+      "sha256": "88b195d56ce67e2f86619a720018e20776062f024133473c902fc91645cd4446",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_28_incheon_gu_gun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 111969,
+      "sha256": "85667ec6bc6791ac5f7acef8bcfb2de61d31b7c423409d0e4159bc4673f7af22",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_29_gwangju_gu_gun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 37499,
+      "sha256": "1dc424158318660a01ccd3f2c7cb5a7874df9a3908cb852ca2c9062c63964074",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_30_daejeon_gu_gun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 49706,
+      "sha256": "14159e484d56058f1484a77e620dedb98b3fc857a9d5729a68729814b9548f4e",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_31_ulsan_gu_gun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 49156,
+      "sha256": "8aad0fb562ffdd203b20b14708b6b0ebebb7d9065dd3690a4facc53eb6a150cd",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_36_sejong_si_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 34601,
+      "sha256": "3bc6a2e856ad1c3b099ba479127b3402de6c314d63cb331b7b6a6d1772024c83",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_41_gyeonggi_sigun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 477701,
+      "sha256": "fea81109639c3793e5e1c30761abb22be833ec13dbb5f3a81676906a7eff157b",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_43_chungbuk_sigun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 298845,
+      "sha256": "ddfb04df882ec20898779d989c421146e237ba8272dafbc10341ff2375016c7c",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_44_chungnam_sigun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 325335,
+      "sha256": "e06a6abb2b77a64a8fbbb8152c2fe7564825a2d8956bf3200b3393fa38f200cb",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_46_jeonnam_sigun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 929643,
+      "sha256": "38feea990ea94e671ae8a9e9d4f4bcefa50818833932cb8ccd88c886ee092a14",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_47_gyeongbuk_sigun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 619760,
+      "sha256": "647dfde8a1acde680f2daa06344524f5827a1814850dfdec841a281f4c5d1902",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_48_gyeongnam_sigun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 535747,
+      "sha256": "7a8287eaa2ede21ebadea23236776342c9676f1a2d33e27ae4d7c8bff945a38e",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_50_jeju_sigun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 84209,
+      "sha256": "a1f910404016bcfaf7db7472239d5e7b75a5ff8338e9175a8940a44eddaec577",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_51_gangwon_sigun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 464614,
+      "sha256": "9aabe9fc699f0770afd9f07b7fb750401aeafd765e2718a30bea709f100cd425",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_52_jeonbuk_sigun_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 384032,
+      "sha256": "dc544a14b1264fb2e77e124ce6c9e1ad9541ab701d3aac2233fcf928828d700b",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_exam_style/korea_sigungu_full_sido_dashed_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 4207924,
+      "sha256": "4e1619dd64125249302cd3f53a8479f3998d4df224676ef77268a5efb519f56f",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_11_seoul_gu_gun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 178749,
+      "sha256": "242a347bfb8fa7c9329c2c5e16af3d3b357e4fd5006a4564a341359ad6db6635",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_26_busan_gu_gun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 182562,
+      "sha256": "861510cca12eb083505fc6a713b7614d18458bd0b4422c1791794882375a3fe0",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_27_daegu_gu_gun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 237831,
+      "sha256": "a8637b7e7f0806cb67b9a7fc00778d58df07140213b2880d5bc19f8f3e331cc3",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_28_incheon_gu_gun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 253283,
+      "sha256": "65e19d3ac433d902d5f32e2e3d21babbb59b5f03692ca49bb62505126e9a0dcc",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_29_gwangju_gu_gun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 92302,
+      "sha256": "b2ba05c0a52cebc593e4856e9fa49403d435a797a16a3d8a36ca9e70a9041dc8",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_30_daejeon_gu_gun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 123531,
+      "sha256": "8b731f4de21edbef2827341ac00d2d82d4f161c65a802e7f960a42c96494a7b1",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_31_ulsan_gu_gun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 128780,
+      "sha256": "9d89a4b0f55060ebb381600b7d6a3ee17f50a46732ca2702acd6695d5e29e14c",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_36_sejong_si_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 102202,
+      "sha256": "4848ef863644b08e974e0556a01cf97afb40c5239843f2baf854c5574282ecac",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_41_gyeonggi_sigun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 749381,
+      "sha256": "3dc7ad3f8c7c9a320f02fd22692b72245bcc2484598ad89c566bd26b372e938f",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_43_chungbuk_sigun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 432305,
+      "sha256": "821accb4721b1b3bb6400cd79f928f384805a537c18f44a21d575e1c399f978c",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_44_chungnam_sigun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 556673,
+      "sha256": "97badef46ea18a034b79204bd15657d9a73bde9659b97a2cf58d7dee0521b363",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_46_jeonnam_sigun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1901500,
+      "sha256": "002d58af76d2f0f2ea6d8e4482085c6d27462acfd79c3510a06f7471bd2b08ef",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_47_gyeongbuk_sigun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 879044,
+      "sha256": "a25850ec3c85dbc6ae7db91e47e5274d92ccede42318c8041cbdb8a06a0b0129",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_48_gyeongnam_sigun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1024057,
+      "sha256": "5aa5e9769d8ec9c2c314dadc70df558786b0d21bde5926fdb5c50e06731ccd95",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_50_jeju_sigun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 148281,
+      "sha256": "1c371f363490dde80000e93dc1c013a1bbab16be4406394282f789d6fc77afc0",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_51_gangwon_sigun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 658140,
+      "sha256": "1d937a70fe5aa2c212285138cd8281327ff88afa2fc6e5b5a04db7da25534adc",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_52_jeonbuk_sigun_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 523594,
+      "sha256": "1c29448c3a0fb172383f2d231fd6385fc88bed88b0780b0b4c9de7d44af11252",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg_reference_style/korea_sigungu_full_sido_refline_scale_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 6568209,
+      "sha256": "26e834443fa660698d72a9ced654c7624331f282457e5e84f5f3533c8f813f85",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_11_seoul_gu_gun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 73763,
+      "sha256": "e7e81efd6c46fcf2e63c5f042dd941e340f9bc971c567f0468d839b618451dcd",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_26_busan_gu_gun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 57445,
+      "sha256": "6b88baa0da0e03883c3301d1308323a0a9171ed3c6f919c2366b63c5697f6444",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_27_daegu_gu_gun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 79623,
+      "sha256": "a1da9e9393c7dda7fd5784a8cb606c2ef6d6f4e866ccabd4254f73d3d29c79b0",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_28_incheon_gu_gun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 105206,
+      "sha256": "f22a0b8da9e3b53e029f322de54cadae852769c03ea86bb42c59de7c089a78b2",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_29_gwangju_gu_gun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 25497,
+      "sha256": "18f10bdad76ef4ae66167af0499188ab1dd939cb030d1a5efe14cb4b460ef936",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_30_daejeon_gu_gun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 32485,
+      "sha256": "40fd4569d37622055f93908aaf985c797695fc90fa278dd38a12056c28ec7bea",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_31_ulsan_gu_gun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 35388,
+      "sha256": "1d05b6f7fb12e281f97d467c1dd504fe1bb2ef7b887f2e41330bbb8fb2e79a35",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_36_sejong_si_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 17520,
+      "sha256": "6e8787f28eeeed3c443e79315f63b589c246f449d00c191b7b02d041ea254645",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_41_gyeonggi_sigun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 392824,
+      "sha256": "a0ad590c69c4bf9f14843eba20400c73e1ebe9a920f231e401afebd17cbc04b7",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_43_chungbuk_sigun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 207033,
+      "sha256": "aed612fae5c55157cb838a67c89d7a09268f182dcbe014676da664ed343612c5",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_44_chungnam_sigun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 272261,
+      "sha256": "701b9cd82919fdae85cb82cf1ed363542c9535f7fc11da1089e52beab066ca82",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_46_jeonnam_sigun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 883737,
+      "sha256": "2c29ee5b78ca5a63f834a73209c268ae37bd0576fa237a30bd9fe482a625e0c7",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_47_gyeongbuk_sigun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 510900,
+      "sha256": "bcd928a5e7e73546482ec50f410c9588d673df10abf0dfe6d8836855cc6c2232",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_48_gyeongnam_sigun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 483908,
+      "sha256": "2d382ea0af073b6e1880dabd8090dfc0f1e6fa1fb58077bec5c5fd55648e6a89",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_50_jeju_sigun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 50433,
+      "sha256": "e1e6de91877a59cfbd0a432f34a02a89c76c2b72dd517b47e935dccac670d364",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_51_gangwon_sigun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 371400,
+      "sha256": "b7e78cd8c5bd2996923e93e42f28d4f63ded949264d23c88b623ec568b9f1b4b",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_52_jeonbuk_sigun_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 267423,
+      "sha256": "7cac9e8303ad88300f87f20461a425f0822c6a434752ef538fb1b98340a37106",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_sido_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1925567,
+      "sha256": "8330dccbac37138966c9e457d6bcf160fd09f2392ccf1fa36a9746e06a8c36f9",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_admin_svg/korea_sigungu_full_20260201_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 5765095,
+      "sha256": "fe4c9f25dd4470cb72d0e49c612c23d2ec863755c4b52ce0e69e1b825adfed30",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [
+        "https://github.com/vuski/admdongkor"
+      ],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_air_energy_power_gyeonggi_chungnam_busan_gyeongbuk_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 5180,
+      "sha256": "6d2cd72192897b342287b15b094ec1fb67bc903489b6a982d48aff08c1abc102",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "capss-emissions-by-admin-2022"
+      ],
+      "relatedSourcePointerIds": [
+        "keei-regional-energy-yearbook-2025"
+      ],
+      "sourceHints": [
+        "에너지경제연구원",
+        "CAPSS",
+        "한국전력공사"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_air_energy_power_gyeonggi_chungnam_busan_gyeongbuk_side_by_side_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 5234,
+      "sha256": "f50ac01852d1aa0fad1cb5734edc06940e2c53936033fceb26faad3697cbefcf",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "capss-emissions-by-admin-2022"
+      ],
+      "relatedSourcePointerIds": [
+        "keei-regional-energy-yearbook-2025"
+      ],
+      "sourceHints": [
+        "에너지경제연구원",
+        "CAPSS",
+        "한국전력공사"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_coastline_sinuosity_gyeonggi_jeonnam_gangwon_2024_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 3114,
+      "sha256": "0321eb4c538924fe854fdc2cd786c362460beb1b045b7ef94d151bb800171064",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "khoa-coastline-by-local-2014-2024"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "국립해양조사원"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_coastline_sinuosity_relative_1910s_2000s_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 3918,
+      "sha256": "8d0c434310e16817d08d5dcd0a99d09d035b70f78c1a55cbe97011b50a58d245",
+      "years": [
+        1910,
+        2000
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "국립환경과학원"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_coastline_sinuosity_relative_2014_2024_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 3971,
+      "sha256": "d15a79d637f26ac596519255da69eda75481ede1e9c85f6a0846df6ac734fa2d",
+      "years": [
+        2014,
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "khoa-coastline-by-local-2014-2024"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "국립해양조사원"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_farm_size_farmland_rate_use_rate_jeonnam_gyeonggi_gyeongbuk_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 13280,
+      "sha256": "b350bc87ef8bac0bb4c0869e7adcfd66b29275d3fc4cfd978b101230c05ac89d",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_final_energy_consumption_2024_200px.svg",
+      "category": "statistics",
+      "sizeBytes": 3907,
+      "sha256": "85fd93ed91cfe8498a928c561cc0998d169538e55a5339cd37da39ad89920f8b",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "keei-regional-energy-yearbook-2025"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "에너지경제연구원"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_final_energy_source_share_2021_200px.svg",
+      "category": "statistics",
+      "sizeBytes": 6755,
+      "sha256": "40f552b180fa5b51047c639a135934338b1de86a7182092680970486218c1035",
+      "years": [
+        2021
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "keei-regional-energy-yearbook-2025"
+      ],
+      "sourceHints": [
+        "에너지경제연구원"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_four_extremes_seoul_busan_distance_20260601_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 4915,
+      "sha256": "6da485bc655f7a4f0c03713ecee01c297d5ed2d6eca7f083314325f8339ea122",
+      "years": [
+        2026
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "국토지리정보원·OSM"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_industry_region_groups_shipments_2024_250px.svg",
+      "category": "statistics",
+      "sizeBytes": 8767,
+      "sha256": "5b458898e680780cf2dfbd547d2cc7c5fc02ff863463cb4e28b2113b7f358bc3",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_manufacturing_shipments_index_2024_250px.svg",
+      "category": "statistics",
+      "sizeBytes": 6685,
+      "sha256": "c7b954ee04d9aa07d0bc5cd260d9b74ff3a7edbf1c47e611eb0f31449aea880c",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_mfg_top2_region_pairs_2022_250px.svg",
+      "category": "statistics",
+      "sizeBytes": 4625,
+      "sha256": "29b932de3d4211cef0a4945176268c1dfa5c5b398617547eb016cc17f3a512f3",
+      "years": [
+        2022
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_population_index_seoul_daejeon_gimpo_jinju_ulsan_1975_2023_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 4986,
+      "sha256": "e8658d862af3247bb2844285d3b5ff4e4f52b0d17a8d09af6b86ab4fdb2e27ec",
+      "years": [
+        1975,
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_population_index_seoul_daejeon_gimpo_jinju_ulsan_1975base_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 5321,
+      "sha256": "6754920dc674e69d55fe11a1f822ed6b833b5ced24d8f2d03e5b9b3d549f8884",
+      "years": [
+        1975
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_population_index_taebaek_gimpo_seoul_sejong_yangsan_2010_2023_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 5774,
+      "sha256": "4422bdbd6728607141d95d1bfe2ab7195c9edbf82b4214bc1656108e29f43ee4",
+      "years": [
+        2010,
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_region_groups_population_sexratio_202412_200px.svg",
+      "category": "statistics",
+      "sizeBytes": 4612,
+      "sha256": "f877ba5fa3acb7cc045d2813001d61f337ea890ccf6beb39ab954e2db0b408ed",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_renewable_dominant_regions_2020_150px.svg",
+      "category": "statistics",
+      "sizeBytes": 4356,
+      "sha256": "83d1aac804ed99f3177fea7224978a32b3db123ddd031a309c71967a4b953c07",
+      "years": [
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "energy-transition-forum-renewable-generation-2020-local-script"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "에너지전환포럼"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_river_velocity_basin_updown_wamis_2024_200px.svg",
+      "category": "statistics",
+      "sizeBytes": 3322,
+      "sha256": "797501c6f980240f78bf01ba48320437d97af2f6557adad28b0ac609c1689678",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "WAMIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_river_velocity_wamis_selected_2024_200px.svg",
+      "category": "statistics",
+      "sizeBytes": 3540,
+      "sha256": "284ea10ba5db990d42cda206e5f236eb72c1b061fcf8c8ea11b185a10973fc46",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "WAMIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_snow_precip_heatwave_scatter_1991_2020_250px.svg",
+      "category": "statistics",
+      "sizeBytes": 4789,
+      "sha256": "720187cd95ec72f8a05b65182da2fa780608e67005cb79c1c47bae41fe45e87c",
+      "years": [
+        1991,
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kma-climate-normals-1991-2020"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "기상청"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_typhoon_rain_damage_scatter_2020_2024_150px.svg",
+      "category": "statistics",
+      "sizeBytes": 3708,
+      "sha256": "a7bb66cb156c758306e5a2f9244d6699840dad4b56b84c8c1bbaaeefb203df12",
+      "years": [
+        2020,
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_typhoon_rain_damage_scatter_2020_2024_no_ulju_yeongdeok_150px.svg",
+      "category": "statistics",
+      "sizeBytes": 3709,
+      "sha256": "59f26d5e7af5daf2a6aa39529c430ec7e237ffdc5d4e4efd80a1608338a5be09",
+      "years": [
+        2020,
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/korea_typhoon_rain_damage_scatter_mountain_coast_2020_2024_150px.svg",
+      "category": "statistics",
+      "sizeBytes": 3734,
+      "sha256": "b24b0d354494371482b17fcfb715c7fba0c12c1aef5399119dd79e210972a9df",
+      "years": [
+        2020,
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/latin_america_top3_city_population_raw_un_wup2025_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 3354,
+      "sha256": "37dabdb17027fa2aa4bd314bc5939881261a3d6389177f7cbefb58f72e6854bc",
+      "years": [
+        2025
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-wup2025-cities-population-surface"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WUP 2025"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/latin_america_top3_city_population_raw_un_wup2025_4countries_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 3731,
+      "sha256": "03fe0763debe64f7e5d38c8af48045b7d2a34d80855e0a2b855667e033bd155e",
+      "years": [
+        2025
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-wup2025-cities-population-surface"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WUP 2025"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/latin_america_top3_city_population_share_un_wup2025_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 3336,
+      "sha256": "13f126d7203aefa105c39fd09bd09750a4863dc34409fbe78189d8bd245501f6",
+      "years": [
+        2025
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-wup2025-cities-population-surface"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WUP 2025"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/manufacturing_industry_region_pies_parallel_abc_2023_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 5829,
+      "sha256": "4de1affd4ce8e7891cb821c56c685fba28a8967c622bc955a6def7a89d30a21a",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/manufacturing_industry_region_pies_ulsan_gwangju_daegu_anon_2023_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 6322,
+      "sha256": "1b47e3be938591a0b88d77b77ac3f2f65a76d791a69605a6676199e9302d39a0",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "KOSIS"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/north_pole_mapapp_azimuthal_10m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 16470591,
+      "sha256": "85e21b98584372d992abc7613ae228f4919a8fa4d22efb6adf2a2ce72deea390",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/north_pole_mapapp_azimuthal_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 2583270,
+      "sha256": "953286274474273e9b5d7ca8d48021226baae18995480bf53b85195a3e242d68",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/south_pole_mapapp_azimuthal_10m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 4928027,
+      "sha256": "d085b50e5cb435072eda53304ed3b9a312eec4ab8e1fc37cc3896d9784f65e88",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/south_pole_mapapp_azimuthal_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 838421,
+      "sha256": "598112187ca887ab00e9c86ec280b418e6329fb43deefe6d29a052f6f148850b",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_equalearth_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 3251984,
+      "sha256": "1db5fdfebea18da0fa866042d8b8251a8b506abfc242f99f4a237cdb4cf3e434",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_miller_10m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 20590035,
+      "sha256": "182f3dd0537cd6889ce2909075c8152b50d0bd6f06377ca0fd1260b1e99c1598",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_miller_110m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 389775,
+      "sha256": "d2326014ee53fb0158f8402ca4dcc41912ba0376016b80abaab022c8ad7a482b",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_miller_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 3268985,
+      "sha256": "26358f9ea42eff6bcdecdecd1cc3a1e6f7d65c444554d2589f69372e9a6bbebe",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_naturalearth1_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 3268871,
+      "sha256": "b06bf5fe6a847697c2957e02d603dabe35c6f96ddfa8106363fce6bc164e3de3",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_robinson_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 3275696,
+      "sha256": "458ebd74f323b0db2442d1c6bc6837e6e5b4655710a020ffac044960aa827325",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/north_pole_exam_110m_azimuthal_30n_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 258799,
+      "sha256": "1721f12574390745931a25bf3dddff7b83a9f29a5e7fba7bab2261f3eaf6ac0a",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/north_pole_exam_coast110m_azimuthal_30n_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 344427,
+      "sha256": "7e2b18f198ea4ba9a1718dd3a108bb7667a46b4197da9b914ac714253c1285f3",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/north_pole_exam_coast50m_azimuthal_30n_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 3250166,
+      "sha256": "5e6baf0840274653afb7039a5215853ceb019ce587f358d4518129eb7f3efa90",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/north_pole_mapapp_azimuthal_10m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 16470591,
+      "sha256": "85e21b98584372d992abc7613ae228f4919a8fa4d22efb6adf2a2ce72deea390",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/north_pole_mapapp_azimuthal_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 2583270,
+      "sha256": "953286274474273e9b5d7ca8d48021226baae18995480bf53b85195a3e242d68",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/south_pole_exam_coast50m_azimuthal_30s_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 2795743,
+      "sha256": "46000c4e5e7f9ab1a37f693b6d5bbf4f3e0aac060d2fc7f886b48837c2ebf580",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/south_pole_mapapp_azimuthal_10m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 4928027,
+      "sha256": "d085b50e5cb435072eda53304ed3b9a312eec4ab8e1fc37cc3896d9784f65e88",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/south_pole_mapapp_azimuthal_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 838421,
+      "sha256": "598112187ca887ab00e9c86ec280b418e6329fb43deefe6d29a052f6f148850b",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_countries_50m_azimuthal_north_pole_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1552195,
+      "sha256": "10307b6547fbb18ca262b0825a62b8de74d2505702d311e70fb2e03235676216",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_countries_50m_azimuthal_south_pole_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1577279,
+      "sha256": "9303f82e9dfa3371cbe6bee1b5a228e971b2ef6f6325cf7e6218c20f4152edee",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_countries_50m_naturalearth1_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1537581,
+      "sha256": "1b6ef223522b69a2508f60ad52e0583f34fcf9e447708a0252a51827a7399040",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_countries_50m_naturalearth1_no_antarctica_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1463544,
+      "sha256": "6a79a7bc64ef8d8620e1e8c497848db9bfdc6a5ab546a243f222420882788691",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_countries_50m_plate_carree_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1545437,
+      "sha256": "65f8c78d504a2b7ca38a3d5de6d0a4b9733e8a2d273e40f94bcfe84ffa53e83d",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_countries_50m_plate_carree_no_antarctica_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 1470167,
+      "sha256": "7d7158057a53d8b879bde77eb489a7613239090340e6b8664cfef03f2f4521fd",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_exam_110m_rectangular_no_antarctica_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 311896,
+      "sha256": "5d581417ea185597f1e7a0b6d77a421d4a170061963b358a2badf30e55289034",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_exam_110m_robinson_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 344652,
+      "sha256": "324c84e3a5eaf504fc25fa5ad95c28ecdab5671d0cd5b481496d999f8582e4ed",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_exam_110m_robinson_no_antarctica_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 323289,
+      "sha256": "5056a64eb57fcb7486bf96d43b956da3af5a4ea975cde2be4ec9c38cdfab0c1a",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_exam_coast110m_rectangular_no_antarctica_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 312003,
+      "sha256": "0c4ccd5857e45308ae47ba763186dd5db619f14728698191135067d681c3d64c",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_exam_coast50m_rectangular_no_antarctica_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 2718457,
+      "sha256": "211153edbee4f52981fa03337682bfac3c16d36e8fd84432eff7ebd00a888fa9",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_exam_coast50m_robinson_no_antarctica_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 2741152,
+      "sha256": "af215341387127bd3d80d5792d8a3b4e8c93258463fadc8d36fb3d4cd36b097f",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_mapapp_equalearth_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 3251984,
+      "sha256": "1db5fdfebea18da0fa866042d8b8251a8b506abfc242f99f4a237cdb4cf3e434",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_mapapp_miller_10m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 20590035,
+      "sha256": "182f3dd0537cd6889ce2909075c8152b50d0bd6f06377ca0fd1260b1e99c1598",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_mapapp_miller_110m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 389775,
+      "sha256": "d2326014ee53fb0158f8402ca4dcc41912ba0376016b80abaab022c8ad7a482b",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_mapapp_miller_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 3268985,
+      "sha256": "26358f9ea42eff6bcdecdecd1cc3a1e6f7d65c444554d2589f69372e9a6bbebe",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_mapapp_naturalearth1_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 3268871,
+      "sha256": "b06bf5fe6a847697c2957e02d603dabe35c6f96ddfa8106363fce6bc164e3de3",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/map_assets/world_mapapp_robinson_50m_coloring.svg",
+      "category": "mapAsset",
+      "sizeBytes": 3275696,
+      "sha256": "458ebd74f323b0db2442d1c6bc6837e6e5b4655710a020ffac044960aa827325",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/migration-destination-continent-ratios.svg",
+      "category": "statistics",
+      "sizeBytes": 6446,
+      "sha256": "a2a0c3e72e6f7b315362c66a858014ace5a4a5d6bba082459bbaa4a8d6e72332",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-desa-international-migrant-stock-2020"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN DESA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/monsoon_asia_tea_rubber_palm_coffee_export_share_2023_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 4478,
+      "sha256": "fd1e86beb60ec28746a1f77348069e660911a088a188bfde9a45eab8eca179ef",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "BACI·OEC"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/natural_disaster_cause_region_combined_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 6849,
+      "sha256": "444db4a7907677a6abd28ec875ef4bf48d03c6ab24a196ff4ef1a6b890bdb0b7",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/north_america_exports_category_share_2023_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 5523,
+      "sha256": "9979c14d03fac3de23f6f540f7379134bf0c8b33a4042c6bc05871df8d99291e",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "BACI·OEC"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/passenger_travel_distance_bands_2022_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 4852,
+      "sha256": "570df6a1d52384e08af553f62a0236b710de115bcea6c0677507355d4357c227",
+      "years": [
+        2022
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "한국교통연구원"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/permafrost_active_layer_lousy_point_1998_2008_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 5277,
+      "sha256": "b802349bfc763ac68688c0b88899c1b193c350b1371cc7e8c454f1c63207aa6e",
+      "years": [
+        1998,
+        2008
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "GTN-P"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/pop_pyramid_conflict_male_gap_2025_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 15894,
+      "sha256": "830ac34ceb86463df125831cebe96fe5a8fe8202542a95daf464c68247cbac31",
+      "years": [
+        2025
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-wpp2024-demographic-indicators-raw"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WPP 2024",
+        "UN WPP"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/pop_pyramid_ukraine_male_gap_2025_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 15888,
+      "sha256": "eb2d4d3e62f6ceb5a01c603a5a4d0bca777dd4f27843611d902af22ef7f4ea38",
+      "years": [
+        2025
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-wpp2024-demographic-indicators-raw"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN WPP 2024",
+        "UN WPP"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/population_density_change_idn_deu_nga_arg_2020_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 13888,
+      "sha256": "e149a9512ee3afc41b6a4e4da0bb050db1c4688dea512812f01c1b72f05322b2",
+      "years": [
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "World Bank WDI"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/region_age_structure_youth_old_2023_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 5672,
+      "sha256": "e0782d749fff0cad94b6cbee7822245267252e6235f5b0dc935047bd9aaa6535",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "world-bank-population-structure-local-cache"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "World Bank"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/region_crop_production_area_scatter_2023_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 14210,
+      "sha256": "9f6d925ff0bc30a4031b33801dfcc5c41e66b36139d4e537ee2f6f0df6540a54",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "FAOSTAT"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/regional_primary_energy_renewables_share_2023_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 3533,
+      "sha256": "6de18f5be730745c5a7ed90b97a666163305d6744396fd6d068b836b6aa5f6b8",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [
+        "ei-regional-primary-energy-renewables-share-2023"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "Energy Institute"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/regional_renewable_primary_energy_mix_2023_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 7236,
+      "sha256": "d9d4eab95cca36f6124a7dcaae142b48af11fdb6844c7b58e07d8c75a6f03463",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [
+        "ei-regional-renewable-primary-energy-mix-2023"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/renewable-top3-supply-share.svg",
+      "category": "statistics",
+      "sizeBytes": 46823,
+      "sha256": "8d09551e30bd0a871b1fe29b076e96cd0b9261062ffd7775352f93e574c13c20",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "local-inline-chart-values-upstream-unrecorded"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "knownProvenanceGap",
+      "provenanceGap": true,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/renewables_region_consumption_growth_2024_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 6582,
+      "sha256": "9d8a6388da8dd86743204817f1b5f2029f663dffb63807426fa94332d9f39ad0",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [
+        "ei-regional-renewables-consumption-growth-2014-2024"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "Energy Institute"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/river_terrace_extract/river_terrace_map_labels_removed_ai_embed_280px.svg",
+      "category": "mapAsset",
+      "sizeBytes": 376813,
+      "sha256": "9e427c5734bd391969997115e3edcf214d469add22ce93b1cdcba6614148cbe2",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "CAPSS",
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/river_terrace_extract/river_terrace_map_labels_removed_ai_embed.svg",
+      "category": "mapAsset",
+      "sizeBytes": 376811,
+      "sha256": "31eb9d60dc0c3761f7923da03e5de72afe2df5885848a368ebe1521d7ec94f2c",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "CAPSS",
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/river_terrace_extract/river_terrace_map_labels_removed_trace.svg",
+      "category": "mapAsset",
+      "sizeBytes": 237504,
+      "sha256": "c33d81d00fd6d57c680a58753987a05b3a913c6c8db823ef51d507648a7539c1",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/river_terrace_extract/river_terrace_map_labels_removed_trace2.svg",
+      "category": "mapAsset",
+      "sizeBytes": 243690,
+      "sha256": "fe4daedc7280b8da4deb242f778ac0684a8b8aac39a9f5ce98ef3ce070950654",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/river_terrace_extract/river_terrace_map_labels_removed.svg",
+      "category": "mapAsset",
+      "sizeBytes": 376820,
+      "sha256": "7a3a34887c79bf9d2243aef6cacc860bf21f4430550da330a382f8d8d3ae2981",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "CAPSS",
+        "RTE éCO2mix"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "notApplicable",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/rural_youth_population_idn_deu_nga_arg_2020_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 14001,
+      "sha256": "2f53a96f2925e2a041aa184fe16b48266d086f8ed3d0dcfe116c982ca8b6e649",
+      "years": [
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "World Bank WDI"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/saudi_oman_uae_migrant_origins_2020_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 11377,
+      "sha256": "77eea269e4a71c8e8733df4ca38906a6832d457a6d534b7780ebd7e3013ae7df",
+      "years": [
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "un-desa-international-migrant-stock-2020"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "UN DESA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/saudi-iran-turkiye-energy-supply-share.svg",
+      "category": "statistics",
+      "sizeBytes": 8729,
+      "sha256": "243438aa581c90d10a67abe32ebefccbaeb0e41270eb61122fa01a9a930d7f42",
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "local-inline-chart-values-upstream-unrecorded"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "knownProvenanceGap",
+      "provenanceGap": true,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/seoul_climate_difference_brasilia_lima_dhaka_jma_1991_2020_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 7727,
+      "sha256": "7f22de3cabd9e8bd398689686d60f4f2b7fbcb0b8e20477237d363d7ae722916",
+      "years": [
+        1991,
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "기상청"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/seoul_climate_difference_brasilia_london_dhaka_jma_1991_2020_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 7960,
+      "sha256": "d617804fa38f9fc74e63c28563b8b13e495a7551b51fce78a2a62bcbd2711a1f",
+      "years": [
+        1991,
+        2020
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "기상청"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/seoul_district_land_density_daytime_2025_2020_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 4835,
+      "sha256": "610b2b37299e88823a33dc3bc941d135874dad27d151c3bb51965ce82a4653a6",
+      "years": [
+        2020,
+        2025
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "kosis-local-cache"
+      ],
+      "sourceHints": [
+        "KOSIS",
+        "국토교통부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/seoul_subway_hourly_dobong_geumcheon_gangnam_2025_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 8362,
+      "sha256": "f8659c70939460039da8d12a15605105662a7495c252557e17ce08b446a16251",
+      "years": [
+        2025
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "서울교통공사"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/seoul_subway_hourly_dobong_jung_gangnam_2025_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 8187,
+      "sha256": "7c44ea53599c1bc36d49cc32f6700b7dffd099e020ef446e4eb208f84c8ced29",
+      "years": [
+        2025
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "서울교통공사"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/transport_passenger_freight_share_2023_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 5391,
+      "sha256": "9f44e3f3040321b936fe6f5af809b1f09be0020b860678d45512dbf2e8dc3f0a",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "국토교통부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/urban_rural_population_mex_eth_deu_aus_1950_2024_310px.svg",
+      "category": "statistics",
+      "sizeBytes": 9492,
+      "sha256": "88ac4076fcb51d25deae602b40208546304b6de2fd874e4a8731f32f16ab1181",
+      "years": [
+        1950,
+        2024
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [
+        "un-wup2025-cities-population-surface"
+      ],
+      "sourceHints": [
+        "UN WUP 2025",
+        "UN DESA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "relatedSupplementalSource",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/us_state_mfg_shipments_ia_2023_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 1784,
+      "sha256": "2d4e4e94a3d33adf0372c68f9f7fa12d32e0e2ab1ef13c97e4f37b4cef09004e",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "us-census-aies-state-manufacturing-2023"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/us_state_mfg_shipments_la_2023_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 1691,
+      "sha256": "b8efb40ddf170ac3a685c8f2506c9de86fd7ab93be468af58153280a643d0632",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "us-census-aies-state-manufacturing-2023"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/us_state_mfg_shipments_mi_2023_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 1602,
+      "sha256": "5ac749d741000d380916874a9b0f907bbadd9c019dc23e5d28fd3377ea896e5d",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "us-census-aies-state-manufacturing-2023"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/us_state_mfg_shipments_or_2023_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 2967,
+      "sha256": "f5bc91024e053d80c3764c0667844b16ffa568111e0537481fdd09fea631fab6",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "us-census-aies-state-manufacturing-2023"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "U.S. Census Bureau"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/us_state_mfg_shipments_tx_2023_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 1690,
+      "sha256": "fe40c25e7885024e54c1f69240c9015ddd2126e168749542940df7c6dec42f1b",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "us-census-aies-state-manufacturing-2023"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/us_state_mfg_shipments_wa_2023_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 1610,
+      "sha256": "40ea263ec8b81afb383a8efa4ac35a8de2e5886fddfc5e3ec5f3e0a2b37e14a5",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [
+        "us-census-aies-state-manufacturing-2023"
+      ],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalSourcePointer",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/usa_mexico_brazil_canada_fossil_capacity_mix_2024_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 5038,
+      "sha256": "a7872e8788d83873b247a616cd550ce85ba612d620899eab4e119db647177253",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [
+        "irena-fossil-capacity-mix-2024"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "IRENA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/usa_mexico_brazil_canada_power_capacity_mix_2024_280px.svg",
+      "category": "statistics",
+      "sizeBytes": 6332,
+      "sha256": "924adbbe5fe6ef2406761ee4085ec9979f2ecc5ea2c790a4e434542f4c7a2c2f",
+      "years": [
+        2024
+      ],
+      "registryDatasetIds": [
+        "irena-electricity-capacity-mix-2024"
+      ],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "IRENA"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "supplementalDataset",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "outputs/wheat_maize_share_rus_usa_ind_bra_chn_2023_300px.svg",
+      "category": "statistics",
+      "sizeBytes": 5343,
+      "sha256": "7c4da79e03ee2629afbdadb600b5b738d323786b9a19edef58b1ca1de6f18b83",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "FAOSTAT"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "province_city_population_rank_2023_200px.svg",
+      "category": "statistics",
+      "sizeBytes": 3420,
+      "sha256": "ae897b0749cb89132df5269300ede490338560c168bf97cab2b90cc13dd6a97c",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    },
+    {
+      "root": "new-project-8",
+      "relativePath": "province_city_population_rank_relative_2023_200px.svg",
+      "category": "statistics",
+      "sizeBytes": 3446,
+      "sha256": "14dea05f35764b81775ce1112ae1b4d38796e3d682d628e22acbdfb6d970234e",
+      "years": [
+        2023
+      ],
+      "registryDatasetIds": [],
+      "sourcePointerIds": [],
+      "relatedSourcePointerIds": [],
+      "sourceHints": [
+        "행정안전부"
+      ],
+      "sourceUrls": [],
+      "sourceResolution": "embeddedSourceHint",
+      "provenanceGap": false,
+      "unresolvedSource": false
+    }
+  ]
+}

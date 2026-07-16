@@ -24,13 +24,25 @@ const requiredOutputs = [
   "index.html",
   "map.html",
   "app.js",
+  "data/country-stats.js",
+  "data/graph-catalog.js",
+  "data/graph-catalog.json",
+  "data/statistics-index.js",
+  "data/statistics-index.json",
   "data/korea-admin.js",
   "data/korea-routes.js",
   "data/korea-stats.js",
+  "data/supplemental-stats.js",
+  "data/supplemental-stats.json",
+  "tools/stats/index.html",
+  "tools/stats/styles.css",
+  "tools/stats/app.js",
   "tools/climate/index.html",
   "tools/climate/data/climate-data.js",
   "tools/climate/data/climate-data.json",
   "tools/climate/korea.html",
+  "tools/climate/data/korea-climate-data.js",
+  "tools/climate/data/korea-climate-data.json",
   "tools/cut/index.html",
   "tools/cut/data/ebsi_geo_data.json",
   "tools/cut/data/question-image-manifest.json",
@@ -74,6 +86,9 @@ function shouldPublish(sourcePath) {
   if (!relativePath) return true;
   if (path.basename(sourcePath) === ".DS_Store") return false;
   if (/^tools\/climate\/data\/climate-data_jma_\d{8}\.json$/.test(relativePath)) {
+    return false;
+  }
+  if (/^tools\/climate\/data\/korea-climate-data_kma_\d{8}\.json$/.test(relativePath)) {
     return false;
   }
   return true;

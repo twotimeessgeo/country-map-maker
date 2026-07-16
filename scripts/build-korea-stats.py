@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import html
+import hashlib
 import json
+import os
 import re
 import urllib.parse
 import urllib.request
@@ -14,6 +16,16 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT_DIR / "data"
 OUTPUT_PATH = DATA_DIR / "korea-stats.js"
 KOREA_ADMIN_PATH = DATA_DIR / "korea-admin.js"
+
+DEFAULT_CACHE_DIR = (
+    ROOT_DIR
+    / "data_downloads"
+    / "kosis"
+    / "e_region"
+    / datetime.now().strftime("%Y%m%d")
+)
+KOSIS_CACHE_DIR = Path(os.environ.get("KOREA_STATS_CACHE_DIR", DEFAULT_CACHE_DIR)).expanduser()
+KOSIS_CACHE_REFRESH = os.environ.get("KOREA_STATS_CACHE_REFRESH", "").lower() in {"1", "true", "yes"}
 
 KOSIS_INDEX_URL = "https://kosis.kr/visual/eRegionIndex/index.do"
 KOSIS_PAGE_URL_TEMPLATE = "https://kosis.kr/visual/eRegionIndex/eRegionWhole.do?unitySrvcId={unity_srvc_id}"
@@ -590,7 +602,23 @@ DERIVED_METRIC_CONFIGS = [
 ]
 
 
+def request_cache_paths(url: str, data: dict[str, str] | None) -> tuple[Path, Path]:
+    request_signature = json.dumps(
+        {"url": url, "method": "POST" if data is not None else "GET", "data": data or {}},
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    digest = hashlib.sha256(request_signature.encode("utf-8")).hexdigest()
+    extension = ".json" if data is not None else ".html"
+    return KOSIS_CACHE_DIR / "raw" / f"{digest}{extension}", KOSIS_CACHE_DIR / "requests" / f"{digest}.json"
+
+
 def fetch_text(url: str, data: dict[str, str] | None = None) -> str:
+    raw_path, request_path = request_cache_paths(url, data)
+    if raw_path.exists() and not KOSIS_CACHE_REFRESH:
+        return raw_path.read_text(encoding="utf-8")
+
     payload = None
     headers = {"User-Agent": USER_AGENT}
     if data is not None:
@@ -599,7 +627,60 @@ def fetch_text(url: str, data: dict[str, str] | None = None) -> str:
         headers["X-Requested-With"] = "XMLHttpRequest"
     request = urllib.request.Request(url, data=payload, headers=headers)
     with urllib.request.urlopen(request, timeout=60) as response:
-        return response.read().decode("utf-8", "ignore")
+        response_text = response.read().decode("utf-8", "ignore")
+
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+    request_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.write_text(response_text, encoding="utf-8")
+    response_bytes = response_text.encode("utf-8")
+    request_path.write_text(
+        json.dumps(
+            {
+                "retrievedAt": datetime.now().isoformat(timespec="seconds"),
+                "method": "POST" if data is not None else "GET",
+                "url": url,
+                "requestData": data or {},
+                "rawPath": str(raw_path.relative_to(KOSIS_CACHE_DIR)),
+                "bytes": len(response_bytes),
+                "sha256": hashlib.sha256(response_bytes).hexdigest(),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return response_text
+
+
+def write_cache_manifest() -> None:
+    request_dir = KOSIS_CACHE_DIR / "requests"
+    if not request_dir.exists():
+        return
+    requests = []
+    for request_path in sorted(request_dir.glob("*.json")):
+        request_meta = json.loads(request_path.read_text(encoding="utf-8"))
+        raw_path = KOSIS_CACHE_DIR / request_meta["rawPath"]
+        raw_bytes = raw_path.read_bytes()
+        request_meta["bytes"] = len(raw_bytes)
+        request_meta["sha256"] = hashlib.sha256(raw_bytes).hexdigest()
+        request_path.write_text(
+            json.dumps(request_meta, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        requests.append(request_meta)
+    manifest = {
+        "source": "KOSIS e-지방지표",
+        "sourceUrl": KOSIS_INDEX_URL,
+        "generatedAt": datetime.now().isoformat(timespec="seconds"),
+        "requestCount": len(requests),
+        "requests": requests,
+    }
+    KOSIS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    (KOSIS_CACHE_DIR / "manifest.json").write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
 
 
 def normalize_space(value: str) -> str:
@@ -1270,9 +1351,83 @@ def write_output(bundle: dict[str, object]) -> None:
     OUTPUT_PATH.write_text(js_content, encoding="utf-8")
 
 
+def read_existing_bundle() -> dict[str, object] | None:
+    if not OUTPUT_PATH.exists():
+        return None
+
+    variables: dict[str, object] = {}
+    for line in OUTPUT_PATH.read_text(encoding="utf-8").splitlines():
+        match = re.match(r"window\.(KOREA_GEO_STATS_[A-Z_]+) = (.*);$", line)
+        if not match:
+            continue
+        variables[match.group(1)] = json.loads(match.group(2))
+
+    required = {
+        "KOREA_GEO_STATS_META",
+        "KOREA_GEO_STATS_REGION_ORDER",
+        "KOREA_GEO_STATS_REGIONS",
+        "KOREA_GEO_STATS_METRICS",
+    }
+    if not required.issubset(variables):
+        return None
+
+    return {
+        "meta": variables["KOREA_GEO_STATS_META"],
+        "regionOrder": variables["KOREA_GEO_STATS_REGION_ORDER"],
+        "regions": variables["KOREA_GEO_STATS_REGIONS"],
+        "metrics": variables["KOREA_GEO_STATS_METRICS"],
+    }
+
+
+def preserve_existing_extensions(
+    bundle: dict[str, object],
+    existing_bundle: dict[str, object] | None,
+) -> dict[str, object]:
+    """Keep data levels and metrics owned by follow-up/local importers.
+
+    The e-Region builder natively rebuilds only provinces and cities.  The
+    published file also contains metro-district census metrics and a
+    boundary-linked population series created by separate scripts.  A plain
+    rebuild used to delete those extensions.  Preserve any level the core
+    builder did not recreate and any metric key that is absent from the fresh
+    core payload.
+    """
+    if not existing_bundle:
+        return bundle
+
+    for container_key in ("regionOrder", "regions"):
+        target = bundle.setdefault(container_key, {})
+        for level_key, payload in existing_bundle.get(container_key, {}).items():
+            target.setdefault(level_key, payload)
+
+    target_metrics = bundle.setdefault("metrics", {})
+    for level_key, existing_metrics in existing_bundle.get("metrics", {}).items():
+        level_metrics = target_metrics.setdefault(level_key, {})
+        for metric_key, payload in existing_metrics.items():
+            level_metrics.setdefault(metric_key, payload)
+
+    meta = bundle.setdefault("meta", {})
+    existing_meta = existing_bundle.get("meta", {})
+    target_levels = meta.setdefault("levels", {})
+    for level_key, label in existing_meta.get("levels", {}).items():
+        target_levels.setdefault(level_key, label)
+    target_categories = meta.setdefault("categories", {})
+    for category_key, label in existing_meta.get("categories", {}).items():
+        target_categories.setdefault(category_key, label)
+    target_supplemental_sources = meta.setdefault("supplementalSources", {})
+    for source_key, payload in existing_meta.get("supplementalSources", {}).items():
+        target_supplemental_sources.setdefault(source_key, payload)
+    meta["preservedExtensions"] = sorted(
+        level_key for level_key in target_metrics if level_key not in {"provinces", "cities"}
+    )
+    return bundle
+
+
 def main() -> None:
-    bundle = build_bundle()
+    existing_bundle = read_existing_bundle()
+    bundle = preserve_existing_extensions(build_bundle(), existing_bundle)
     write_output(bundle)
+    write_cache_manifest()
     province_count = len(bundle["metrics"]["provinces"])
     city_count = len(bundle["metrics"]["cities"])
     print(

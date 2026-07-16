@@ -7,9 +7,15 @@
     "data:climate": "node scripts/sync-climate-data.mjs --write",
     "audit:climate:jma": "node scripts/audit-jma-stations.mjs",
     "check:climate": "node scripts/sync-climate-data.mjs --check",
-    "check:js": "node --check app.js && node --check tools/climate/app.js && node --check tools/climate/korea-app.js && node --check tools/cut/cut.js",
+    "check:climate:korea": "node scripts/sync-korea-climate-data.mjs --check",
+    "check:stats:supplemental": "node scripts/sync-supplemental-stats.mjs --check",
+    "data:stats:graph-catalog": "node scripts/sync-graph-catalog.mjs --write",
+    "check:stats:graph-catalog": "node scripts/sync-graph-catalog.mjs --check",
+    "data:stats:index": "node scripts/build-statistics-index.mjs --write",
+    "check:stats:index": "node scripts/build-statistics-index.mjs --check",
+    "check:js": "node --check app.js && node --check tools/stats/app.js && node --check scripts/build-statistics-index.mjs && node --check tools/climate/app.js && node --check tools/climate/korea-app.js && node --check tools/cut/cut.js",
     "check:site": "node scripts/check-static-site.mjs",
-    "check": "npm run check:climate && npm run check:js && npm run check:site",
+    "check": "npm run check:climate && npm run check:climate:korea && npm run check:stats:supplemental && npm run check:stats:graph-catalog && npm run check:stats:index && npm run check:js && npm run check:site",
     "build": "npm run check && node scripts/build-static-site.mjs && node scripts/check-static-site.mjs dist"
   },
   "keywords": [
@@ -19,5 +25,5 @@
     "exam"
   ],
   "license": "MIT",
-  "description": "A static CSAT geography utility portal for maps, climate comparison, and historical grade cuts."
+  "description": "A static CSAT geography utility portal for maps, current statistics, climate comparison, and historical grade cuts."
 }

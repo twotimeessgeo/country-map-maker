@@ -439,19 +439,12 @@ const examItemLabPatternDefinitions = [
   { key: "cross", label: "Cross Metric" },
 ];
 const examDrillSkillPrompts = {
-  rank: "순위와 격차를 이용한 배열·판별형",
   composition: "구성비 편차를 이용한 우세 구조 판별형",
   compare: "두 지표의 우위와 격차를 이용한 비교형",
   change: "현재 규모와 변화 폭을 분리하는 시계열형",
   scatter: "사분면과 규모를 함께 읽는 관계형",
 };
 const examDrillScenarioDefinitions = [
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-total", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-density", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-urban-share", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-birth-rate", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-natural-increase-rate", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "age-65plus-share", valueMode: "amount", grouping: "countries" } },
   { topicKey: "demography", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "urban-rural", valueMode: "share", grouping: "countries" } },
   { topicKey: "demography", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "age-structure", valueMode: "share", grouping: "countries" } },
   { topicKey: "demography", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "young-old-share", valueMode: "share", grouping: "countries" } },
@@ -473,14 +466,9 @@ const examDrillScenarioDefinitions = [
   { topicKey: "energy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "fossil-production", valueMode: "share", grouping: "countries" } },
   { topicKey: "energy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "solar-wind-amount", valueMode: "amount", grouping: "countries" } },
   { topicKey: "energy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "oil-gas-production", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "energy", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "energy-renewables-share", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "energy", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "electricity-nuclear-share", valueMode: "amount", grouping: "countries" } },
   { topicKey: "religion", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "religion-major", valueMode: "share", grouping: "countries" } },
   { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "christians-muslims-share", valueMode: "share", grouping: "countries" } },
   { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "hindus-buddhists-share", valueMode: "share", grouping: "countries" } },
-  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-christians-share", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-muslims-share", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-buddhists-share", valueMode: "amount", grouping: "countries" } },
 ];
 const examItemLabTemplateDefinitions = [
   {
@@ -1173,54 +1161,81 @@ const EXAM_GRAPH_CLIMATE_LINE_STYLES = [
 ];
 const examGraphPresetDefinitions = [
   {
-    key: "rankBars",
-    label: "순위 막대",
-    description: "한 지표를 크기순으로 비교",
-    allowedValueModes: ["amount", "share", "relative"],
-  },
-  {
     key: "stacked100",
-    label: "누적 막대",
+    label: "구성비 누적",
     description: "구성 비중 또는 실제 양을 누적으로 비교",
     allowedValueModes: ["share", "amount"],
   },
   {
     key: "groupedBars",
-    label: "묶음 막대",
+    label: "구성 요소 비교",
     description: "여러 구성 지표를 같은 축에서 나란히 비교",
     allowedValueModes: ["amount", "share"],
   },
   {
     key: "pairedBars",
-    label: "비교 막대",
+    label: "두 지표 비교",
     description: "두 지표를 나란히 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
     key: "timeCompare",
-    label: "2시점 막대",
+    label: "두 시점 변화",
     description: "두 시점의 값을 나란히 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
     key: "trendLine",
-    label: "시계열 선",
+    label: "변화 추이",
     description: "여러 국가·대륙의 변화를 선으로 비교",
     allowedValueModes: ["amount", "share", "relative"],
   },
   {
     key: "scatter",
-    label: "산포도",
+    label: "관계·규모",
     description: "두 지표의 관계를 흑백 산포도로 정리",
     allowedValueModes: [],
   },
   {
     key: "top3share",
-    label: "상위 3개 누적",
+    label: "대륙 내 집중도",
     description: "대륙별 상위 3개국과 기타 비중을 비교",
     allowedValueModes: ["share"],
   },
+  {
+    key: "rankBars",
+    label: "단일 지표 비교",
+    description: "직접 고른 후보 안에서 한 지표를 비교",
+    allowedValueModes: ["amount", "share", "relative"],
+  },
 ];
+const examGraphPresetGroupDefinitions = [
+  {
+    key: "comparison",
+    label: "구성·대조",
+    description: "같은 후보의 내부 구조와 두 지표를 비교",
+    presetKeys: ["stacked100", "groupedBars", "pairedBars"],
+  },
+  {
+    key: "change",
+    label: "변화·시계열",
+    description: "두 시점의 차이와 변화 경로를 비교",
+    presetKeys: ["timeCompare", "trendLine"],
+  },
+  {
+    key: "relationship",
+    label: "관계·분포",
+    description: "두 변수의 관계와 예외 후보를 확인",
+    presetKeys: ["scatter"],
+  },
+  {
+    key: "support",
+    label: "보조 자료",
+    description: "지역 내 집중도나 직접 고른 후보를 확인",
+    presetKeys: ["top3share", "rankBars"],
+  },
+];
+let examGraphControlIdSequence = 0;
 const examGraphReadableLabelMap = new Map([
   ["Bolivia, Plurinational State of", "Bolivia"],
   ["Congo, the Democratic Republic of the", "DR Congo"],
@@ -1770,7 +1785,7 @@ const examItemLabCoreIso3ByScenario = new Map([
 ]);
 const KOREA_ADMIN_DATA_URL = "./data/korea-admin.js";
 const KOREA_ROUTE_DATA_URL = "./data/korea-routes.js?v=20260423g";
-const KOREA_STATS_DATA_URL = "./data/korea-stats.js?v=20260423e";
+const KOREA_STATS_DATA_URL = "./data/korea-stats.js?v=20260716";
 const lazyScriptPromises = new Map();
 let koreaMapDataReady = false;
 let koreaMapDataLoading = false;
@@ -2216,13 +2231,13 @@ const state = {
   koreaGeoStatsTrendStartPeriodKey: "",
   koreaGeoStatsTrendEndPeriodKey: "",
   koreaGeoStatsActionsExpanded: false,
-  examGraphPresetKey: "rankBars",
+  examGraphPresetKey: "stacked100",
   examGraphMetricKey: "population-total",
   examGraphPairKey: "urban-rural-total",
   examGraphCompositionKey: "urban-rural",
   examGraphTimeMetricKey: "population-total",
   examGraphTopShareMetricKey: "electricity-renewables-amount",
-  examGraphValueMode: "amount",
+  examGraphValueMode: "share",
   examGraphGrouping: "countries",
   examGraphMergeAmericas: false,
   examGraphTopN: 4,
@@ -2238,9 +2253,6 @@ const state = {
   examGraphScatterSizeKey: "population-total",
   examGraphFocusCountryIds: [],
   examGraphFocusLabel: "",
-  examGraphDesignExpanded: false,
-  examGraphDataExpanded: false,
-  examGraphActionsExpanded: false,
   guides: {
     equator: false,
     lat30: false,
@@ -5260,12 +5272,6 @@ function buildWorldStatsQuickCards(definitions) {
       state.metricExplorerDisplayMode = "overview";
       state.metricExplorerGrouping = "countries";
       state.metricExplorerMetricKey = definition.key;
-      state.examGraphPresetKey = "rankBars";
-      state.examGraphMetricKey = definition.key;
-      state.examGraphGrouping = "countries";
-      state.examGraphValueMode = "amount";
-      state.examGraphFocusCountryIds = [];
-      state.examGraphFocusLabel = "";
       renderSelectionViews();
       renderMap();
     });
@@ -8777,8 +8783,19 @@ function getMetricExplorerScatterEntries(xDefinition, yDefinition, sizeDefinitio
       yValue: Number(yEntry?.value),
       sizeValue: Math.abs(Number(sizeEntry?.value) || 0),
       sizeDisplayValue: Number(sizeEntry?.value),
-      detail: [xEntry?.year, yEntry?.year].filter(Boolean).length
-        ? `${[xEntry?.year, yEntry?.year].filter(Boolean).join(" · ")}년`
+      xYear: xEntry?.year ?? null,
+      yYear: yEntry?.year ?? null,
+      sizeYear: sizeEntry?.year ?? null,
+      detail: [
+        xEntry?.year ? `${xDefinition.label} ${xEntry.year}` : null,
+        yEntry?.year ? `${yDefinition.label} ${yEntry.year}` : null,
+        sizeEntry?.year ? `${sizeDefinition.label} ${sizeEntry.year}` : null,
+      ].filter(Boolean).length
+        ? [
+            xEntry?.year ? `${xDefinition.label} ${xEntry.year}` : null,
+            yEntry?.year ? `${yDefinition.label} ${yEntry.year}` : null,
+            sizeEntry?.year ? `${sizeDefinition.label} ${sizeEntry.year}` : null,
+          ].filter(Boolean).join(" · ")
         : "최신 가용연도",
     };
   });
@@ -10062,18 +10079,18 @@ function buildCropStatsSection(crops) {
   metricGrid.append(
     createCountryStatsMetric(
       "생산 총량",
-      totals.productionTotal > 0 ? formatTonAmount(totals.productionTotal) : "자료 없음",
+      totals.productionTotal != null ? formatTonAmount(totals.productionTotal) : "자료 없음",
       totals.productionYear ? `${totals.productionYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
       "수입 총량",
-      totals.importTotal > 0 ? formatTonAmount(totals.importTotal) : "자료 없음",
-      totals.tradeYear ? `${totals.tradeYear}년 기준` : "최신 가용연도",
+      totals.importTotal != null ? formatTonAmount(totals.importTotal) : "자료 없음",
+      totals.importYear ? `${totals.importYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
       "수출 총량",
-      totals.exportTotal > 0 ? formatTonAmount(totals.exportTotal) : "자료 없음",
-      totals.tradeYear ? `${totals.tradeYear}년 기준` : "최신 가용연도",
+      totals.exportTotal != null ? formatTonAmount(totals.exportTotal) : "자료 없음",
+      totals.exportYear ? `${totals.exportYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
       "옥수수 사료용",
@@ -10192,12 +10209,12 @@ function buildLivestockStatsSection(livestock) {
   metricGrid.append(
     createCountryStatsMetric(
       "사육 두수 합",
-      totals.stockTotal > 0 ? formatCompactStatNumber(totals.stockTotal) : "자료 없음",
+      totals.stockTotal != null ? formatCompactStatNumber(totals.stockTotal) : "자료 없음",
       totals.stockYear ? `${totals.stockYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
       "육류 생산 합",
-      totals.meatTotal > 0 ? formatTonAmount(totals.meatTotal) : "자료 없음",
+      totals.meatTotal != null ? formatTonAmount(totals.meatTotal) : "자료 없음",
       totals.meatYear ? `${totals.meatYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
@@ -10889,7 +10906,7 @@ function buildSelectedCountriesComparisonSection(selectedStatsRows) {
       entries: selectedStatsRows
         .map(({ country, stats }) => {
           const totals = getCropTotals(stats?.agriculture?.crops);
-          return totals.productionTotal > 0
+          return totals.productionTotal != null
             ? {
                 label: country.name,
                 value: totals.productionTotal,
@@ -10908,7 +10925,7 @@ function buildSelectedCountriesComparisonSection(selectedStatsRows) {
       entries: selectedStatsRows
         .map(({ country, stats }) => {
           const totals = getLivestockTotals(stats?.agriculture?.livestock);
-          return totals.meatTotal > 0
+          return totals.meatTotal != null
             ? {
                 label: country.name,
                 value: totals.meatTotal,
@@ -10983,7 +11000,9 @@ function buildCountryStatsSourceRow() {
     "religion",
     "continents",
     "worldBankExports",
+    "worldBankGdp",
     "worldBankIndustry",
+    "worldBankAgriculturalLand",
     "worldBankPopulationStructure",
     "worldBankPopulationContext",
     "worldBankMigration",
@@ -11059,13 +11078,15 @@ function getMetricFromPopulationRate(stats, key) {
 function getCropAggregateMetric(stats, key) {
   const totals = getCropTotals(stats?.agriculture?.crops);
   const value = totals?.[key];
-  if (!Number.isFinite(Number(value))) {
+  if (value == null || !Number.isFinite(Number(value))) {
     return null;
   }
 
   return {
     value: Number(value),
-    year: key === "productionTotal" ? totals.productionYear : totals.tradeYear,
+    year: key === "productionTotal"
+      ? totals.productionYear
+      : key === "importTotal" ? totals.importYear : totals.exportYear,
     detail: key === "productionTotal" ? "밀·쌀·옥수수 합계" : "세 곡물 교역 합계",
   };
 }
@@ -11123,7 +11144,7 @@ function getCropUseMetric(stats, cropKey, useKey) {
 function getLivestockAggregateMetric(stats, key) {
   const totals = getLivestockTotals(stats?.agriculture?.livestock);
   const value = totals?.[key];
-  if (!Number.isFinite(Number(value))) {
+  if (value == null || !Number.isFinite(Number(value))) {
     return null;
   }
 
@@ -11193,7 +11214,7 @@ function getFossilTradeMetric(stats, resourceKey, directionKey) {
 }
 
 function getExportMetric(stats, key) {
-  const entry = stats?.economy?.exports?.[key];
+  const entry = getVersionedStatEntry(stats?.economy?.exports?.[key]);
   if (!Number.isFinite(Number(entry?.value))) {
     return null;
   }
@@ -11206,7 +11227,7 @@ function getExportMetric(stats, key) {
 }
 
 function getIndustryMetric(stats, key) {
-  const entry = stats?.economy?.industry;
+  const entry = getVersionedEnergyEntry(stats?.economy?.industry);
   const value = entry?.shares?.[key];
   if (!Number.isFinite(Number(value))) {
     return null;
@@ -11481,7 +11502,7 @@ function getOrderedMetricEntries(map, order) {
   return order
     .map((key) => {
       const entry = getVersionedStatEntry(map?.[key]);
-      return entry ? { key, ...entry } : null;
+      return entry && Number.isFinite(Number(entry.value)) ? { key, ...entry } : null;
     })
     .filter(Boolean);
 }
@@ -11510,9 +11531,20 @@ function getCropTotals(crops) {
       };
     })
     .filter(Boolean);
-  const productionTotal = productionEntries.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
-  const importTotal = tradeEntries.reduce((sum, entry) => sum + (Number(entry.import?.value) || 0), 0);
-  const exportTotal = tradeEntries.reduce((sum, entry) => sum + (Number(entry.export?.value) || 0), 0);
+  const hasCompleteProduction = productionEntries.length === countryStatsCropOrder.length;
+  const hasCompleteImports = tradeEntries.length === countryStatsCropOrder.length
+    && tradeEntries.every((entry) => Number.isFinite(Number(entry.import?.value)));
+  const hasCompleteExports = tradeEntries.length === countryStatsCropOrder.length
+    && tradeEntries.every((entry) => Number.isFinite(Number(entry.export?.value)));
+  const productionTotal = hasCompleteProduction
+    ? productionEntries.reduce((sum, entry) => sum + Number(entry.value), 0)
+    : null;
+  const importTotal = hasCompleteImports
+    ? tradeEntries.reduce((sum, entry) => sum + Number(entry.import.value), 0)
+    : null;
+  const exportTotal = hasCompleteExports
+    ? tradeEntries.reduce((sum, entry) => sum + Number(entry.export.value), 0)
+    : null;
   const topCrop = productionEntries
     .map((entry) => ({
       label: entry.label,
@@ -11526,11 +11558,12 @@ function getCropTotals(crops) {
     productionTotal,
     importTotal,
     exportTotal,
-    productionYear: productionEntries.length ? Math.max(...productionEntries.map((entry) => entry.year || 0)) : null,
-    tradeYear: tradeEntries.length
-      ? Math.max(
-          ...tradeEntries.flatMap((entry) => [entry.import?.year || 0, entry.export?.year || 0]),
-        )
+    productionYear: hasCompleteProduction ? Math.max(...productionEntries.map((entry) => entry.year || 0)) : null,
+    importYear: hasCompleteImports
+      ? Math.max(...tradeEntries.map((entry) => entry.import?.year || 0))
+      : null,
+    exportYear: hasCompleteExports
+      ? Math.max(...tradeEntries.map((entry) => entry.export?.year || 0))
       : null,
     topCropLabel: topCrop?.label ?? null,
     topCropShare: productionTotal > 0 && topCrop ? (topCrop.value / productionTotal) * 100 : null,
@@ -11540,8 +11573,14 @@ function getCropTotals(crops) {
 function getLivestockTotals(livestock) {
   const stockEntries = getOrderedMetricEntries(livestock?.stocks, countryStatsLivestockOrder);
   const meatEntries = getOrderedMetricEntries(livestock?.meat, countryStatsLivestockOrder);
-  const stockTotal = stockEntries.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
-  const meatTotal = meatEntries.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
+  const hasCompleteStocks = stockEntries.length === countryStatsLivestockOrder.length;
+  const hasCompleteMeat = meatEntries.length === countryStatsLivestockOrder.length;
+  const stockTotal = hasCompleteStocks
+    ? stockEntries.reduce((sum, entry) => sum + Number(entry.value), 0)
+    : null;
+  const meatTotal = hasCompleteMeat
+    ? meatEntries.reduce((sum, entry) => sum + Number(entry.value), 0)
+    : null;
   const topMeat = meatEntries
     .map((entry) => ({
       label: entry.label,
@@ -11554,8 +11593,8 @@ function getLivestockTotals(livestock) {
     meatEntries,
     stockTotal,
     meatTotal,
-    stockYear: stockEntries.length ? Math.max(...stockEntries.map((entry) => entry.year || 0)) : null,
-    meatYear: meatEntries.length ? Math.max(...meatEntries.map((entry) => entry.year || 0)) : null,
+    stockYear: hasCompleteStocks ? Math.max(...stockEntries.map((entry) => entry.year || 0)) : null,
+    meatYear: hasCompleteMeat ? Math.max(...meatEntries.map((entry) => entry.year || 0)) : null,
     topMeatLabel: topMeat?.label ?? null,
     topMeatShare: meatTotal > 0 && topMeat ? (topMeat.value / meatTotal) * 100 : null,
   };
@@ -12331,7 +12370,7 @@ function isExamGraphNormalizedModeAllowedForMetric(metricDefinition) {
 
 function ensureExamGraphState() {
   if (!examGraphPresetDefinitions.some((definition) => definition.key === state.examGraphPresetKey)) {
-    state.examGraphPresetKey = "rankBars";
+    state.examGraphPresetKey = "stacked100";
   }
   const metricDefinitions = getMetricExplorerDefinitions();
   const metricKeys = new Set(metricDefinitions.map((definition) => definition.key));
@@ -13401,7 +13440,6 @@ function getWeightedExamDrillScenarios(topicKey) {
     scatter: 3,
     trendLine: 2,
     timeCompare: 2,
-    rankBars: 1,
   };
   return examDrillScenarioDefinitions
     .filter((definition) => definition.topicKey === topicKey)
@@ -13829,7 +13867,6 @@ function applyExamDrillResultToBuilder(panelIndex = 0) {
   state.examGraphPreviewCount = 1;
   state.examGraphFontSizePt = 8;
   state.examGraphMergeAmericas = false;
-  state.examGraphActionsExpanded = false;
   if (panelDefinition.config.metricKey) {
     const definition = getMetricExplorerDefinitionByKey(getMetricExplorerDefinitions(), panelDefinition.config.metricKey);
     if (definition) {
@@ -14144,28 +14181,59 @@ function renderExamGraphPanel() {
   const model = buildExamGraphModel();
   const shell = document.createElement("div");
   shell.className = "exam-graph-shell";
-  shell.appendChild(buildExamGraphControls());
+  const workbench = document.createElement("div");
+  workbench.className = "exam-graph-workbench";
+  examGraphControlIdSequence = 0;
+  workbench.appendChild(buildExamGraphControls());
+
+  const output = document.createElement("section");
+  output.className = "exam-graph-output";
+  output.setAttribute("aria-label", "그래프 미리보기와 값");
 
   if (!model) {
-    shell.appendChild(
+    output.appendChild(
       createEmptyState(
         state.examGraphPresetKey
-          ? "현재 범위에 표시할 값이 없습니다. Data에서 지표나 비교 단위를 바꿔 보세요."
-          : "‘순위 막대’를 선택해 기본 그래프를 불러오세요.",
+          ? "현재 후보와 지표로 만들 수 있는 자료가 없습니다. 후보 또는 통계 설정을 바꿔 보세요."
+          : "‘구성비 누적’을 선택해 후보 간 구성 차이를 불러오세요.",
       ),
     );
+    workbench.appendChild(output);
+    shell.appendChild(workbench);
     elements.examGraphPanel.appendChild(shell);
     return;
   }
 
-  const summary = document.createElement("div");
-  summary.className = "exam-graph-summary";
-  summary.append(
-    createMetricExplorerSummaryCard("프리셋", model.presetLabel, model.title),
-    createMetricExplorerSummaryCard("비교 단위", model.groupLabel, model.scopeLabel),
-    createMetricExplorerSummaryCard("표시 방식", model.displayModeLabel ?? "기본", model.displayModeDetail ?? model.metricDetail),
-    createMetricExplorerSummaryCard("데이터", model.metricLabel, model.metricDetail),
-  );
+  const outputHeader = document.createElement("header");
+  outputHeader.className = "exam-graph-output__header";
+  const outputCopy = document.createElement("div");
+  outputCopy.className = "exam-graph-output__copy";
+  const outputEyebrow = document.createElement("p");
+  outputEyebrow.className = "exam-graph-output__eyebrow";
+  outputEyebrow.lang = "en";
+  outputEyebrow.textContent = "Live Preview";
+  const outputTitle = document.createElement("h3");
+  outputTitle.textContent = model.title;
+  const outputMeta = document.createElement("p");
+  outputMeta.textContent = [model.presetLabel, model.scopeLabel, model.displayModeLabel, state.examGraphAliasMode ? "가명 적용" : "실명 표시"]
+    .filter(Boolean)
+    .join(" · ");
+  outputCopy.append(outputEyebrow, outputTitle, outputMeta);
+
+  const readiness = document.createElement("div");
+  readiness.className = "exam-graph-readiness";
+  const scopeCount = Array.isArray(model.rows) ? model.rows.length : getExamGraphSelectedCountryRows().length || getExamGraphTopN();
+  [
+    `${scopeCount}개 후보`,
+    `${formatExamGraphPtLabel()}`,
+    state.examGraphAliasMode ? "문항 라벨" : "원래 이름",
+  ].forEach((label) => {
+    const item = document.createElement("span");
+    item.textContent = label;
+    readiness.appendChild(item);
+  });
+  outputHeader.append(outputCopy, readiness);
+
   const grid = document.createElement("div");
   grid.className = "exam-graph-grid";
   grid.appendChild(buildExamGraphPreviewGallery(model));
@@ -14178,75 +14246,58 @@ function renderExamGraphPanel() {
   }
   grid.appendChild(sideColumn);
 
-  shell.appendChild(grid);
+  output.append(outputHeader, grid);
+  workbench.appendChild(output);
+  shell.appendChild(workbench);
   elements.examGraphPanel.appendChild(shell);
 }
 
 function buildExamGraphControls() {
   const wrapper = document.createElement("div");
   wrapper.className = "exam-graph-control-shell";
+  const activePreset = getExamGraphPresetDefinition();
 
-  const presetLegend = document.createElement("p");
-  presetLegend.className = "exam-graph-guide";
-  presetLegend.lang = "en";
-  presetLegend.textContent = "Chart Type";
-  wrapper.appendChild(presetLegend);
+  const heading = document.createElement("header");
+  heading.className = "exam-graph-builder-head";
+  const headingCopy = document.createElement("div");
+  const eyebrow = document.createElement("p");
+  eyebrow.className = "exam-graph-builder-head__eyebrow";
+  eyebrow.lang = "en";
+  eyebrow.textContent = "Exam Material Builder";
+  const title = document.createElement("h3");
+  title.textContent = activePreset?.label ?? "자료 구조 선택";
+  const description = document.createElement("p");
+  description.textContent = activePreset?.description ?? "후보와 자료 구조를 고르면 미리보기가 즉시 갱신됩니다.";
+  headingCopy.append(eyebrow, title, description);
 
-  const presetRow = document.createElement("div");
-  presetRow.className = "exam-graph-chip-row";
-  examGraphPresetDefinitions.forEach((definition) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "exam-graph-chip";
-    button.dataset.examGraphPreset = definition.key;
-    button.classList.toggle("is-active", definition.key === state.examGraphPresetKey);
-    button.textContent = definition.label;
-    button.title = definition.description;
-    button.setAttribute("aria-pressed", String(definition.key === state.examGraphPresetKey));
-    button.addEventListener("click", () => {
-      updateExamGraphState("비교 그래프 변경", () => {
-        state.examGraphPresetKey = definition.key;
-      });
-    });
-    presetRow.appendChild(button);
-  });
-  wrapper.appendChild(presetRow);
+  const quickActions = document.createElement("div");
+  quickActions.className = "exam-graph-builder-actions";
+  quickActions.append(
+    buildExamGraphActionButton("후보 추천", () => applyExamGraphRandomCountries(), "출제에 적합한 후보군을 추천"),
+    buildExamGraphActionButton("자료 추천", () => applyExamGraphRandomScenario({ graphOnly: true }), "현재 후보에 맞는 통계를 추천"),
+    buildExamGraphActionButton("세트 추천", () => applyExamGraphRandomScenario(), "후보와 통계를 함께 추천", true),
+  );
+  heading.append(headingCopy, quickActions);
+  wrapper.appendChild(heading);
 
-  const actionRow = document.createElement("div");
-  actionRow.className = "exam-graph-action-row";
-  [
-    {
-      label: "지도 선택 사용",
-      active: getExamGraphScopeMode() !== "focus",
-      handler: () => {
-        updateExamGraphState("비교 그래프 대상 복귀", () => {
-          state.examGraphFocusCountryIds = [];
-          state.examGraphFocusLabel = "";
-        });
-        setStatus("그래프 범위를 지도 선택 기준으로 되돌렸습니다.");
-      },
-    },
-  ].forEach((config) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "exam-graph-chip exam-graph-chip--action";
-    button.classList.toggle("is-active", Boolean(config.active));
-    button.textContent = config.label;
-    button.addEventListener("click", config.handler);
-    actionRow.appendChild(button);
-  });
-  const actionDisclosure = buildControlDisclosure({
-    title: "Scope",
-    detail: "지도 선택 기준으로 되돌리기",
-    contentNode: actionRow,
-    open: state.examGraphActionsExpanded,
-    onToggle: (nextOpen) => {
-      state.examGraphActionsExpanded = nextOpen;
-    },
-  });
+  wrapper.appendChild(
+    buildExamGraphWorkflowStep({
+      number: 1,
+      title: "후보",
+      detail: "지도에서 직접 고르거나 출제용 조합을 추천받음",
+      contentNode: buildExamGraphScopeCard(),
+    }),
+  );
+  wrapper.appendChild(
+    buildExamGraphWorkflowStep({
+      number: 2,
+      title: "자료 구조",
+      detail: "순위가 아니라 구성·변화·관계 중 판별 논리를 먼저 선택",
+      contentNode: buildExamGraphPresetPicker(),
+    }),
+  );
 
-  if (!getExamGraphPresetDefinition()) {
-    wrapper.appendChild(actionDisclosure);
+  if (!activePreset) {
     return wrapper;
   }
 
@@ -14329,10 +14380,15 @@ function buildExamGraphControls() {
       : null;
   const shouldShowMergeAmericas = state.examGraphGrouping === "continents" || state.examGraphPresetKey === "top3share";
 
+  designControls.appendChild(aliasField);
   if (shouldShowMergeAmericas) {
     designControls.appendChild(mergeAmericasField);
   }
-  designControls.append(orientationField, previewCountField, fontSizeField, aliasField);
+  designControls.append(orientationField, previewCountField, fontSizeField);
+  const outputHint = document.createElement("p");
+  outputHint.className = "exam-graph-output-hint";
+  outputHint.textContent = "그래프 값 CSV와 가명 정답표는 미리보기 옆에서 바로 확인할 수 있음.";
+  designControls.appendChild(outputHint);
 
   if (state.examGraphPresetKey === "stacked100" || state.examGraphPresetKey === "groupedBars") {
     coreControls.append(
@@ -14482,29 +14538,145 @@ function buildExamGraphControls() {
   }
 
   wrapper.appendChild(
-    buildControlDisclosure({
-      title: "Data",
-      detail: getExamGraphPresetDefinition()?.label ?? "그래프 설정",
+    buildExamGraphWorkflowStep({
+      number: 3,
+      title: "통계 설정",
+      detail: `${activePreset.label}에 들어갈 지표·단위·시점을 조정`,
       contentNode: coreControls,
-      open: state.examGraphDataExpanded,
-      onToggle: (nextOpen) => {
-        state.examGraphDataExpanded = nextOpen;
-      },
     }),
   );
   wrapper.appendChild(
-    buildControlDisclosure({
-      title: "Appearance",
-      detail: `${getExamGraphStyleModeDefinition().label} · ${getExamGraphOrientationLabel()} · ${getExamGraphPreviewCount()}개 나란히 · ${formatExamGraphPtLabel()}`,
+    buildExamGraphWorkflowStep({
+      number: 4,
+      title: "출력 설정",
+      detail: `${getExamGraphOrientationLabel()} · ${getExamGraphPreviewCount()}개 · ${formatExamGraphPtLabel()}`,
       contentNode: designControls,
-      open: state.examGraphDesignExpanded,
-      onToggle: (nextOpen) => {
-        state.examGraphDesignExpanded = nextOpen;
-      },
     }),
   );
-  wrapper.appendChild(actionDisclosure);
   return wrapper;
+}
+
+function buildExamGraphActionButton(label, onClick, title = "", primary = false) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "exam-graph-builder-action";
+  button.classList.toggle("is-primary", primary);
+  button.textContent = label;
+  button.title = title;
+  button.addEventListener("click", onClick);
+  return button;
+}
+
+function buildExamGraphWorkflowStep({ number, title, detail, contentNode }) {
+  const section = document.createElement("section");
+  section.className = "exam-graph-step";
+  section.dataset.step = String(number);
+
+  const header = document.createElement("header");
+  header.className = "exam-graph-step__header";
+  const index = document.createElement("span");
+  index.className = "exam-graph-step__index";
+  index.textContent = String(number).padStart(2, "0");
+  const copy = document.createElement("div");
+  const heading = document.createElement("h4");
+  heading.textContent = title;
+  const description = document.createElement("p");
+  description.textContent = detail;
+  copy.append(heading, description);
+  header.append(index, copy);
+
+  const body = document.createElement("div");
+  body.className = "exam-graph-step__body";
+  body.appendChild(contentNode);
+  section.append(header, body);
+  return section;
+}
+
+function buildExamGraphScopeCard() {
+  const scopeMode = getExamGraphScopeMode();
+  const rows = getExamGraphSelectedCountryRows();
+  const card = document.createElement("div");
+  card.className = "exam-graph-scope-card";
+
+  const copy = document.createElement("div");
+  copy.className = "exam-graph-scope-card__copy";
+  const label = document.createElement("strong");
+  label.textContent = getExamGraphScopeSourceText();
+  const detail = document.createElement("p");
+  if (rows.length) {
+    const visibleNames = rows.slice(0, 5).map((row) => getExamGraphReadableLabel(row.label));
+    detail.textContent = `${visibleNames.join(" · ")}${rows.length > visibleNames.length ? ` 외 ${rows.length - visibleNames.length}개` : ""}`;
+  } else {
+    detail.textContent = `지도에서 3~5개 국가를 고르거나 후보 추천을 사용함 · 현재 ${getExamGraphTopN()}개 자동 추출`;
+  }
+  copy.append(label, detail);
+
+  const badge = document.createElement("span");
+  badge.className = "exam-graph-scope-card__badge";
+  badge.textContent = scopeMode === "focus" ? "추천 후보" : scopeMode === "selected" ? `${rows.length}개 선택` : "자동 범위";
+  card.append(copy, badge);
+
+  if (scopeMode === "focus") {
+    const reset = document.createElement("button");
+    reset.type = "button";
+    reset.className = "exam-graph-scope-card__reset";
+    reset.textContent = "지도 선택으로 복귀";
+    reset.addEventListener("click", () => {
+      updateExamGraphState("비교 그래프 대상 복귀", () => {
+        state.examGraphFocusCountryIds = [];
+        state.examGraphFocusLabel = "";
+      });
+      setStatus("그래프 범위를 지도 선택 기준으로 되돌렸습니다.");
+    });
+    card.appendChild(reset);
+  }
+  return card;
+}
+
+function buildExamGraphPresetPicker() {
+  const picker = document.createElement("div");
+  picker.className = "exam-graph-preset-groups";
+  examGraphPresetGroupDefinitions.forEach((groupDefinition) => {
+    const group = document.createElement("section");
+    group.className = "exam-graph-preset-group";
+    group.setAttribute("role", "group");
+    group.setAttribute("aria-label", groupDefinition.label);
+    const heading = document.createElement("header");
+    const title = document.createElement("strong");
+    title.textContent = groupDefinition.label;
+    const description = document.createElement("span");
+    description.textContent = groupDefinition.description;
+    heading.append(title, description);
+
+    const options = document.createElement("div");
+    options.className = "exam-graph-preset-options";
+    groupDefinition.presetKeys.forEach((presetKey) => {
+      const definition = examGraphPresetDefinitions.find((entry) => entry.key === presetKey);
+      if (!definition) {
+        return;
+      }
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "exam-graph-preset-card";
+      button.dataset.examGraphPreset = definition.key;
+      button.classList.toggle("is-active", definition.key === state.examGraphPresetKey);
+      button.setAttribute("aria-pressed", String(definition.key === state.examGraphPresetKey));
+      const label = document.createElement("strong");
+      label.textContent = definition.label;
+      const detail = document.createElement("span");
+      detail.textContent = definition.description;
+      button.append(label, detail);
+      button.addEventListener("click", () => {
+        updateExamGraphState("비교 그래프 변경", () => {
+          state.examGraphPresetKey = definition.key;
+        });
+      });
+      options.appendChild(button);
+    });
+    group.append(heading, options);
+    picker.appendChild(group);
+  });
+  return picker;
 }
 
 function getExamGraphValueModeOptionsForCurrentPreset() {
@@ -14543,6 +14715,9 @@ function buildExamGraphSelectField(labelText, options, activeValue, onChange) {
   const label = document.createElement("label");
   label.textContent = labelText;
   const select = document.createElement("select");
+  examGraphControlIdSequence += 1;
+  select.id = `examGraphControl${examGraphControlIdSequence}`;
+  label.htmlFor = select.id;
   options.forEach((optionConfig) => {
     const option = document.createElement("option");
     option.value = optionConfig.key;
@@ -14561,12 +14736,15 @@ function buildExamGraphNumberField(labelText, value, min, max, onChange, { step 
   const label = document.createElement("label");
   label.textContent = labelText;
   const input = document.createElement("input");
+  examGraphControlIdSequence += 1;
+  input.id = `examGraphControl${examGraphControlIdSequence}`;
+  label.htmlFor = input.id;
   input.type = "number";
   input.min = String(min);
   input.max = String(max);
   input.step = String(step);
   input.value = String(value);
-  input.addEventListener("input", () => {
+  input.addEventListener("change", () => {
     onChange(clamp(roundToStep(Number(input.value) || value, step), min, max));
   });
   field.append(label, input);
@@ -15122,45 +15300,6 @@ function getExamGraphRandomScenarioPool() {
     ].map(([compositionKey, valueMode, grouping]) => ({
       presetKey: "stacked100",
       compositionKey,
-      valueMode,
-      grouping,
-    })),
-    ...[
-      ["population-total", "amount", "countries"],
-      ["population-total", "relative", "continents"],
-      ["population-density", "amount", "countries"],
-      ["population-urban-share", "amount", "countries"],
-      ["population-birth-rate", "amount", "countries"],
-      ["population-death-rate", "amount", "countries"],
-      ["population-natural-increase-rate", "amount", "countries"],
-      ["crops-total-production", "amount", "countries"],
-      ["crops-total-exports", "amount", "countries"],
-      ["crops-total-imports", "amount", "countries"],
-      ["livestock-stock-total", "amount", "countries"],
-      ["religion-christians-share", "amount", "countries"],
-      ["religion-muslims-share", "amount", "countries"],
-      ["religion-hindus-share", "amount", "countries"],
-      ["religion-buddhists-share", "amount", "countries"],
-      ["energy-renewables-share", "amount", "countries"],
-      ["electricity-solar-amount", "amount", "countries"],
-      ["electricity-wind-amount", "amount", "countries"],
-      ["fossil-production-total", "amount", "countries"],
-      ["exports-value", "amount", "countries"],
-      ["exports-share", "amount", "countries"],
-      ["industry-agriculture-share", "amount", "countries"],
-      ["industry-services-share", "amount", "countries"],
-      ["age-65plus-share", "amount", "countries"],
-      ["age-014-share", "amount", "countries"],
-      ["dependency-total", "amount", "countries"],
-      ["migration-stock-share", "amount", "countries"],
-      ["migration-net", "amount", "countries"],
-      ["refugee-origin-total", "amount", "countries"],
-      ["refugee-hosted-total", "amount", "countries"],
-      ["energy-consumption-per-capita", "amount", "countries"],
-      ["electricity-nuclear-share", "amount", "countries"],
-    ].map(([metricKey, valueMode, grouping]) => ({
-      presetKey: "rankBars",
-      metricKey,
       valueMode,
       grouping,
     })),
@@ -16172,8 +16311,11 @@ function getExamGraphMetricRows(definition, grouping) {
         continent: entry.stats?.continent?.name ?? "",
       };
     })
-    .filter(Boolean)
-    .sort((a, b) => Number(b.value) - Number(a.value));
+    .filter(Boolean);
+
+  if (!selectedRows.length) {
+    countryRows.sort((a, b) => Number(b.value) - Number(a.value));
+  }
 
   if (grouping === "countries") {
     const rows = selectedRows.length ? countryRows : countryRows.slice(0, getExamGraphTopN());
@@ -16252,8 +16394,11 @@ function getExamGraphPairRows(pairDefinition, grouping) {
         continent: entry.stats?.continent?.name ?? "",
       };
     })
-    .filter(Boolean)
-    .sort((a, b) => Number(b.totalValue) - Number(a.totalValue));
+    .filter(Boolean);
+
+  if (!selectedRows.length) {
+    countryRows.sort((a, b) => Number(b.totalValue) - Number(a.totalValue));
+  }
 
   if (grouping === "countries") {
     const rows = selectedRows.length ? countryRows : countryRows.slice(0, getExamGraphTopN());
@@ -16329,8 +16474,11 @@ function getExamGraphTrendRows(definition, grouping, yearStart, yearEnd) {
           lastValue: Number(points[points.length - 1]?.value) || 0,
         };
       })
-      .filter(Boolean)
-      .sort((a, b) => Number(b.lastValue) - Number(a.lastValue));
+      .filter(Boolean);
+
+    if (!selectedRows.length) {
+      rows.sort((a, b) => Number(b.lastValue) - Number(a.lastValue));
+    }
 
     const limitedRows = selectedRows.length ? rows : rows.slice(0, clamp(getExamGraphTopN(), 2, 6));
     return {

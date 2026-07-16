@@ -36,6 +36,9 @@ const COMPARISON_PAIR_CONFIGS = [
 const RANDOM_SELECTION_SIZE = 4;
 const RANDOM_SELECTION_ATTEMPTS = 200;
 const RANDOM_SELECTION_MIN_DISTANCE_STEPS = [80, 60, 45, 30];
+const MAP_CANDIDATE_RADIUS_MIN = 30;
+const MAP_CANDIDATE_RADIUS_MAX = 40;
+const MAP_CANDIDATE_LIMIT = 12;
 const URL_STATE_KEYS = ["regions", "nation", "zone", "query", "sort", "map", "baseline"];
 const REGION_SORT_VALUES = new Set([
   "default",
@@ -75,6 +78,7 @@ const state = {
   mapScope: "all",
   comparisonBaseline: "mean",
   selectedIds: new Set(),
+  mapCandidatePicker: null,
 };
 
 const elements = {
@@ -91,6 +95,7 @@ const elements = {
   worldMap: document.querySelector("#worldMap"),
   mapSummary: document.querySelector("#mapSummary"),
   mapScopeChips: document.querySelector("#mapScopeChips"),
+  mapCandidatePicker: document.querySelector("#mapCandidatePicker"),
   selectedRegionsContent: document.querySelector("#selectedRegionsContent"),
   comparisonContent: document.querySelector("#comparisonContent"),
   copyShareLinkButton: document.querySelector("#copyShareLinkButton"),
@@ -373,7 +378,31 @@ function bindEvents() {
     if (!marker) {
       return;
     }
-    toggleSelection(marker.dataset.mapRegionId, "data-map-region-id");
+
+    const regionId = marker.dataset.mapRegionId;
+    const nearbyCandidates = collectNearbyMapCandidates(event, marker);
+    if (nearbyCandidates.total > 1) {
+      openMapCandidatePicker(nearbyCandidates, regionId, event.detail === 0);
+      return;
+    }
+
+    closeMapCandidatePicker();
+    toggleSelection(regionId, "data-map-region-id");
+  });
+
+  elements.mapCandidatePicker?.addEventListener("click", (event) => {
+    const closeButton = event.target.closest("[data-map-candidate-close]");
+    if (closeButton) {
+      closeMapCandidatePicker(true);
+      return;
+    }
+
+    const candidateButton = event.target.closest("[data-map-candidate-id]");
+    if (!candidateButton) {
+      return;
+    }
+
+    toggleSelection(candidateButton.dataset.mapCandidateId, "data-map-candidate-id");
   });
 
   elements.comparisonContent?.addEventListener("change", (event) => {
@@ -624,6 +653,7 @@ function render() {
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
   renderMap(visibleRegions, selectedRegions);
+  renderMapCandidatePicker();
   const urlSyncMode = nextUrlSyncMode;
   nextUrlSyncMode = "replace";
   syncUrlState(urlSyncMode);
@@ -1186,6 +1216,129 @@ function renderMap(visibleRegions, selectedRegions) {
       </svg>
       <div class="world-map-markers">${markers}</div>
     </div>
+  `;
+}
+
+function collectNearbyMapCandidates(event, preferredMarker) {
+  const frame = preferredMarker.closest(".world-map-frame");
+  if (!frame) {
+    return { ids: [preferredMarker.dataset.mapRegionId], total: 1 };
+  }
+
+  const preferredRect = preferredMarker.getBoundingClientRect();
+  const usePreferredCenter = event.detail === 0 || !Number.isFinite(event.clientX) || !Number.isFinite(event.clientY);
+  const clickX = usePreferredCenter ? preferredRect.left + preferredRect.width / 2 : event.clientX;
+  const clickY = usePreferredCenter ? preferredRect.top + preferredRect.height / 2 : event.clientY;
+  const frameWidth = frame.getBoundingClientRect().width;
+  const radius = Math.min(
+    MAP_CANDIDATE_RADIUS_MAX,
+    Math.max(MAP_CANDIDATE_RADIUS_MIN, frameWidth * 0.055)
+  );
+  const preferredId = preferredMarker.dataset.mapRegionId;
+  const candidates = [...frame.querySelectorAll("button[data-map-region-id]")]
+    .map((marker) => {
+      const rect = marker.getBoundingClientRect();
+      const distance = Math.hypot(
+        rect.left + rect.width / 2 - clickX,
+        rect.top + rect.height / 2 - clickY
+      );
+      return { id: marker.dataset.mapRegionId, distance };
+    })
+    .filter((candidate) => candidate.id === preferredId || candidate.distance <= radius)
+    .sort((left, right) => left.distance - right.distance || collator.compare(left.id, right.id));
+
+  return {
+    ids: candidates.slice(0, MAP_CANDIDATE_LIMIT).map((candidate) => candidate.id),
+    total: candidates.length,
+  };
+}
+
+function openMapCandidatePicker(candidates, anchorRegionId, shouldFocus = false) {
+  state.mapCandidatePicker = {
+    ids: candidates.ids,
+    total: candidates.total,
+    anchorRegionId,
+  };
+  renderMapCandidatePicker();
+
+  if (shouldFocus) {
+    requestAnimationFrame(() => {
+      elements.mapCandidatePicker?.querySelector("[data-map-candidate-id]")?.focus();
+    });
+  }
+}
+
+function closeMapCandidatePicker(restoreAnchorFocus = false) {
+  const anchorRegionId = state.mapCandidatePicker?.anchorRegionId ?? "";
+  state.mapCandidatePicker = null;
+  renderMapCandidatePicker();
+
+  if (restoreAnchorFocus && anchorRegionId) {
+    restoreFocusByDataAttribute("data-map-region-id", anchorRegionId);
+  }
+}
+
+function renderMapCandidatePicker() {
+  if (!elements.mapCandidatePicker) {
+    return;
+  }
+
+  const picker = state.mapCandidatePicker;
+  const visibleMarkerIds = new Set(
+    [...elements.worldMap.querySelectorAll("[data-map-region-id]")].map(
+      (marker) => marker.dataset.mapRegionId
+    )
+  );
+  const regions = (picker?.ids ?? [])
+    .map((regionId) => state.regions.find((region) => region.id === regionId))
+    .filter((region) => region && visibleMarkerIds.has(region.id));
+
+  if (!picker || regions.length < 2) {
+    elements.mapCandidatePicker.hidden = true;
+    elements.mapCandidatePicker.innerHTML = "";
+    if (picker && regions.length < 2) {
+      state.mapCandidatePicker = null;
+    }
+    return;
+  }
+
+  const hiddenCount = Math.max(0, picker.total - regions.length);
+  elements.mapCandidatePicker.innerHTML = `
+    <div class="map-candidate-picker-header">
+      <div class="map-candidate-picker-copy">
+        <strong>주변 지점 ${regions.length}개 · 가까운 순</strong>
+        <span>${
+          hiddenCount > 0
+            ? `가까운 ${regions.length}개를 표시함 · 나머지 ${hiddenCount}개는 지역 목록에서 검색 가능`
+            : "이름을 눌러 선택하거나 선택을 해제하세요."
+        }</span>
+      </div>
+      <button type="button" class="map-candidate-close" data-map-candidate-close>닫기</button>
+    </div>
+    <div class="map-candidate-list">
+      ${regions.map(renderMapCandidateOption).join("")}
+    </div>
+  `;
+  elements.mapCandidatePicker.hidden = false;
+}
+
+function renderMapCandidateOption(region) {
+  const isSelected = state.selectedIds.has(region.id);
+  const meta = [region.officialName, region.nation, region.zone].filter(Boolean).join(" · ");
+  return `
+    <button
+      type="button"
+      class="map-candidate-option ${isSelected ? "is-selected" : ""}"
+      data-map-candidate-id="${escapeHtml(region.id)}"
+      aria-pressed="${isSelected}"
+      aria-label="${escapeHtml(region.name)} ${isSelected ? "선택 해제" : "선택"}"
+    >
+      <span class="map-candidate-option-copy">
+        <strong>${escapeHtml(region.name)}</strong>
+        <span>${escapeHtml(meta)}</span>
+      </span>
+      <span class="map-candidate-option-state">${isSelected ? "선택됨" : "선택"}</span>
+    </button>
   `;
 }
 

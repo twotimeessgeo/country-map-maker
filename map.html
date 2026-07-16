@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="./base.css?v=20260710h" />
     <link rel="stylesheet" href="./components.css?v=20260710h" />
     <link rel="stylesheet" href="./patterns.css?v=20260710h" />
-    <link rel="stylesheet" href="./styles.css?v=20260711b" />
+    <link rel="stylesheet" href="./styles.css?v=20260716u" />
   </head>
   <body>
     <div class="tw-page tw-stack app-page">
@@ -27,6 +27,7 @@
           </summary>
           <div class="app-context-menu-panel">
             <a class="is-active" href="./map.html">Map Editor</a>
+            <a href="./tools/stats/index.html">Data Library</a>
             <a href="./tools/climate/index.html">Climate Atlas</a>
             <a href="./tools/cut/index.html">Grade Cut Archive</a>
           </div>
@@ -526,10 +527,29 @@
       <section id="statisticsSection" class="tw-panel">
         <div class="tw-section-heading">
           <h2 id="detailSectionTitle" class="tw-section-title" lang="en">Statistics</h2>
-          <span id="detailSectionBadge" hidden>구성비 · 변화 · 국가 프로필</span>
+          <div class="stats-section-meta">
+            <span id="detailSectionBadge" hidden>구성비 · 변화 · 국가 프로필</span>
+            <a href="./tools/stats/index.html">시점·출처 확인</a>
+          </div>
         </div>
 
         <div class="app-detail-grid stats-workspace">
+          <details
+            id="examGraphModule"
+            class="tw-data-card app-detail-card app-detail-card--stats stats-module stats-module--builder world-only"
+            hidden
+            open
+          >
+            <summary>
+              <span class="stats-module-summary-copy">
+                <strong lang="en">Graph Builder</strong>
+                <small>후보 → 자료 구조 → 통계 → 출력</small>
+              </span>
+              <span class="tw-badge" lang="en">World</span>
+            </summary>
+            <div id="examGraphPanel" class="exam-graph-panel"></div>
+          </details>
+
           <div class="stats-workspace__main">
             <section
               id="examDrillModule"
@@ -540,11 +560,6 @@
               <header class="stats-module__header"><strong id="examDrillHeading" lang="en">Item Lab</strong></header>
               <div id="examDrillPanel" class="exam-drill-panel"></div>
             </section>
-
-            <details id="examGraphModule" class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
-              <summary><strong lang="en">Graph Builder</strong></summary>
-              <div id="examGraphPanel" class="exam-graph-panel"></div>
-            </details>
 
             <details id="metricExplorerModule" class="tw-data-card app-detail-card app-detail-card--stats stats-module world-only" hidden>
               <summary><strong lang="en">World Data</strong></summary>
@@ -596,8 +611,8 @@
     <script src="./data/world-atlas.js"></script>
     <script src="./data/world-atlas-variants.js"></script>
     <script src="./data/world-lakes.js"></script>
-    <script src="./data/country-stats.js?v=20260428a"></script>
+    <script src="./data/country-stats.js?v=20260716"></script>
     <script src="./data/embedded-font.js?v=20260423a"></script>
-    <script src="./app.js?v=20260711b"></script>
+    <script src="./app.js?v=20260716u"></script>
   </body>
 </html>

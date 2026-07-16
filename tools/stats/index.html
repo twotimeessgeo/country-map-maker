@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Library | Promenade Geography</title>
+    <meta
+      name="description"
+      content="세계·한국·기후 통계의 기준 시점과 출처를 확인하고 Map Editor와 Climate Atlas의 수능형 제작 흐름으로 연결합니다."
+    />
+    <meta name="theme-color" content="#efefec" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+    />
+    <link rel="stylesheet" href="../../tokens.css?v=20260716d" />
+    <link rel="stylesheet" href="../../base.css?v=20260716d" />
+    <link rel="stylesheet" href="../../components.css?v=20260716d" />
+    <link rel="stylesheet" href="./styles.css?v=20260716u" />
+  </head>
+  <body>
+    <div class="tw-page tw-stack data-page">
+      <nav class="app-context-bar" aria-label="Promenade Geography">
+        <a class="app-context-brand" href="../../index.html" aria-label="Promenade Geography home">
+          <span>Promenade</span>
+        </a>
+        <details class="app-context-menu">
+          <summary>
+            <span class="app-menu-mark" aria-hidden="true"></span>
+            <span>Menu</span>
+          </summary>
+          <div class="app-context-menu-panel">
+            <a href="../../map.html">Map Editor</a>
+            <a class="is-active" href="./index.html" aria-current="page">Data Library</a>
+            <a href="../climate/index.html">Climate Atlas</a>
+            <a href="../cut/index.html">Grade Cut Archive</a>
+          </div>
+        </details>
+      </nav>
+
+      <header class="tw-hero data-hero">
+        <div class="data-hero-copy">
+          <p class="tw-kicker" lang="en">STATISTICS SOURCE INDEX</p>
+          <h1 class="data-hero-title" lang="en">Data Library</h1>
+          <p>
+            최신 통계의 수록 범위·실제 기준 시점·출처를 찾는 자료실임.
+            그래프 제작은 지도 선택과 문항 조합이 연결된 Map Editor, 기후 비교는 Climate Atlas에서 처리함.
+          </p>
+        </div>
+        <dl class="data-coverage" aria-label="자료 수록 현황">
+          <div><dt lang="en">Metrics</dt><dd id="metricCoverage">—</dd></div>
+          <div><dt lang="en">World</dt><dd id="worldCoverage">—</dd></div>
+          <div><dt lang="en">Korea</dt><dd id="koreaCoverage">—</dd></div>
+        </dl>
+      </header>
+
+      <main class="data-layout">
+        <section class="tw-panel data-panel" aria-labelledby="workflowTitle">
+          <div class="data-section-heading">
+            <div>
+              <p class="data-section-index" lang="en">01 · WORKFLOW</p>
+              <h2 id="workflowTitle">제작 도구로 이어서 사용</h2>
+            </div>
+            <p>이 페이지는 그래프를 별도로 생성하거나 SVG로 내보내지 않음.</p>
+          </div>
+          <div class="workflow-grid" id="workflowGrid"></div>
+        </section>
+
+        <section class="tw-panel data-panel" aria-labelledby="metricIndexTitle">
+          <div class="data-section-heading">
+            <div>
+              <p class="data-section-index" lang="en">02 · METRIC INDEX</p>
+              <h2 id="metricIndexTitle">최신 통계 색인</h2>
+            </div>
+            <p id="metricResultCount" aria-live="polite">—</p>
+          </div>
+
+          <div class="metric-toolbar">
+            <div class="scope-filter" id="scopeFilter" role="group" aria-label="통계 범위">
+              <button class="is-active" type="button" data-scope="all" aria-pressed="true">전체</button>
+              <button type="button" data-scope="world" aria-pressed="false">세계</button>
+              <button type="button" data-scope="korea" aria-pressed="false">한국</button>
+              <button type="button" data-scope="climate" aria-pressed="false">기후</button>
+            </div>
+            <div class="metric-fields">
+              <label class="data-field data-search-field">
+                <span>지표·출처 검색</span>
+                <input id="metricSearch" type="search" placeholder="예: 순이동, 발전량, KOSIS" autocomplete="off" />
+              </label>
+              <label class="data-field">
+                <span>분류</span>
+                <select id="categoryFilter"><option value="all">전체 분류</option></select>
+              </label>
+            </div>
+          </div>
+
+          <div class="metric-table-wrap">
+            <table class="metric-table">
+              <thead>
+                <tr>
+                  <th scope="col">범위</th>
+                  <th scope="col">지표</th>
+                  <th scope="col">최신 수록 시점</th>
+                  <th scope="col">수록률</th>
+                  <th scope="col">출처</th>
+                </tr>
+              </thead>
+              <tbody id="metricTableBody"></tbody>
+            </table>
+          </div>
+          <button class="load-more-button" id="loadMoreMetrics" type="button" hidden>더 보기</button>
+        </section>
+      </main>
+    </div>
+
+    <noscript>통계 색인을 검색하려면 JavaScript가 필요함.</noscript>
+    <script src="../../data/statistics-index.js?v=20260716d"></script>
+    <script src="./app.js?v=20260716u"></script>
+  </body>
+</html>
