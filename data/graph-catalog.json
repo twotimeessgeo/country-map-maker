@@ -1,9 +1,9 @@
 {
   "meta": {
-    "schemaVersion": 1,
+    "schemaVersion": 2,
     "snapshotDate": "2026-07-16",
     "sourceInventory": "svg-statistics-inventory-20260716.json",
-    "description": "기존 통계 SVG를 값이나 로컬 경로 없이 탐색하기 위한 공개용 레퍼런스 카탈로그",
+    "description": "기존 통계 SVG의 수능형 구조와 출처 상태를 값이나 로컬 경로 없이 분류한 공개용 레퍼런스 카탈로그",
     "itemCount": 111,
     "topicCounts": {
       "기타 통계": 17,
@@ -24,6 +24,16 @@
       "인구 피라미드": 2,
       "표": 1
     },
+    "examPatternCounts": {
+      "change-index": 20,
+      "climate-contrast": 8,
+      "composition-contrast": 41,
+      "cross-indicator": 7,
+      "profile-structure": 6,
+      "relationship-scatter": 13,
+      "spatial-process": 10
+    },
+    "referenceOnlyCount": 6,
     "sourceResolutionCounts": {
       "embeddedSourceHint": 38,
       "knownProvenanceGap": 6,
@@ -42,6 +52,7 @@
       "title": "africa export commodity groups 2021",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2021
       ],
@@ -62,6 +73,7 @@
       "title": "africa welfare birth life literacy 2024",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "cross-indicator",
       "years": [
         2024
       ],
@@ -82,6 +94,7 @@
       "title": "age sex ratio seoul chuncheon hwacheon pyeongchang 2023",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "profile-structure",
       "years": [
         2023
       ],
@@ -104,6 +117,7 @@
       "title": "aus nzl jpn sgp density industry gdp table wdi latest",
       "topic": "기타 통계",
       "chartType": "표",
+      "examPattern": "cross-indicator",
       "years": [],
       "sourceResolution": "embeddedSourceHint",
       "provenanceGap": false,
@@ -122,6 +136,7 @@
       "title": "basel rhine pollution 1986",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "spatial-process",
       "years": [
         1986
       ],
@@ -142,6 +157,7 @@
       "title": "brics-energy-supply-share",
       "topic": "에너지",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [],
       "sourceResolution": "knownProvenanceGap",
       "provenanceGap": true,
@@ -160,6 +176,7 @@
       "title": "busan commute yangsan geoje changnyeong 2020",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "reference-only",
       "years": [
         2020
       ],
@@ -182,6 +199,7 @@
       "title": "china saudi niger japan sex ratio population 2023",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "profile-structure",
       "years": [
         2023
       ],
@@ -205,6 +223,7 @@
       "title": "climate range precip deviation seoul 1991 2020",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "climate-contrast",
       "years": [
         1991,
         2020
@@ -227,6 +246,7 @@
       "title": "climate seoul difference wonsan pyongyang chongjin 1991 2020",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "climate-contrast",
       "years": [
         1991,
         2020
@@ -248,6 +268,7 @@
       "title": "cobalt-coffee-cacao-production-share",
       "topic": "농업·자원",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [],
       "sourceResolution": "knownProvenanceGap",
       "provenanceGap": true,
@@ -266,6 +287,7 @@
       "title": "crop test direct",
       "topic": "농업·자원",
       "chartType": "비교 그래프",
+      "examPattern": "reference-only",
       "years": [],
       "sourceResolution": "unresolvedSource",
       "provenanceGap": false,
@@ -282,6 +304,7 @@
       "title": "crop test offset",
       "topic": "농업·자원",
       "chartType": "비교 그래프",
+      "examPattern": "reference-only",
       "years": [],
       "sourceResolution": "unresolvedSource",
       "provenanceGap": false,
@@ -298,6 +321,7 @@
       "title": "drc botswana south africa exports 2024",
       "topic": "산업·교통",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2024
       ],
@@ -318,6 +342,7 @@
       "title": "energy-source-donut-nepal-india-france",
       "topic": "에너지",
       "chartType": "원·도넛",
+      "examPattern": "composition-contrast",
       "years": [],
       "sourceResolution": "knownProvenanceGap",
       "provenanceGap": true,
@@ -336,6 +361,7 @@
       "title": "ethnic composition jm co br uy",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [],
       "sourceResolution": "supplementalDataset",
       "provenanceGap": false,
@@ -356,6 +382,7 @@
       "title": "europe grain top3 share 2024",
       "topic": "기타 통계",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2024
       ],
@@ -376,6 +403,7 @@
       "title": "export product composition tur tun kaz are 2023",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -398,6 +426,7 @@
       "title": "export-top5-products",
       "topic": "산업·교통",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [],
       "sourceResolution": "knownProvenanceGap",
       "provenanceGap": true,
@@ -416,6 +445,7 @@
       "title": "foreign national population abc 2020 150px v2",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "cross-indicator",
       "years": [
         2020
       ],
@@ -438,6 +468,7 @@
       "title": "foreign national population abc 2020",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "cross-indicator",
       "years": [
         2020
       ],
@@ -460,6 +491,7 @@
       "title": "foreign resident three type share all sido 2023 points",
       "topic": "인구·도시",
       "chartType": "구성·비교",
+      "examPattern": "relationship-scatter",
       "years": [
         2023
       ],
@@ -482,6 +514,7 @@
       "title": "foreign resident three type share chungnam jeonbuk daegu jeju 2023",
       "topic": "인구·도시",
       "chartType": "구성·비교",
+      "examPattern": "relationship-scatter",
       "years": [
         2023
       ],
@@ -504,6 +537,7 @@
       "title": "foreign resident worker marriage chungnam jeonbuk daegu jeju 2023",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "relationship-scatter",
       "years": [
         2023
       ],
@@ -526,6 +560,7 @@
       "title": "foreign resident worker marriage chungnam jeonbuk daegu jeju 2023 zoom",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "relationship-scatter",
       "years": [
         2023
       ],
@@ -548,6 +583,7 @@
       "title": "france generation demand hourly 20260601 05",
       "topic": "에너지",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2026
       ],
@@ -570,6 +606,7 @@
       "title": "france generation demand hourly 20260601 06",
       "topic": "에너지",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2026
       ],
@@ -592,6 +629,7 @@
       "title": "france renewables demand hourly 20260601 05",
       "topic": "에너지",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2026
       ],
@@ -614,6 +652,7 @@
       "title": "france renewables demand hourly 20260601 05 smooth",
       "topic": "에너지",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2026
       ],
@@ -634,6 +673,7 @@
       "title": "freight loaded empty distance time 2022",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2022
       ],
@@ -654,6 +694,7 @@
       "title": "gangneung mokpo daejeon seogwipo climate deviation 1991 2020",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "climate-contrast",
       "years": [
         1991,
         2020
@@ -677,6 +718,7 @@
       "title": "gangwon age sex ratio wonju chuncheon hwacheon pyeongchang 2023",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "profile-structure",
       "years": [
         2023
       ],
@@ -699,6 +741,7 @@
       "title": "gangwon young male aging 2024",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "relationship-scatter",
       "years": [
         2024
       ],
@@ -719,6 +762,7 @@
       "title": "geum estuary waterlevel 20260105",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "spatial-process",
       "years": [
         2026
       ],
@@ -739,6 +783,7 @@
       "title": "gurye hwaeomsa alluvial fan profile srtm30m",
       "topic": "지형·위치",
       "chartType": "단면도",
+      "examPattern": "spatial-process",
       "years": [],
       "sourceResolution": "supplementalSourcePointer",
       "provenanceGap": false,
@@ -757,6 +802,7 @@
       "title": "han geum waterlevel barrage 20260105",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "spatial-process",
       "years": [
         2026
       ],
@@ -777,6 +823,7 @@
       "title": "hwaseong icheon gimpo goyang paddy mfg seoul commute",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "cross-indicator",
       "years": [],
       "sourceResolution": "supplementalSourcePointer",
       "provenanceGap": false,
@@ -797,6 +844,7 @@
       "title": "japan thailand china natural increase net migration 1950 2020",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "change-index",
       "years": [
         1950,
         2020
@@ -821,6 +869,7 @@
       "title": "japan thailand china natural increase net migration 1950 2020 three panel",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "change-index",
       "years": [
         1950,
         2020
@@ -845,6 +894,7 @@
       "title": "japan thailand china natural increase net migration 1950 2020 three panel xscaled",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "change-index",
       "years": [
         1950,
         2020
@@ -869,6 +919,7 @@
       "title": "japan thailand china natural increase net migration 1950 2020 three panel xscaled fine",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "change-index",
       "years": [
         1950,
         2020
@@ -893,6 +944,7 @@
       "title": "jeju foehn temperature humidity 20230516",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "climate-contrast",
       "years": [
         2023
       ],
@@ -913,6 +965,7 @@
       "title": "jeonnam gyeongbuk ulsan energy consumption supply 2023",
       "topic": "에너지",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -935,6 +988,7 @@
       "title": "jinju geoje busan yangsan population index 2005",
       "topic": "인구·도시",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2005
       ],
@@ -953,6 +1007,7 @@
       "title": "jma jan jul precip addis brisbane alger sf",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "climate-contrast",
       "years": [],
       "sourceResolution": "embeddedSourceHint",
       "provenanceGap": false,
@@ -971,6 +1026,7 @@
       "title": "jma jan jul precip addis brisbane perth sf",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "climate-contrast",
       "years": [],
       "sourceResolution": "embeddedSourceHint",
       "provenanceGap": false,
@@ -989,6 +1045,7 @@
       "title": "kazakhstan iran turkiye egypt crop area share 2022",
       "topic": "농업·자원",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2022
       ],
@@ -1011,6 +1068,7 @@
       "title": "korea air energy power gyeonggi chungnam busan gyeongbuk",
       "topic": "에너지",
       "chartType": "비교 그래프",
+      "examPattern": "relationship-scatter",
       "years": [],
       "sourceResolution": "supplementalSourcePointer",
       "provenanceGap": false,
@@ -1035,6 +1093,7 @@
       "title": "korea air energy power gyeonggi chungnam busan gyeongbuk side by side",
       "topic": "에너지",
       "chartType": "비교 그래프",
+      "examPattern": "relationship-scatter",
       "years": [],
       "sourceResolution": "supplementalSourcePointer",
       "provenanceGap": false,
@@ -1059,6 +1118,7 @@
       "title": "korea coastline sinuosity gyeonggi jeonnam gangwon 2024",
       "topic": "지형·위치",
       "chartType": "비교 그래프",
+      "examPattern": "spatial-process",
       "years": [
         2024
       ],
@@ -1081,6 +1141,7 @@
       "title": "korea coastline sinuosity relative 1910s 2000s",
       "topic": "지형·위치",
       "chartType": "비교 그래프",
+      "examPattern": "spatial-process",
       "years": [
         1910,
         2000
@@ -1102,6 +1163,7 @@
       "title": "korea coastline sinuosity relative 2014 2024",
       "topic": "지형·위치",
       "chartType": "비교 그래프",
+      "examPattern": "spatial-process",
       "years": [
         2014,
         2024
@@ -1125,6 +1187,7 @@
       "title": "korea farm size farmland rate use rate jeonnam gyeonggi gyeongbuk",
       "topic": "농업·자원",
       "chartType": "비교 그래프",
+      "examPattern": "cross-indicator",
       "years": [],
       "sourceResolution": "relatedSupplementalSource",
       "provenanceGap": false,
@@ -1145,6 +1208,7 @@
       "title": "korea final energy consumption 2024",
       "topic": "에너지",
       "chartType": "비교 그래프",
+      "examPattern": "reference-only",
       "years": [
         2024
       ],
@@ -1167,6 +1231,7 @@
       "title": "korea final energy source share 2021",
       "topic": "에너지",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2021
       ],
@@ -1189,6 +1254,7 @@
       "title": "korea four extremes seoul busan distance 20260601",
       "topic": "지형·위치",
       "chartType": "비교 그래프",
+      "examPattern": "spatial-process",
       "years": [
         2026
       ],
@@ -1209,6 +1275,7 @@
       "title": "korea industry region groups shipments 2024",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "reference-only",
       "years": [
         2024
       ],
@@ -1231,6 +1298,7 @@
       "title": "korea manufacturing shipments index 2024",
       "topic": "산업·교통",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2024
       ],
@@ -1253,6 +1321,7 @@
       "title": "korea mfg top2 region pairs 2022",
       "topic": "기타 통계",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2022
       ],
@@ -1275,6 +1344,7 @@
       "title": "korea population index seoul daejeon gimpo jinju ulsan 1975 2023",
       "topic": "인구·도시",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         1975,
         2023
@@ -1298,6 +1368,7 @@
       "title": "korea population index seoul daejeon gimpo jinju ulsan 1975base",
       "topic": "인구·도시",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         1975
       ],
@@ -1320,6 +1391,7 @@
       "title": "korea population index taebaek gimpo seoul sejong yangsan 2010 2023",
       "topic": "인구·도시",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2010,
         2023
@@ -1343,6 +1415,7 @@
       "title": "korea region groups population sexratio 202412",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "relationship-scatter",
       "years": [
         2024
       ],
@@ -1363,6 +1436,7 @@
       "title": "korea renewable dominant regions 2020",
       "topic": "에너지",
       "chartType": "비교 그래프",
+      "examPattern": "reference-only",
       "years": [
         2020
       ],
@@ -1385,6 +1459,7 @@
       "title": "korea river velocity basin updown wamis 2024",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "spatial-process",
       "years": [
         2024
       ],
@@ -1405,6 +1480,7 @@
       "title": "korea river velocity wamis selected 2024",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "spatial-process",
       "years": [
         2024
       ],
@@ -1425,6 +1501,7 @@
       "title": "korea snow precip heatwave scatter 1991 2020",
       "topic": "기후·환경",
       "chartType": "산점도",
+      "examPattern": "relationship-scatter",
       "years": [
         1991,
         2020
@@ -1448,6 +1525,7 @@
       "title": "korea typhoon rain damage scatter 2020 2024",
       "topic": "인구·도시",
       "chartType": "산점도",
+      "examPattern": "relationship-scatter",
       "years": [
         2020,
         2024
@@ -1469,6 +1547,7 @@
       "title": "korea typhoon rain damage scatter 2020 2024 no ulju yeongdeok",
       "topic": "인구·도시",
       "chartType": "산점도",
+      "examPattern": "relationship-scatter",
       "years": [
         2020,
         2024
@@ -1490,6 +1569,7 @@
       "title": "korea typhoon rain damage scatter mountain coast 2020 2024",
       "topic": "인구·도시",
       "chartType": "산점도",
+      "examPattern": "relationship-scatter",
       "years": [
         2020,
         2024
@@ -1511,6 +1591,7 @@
       "title": "latin america top3 city population raw un wup2025",
       "topic": "인구·도시",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2025
       ],
@@ -1533,6 +1614,7 @@
       "title": "latin america top3 city population raw un wup2025 4countries",
       "topic": "인구·도시",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2025
       ],
@@ -1555,6 +1637,7 @@
       "title": "latin america top3 city population share un wup2025",
       "topic": "인구·도시",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2025
       ],
@@ -1577,6 +1660,7 @@
       "title": "manufacturing industry region pies parallel abc 2023",
       "topic": "산업·교통",
       "chartType": "원·도넛",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -1599,6 +1683,7 @@
       "title": "manufacturing industry region pies ulsan gwangju daegu anon 2023",
       "topic": "산업·교통",
       "chartType": "원·도넛",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -1621,6 +1706,7 @@
       "title": "migration-destination-continent-ratios",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [],
       "sourceResolution": "supplementalSourcePointer",
       "provenanceGap": false,
@@ -1641,6 +1727,7 @@
       "title": "monsoon asia tea rubber palm coffee export share 2023",
       "topic": "기후·환경",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -1661,6 +1748,7 @@
       "title": "natural disaster cause region combined",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [],
       "sourceResolution": "embeddedSourceHint",
       "provenanceGap": false,
@@ -1679,6 +1767,7 @@
       "title": "north america exports category share 2023",
       "topic": "산업·교통",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -1699,6 +1788,7 @@
       "title": "passenger travel distance bands 2022",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2022
       ],
@@ -1719,6 +1809,7 @@
       "title": "permafrost active layer lousy point 1998 2008",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "change-index",
       "years": [
         1998,
         2008
@@ -1740,6 +1831,7 @@
       "title": "pop pyramid conflict male gap 2025",
       "topic": "인구·도시",
       "chartType": "인구 피라미드",
+      "examPattern": "profile-structure",
       "years": [
         2025
       ],
@@ -1763,6 +1855,7 @@
       "title": "pop pyramid ukraine male gap 2025",
       "topic": "인구·도시",
       "chartType": "인구 피라미드",
+      "examPattern": "profile-structure",
       "years": [
         2025
       ],
@@ -1786,6 +1879,7 @@
       "title": "population density change idn deu nga arg 2020",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "change-index",
       "years": [
         2020
       ],
@@ -1806,6 +1900,7 @@
       "title": "province city population rank 2023",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -1826,6 +1921,7 @@
       "title": "province city population rank relative 2023",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -1846,6 +1942,7 @@
       "title": "region age structure youth old 2023",
       "topic": "인구·도시",
       "chartType": "구성·비교",
+      "examPattern": "profile-structure",
       "years": [
         2023
       ],
@@ -1868,6 +1965,7 @@
       "title": "region crop production area scatter 2023",
       "topic": "농업·자원",
       "chartType": "산점도",
+      "examPattern": "relationship-scatter",
       "years": [
         2023
       ],
@@ -1888,6 +1986,7 @@
       "title": "regional primary energy renewables share 2023",
       "topic": "에너지",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -1910,6 +2009,7 @@
       "title": "regional renewable primary energy mix 2023",
       "topic": "에너지",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -1930,6 +2030,7 @@
       "title": "renewable-top3-supply-share",
       "topic": "에너지",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [],
       "sourceResolution": "knownProvenanceGap",
       "provenanceGap": true,
@@ -1948,6 +2049,7 @@
       "title": "renewables region consumption growth 2024",
       "topic": "에너지",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2024
       ],
@@ -1970,6 +2072,7 @@
       "title": "rural youth population idn deu nga arg 2020",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "change-index",
       "years": [
         2020
       ],
@@ -1990,6 +2093,7 @@
       "title": "saudi oman uae migrant origins 2020",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2020
       ],
@@ -2012,6 +2116,7 @@
       "title": "saudi-iran-turkiye-energy-supply-share",
       "topic": "에너지",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [],
       "sourceResolution": "knownProvenanceGap",
       "provenanceGap": true,
@@ -2030,6 +2135,7 @@
       "title": "seoul climate difference brasilia lima dhaka jma 1991 2020",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "climate-contrast",
       "years": [
         1991,
         2020
@@ -2051,6 +2157,7 @@
       "title": "seoul climate difference brasilia london dhaka jma 1991 2020",
       "topic": "기후·환경",
       "chartType": "비교 그래프",
+      "examPattern": "climate-contrast",
       "years": [
         1991,
         2020
@@ -2072,6 +2179,7 @@
       "title": "seoul district land density daytime 2025 2020",
       "topic": "기타 통계",
       "chartType": "비교 그래프",
+      "examPattern": "cross-indicator",
       "years": [
         2020,
         2025
@@ -2096,6 +2204,7 @@
       "title": "seoul subway hourly dobong geumcheon gangnam 2025",
       "topic": "기타 통계",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2025
       ],
@@ -2116,6 +2225,7 @@
       "title": "seoul subway hourly dobong jung gangnam 2025",
       "topic": "기타 통계",
       "chartType": "시계열",
+      "examPattern": "change-index",
       "years": [
         2025
       ],
@@ -2136,6 +2246,7 @@
       "title": "transport passenger freight share 2023",
       "topic": "산업·교통",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -2156,6 +2267,7 @@
       "title": "urban rural population mex eth deu aus 1950 2024",
       "topic": "인구·도시",
       "chartType": "비교 그래프",
+      "examPattern": "change-index",
       "years": [
         1950,
         2024
@@ -2180,6 +2292,7 @@
       "title": "us state mfg shipments ia 2023",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -2200,6 +2313,7 @@
       "title": "us state mfg shipments la 2023",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -2220,6 +2334,7 @@
       "title": "us state mfg shipments mi 2023",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -2240,6 +2355,7 @@
       "title": "us state mfg shipments or 2023",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -2262,6 +2378,7 @@
       "title": "us state mfg shipments tx 2023",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -2282,6 +2399,7 @@
       "title": "us state mfg shipments wa 2023",
       "topic": "산업·교통",
       "chartType": "비교 그래프",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],
@@ -2302,6 +2420,7 @@
       "title": "usa mexico brazil canada fossil capacity mix 2024",
       "topic": "에너지",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2024
       ],
@@ -2324,6 +2443,7 @@
       "title": "usa mexico brazil canada power capacity mix 2024",
       "topic": "에너지",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2024
       ],
@@ -2346,6 +2466,7 @@
       "title": "wheat maize share rus usa ind bra chn 2023",
       "topic": "기타 통계",
       "chartType": "구성·비교",
+      "examPattern": "composition-contrast",
       "years": [
         2023
       ],

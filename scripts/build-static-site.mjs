@@ -27,6 +27,8 @@ const requiredOutputs = [
   "data/country-stats.js",
   "data/graph-catalog.js",
   "data/graph-catalog.json",
+  "data/statistics-index.js",
+  "data/statistics-index.json",
   "data/korea-admin.js",
   "data/korea-routes.js",
   "data/korea-stats.js",

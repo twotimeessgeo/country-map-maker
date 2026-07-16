@@ -439,19 +439,12 @@ const examItemLabPatternDefinitions = [
   { key: "cross", label: "Cross Metric" },
 ];
 const examDrillSkillPrompts = {
-  rank: "순위와 격차를 이용한 배열·판별형",
   composition: "구성비 편차를 이용한 우세 구조 판별형",
   compare: "두 지표의 우위와 격차를 이용한 비교형",
   change: "현재 규모와 변화 폭을 분리하는 시계열형",
   scatter: "사분면과 규모를 함께 읽는 관계형",
 };
 const examDrillScenarioDefinitions = [
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-total", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-density", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-urban-share", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-birth-rate", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "population-natural-increase-rate", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "age-65plus-share", valueMode: "amount", grouping: "countries" } },
   { topicKey: "demography", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "urban-rural", valueMode: "share", grouping: "countries" } },
   { topicKey: "demography", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "age-structure", valueMode: "share", grouping: "countries" } },
   { topicKey: "demography", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "young-old-share", valueMode: "share", grouping: "countries" } },
@@ -473,14 +466,9 @@ const examDrillScenarioDefinitions = [
   { topicKey: "energy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "fossil-production", valueMode: "share", grouping: "countries" } },
   { topicKey: "energy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "solar-wind-amount", valueMode: "amount", grouping: "countries" } },
   { topicKey: "energy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "oil-gas-production", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "energy", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "energy-renewables-share", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "energy", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "electricity-nuclear-share", valueMode: "amount", grouping: "countries" } },
   { topicKey: "religion", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "religion-major", valueMode: "share", grouping: "countries" } },
   { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "christians-muslims-share", valueMode: "share", grouping: "countries" } },
   { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "hindus-buddhists-share", valueMode: "share", grouping: "countries" } },
-  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-christians-share", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-muslims-share", valueMode: "amount", grouping: "countries" } },
-  { topicKey: "religion", skillKey: "rank", config: { presetKey: "rankBars", metricKey: "religion-buddhists-share", valueMode: "amount", grouping: "countries" } },
 ];
 const examItemLabTemplateDefinitions = [
   {
@@ -1173,12 +1161,6 @@ const EXAM_GRAPH_CLIMATE_LINE_STYLES = [
 ];
 const examGraphPresetDefinitions = [
   {
-    key: "rankBars",
-    label: "순위 막대",
-    description: "한 지표를 크기순으로 비교",
-    allowedValueModes: ["amount", "share", "relative"],
-  },
-  {
     key: "stacked100",
     label: "누적 막대",
     description: "구성 비중 또는 실제 양을 누적으로 비교",
@@ -1219,6 +1201,12 @@ const examGraphPresetDefinitions = [
     label: "상위 3개 누적",
     description: "대륙별 상위 3개국과 기타 비중을 비교",
     allowedValueModes: ["share"],
+  },
+  {
+    key: "rankBars",
+    label: "단일 지표 막대",
+    description: "직접 고른 후보 안에서 한 지표를 비교",
+    allowedValueModes: ["amount", "share", "relative"],
   },
 ];
 const examGraphReadableLabelMap = new Map([
@@ -2216,13 +2204,13 @@ const state = {
   koreaGeoStatsTrendStartPeriodKey: "",
   koreaGeoStatsTrendEndPeriodKey: "",
   koreaGeoStatsActionsExpanded: false,
-  examGraphPresetKey: "rankBars",
+  examGraphPresetKey: "stacked100",
   examGraphMetricKey: "population-total",
   examGraphPairKey: "urban-rural-total",
   examGraphCompositionKey: "urban-rural",
   examGraphTimeMetricKey: "population-total",
   examGraphTopShareMetricKey: "electricity-renewables-amount",
-  examGraphValueMode: "amount",
+  examGraphValueMode: "share",
   examGraphGrouping: "countries",
   examGraphMergeAmericas: false,
   examGraphTopN: 4,
@@ -5260,12 +5248,6 @@ function buildWorldStatsQuickCards(definitions) {
       state.metricExplorerDisplayMode = "overview";
       state.metricExplorerGrouping = "countries";
       state.metricExplorerMetricKey = definition.key;
-      state.examGraphPresetKey = "rankBars";
-      state.examGraphMetricKey = definition.key;
-      state.examGraphGrouping = "countries";
-      state.examGraphValueMode = "amount";
-      state.examGraphFocusCountryIds = [];
-      state.examGraphFocusLabel = "";
       renderSelectionViews();
       renderMap();
     });
@@ -12364,7 +12346,7 @@ function isExamGraphNormalizedModeAllowedForMetric(metricDefinition) {
 
 function ensureExamGraphState() {
   if (!examGraphPresetDefinitions.some((definition) => definition.key === state.examGraphPresetKey)) {
-    state.examGraphPresetKey = "rankBars";
+    state.examGraphPresetKey = "stacked100";
   }
   const metricDefinitions = getMetricExplorerDefinitions();
   const metricKeys = new Set(metricDefinitions.map((definition) => definition.key));
@@ -13434,7 +13416,6 @@ function getWeightedExamDrillScenarios(topicKey) {
     scatter: 3,
     trendLine: 2,
     timeCompare: 2,
-    rankBars: 1,
   };
   return examDrillScenarioDefinitions
     .filter((definition) => definition.topicKey === topicKey)
@@ -14184,7 +14165,7 @@ function renderExamGraphPanel() {
       createEmptyState(
         state.examGraphPresetKey
           ? "현재 범위에 표시할 값이 없습니다. Data에서 지표나 비교 단위를 바꿔 보세요."
-          : "‘순위 막대’를 선택해 기본 그래프를 불러오세요.",
+          : "‘누적 막대’를 선택해 후보 간 구성 차이를 불러오세요.",
       ),
     );
     elements.examGraphPanel.appendChild(shell);
@@ -14224,6 +14205,11 @@ function buildExamGraphControls() {
   presetLegend.lang = "en";
   presetLegend.textContent = "Chart Type";
   wrapper.appendChild(presetLegend);
+
+  const referenceNote = document.createElement("p");
+  referenceNote.className = "exam-graph-reference-note";
+  referenceNote.textContent = "기존 통계 SVG 레퍼런스를 기준으로 구성·교차 지표·변화·관계형을 앞에 배치함. 단일 지표 막대는 직접 고른 후보의 확인용임.";
+  wrapper.appendChild(referenceNote);
 
   const presetRow = document.createElement("div");
   presetRow.className = "exam-graph-chip-row";
@@ -15155,45 +15141,6 @@ function getExamGraphRandomScenarioPool() {
     ].map(([compositionKey, valueMode, grouping]) => ({
       presetKey: "stacked100",
       compositionKey,
-      valueMode,
-      grouping,
-    })),
-    ...[
-      ["population-total", "amount", "countries"],
-      ["population-total", "relative", "continents"],
-      ["population-density", "amount", "countries"],
-      ["population-urban-share", "amount", "countries"],
-      ["population-birth-rate", "amount", "countries"],
-      ["population-death-rate", "amount", "countries"],
-      ["population-natural-increase-rate", "amount", "countries"],
-      ["crops-total-production", "amount", "countries"],
-      ["crops-total-exports", "amount", "countries"],
-      ["crops-total-imports", "amount", "countries"],
-      ["livestock-stock-total", "amount", "countries"],
-      ["religion-christians-share", "amount", "countries"],
-      ["religion-muslims-share", "amount", "countries"],
-      ["religion-hindus-share", "amount", "countries"],
-      ["religion-buddhists-share", "amount", "countries"],
-      ["energy-renewables-share", "amount", "countries"],
-      ["electricity-solar-amount", "amount", "countries"],
-      ["electricity-wind-amount", "amount", "countries"],
-      ["fossil-production-total", "amount", "countries"],
-      ["exports-value", "amount", "countries"],
-      ["exports-share", "amount", "countries"],
-      ["industry-agriculture-share", "amount", "countries"],
-      ["industry-services-share", "amount", "countries"],
-      ["age-65plus-share", "amount", "countries"],
-      ["age-014-share", "amount", "countries"],
-      ["dependency-total", "amount", "countries"],
-      ["migration-stock-share", "amount", "countries"],
-      ["migration-net", "amount", "countries"],
-      ["refugee-origin-total", "amount", "countries"],
-      ["refugee-hosted-total", "amount", "countries"],
-      ["energy-consumption-per-capita", "amount", "countries"],
-      ["electricity-nuclear-share", "amount", "countries"],
-    ].map(([metricKey, valueMode, grouping]) => ({
-      presetKey: "rankBars",
-      metricKey,
       valueMode,
       grouping,
     })),

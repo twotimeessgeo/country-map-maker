@@ -47,6 +47,58 @@ const graphItems = Array.isArray(graphCatalog.items) ? graphCatalog.items : [];
 if (graphItems.length === 0 || Number(graphCatalog.meta?.itemCount) !== graphItems.length) {
   errors.push(`기존 그래프 카탈로그 수 불일치: ${graphCatalog.meta?.itemCount} / ${graphItems.length}`);
 }
+if (graphCatalog.meta?.schemaVersion !== 2 || graphItems.some((item) => !item.examPattern)) {
+  errors.push("기존 그래프 카탈로그에 수능형 패턴 분류가 없습니다.");
+}
+const catalogReferenceOnlyCount = graphItems.filter((item) => item.examPattern === "reference-only").length;
+if (Number(graphCatalog.meta?.referenceOnlyCount) !== catalogReferenceOnlyCount) {
+  errors.push(`기존 그래프 참고 전용 수 불일치: ${graphCatalog.meta?.referenceOnlyCount} / ${catalogReferenceOnlyCount}`);
+}
+
+const statisticsIndexPath = path.join(rootDir, "data", "statistics-index.json");
+const statisticsIndex = JSON.parse(fs.readFileSync(statisticsIndexPath, "utf8"));
+const indexedMetrics = Array.isArray(statisticsIndex.metrics) ? statisticsIndex.metrics : [];
+const examPatterns = Array.isArray(statisticsIndex.graphPatterns) ? statisticsIndex.graphPatterns : [];
+if (indexedMetrics.length !== Number(statisticsIndex.coverage?.metricIndexEntries)) {
+  errors.push(`통계 색인 지표 수 불일치: ${indexedMetrics.length} / ${statisticsIndex.coverage?.metricIndexEntries}`);
+}
+const indexedExamReferenceCount = examPatterns.reduce((sum, pattern) => sum + Number(pattern.count || 0), 0);
+if (
+  examPatterns.length !== 7 ||
+  indexedExamReferenceCount !== Number(statisticsIndex.coverage?.examPatternReferences) ||
+  catalogReferenceOnlyCount !== Number(statisticsIndex.coverage?.referenceOnlyReferences) ||
+  indexedExamReferenceCount + catalogReferenceOnlyCount !== graphItems.length
+) {
+  errors.push("통계 색인의 수능형 SVG 패턴 수가 맞지 않습니다.");
+}
+const statsUiText = [
+  fs.readFileSync(path.join(rootDir, "tools", "stats", "index.html"), "utf8"),
+  fs.readFileSync(path.join(rootDir, "tools", "stats", "app.js"), "utf8"),
+].join("\n");
+for (const forbidden of ["SidaeAi_S", "downloadSvgButton", "downloadCurrentSvg", "탐색기에서 열기"]) {
+  if (statsUiText.includes(forbidden)) errors.push(`Data Library에 제거 대상 기능이 남아 있습니다: ${forbidden}`);
+}
+
+const mapAppText = fs.readFileSync(path.join(rootDir, "app.js"), "utf8");
+const randomScenarioStart = mapAppText.indexOf("function getExamGraphRandomScenarioPool()");
+const randomScenarioEnd = mapAppText.indexOf("\nfunction ", randomScenarioStart + 1);
+const randomScenarioText = randomScenarioStart >= 0
+  ? mapAppText.slice(randomScenarioStart, randomScenarioEnd >= 0 ? randomScenarioEnd : undefined)
+  : "";
+const drillScenarioStart = mapAppText.indexOf("const examDrillScenarioDefinitions = [");
+const drillScenarioEnd = mapAppText.indexOf("\n];", drillScenarioStart + 1);
+const drillScenarioText = drillScenarioStart >= 0
+  ? mapAppText.slice(drillScenarioStart, drillScenarioEnd >= 0 ? drillScenarioEnd + 3 : undefined)
+  : "";
+if (!randomScenarioText || /presetKey:\s*["']rankBars["']/.test(randomScenarioText)) {
+  errors.push("Graph Builder 랜덤 추천에 단일 지표 순위가 남아 있습니다.");
+}
+if (!drillScenarioText || /skillKey:\s*["']rank["']/.test(drillScenarioText)) {
+  errors.push("Exam Drill 자동 후보에 단일 지표 순위가 남아 있습니다.");
+}
+if (/state\.examGraphPresetKey\s*=\s*["']rankBars["']/.test(mapAppText)) {
+  errors.push("일반 탐색 동작이 Graph Builder를 단일 지표 순위로 강제합니다.");
+}
 
 const supplementalPath = path.join(rootDir, "data", "supplemental-stats.json");
 const supplemental = JSON.parse(fs.readFileSync(supplementalPath, "utf8"));
@@ -153,7 +205,7 @@ if (errors.length > 0) {
 console.log(
   `정적 사이트 검증 완료(${path.relative(projectRoot, rootDir) || "source"}): ` +
     `HTML ${htmlFiles.length}개 · 로컬 링크/에셋 ${localReferenceCount}개 · ` +
-    `통계 지표 레퍼런스 ${graphItems.length}개 · 보완 자료 ${supplementalDatasets.length}개 · ` +
+    `통계 색인 ${indexedMetrics.length}개 · SVG 패턴 ${examPatterns.length}종 · 보완 자료 ${supplementalDatasets.length}개 · ` +
     `등급컷 기록 ${cutRecords.length}개 · 문항 이미지 검증 완료`
 );
 

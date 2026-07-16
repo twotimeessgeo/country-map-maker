@@ -20,6 +20,7 @@
 | 1 | `tools/climate/data/korea-climate-data.json` | 한국·북한 기후 평년값 | 한국지리 기후 그래프 원천 |
 | 1 | `tools/cut/data/ebsi_geo_data.json` | EBSi 기반 실제 지리 등급컷 | Grade Cut Archive 원천 |
 | 1 | `data/supplemental-stats.json` | 아직 핵심 번들에 합치지 않은 보완 통계·원천 포인터 | 공개용 경로 제거본 |
+| 2 | `data/statistics-index.json` | 핵심 번들의 지표 시점·수록률·출처와 수능형 활용 위치 | Data Library용 경량 색인, 수치 원자료는 넣지 않음 |
 | 2 | `data/graph-catalog.json` | 기존 통계 SVG의 주제·형식·연도·출처 연결 상태 | 값과 로컬 경로는 포함하지 않음 |
 | 2 | `tools/climate/data/exam-climate-statements.js` | 기후 문항 진술/태그/메트릭 | 기후 문항 생성 보조 |
 | 3 | `data/korea-routes.js` | 한국 주요 노선 오버레이 | 지도 문항 제작 보조 |
@@ -35,6 +36,22 @@
 | `tools/climate/data/world-countries-110m.json`, `tools/climate/data/world-countries-50m.json` | 세계지도 TopoJSON |
 | `tools/climate/data/korea-peninsula-geo.js` | 한반도 GeoJSON |
 | `data/embedded-font.js`, `vendor/*.js`, `tools/climate/data/vendor-*.js` | 통계 데이터 아님 |
+
+## Data Library와 그래프 제작 위치
+
+`tools/stats/index.html`은 그래프 생성기가 아니라 통계 색인이다. `data/statistics-index.json`에서 지표의 범위, 최신 수록 시점, 수록률, 출처를 검색한 뒤 세계·한국 통계 그래프는 Map Editor의 Item Lab·Graph Builder에서, 기후 자료는 Climate Atlas에서 만든다. Data Library 자체에는 SVG 내보내기가 없다.
+
+기존 통계 SVG 111개를 검토해 `data/graph-catalog.json`의 `examPattern`으로 분류한다. 현재 105개는 다음 일곱 수능형 구조에 연결하고, 구조가 파일만으로 고정되지 않는 6개는 `reference-only`로 따로 둔다.
+
+- 구성 구조 대조
+- 교차 지표 판별
+- 관계·산점도
+- 변화·지수·궤적
+- 기후 대조·편차
+- 연령·분포 프로필
+- 공간·과정 자료
+
+단순 상위 N개 순위는 최종 수능형 템플릿으로 보지 않는다. 같은 후보 3~5개의 구성, 관계, 변화 경로를 여러 패널에서 교차하거나 교육과정 개념에 종속된 지역 내 집중도를 볼 때만 순위를 사용한다.
 
 ## 세계 국가 통계
 
