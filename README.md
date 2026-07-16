@@ -1,11 +1,12 @@
 # 수능 지리 유틸리티 포털
 
-지도 제작, 기후 비교, 실제 시행 지리 등급컷 조회를 한곳에서 여는 정적 웹 포털입니다. GitHub Pages 같은 정적 호스팅에 그대로 올릴 수 있도록 루트 `index.html`을 포털 홈으로 두고, 각 도구는 독립 페이지로 분리했습니다.
+지도 제작, 최신 통계 탐색, 기후 비교, 실제 시행 지리 등급컷 조회를 한곳에서 여는 정적 웹 포털입니다. GitHub Pages 같은 정적 호스팅에 그대로 올릴 수 있도록 루트 `index.html`을 포털 홈으로 두고, 각 도구는 독립 페이지로 분리했습니다.
 
 ## 포털 구성
 
 - [index.html](./index.html): 포털 홈
 - [map.html](./map.html): 기존 `투타임즈의 통계머신`
+- [tools/stats/index.html](./tools/stats/index.html): 세계·한국·기후 최신 통계와 기존 그래프 레퍼런스 탐색기
 - [tools/climate/index.html](./tools/climate/index.html): 세계지리 기후머신
 - [tools/climate/korea.html](./tools/climate/korea.html): 한국지리 기후머신
 - [tools/cut/index.html](./tools/cut/index.html): 한국지리·세계지리 실제 등급컷 아카이브
@@ -27,6 +28,8 @@ npm run build
 ```
 
 JMA 관측 지점 좌표·고도와 대표 도시 좌표의 차이는 `npm run audit:climate:jma`로 다시 확인할 수 있습니다.
+
+기존 SVG 통계 그래프 목록을 다시 읽어 공개용 레퍼런스 카탈로그를 갱신할 때는 `npm run data:stats:graph-catalog`을 사용합니다. 보완 통계 공개본은 로컬 경로와 내부 파일명을 제거한 뒤 사이트에 포함합니다.
 
 ## GitHub Pages
 
@@ -123,6 +126,7 @@ JMA 관측 지점 좌표·고도와 대표 도시 좌표의 차이는 `npm run a
 
 - 세계 지도: `world-atlas`
 - 한국 지도: [`admdongkor`](https://github.com/vuski/admdongkor) `ver20260201` 행정동 경계를 다시 묶어 생성한 TopoJSON(`도/광역시`, `시/군`, `구/군(특별·광역시)`)
-- 세계 기후: 일본 기상청(JMA) 1991-2020 지점별 평년값 105개 전면 반영, 4개 기온 반영, JMA 미수록 20개는 Open-Meteo ERA5로 보완
+- 세계 기후: 169개 지점. 일본 기상청(JMA) 1991-2020 지점별 평년값 145개 전면 반영, 4개 기온 반영, JMA 미수록 20개는 Open-Meteo ERA5로 보완
+- 한국 기후: 246개 지점(남한 219, 북한 27). 남한은 ASOS 85개와 AWS 134개를 수록
 - 서울·부산 구/군 주간인구: KOSIS `DT_1PA2020` 인구총조사 2020년 성별 `계`, 연령 `합계`
 - 교통 오버레이: 프로젝트 내부 비교용 단순화 좌표

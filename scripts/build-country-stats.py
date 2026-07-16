@@ -1,16 +1,19 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import argparse
 import csv
+import hashlib
 import io
 import json
+import os
 import re
-import tempfile
 import unicodedata
 import urllib.request
 import zipfile
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -18,9 +21,17 @@ DATA_DIR = ROOT_DIR / "data"
 WORLD_ATLAS_PATH = DATA_DIR / "world-atlas.js"
 OUTPUT_PATH = DATA_DIR / "country-stats.js"
 
-FAOSTAT_PRODUCTION_CACHE_PATH = Path(tempfile.gettempdir()) / "faostat-production-crops-livestock.zip"
-FAOSTAT_TRADE_CACHE_PATH = Path(tempfile.gettempdir()) / "faostat-trade-detailed-matrix.zip"
-FAOSTAT_FOOD_BALANCE_CACHE_PATH = Path(tempfile.gettempdir()) / "faostat-food-balance-sheets.zip"
+DEFAULT_DOWNLOADS_ROOT = Path(
+    os.environ.get(
+        "COUNTRY_STATS_DOWNLOADS_ROOT",
+        ROOT_DIR / "data_downloads",
+    )
+).expanduser()
+DOWNLOADS_ROOT = DEFAULT_DOWNLOADS_ROOT
+COUNTRY_STATS_CACHE_DIR = DOWNLOADS_ROOT / "country_stats"
+REFRESH_CACHE = False
+AS_OF_YEAR = int(os.environ.get("COUNTRY_STATS_AS_OF_YEAR", date.today().year))
+CACHE_SNAPSHOT_DATES: set[str] = set()
 
 FAOSTAT_PRODUCTION_BULK_URL = (
     "https://fenixservices.fao.org/faostat/static/bulkdownloads/"
@@ -87,9 +98,25 @@ UNHCR_POPULATION_API_URL_TEMPLATE = (
     "?limit={limit}&page={page}&year={year}&{dimension}_all=true"
 )
 
+STATIC_CACHE_PATHS = {
+    POPULATION_UN_WPP_URL: Path("owid") / "population-unwpp.csv",
+    CRUDE_BIRTH_RATE_URL: Path("owid") / "crude-birth-rate.csv",
+    CRUDE_DEATH_RATE_URL: Path("owid") / "crude-death-rate.csv",
+    URBAN_SHARE_URL: Path("owid") / "share-of-population-urban.csv",
+    PEW_RELIGION_URL: Path("owid") / "religious-affiliation-2020.csv",
+    PRIMARY_ENERGY_URL: Path("owid") / "primary-energy-by-source.csv",
+    ELECTRICITY_MIX_URL: Path("owid") / "electricity-generation-by-source.csv",
+    OIL_PRODUCTION_URL: Path("owid") / "oil-production-by-country.csv",
+    GAS_PRODUCTION_URL: Path("owid") / "gas-production-by-country.csv",
+    COAL_PRODUCTION_URL: Path("owid") / "coal-production-by-country.csv",
+    CONTINENT_CLASSIFICATION_URL: Path("owid") / "continents-by-country.csv",
+}
+
 EXAM_REFERENCE_YEARS = {
     "population": 2023,
     "agriculture": 2023,
+    "agriculturalLand": 2023,
+    "economy": 2023,
     "energy": 2023,
     "populationStructure": 2023,
     "refugees": 2024,
@@ -146,6 +173,20 @@ WORLD_BANK_EXPORT_INDICATORS = {
         "unit": "% of GDP",
         "digits": 2,
     },
+}
+
+WORLD_BANK_GDP_INDICATOR = {
+    "indicator_code": "NY.GDP.MKTP.CD",
+    "label": "국내총생산(GDP)",
+    "unit": "current US$",
+    "digits": 0,
+}
+
+WORLD_BANK_AGRICULTURAL_LAND_INDICATOR = {
+    "indicator_code": "AG.LND.AGRI.ZS",
+    "label": "농업용지 비율",
+    "unit": "% of land area",
+    "digits": 2,
 }
 
 WORLD_BANK_INDUSTRY_INDICATORS = {
@@ -465,43 +506,161 @@ def normalize_m49_code(value: str | None) -> str:
     return str(int(digits))
 
 
-def fetch_text(url: str, user_agent: str) -> str:
-    request = urllib.request.Request(url, headers={"User-Agent": user_agent})
-    with urllib.request.urlopen(request, timeout=120) as response:
-        return response.read().decode("utf-8", "ignore")
+def cache_meta_path(cache_path: Path) -> Path:
+    return cache_path.with_name(f"{cache_path.name}.meta.json")
 
 
-def download_zip(url: str, cache_path: Path, minimum_size_bytes: int) -> Path:
-    if cache_path.exists() and cache_path.stat().st_size > minimum_size_bytes:
+def remember_cache_snapshot(cache_path: Path) -> None:
+    meta_path = cache_meta_path(cache_path)
+    if meta_path.exists():
+        try:
+            downloaded_at = str(json.loads(meta_path.read_text(encoding="utf-8")).get("downloadedAt") or "")
+            if re.fullmatch(r"\d{4}-\d{2}-\d{2}.*", downloaded_at):
+                CACHE_SNAPSHOT_DATES.add(downloaded_at[:10])
+                return
+        except (OSError, json.JSONDecodeError):
+            pass
+    CACHE_SNAPSHOT_DATES.add(
+        datetime.fromtimestamp(cache_path.stat().st_mtime, timezone.utc).date().isoformat()
+    )
+
+
+def write_cache_metadata(cache_path: Path, url: str, digest: str | None = None) -> None:
+    meta_path = cache_meta_path(cache_path)
+    if meta_path.exists():
+        remember_cache_snapshot(cache_path)
+        return
+    payload = {
+        "url": url,
+        "downloadedAt": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "sizeBytes": cache_path.stat().st_size,
+    }
+    if digest:
+        payload["sha256"] = digest
+    meta_path.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    remember_cache_snapshot(cache_path)
+
+
+def cache_path_for_url(url: str) -> Path:
+    static_path = STATIC_CACHE_PATHS.get(url)
+    if static_path:
+        return COUNTRY_STATS_CACHE_DIR / static_path
+
+    parsed = urlparse(url)
+    if parsed.netloc == "api.worldbank.org":
+        indicator_match = re.search(r"/indicator/([^/?]+)", parsed.path)
+        indicator_code = indicator_match.group(1) if indicator_match else hashlib.sha256(url.encode()).hexdigest()[:16]
+        return COUNTRY_STATS_CACHE_DIR / "world_bank" / f"{indicator_code}.json"
+
+    if parsed.netloc == "api.unhcr.org":
+        query = parse_qs(parsed.query)
+        year = (query.get("year") or ["unknown"])[0]
+        page = (query.get("page") or ["1"])[0]
+        dimension = "coo" if "coo_all" in query else "coa" if "coa_all" in query else "unknown"
+        limit = (query.get("limit") or ["unknown"])[0]
+        return COUNTRY_STATS_CACHE_DIR / "unhcr" / f"population_{year}_{dimension}_page{page}_limit{limit}.json"
+
+    suffix = Path(parsed.path).suffix or ".bin"
+    return COUNTRY_STATS_CACHE_DIR / "other" / f"{hashlib.sha256(url.encode()).hexdigest()}{suffix}"
+
+
+def download_cached(url: str, cache_path: Path, user_agent: str, timeout: int = 120) -> Path:
+    if cache_path.exists() and cache_path.stat().st_size > 0 and not REFRESH_CACHE:
+        write_cache_metadata(cache_path, url)
         return cache_path
 
-    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(request, timeout=300) as response, open(cache_path, "wb") as output_file:
-        while True:
-            chunk = response.read(1024 * 1024)
-            if not chunk:
-                break
-            output_file.write(chunk)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    partial_path = cache_path.with_name(f"{cache_path.name}.part")
+    digest = hashlib.sha256()
+    request = urllib.request.Request(url, headers={"User-Agent": user_agent})
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response, open(partial_path, "wb") as output_file:
+            while True:
+                chunk = response.read(1024 * 1024)
+                if not chunk:
+                    break
+                output_file.write(chunk)
+                digest.update(chunk)
+        if partial_path.stat().st_size == 0:
+            raise RuntimeError(f"Downloaded an empty response from {url}")
+        partial_path.replace(cache_path)
+    finally:
+        if partial_path.exists():
+            partial_path.unlink()
 
+    meta_path = cache_meta_path(cache_path)
+    if meta_path.exists():
+        meta_path.unlink()
+    write_cache_metadata(cache_path, url, digest.hexdigest())
+    return cache_path
+
+
+def fetch_text(url: str, user_agent: str) -> str:
+    cache_path = download_cached(url, cache_path_for_url(url), user_agent)
+    return cache_path.read_text(encoding="utf-8", errors="ignore")
+
+
+def find_or_download_faostat_archive(
+    url: str,
+    filename_pattern: str,
+    fallback_filename: str,
+    minimum_size_bytes: int,
+) -> Path:
+    raw_dir = DOWNLOADS_ROOT / "faostat" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    candidates = sorted(
+        (
+            path
+            for path in raw_dir.glob(filename_pattern)
+            if path.is_file() and path.stat().st_size > minimum_size_bytes
+        ),
+        key=lambda path: (path.stat().st_mtime_ns, path.name),
+        reverse=True,
+    )
+    if candidates and not REFRESH_CACHE:
+        cache_path = candidates[0]
+        write_cache_metadata(cache_path, url)
+        return cache_path
+
+    cache_path = raw_dir / fallback_filename
+    cache_path = download_cached(url, cache_path, "Mozilla/5.0", timeout=600)
+    if cache_path.stat().st_size <= minimum_size_bytes or not zipfile.is_zipfile(cache_path):
+        raise RuntimeError(f"Invalid FAOSTAT archive downloaded from {url}: {cache_path}")
     return cache_path
 
 
 def download_faostat_production_zip() -> Path:
-    return download_zip(FAOSTAT_PRODUCTION_BULK_URL, FAOSTAT_PRODUCTION_CACHE_PATH, 10_000_000)
+    return find_or_download_faostat_archive(
+        FAOSTAT_PRODUCTION_BULK_URL,
+        "Production_Crops_Livestock_E_All_Data_Normalized_*.zip",
+        "Production_Crops_Livestock_E_All_Data_Normalized_latest.zip",
+        10_000_000,
+    )
 
 
 def download_faostat_trade_zip() -> Path:
-    return download_zip(FAOSTAT_TRADE_BULK_URL, FAOSTAT_TRADE_CACHE_PATH, 100_000_000)
+    return find_or_download_faostat_archive(
+        FAOSTAT_TRADE_BULK_URL,
+        "Trade_DetailedTradeMatrix_E_All_Data_Normalized_*.zip",
+        "Trade_DetailedTradeMatrix_E_All_Data_Normalized_latest.zip",
+        100_000_000,
+    )
 
 
 def download_faostat_food_balance_zip() -> Path:
-    return download_zip(FAOSTAT_FOOD_BALANCE_BULK_URL, FAOSTAT_FOOD_BALANCE_CACHE_PATH, 10_000_000)
+    return find_or_download_faostat_archive(
+        FAOSTAT_FOOD_BALANCE_BULK_URL,
+        "FoodBalanceSheets_E_All_Data_Normalized_*.zip",
+        "FoodBalanceSheets_E_All_Data_Normalized_latest.zip",
+        10_000_000,
+    )
 
 
 def fetch_json(url: str, user_agent: str) -> object:
-    request = urllib.request.Request(url, headers={"User-Agent": user_agent})
-    with urllib.request.urlopen(request, timeout=120) as response:
-        return json.loads(response.read().decode("utf-8", "ignore"))
+    return json.loads(fetch_text(url, user_agent))
 
 
 def read_atlas_country_rows() -> list[dict[str, str]]:
@@ -617,7 +776,10 @@ def build_demography_series() -> dict[str, dict[str, dict[int, float]]]:
         if not iso3_code or iso3_code.startswith("OWID_"):
             continue
 
-        value = parse_number(row.get("Urban population (% of total population)"))
+        value = parse_number(
+            row.get("Urban population (% of total population)")
+            or row.get("Urban")
+        )
         if value is None:
             continue
 
@@ -1306,6 +1468,23 @@ def build_fossil_trade_entries() -> dict[str, dict[str, object]]:
     return entries_by_iso3
 
 
+def build_agricultural_land_entries() -> dict[str, dict[str, object]]:
+    config = WORLD_BANK_AGRICULTURAL_LAND_INDICATOR
+    series_by_iso3 = fetch_world_bank_indicator_series(config["indicator_code"])
+    entries_by_iso3: dict[str, dict[str, object]] = {}
+    for iso3_code, series in sorted(series_by_iso3.items()):
+        entry = build_versioned_value_entry(
+            series,
+            label=config["label"],
+            unit=config["unit"],
+            digits=config["digits"],
+            reference_year=EXAM_REFERENCE_YEARS["agriculturalLand"],
+        )
+        if entry:
+            entries_by_iso3[iso3_code] = entry
+    return entries_by_iso3
+
+
 def build_economy_entries() -> dict[str, dict[str, object]]:
     export_series = {
         key: fetch_world_bank_indicator_series(config["indicator_code"])
@@ -1315,14 +1494,23 @@ def build_economy_entries() -> dict[str, dict[str, object]]:
         key: fetch_world_bank_indicator_series(config["indicator_code"])
         for key, config in WORLD_BANK_INDUSTRY_INDICATORS.items()
     }
-    industry_entries = get_latest_structured_entry(
+    industry_reference_entries = get_latest_structured_entry(
+        industry_series,
+        digits_map={key: config["digits"] for key, config in WORLD_BANK_INDUSTRY_INDICATORS.items()},
+        max_year=EXAM_REFERENCE_YEARS["economy"],
+    )
+    industry_latest_entries = get_latest_structured_entry(
         industry_series,
         digits_map={key: config["digits"] for key, config in WORLD_BANK_INDUSTRY_INDICATORS.items()},
     )
+    gdp_config = WORLD_BANK_GDP_INDICATOR
+    gdp_series = fetch_world_bank_indicator_series(gdp_config["indicator_code"])
 
     entries_by_iso3: dict[str, dict[str, object]] = {}
     all_iso3_codes = sorted(
-        set(industry_entries)
+        set(industry_reference_entries)
+        | set(industry_latest_entries)
+        | set(gdp_series)
         | {
             iso3_code
             for series_by_iso3 in export_series.values()
@@ -1333,26 +1521,45 @@ def build_economy_entries() -> dict[str, dict[str, object]]:
     for iso3_code in all_iso3_codes:
         exports_entry = {}
         for key, config in WORLD_BANK_EXPORT_INDICATORS.items():
-            latest_entry = get_latest_series_entry(export_series[key].get(iso3_code), digits=config["digits"])
-            if latest_entry:
-                exports_entry[key] = {
-                    **latest_entry,
-                    "label": config["label"],
-                    "unit": config["unit"],
-                }
+            versioned_entry = build_versioned_value_entry(
+                export_series[key].get(iso3_code),
+                label=config["label"],
+                unit=config["unit"],
+                digits=config["digits"],
+                reference_year=EXAM_REFERENCE_YEARS["economy"],
+            )
+            if versioned_entry:
+                exports_entry[key] = versioned_entry
 
-        industry_entry = industry_entries.get(iso3_code)
-        industry_payload = None
-        if industry_entry:
-            industry_payload = {
-                "year": industry_entry["year"],
-                "shares": industry_entry["values"],
+        reference_industry_entry = industry_reference_entries.get(iso3_code)
+        latest_industry_entry = industry_latest_entries.get(iso3_code)
+
+        def industry_payload(entry: dict[str, object] | None) -> dict[str, object] | None:
+            if not entry:
+                return None
+            return {
+                "year": entry["year"],
+                "shares": entry["values"],
             }
 
-        if exports_entry or industry_payload:
+        industry_versioned_payload = attach_latest_payload(
+            industry_payload(reference_industry_entry),
+            industry_payload(latest_industry_entry),
+        )
+
+        gdp_entry = build_versioned_value_entry(
+            gdp_series.get(iso3_code),
+            label=gdp_config["label"],
+            unit=gdp_config["unit"],
+            digits=gdp_config["digits"],
+            reference_year=EXAM_REFERENCE_YEARS["economy"],
+        )
+
+        if exports_entry or industry_versioned_payload or gdp_entry:
             entries_by_iso3[iso3_code] = {
                 "exports": exports_entry or None,
-                "industry": industry_payload,
+                "industry": industry_versioned_payload,
+                "gdp": {"valueCurrentUsd": gdp_entry} if gdp_entry else None,
             }
 
     return entries_by_iso3
@@ -1443,7 +1650,7 @@ def build_population_structure_entries(
 
 
 def get_latest_unhcr_population_year(max_year: int | None = None) -> int | None:
-    start_year = max_year or date.today().year
+    start_year = max_year or AS_OF_YEAR
     for year in range(start_year, 2019, -1):
         try:
             payload = fetch_json(
@@ -1626,6 +1833,7 @@ def merge_agriculture_entries(
     production_entry: dict[str, object] | None,
     trade_entry: dict[str, object] | None,
     crop_use_entry: dict[str, object] | None,
+    agricultural_land_entry: dict[str, object] | None,
 ) -> dict[str, object] | None:
     crops_production = ((production_entry or {}).get("crops") or {}).get("production", {})
     crops_area_harvested = ((production_entry or {}).get("crops") or {}).get("areaHarvested", {})
@@ -1635,7 +1843,18 @@ def merge_agriculture_entries(
     crops_trade = trade_entry or {}
     crops_use = crop_use_entry or {}
 
-    if not any((crops_production, crops_area_harvested, crops_yield, crops_trade, crops_use, livestock_stocks, livestock_meat)):
+    if not any(
+        (
+            crops_production,
+            crops_area_harvested,
+            crops_yield,
+            crops_trade,
+            crops_use,
+            livestock_stocks,
+            livestock_meat,
+            agricultural_land_entry,
+        )
+    ):
         return None
 
     return {
@@ -1650,6 +1869,9 @@ def merge_agriculture_entries(
             "stocks": livestock_stocks,
             "meat": livestock_meat,
         },
+        "land": {
+            "agriculturalLandShare": agricultural_land_entry,
+        } if agricultural_land_entry else {},
     }
 
 
@@ -1661,6 +1883,7 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
     faostat_production_entries = build_faostat_production_entries()
     faostat_trade_entries = build_faostat_trade_entries()
     faostat_crop_use_entries = build_faostat_crop_use_entries()
+    agricultural_land_entries = build_agricultural_land_entries()
     religion_entries = build_religion_entries(demography_series)
     primary_energy_entries = build_energy_mix_entries(
         PRIMARY_ENERGY_URL,
@@ -1689,6 +1912,7 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
             faostat_production_entries.get(atlas_id),
             faostat_trade_entries.get(atlas_id),
             faostat_crop_use_entries.get(atlas_id),
+            agricultural_land_entries.get(iso3_code) if iso3_code else None,
         )
         religion_entry = religion_entries.get(iso3_code) if iso3_code else None
         primary_energy_entry = primary_energy_entries.get(iso3_code) if iso3_code else None
@@ -1735,8 +1959,10 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
             },
         }
 
+    snapshot_date = max(CACHE_SNAPSHOT_DATES) if CACHE_SNAPSHOT_DATES else date.today().isoformat()
     meta = {
-        "generatedAt": date.today().isoformat(),
+        "generatedAt": snapshot_date,
+        "cacheSnapshotDate": snapshot_date,
         "examReferenceYears": EXAM_REFERENCE_YEARS,
         "referenceSummaries": {
             "urbanization": URBAN_REFERENCE_SUMMARIES,
@@ -1810,6 +2036,18 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
                     indicator_code=WORLD_BANK_INDUSTRY_INDICATORS["agriculture"]["indicator_code"]
                 ),
             },
+            "worldBankGdp": {
+                "label": "World Bank WDI GDP (current US$) API",
+                "url": WORLD_BANK_API_URL_TEMPLATE.format(
+                    indicator_code=WORLD_BANK_GDP_INDICATOR["indicator_code"]
+                ),
+            },
+            "worldBankAgriculturalLand": {
+                "label": "World Bank WDI agricultural land (% of land area) API",
+                "url": WORLD_BANK_API_URL_TEMPLATE.format(
+                    indicator_code=WORLD_BANK_AGRICULTURAL_LAND_INDICATOR["indicator_code"]
+                ),
+            },
             "worldBankPopulationStructure": {
                 "label": "World Bank WDI age structure indicators API, 수능특강 기준 2023년",
                 "url": WORLD_BANK_API_URL_TEMPLATE.format(
@@ -1846,18 +2084,52 @@ def build_country_stats_payload() -> tuple[dict[str, object], dict[str, object]]
 def write_output(meta: dict[str, object], country_stats_by_id: dict[str, object]) -> None:
     output_text = (
         "window.COUNTRY_STATS_META = "
-        + json.dumps(meta, ensure_ascii=False, separators=(",", ":"))
+        + json.dumps(meta, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
         + ";\nwindow.COUNTRY_STATS_BY_ID = "
-        + json.dumps(country_stats_by_id, ensure_ascii=False, separators=(",", ":"))
+        + json.dumps(country_stats_by_id, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
         + ";\n"
     )
     OUTPUT_PATH.write_text(output_text, encoding="utf-8")
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Build the durable, source-cached country statistics bundle.")
+    parser.add_argument(
+        "--data-downloads-root",
+        type=Path,
+        default=DEFAULT_DOWNLOADS_ROOT,
+        help=(
+            "Root for durable source caches "
+            "(default: COUNTRY_STATS_DOWNLOADS_ROOT or <repository>/data_downloads)."
+        ),
+    )
+    parser.add_argument(
+        "--refresh-cache",
+        action="store_true",
+        help="Redownload cached sources, including FAOSTAT bulk archives.",
+    )
+    parser.add_argument(
+        "--as-of-year",
+        type=int,
+        default=AS_OF_YEAR,
+        help="Latest year to probe for annual APIs such as UNHCR.",
+    )
+    return parser.parse_args()
+
+
 def main() -> None:
+    global AS_OF_YEAR, COUNTRY_STATS_CACHE_DIR, DOWNLOADS_ROOT, REFRESH_CACHE
+    args = parse_args()
+    CACHE_SNAPSHOT_DATES.clear()
+    DOWNLOADS_ROOT = args.data_downloads_root.expanduser().resolve()
+    COUNTRY_STATS_CACHE_DIR = DOWNLOADS_ROOT / "country_stats"
+    REFRESH_CACHE = bool(args.refresh_cache)
+    AS_OF_YEAR = int(args.as_of_year)
+
     meta, country_stats_by_id = build_country_stats_payload()
     write_output(meta, country_stats_by_id)
     print(f"Wrote {OUTPUT_PATH}")
+    print(f"Durable source cache: {DOWNLOADS_ROOT}")
     print(
         f"Countries with any statistics: {meta['coverage']['countriesWithAnyStats']} / {meta['coverage']['atlasCountries']}"
     )

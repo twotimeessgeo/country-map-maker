@@ -1770,7 +1770,7 @@ const examItemLabCoreIso3ByScenario = new Map([
 ]);
 const KOREA_ADMIN_DATA_URL = "./data/korea-admin.js";
 const KOREA_ROUTE_DATA_URL = "./data/korea-routes.js?v=20260423g";
-const KOREA_STATS_DATA_URL = "./data/korea-stats.js?v=20260423e";
+const KOREA_STATS_DATA_URL = "./data/korea-stats.js?v=20260716";
 const lazyScriptPromises = new Map();
 let koreaMapDataReady = false;
 let koreaMapDataLoading = false;
@@ -8777,8 +8777,19 @@ function getMetricExplorerScatterEntries(xDefinition, yDefinition, sizeDefinitio
       yValue: Number(yEntry?.value),
       sizeValue: Math.abs(Number(sizeEntry?.value) || 0),
       sizeDisplayValue: Number(sizeEntry?.value),
-      detail: [xEntry?.year, yEntry?.year].filter(Boolean).length
-        ? `${[xEntry?.year, yEntry?.year].filter(Boolean).join(" · ")}년`
+      xYear: xEntry?.year ?? null,
+      yYear: yEntry?.year ?? null,
+      sizeYear: sizeEntry?.year ?? null,
+      detail: [
+        xEntry?.year ? `${xDefinition.label} ${xEntry.year}` : null,
+        yEntry?.year ? `${yDefinition.label} ${yEntry.year}` : null,
+        sizeEntry?.year ? `${sizeDefinition.label} ${sizeEntry.year}` : null,
+      ].filter(Boolean).length
+        ? [
+            xEntry?.year ? `${xDefinition.label} ${xEntry.year}` : null,
+            yEntry?.year ? `${yDefinition.label} ${yEntry.year}` : null,
+            sizeEntry?.year ? `${sizeDefinition.label} ${sizeEntry.year}` : null,
+          ].filter(Boolean).join(" · ")
         : "최신 가용연도",
     };
   });
@@ -10062,18 +10073,18 @@ function buildCropStatsSection(crops) {
   metricGrid.append(
     createCountryStatsMetric(
       "생산 총량",
-      totals.productionTotal > 0 ? formatTonAmount(totals.productionTotal) : "자료 없음",
+      totals.productionTotal != null ? formatTonAmount(totals.productionTotal) : "자료 없음",
       totals.productionYear ? `${totals.productionYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
       "수입 총량",
-      totals.importTotal > 0 ? formatTonAmount(totals.importTotal) : "자료 없음",
-      totals.tradeYear ? `${totals.tradeYear}년 기준` : "최신 가용연도",
+      totals.importTotal != null ? formatTonAmount(totals.importTotal) : "자료 없음",
+      totals.importYear ? `${totals.importYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
       "수출 총량",
-      totals.exportTotal > 0 ? formatTonAmount(totals.exportTotal) : "자료 없음",
-      totals.tradeYear ? `${totals.tradeYear}년 기준` : "최신 가용연도",
+      totals.exportTotal != null ? formatTonAmount(totals.exportTotal) : "자료 없음",
+      totals.exportYear ? `${totals.exportYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
       "옥수수 사료용",
@@ -10192,12 +10203,12 @@ function buildLivestockStatsSection(livestock) {
   metricGrid.append(
     createCountryStatsMetric(
       "사육 두수 합",
-      totals.stockTotal > 0 ? formatCompactStatNumber(totals.stockTotal) : "자료 없음",
+      totals.stockTotal != null ? formatCompactStatNumber(totals.stockTotal) : "자료 없음",
       totals.stockYear ? `${totals.stockYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
       "육류 생산 합",
-      totals.meatTotal > 0 ? formatTonAmount(totals.meatTotal) : "자료 없음",
+      totals.meatTotal != null ? formatTonAmount(totals.meatTotal) : "자료 없음",
       totals.meatYear ? `${totals.meatYear}년 기준` : "최신 가용연도",
     ),
     createCountryStatsMetric(
@@ -10889,7 +10900,7 @@ function buildSelectedCountriesComparisonSection(selectedStatsRows) {
       entries: selectedStatsRows
         .map(({ country, stats }) => {
           const totals = getCropTotals(stats?.agriculture?.crops);
-          return totals.productionTotal > 0
+          return totals.productionTotal != null
             ? {
                 label: country.name,
                 value: totals.productionTotal,
@@ -10908,7 +10919,7 @@ function buildSelectedCountriesComparisonSection(selectedStatsRows) {
       entries: selectedStatsRows
         .map(({ country, stats }) => {
           const totals = getLivestockTotals(stats?.agriculture?.livestock);
-          return totals.meatTotal > 0
+          return totals.meatTotal != null
             ? {
                 label: country.name,
                 value: totals.meatTotal,
@@ -10983,7 +10994,9 @@ function buildCountryStatsSourceRow() {
     "religion",
     "continents",
     "worldBankExports",
+    "worldBankGdp",
     "worldBankIndustry",
+    "worldBankAgriculturalLand",
     "worldBankPopulationStructure",
     "worldBankPopulationContext",
     "worldBankMigration",
@@ -11059,13 +11072,15 @@ function getMetricFromPopulationRate(stats, key) {
 function getCropAggregateMetric(stats, key) {
   const totals = getCropTotals(stats?.agriculture?.crops);
   const value = totals?.[key];
-  if (!Number.isFinite(Number(value))) {
+  if (value == null || !Number.isFinite(Number(value))) {
     return null;
   }
 
   return {
     value: Number(value),
-    year: key === "productionTotal" ? totals.productionYear : totals.tradeYear,
+    year: key === "productionTotal"
+      ? totals.productionYear
+      : key === "importTotal" ? totals.importYear : totals.exportYear,
     detail: key === "productionTotal" ? "밀·쌀·옥수수 합계" : "세 곡물 교역 합계",
   };
 }
@@ -11123,7 +11138,7 @@ function getCropUseMetric(stats, cropKey, useKey) {
 function getLivestockAggregateMetric(stats, key) {
   const totals = getLivestockTotals(stats?.agriculture?.livestock);
   const value = totals?.[key];
-  if (!Number.isFinite(Number(value))) {
+  if (value == null || !Number.isFinite(Number(value))) {
     return null;
   }
 
@@ -11193,7 +11208,7 @@ function getFossilTradeMetric(stats, resourceKey, directionKey) {
 }
 
 function getExportMetric(stats, key) {
-  const entry = stats?.economy?.exports?.[key];
+  const entry = getVersionedStatEntry(stats?.economy?.exports?.[key]);
   if (!Number.isFinite(Number(entry?.value))) {
     return null;
   }
@@ -11206,7 +11221,7 @@ function getExportMetric(stats, key) {
 }
 
 function getIndustryMetric(stats, key) {
-  const entry = stats?.economy?.industry;
+  const entry = getVersionedEnergyEntry(stats?.economy?.industry);
   const value = entry?.shares?.[key];
   if (!Number.isFinite(Number(value))) {
     return null;
@@ -11481,7 +11496,7 @@ function getOrderedMetricEntries(map, order) {
   return order
     .map((key) => {
       const entry = getVersionedStatEntry(map?.[key]);
-      return entry ? { key, ...entry } : null;
+      return entry && Number.isFinite(Number(entry.value)) ? { key, ...entry } : null;
     })
     .filter(Boolean);
 }
@@ -11510,9 +11525,20 @@ function getCropTotals(crops) {
       };
     })
     .filter(Boolean);
-  const productionTotal = productionEntries.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
-  const importTotal = tradeEntries.reduce((sum, entry) => sum + (Number(entry.import?.value) || 0), 0);
-  const exportTotal = tradeEntries.reduce((sum, entry) => sum + (Number(entry.export?.value) || 0), 0);
+  const hasCompleteProduction = productionEntries.length === countryStatsCropOrder.length;
+  const hasCompleteImports = tradeEntries.length === countryStatsCropOrder.length
+    && tradeEntries.every((entry) => Number.isFinite(Number(entry.import?.value)));
+  const hasCompleteExports = tradeEntries.length === countryStatsCropOrder.length
+    && tradeEntries.every((entry) => Number.isFinite(Number(entry.export?.value)));
+  const productionTotal = hasCompleteProduction
+    ? productionEntries.reduce((sum, entry) => sum + Number(entry.value), 0)
+    : null;
+  const importTotal = hasCompleteImports
+    ? tradeEntries.reduce((sum, entry) => sum + Number(entry.import.value), 0)
+    : null;
+  const exportTotal = hasCompleteExports
+    ? tradeEntries.reduce((sum, entry) => sum + Number(entry.export.value), 0)
+    : null;
   const topCrop = productionEntries
     .map((entry) => ({
       label: entry.label,
@@ -11526,11 +11552,12 @@ function getCropTotals(crops) {
     productionTotal,
     importTotal,
     exportTotal,
-    productionYear: productionEntries.length ? Math.max(...productionEntries.map((entry) => entry.year || 0)) : null,
-    tradeYear: tradeEntries.length
-      ? Math.max(
-          ...tradeEntries.flatMap((entry) => [entry.import?.year || 0, entry.export?.year || 0]),
-        )
+    productionYear: hasCompleteProduction ? Math.max(...productionEntries.map((entry) => entry.year || 0)) : null,
+    importYear: hasCompleteImports
+      ? Math.max(...tradeEntries.map((entry) => entry.import?.year || 0))
+      : null,
+    exportYear: hasCompleteExports
+      ? Math.max(...tradeEntries.map((entry) => entry.export?.year || 0))
       : null,
     topCropLabel: topCrop?.label ?? null,
     topCropShare: productionTotal > 0 && topCrop ? (topCrop.value / productionTotal) * 100 : null,
@@ -11540,8 +11567,14 @@ function getCropTotals(crops) {
 function getLivestockTotals(livestock) {
   const stockEntries = getOrderedMetricEntries(livestock?.stocks, countryStatsLivestockOrder);
   const meatEntries = getOrderedMetricEntries(livestock?.meat, countryStatsLivestockOrder);
-  const stockTotal = stockEntries.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
-  const meatTotal = meatEntries.reduce((sum, entry) => sum + (Number(entry.value) || 0), 0);
+  const hasCompleteStocks = stockEntries.length === countryStatsLivestockOrder.length;
+  const hasCompleteMeat = meatEntries.length === countryStatsLivestockOrder.length;
+  const stockTotal = hasCompleteStocks
+    ? stockEntries.reduce((sum, entry) => sum + Number(entry.value), 0)
+    : null;
+  const meatTotal = hasCompleteMeat
+    ? meatEntries.reduce((sum, entry) => sum + Number(entry.value), 0)
+    : null;
   const topMeat = meatEntries
     .map((entry) => ({
       label: entry.label,
@@ -11554,8 +11587,8 @@ function getLivestockTotals(livestock) {
     meatEntries,
     stockTotal,
     meatTotal,
-    stockYear: stockEntries.length ? Math.max(...stockEntries.map((entry) => entry.year || 0)) : null,
-    meatYear: meatEntries.length ? Math.max(...meatEntries.map((entry) => entry.year || 0)) : null,
+    stockYear: hasCompleteStocks ? Math.max(...stockEntries.map((entry) => entry.year || 0)) : null,
+    meatYear: hasCompleteMeat ? Math.max(...meatEntries.map((entry) => entry.year || 0)) : null,
     topMeatLabel: topMeat?.label ?? null,
     topMeatShare: meatTotal > 0 && topMeat ? (topMeat.value / meatTotal) * 100 : null,
   };

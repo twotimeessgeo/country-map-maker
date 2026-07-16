@@ -1,0 +1,346 @@
+# SVG 통계·자산 인벤토리 (2026-07-16)
+
+이 문서는 로컬 제작 폴더의 SVG를 통계 자료와 지도·로고·교육 도식 자산으로 분리하고, 통계 SVG를 `supplemental-stats.json`의 정규화 데이터셋 또는 원천 포인터에 연결한 감사 스냅샷이다. 경로는 절대경로 대신 스캔 루트 id와 상대경로로 적었다.
+
+## 요약
+
+- 전체 SVG: 268개
+- 통계 SVG: 111개
+- 지도 자산: 147개
+- 로고 자산: 7개
+- 교육 도식: 3개
+- 보조 정규화 데이터셋에 직접 매핑: 13개 SVG / 10개 데이터셋
+- 보조 원천 포인터에 매핑: 45개 SVG / 15개 포인터
+- SVG 내부 출처 힌트만 확인: 38개
+- 로컬 값은 연결됐으나 상위 원천 미기록: 6개
+- 기계적 연결 미해결: 3개
+
+`knownProvenanceGap`은 SVG 생성값과 로컬 스크립트의 연결은 확인했지만 상위 원천 기관·기준 연도가 기록되지 않았다는 뜻이다. `unresolvedSource`는 이 스냅샷에서 SVG와 로컬 원천 파일의 연결 자체를 기계적으로 고정하지 못했다는 뜻이다.
+
+## 보조 정규화 데이터셋 직접 매핑
+
+- wto-africa-export-commodity-groups-2021
+  - `new-project-8/outputs/africa_export_commodity_groups_2021_280px.svg`
+- cia-ethnic-composition-jm-col-bra-ury
+  - `new-project-8/outputs/ethnic_composition_jm_co_br_uy_280px.svg`
+- wits-export-product-groups-2023
+  - `new-project-8/outputs/export_product_composition_tur_tun_kaz_are_2023_280px.svg`
+- un-wpp2024-natural-change-net-migration-rates
+  - `new-project-8/outputs/japan_thailand_china_natural_increase_net_migration_1950_2020_310px.svg`
+  - `new-project-8/outputs/japan_thailand_china_natural_increase_net_migration_1950_2020_three_panel_310px.svg`
+  - `new-project-8/outputs/japan_thailand_china_natural_increase_net_migration_1950_2020_three_panel_xscaled_310px.svg`
+  - `new-project-8/outputs/japan_thailand_china_natural_increase_net_migration_1950_2020_three_panel_xscaled_fine_310px.svg`
+- faostat-crop-area-shares-2022
+  - `new-project-8/outputs/kazakhstan_iran_turkiye_egypt_crop_area_share_2022_280px.svg`
+- ei-regional-primary-energy-renewables-share-2023
+  - `new-project-8/outputs/regional_primary_energy_renewables_share_2023_280px.svg`
+- ei-regional-renewable-primary-energy-mix-2023
+  - `new-project-8/outputs/regional_renewable_primary_energy_mix_2023_280px.svg`
+- ei-regional-renewables-consumption-growth-2014-2024
+  - `new-project-8/outputs/renewables_region_consumption_growth_2024_300px.svg`
+- irena-fossil-capacity-mix-2024
+  - `new-project-8/outputs/usa_mexico_brazil_canada_fossil_capacity_mix_2024_280px.svg`
+- irena-electricity-capacity-mix-2024
+  - `new-project-8/outputs/usa_mexico_brazil_canada_power_capacity_mix_2024_280px.svg`
+
+## 보조 원천 포인터 매핑
+
+- un-wpp-world-bank-population-indicators-2023
+  - `new-project-8/china_saudi_niger_japan_sex_ratio_population_2023_310px.svg`
+- rte-eco2mix-france-hourly-20260601-06
+  - `new-project-8/france_generation_demand_hourly_20260601_05_310px.svg`
+  - `new-project-8/france_generation_demand_hourly_20260601_06_310px.svg`
+  - `new-project-8/france_renewables_demand_hourly_20260601_05_310px.svg`
+  - `new-project-8/france_renewables_demand_hourly_20260601_05_smooth_310px.svg`
+- kosis-local-cache
+  - `new-project-8/outputs/age_sex_ratio_seoul_chuncheon_hwacheon_pyeongchang_2023_310px.svg`
+  - `new-project-8/outputs/busan_commute_yangsan_geoje_changnyeong_2020_150px.svg`
+  - `new-project-8/outputs/gangwon_age_sex_ratio_wonju_chuncheon_hwacheon_pyeongchang_2023_310px.svg`
+  - `new-project-8/outputs/hwaseong_icheon_gimpo_goyang_paddy_mfg_seoul_commute_310px.svg`
+  - `new-project-8/outputs/korea_industry_region_groups_shipments_2024_250px.svg`
+  - `new-project-8/outputs/korea_manufacturing_shipments_index_2024_250px.svg`
+  - `new-project-8/outputs/korea_mfg_top2_region_pairs_2022_250px.svg`
+  - `new-project-8/outputs/manufacturing_industry_region_pies_parallel_abc_2023_310px.svg`
+  - `new-project-8/outputs/manufacturing_industry_region_pies_ulsan_gwangju_daegu_anon_2023_310px.svg`
+- local-inline-chart-values-upstream-unrecorded
+  - `new-project-8/outputs/brics-energy-supply-share.svg`
+  - `new-project-8/outputs/cobalt-coffee-cacao-production-share.svg`
+  - `new-project-8/outputs/energy-source-donut-nepal-india-france.svg`
+  - `new-project-8/outputs/export-top5-products.svg`
+  - `new-project-8/outputs/renewable-top3-supply-share.svg`
+  - `new-project-8/outputs/saudi-iran-turkiye-energy-supply-share.svg`
+- un-desa-international-migrant-stock-2020
+  - `new-project-8/outputs/foreign_national_population_abc_2020_150px_v2.svg`
+  - `new-project-8/outputs/foreign_national_population_abc_2020_150px.svg`
+  - `new-project-8/outputs/migration-destination-continent-ratios.svg`
+  - `new-project-8/outputs/saudi_oman_uae_migrant_origins_2020_310px.svg`
+- kma-climate-normals-1991-2020
+  - `new-project-8/outputs/gangneung_mokpo_daejeon_seogwipo_climate_deviation_1991_2020_280px.svg`
+  - `new-project-8/outputs/korea_snow_precip_heatwave_scatter_1991_2020_250px.svg`
+- opentopodata-srtm30m-gurye-profile
+  - `new-project-8/outputs/gurye_hwaeomsa_alluvial_fan_profile_srtm30m_280px.svg`
+- capss-emissions-by-admin-2022
+  - `new-project-8/outputs/korea_air_energy_power_gyeonggi_chungnam_busan_gyeongbuk_310px.svg`
+  - `new-project-8/outputs/korea_air_energy_power_gyeonggi_chungnam_busan_gyeongbuk_side_by_side_310px.svg`
+- khoa-coastline-by-local-2014-2024
+  - `new-project-8/outputs/korea_coastline_sinuosity_gyeonggi_jeonnam_gangwon_2024_280px.svg`
+  - `new-project-8/outputs/korea_coastline_sinuosity_relative_2014_2024_280px.svg`
+- keei-regional-energy-yearbook-2025
+  - `new-project-8/outputs/korea_final_energy_consumption_2024_200px.svg`
+- energy-transition-forum-renewable-generation-2020-local-script
+  - `new-project-8/outputs/korea_renewable_dominant_regions_2020_150px.svg`
+- un-wup2025-cities-population-surface
+  - `new-project-8/outputs/latin_america_top3_city_population_raw_un_wup2025_280px.svg`
+  - `new-project-8/outputs/latin_america_top3_city_population_raw_un_wup2025_4countries_280px.svg`
+  - `new-project-8/outputs/latin_america_top3_city_population_share_un_wup2025_280px.svg`
+- un-wpp2024-demographic-indicators-raw
+  - `new-project-8/outputs/pop_pyramid_conflict_male_gap_2025_310px.svg`
+  - `new-project-8/outputs/pop_pyramid_ukraine_male_gap_2025_310px.svg`
+- world-bank-population-structure-local-cache
+  - `new-project-8/outputs/region_age_structure_youth_old_2023_300px.svg`
+- us-census-aies-state-manufacturing-2023
+  - `new-project-8/outputs/us_state_mfg_shipments_ia_2023_300px.svg`
+  - `new-project-8/outputs/us_state_mfg_shipments_la_2023_300px.svg`
+  - `new-project-8/outputs/us_state_mfg_shipments_mi_2023_300px.svg`
+  - `new-project-8/outputs/us_state_mfg_shipments_or_2023_300px.svg`
+  - `new-project-8/outputs/us_state_mfg_shipments_tx_2023_300px.svg`
+  - `new-project-8/outputs/us_state_mfg_shipments_wa_2023_300px.svg`
+
+## SVG 내부 출처 힌트만 확인
+
+- Capel et al. (1988)
+  - `new-project-8/basel_rhine_pollution_1986_300px.svg`
+- WAMIS
+  - `new-project-8/geum_estuary_waterlevel_20260105_280px.svg`
+  - `new-project-8/han_geum_waterlevel_barrage_20260105_280px.svg`
+  - `new-project-8/outputs/korea_river_velocity_basin_updown_wamis_2024_200px.svg`
+  - `new-project-8/outputs/korea_river_velocity_wamis_selected_2024_200px.svg`
+- JMA
+  - `new-project-8/jma_jan_jul_precip_addis_brisbane_alger_sf_200px.svg`
+  - `new-project-8/jma_jan_jul_precip_addis_brisbane_perth_sf_150px.svg`
+- World Bank WDI
+  - `new-project-8/outputs/africa_welfare_birth_life_literacy_2024_280px.svg`
+  - `new-project-8/outputs/aus_nzl_jpn_sgp_density_industry_gdp_table_wdi_latest_280px.svg`
+  - `new-project-8/outputs/population_density_change_idn_deu_nga_arg_2020_310px.svg`
+  - `new-project-8/outputs/rural_youth_population_idn_deu_nga_arg_2020_310px.svg`
+- JMA, 기상청
+  - `new-project-8/outputs/climate_range_precip_deviation_seoul_1991_2020_310px.svg`
+- 기상청
+  - `new-project-8/outputs/climate_seoul_difference_wonsan_pyongyang_chongjin_1991_2020_310px.svg`
+  - `new-project-8/outputs/jeju_foehn_temperature_humidity_20230516_310px.svg`
+  - `new-project-8/outputs/seoul_climate_difference_brasilia_lima_dhaka_jma_1991_2020_310px.svg`
+  - `new-project-8/outputs/seoul_climate_difference_brasilia_london_dhaka_jma_1991_2020_310px.svg`
+- BACI·OEC
+  - `new-project-8/outputs/drc_botswana_south_africa_exports_2024_280px.svg`
+  - `new-project-8/outputs/monsoon_asia_tea_rubber_palm_coffee_export_share_2023_280px.svg`
+  - `new-project-8/outputs/north_america_exports_category_share_2023_280px.svg`
+- FAOSTAT
+  - `new-project-8/outputs/europe_grain_top3_share_2024_310px.svg`
+  - `new-project-8/outputs/region_crop_production_area_scatter_2023_310px.svg`
+  - `new-project-8/outputs/wheat_maize_share_rus_usa_ind_bra_chn_2023_300px.svg`
+- 국토교통부
+  - `new-project-8/outputs/freight_loaded_empty_distance_time_2022_310px.svg`
+  - `new-project-8/outputs/transport_passenger_freight_share_2023_310px.svg`
+- 행정안전부
+  - `new-project-8/outputs/gangwon_young_male_aging_2024_150px.svg`
+  - `new-project-8/outputs/korea_region_groups_population_sexratio_202412_200px.svg`
+  - `new-project-8/outputs/korea_typhoon_rain_damage_scatter_2020_2024_150px.svg`
+  - `new-project-8/outputs/korea_typhoon_rain_damage_scatter_2020_2024_no_ulju_yeongdeok_150px.svg`
+  - `new-project-8/outputs/korea_typhoon_rain_damage_scatter_mountain_coast_2020_2024_150px.svg`
+  - `new-project-8/outputs/natural_disaster_cause_region_combined_310px.svg`
+  - `new-project-8/province_city_population_rank_2023_200px.svg`
+  - `new-project-8/province_city_population_rank_relative_2023_200px.svg`
+- 국립환경과학원
+  - `new-project-8/outputs/korea_coastline_sinuosity_relative_1910s_2000s_280px.svg`
+- 국토지리정보원·OSM
+  - `new-project-8/outputs/korea_four_extremes_seoul_busan_distance_20260601_280px.svg`
+- 한국교통연구원
+  - `new-project-8/outputs/passenger_travel_distance_bands_2022_310px.svg`
+- GTN-P
+  - `new-project-8/outputs/permafrost_active_layer_lousy_point_1998_2008_300px.svg`
+- 서울교통공사
+  - `new-project-8/outputs/seoul_subway_hourly_dobong_geumcheon_gangnam_2025_310px.svg`
+  - `new-project-8/outputs/seoul_subway_hourly_dobong_jung_gangnam_2025_310px.svg`
+
+## 상위 원천 미기록 통계 SVG
+
+- `new-project-8/outputs/brics-energy-supply-share.svg`
+- `new-project-8/outputs/cobalt-coffee-cacao-production-share.svg`
+- `new-project-8/outputs/energy-source-donut-nepal-india-france.svg`
+- `new-project-8/outputs/export-top5-products.svg`
+- `new-project-8/outputs/renewable-top3-supply-share.svg`
+- `new-project-8/outputs/saudi-iran-turkiye-energy-supply-share.svg`
+
+## 기계적 연결 미해결 통계 SVG
+
+- `new-project-8/outputs/crop_test_direct.svg`
+- `new-project-8/outputs/crop_test_offset.svg`
+- `new-project-8/outputs/jinju_geoje_busan_yangsan_population_index_2005_150px.svg`
+
+## 비통계 자산 목록
+
+### mapAsset (147)
+
+- `new-project-8/korea_geo_q9_coast_landform_A_vector.svg`
+- `new-project-8/korea_geo_q9_coast_landform_B_vector.svg`
+- `new-project-8/korea_geo_q9_coast_landform_C_vector.svg`
+- `new-project-8/korea_geo_q9_coast_landform_maps_vector.svg`
+- `new-project-8/korea_geography_coast_landform_q11_map_vector.svg`
+- `new-project-8/outputs/capital_region_expressways_2026_250px.svg`
+- `new-project-8/outputs/ebs_2018_daedongyeojido_detail_tight_vector.svg`
+- `new-project-8/outputs/ebs_worldgeo_26019_0058_map_310px.svg`
+- `new-project-8/outputs/internet_map_candidates/seoul_gu_hangang_osm_scale_20260615_280px.svg`
+- `new-project-8/outputs/internet_map_candidates/statgarten/statgarten_full_서울특별시_시군구_경계.svg`
+- `new-project-8/outputs/internet_map_candidates/statgarten/statgarten_simple_서울특별시_시군구_경계.svg`
+- `new-project-8/outputs/internet_map_candidates/statgarten/statgarten_simple_전국_시도_경계.svg`
+- `new-project-8/outputs/internet_map_candidates/statgarten/statgarten_simple_충청남도_시군구_경계.svg`
+- `new-project-8/outputs/internet_map_candidates/서울시_지도_v1_cantips.svg`
+- `new-project-8/outputs/internet_map_candidates/한반도_대한민국_지도_v1.1_cantips.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_11_seoul_gu_gun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_26_busan_gu_gun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_27_daegu_gu_gun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_28_incheon_gu_gun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_29_gwangju_gu_gun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_30_daejeon_gu_gun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_31_ulsan_gu_gun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_36_sejong_si_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_41_gyeonggi_sigun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_43_chungbuk_sigun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_44_chungnam_sigun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_46_jeonnam_sigun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_47_gyeongbuk_sigun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_48_gyeongnam_sigun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_50_jeju_sigun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_51_gangwon_sigun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_52_jeonbuk_sigun_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_ready/korea_sigungu_full_sido_brushready_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_11_seoul_gu_gun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_26_busan_gu_gun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_27_daegu_gu_gun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_28_incheon_gu_gun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_29_gwangju_gu_gun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_30_daejeon_gu_gun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_31_ulsan_gu_gun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_36_sejong_si_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_41_gyeonggi_sigun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_43_chungbuk_sigun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_44_chungnam_sigun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_46_jeonnam_sigun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_47_gyeongbuk_sigun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_48_gyeongnam_sigun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_50_jeju_sigun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_51_gangwon_sigun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_52_jeonbuk_sigun_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_brush_safe_simplified/korea_sigungu_full_sido_brushsafe_simplified_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_11_seoul_gu_gun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_26_busan_gu_gun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_27_daegu_gu_gun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_28_incheon_gu_gun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_29_gwangju_gu_gun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_30_daejeon_gu_gun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_31_ulsan_gu_gun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_36_sejong_si_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_41_gyeonggi_sigun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_43_chungbuk_sigun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_44_chungnam_sigun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_46_jeonnam_sigun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_47_gyeongbuk_sigun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_48_gyeongnam_sigun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_50_jeju_sigun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_51_gangwon_sigun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_52_jeonbuk_sigun_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_exam_style/korea_sigungu_full_sido_dashed_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_11_seoul_gu_gun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_26_busan_gu_gun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_27_daegu_gu_gun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_28_incheon_gu_gun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_29_gwangju_gu_gun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_30_daejeon_gu_gun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_31_ulsan_gu_gun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_36_sejong_si_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_41_gyeonggi_sigun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_43_chungbuk_sigun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_44_chungnam_sigun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_46_jeonnam_sigun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_47_gyeongbuk_sigun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_48_gyeongnam_sigun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_50_jeju_sigun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_51_gangwon_sigun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_52_jeonbuk_sigun_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg_reference_style/korea_sigungu_full_sido_refline_scale_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_11_seoul_gu_gun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_26_busan_gu_gun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_27_daegu_gu_gun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_28_incheon_gu_gun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_29_gwangju_gu_gun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_30_daejeon_gu_gun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_31_ulsan_gu_gun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_36_sejong_si_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_41_gyeonggi_sigun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_43_chungbuk_sigun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_44_chungnam_sigun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_46_jeonnam_sigun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_47_gyeongbuk_sigun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_48_gyeongnam_sigun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_50_jeju_sigun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_51_gangwon_sigun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_52_jeonbuk_sigun_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_sido_20260201_280px.svg`
+- `new-project-8/outputs/korea_admin_svg/korea_sigungu_full_20260201_280px.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/north_pole_mapapp_azimuthal_10m_coloring.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/north_pole_mapapp_azimuthal_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/south_pole_mapapp_azimuthal_10m_coloring.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/south_pole_mapapp_azimuthal_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_equalearth_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_miller_10m_coloring.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_miller_110m_coloring.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_miller_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_naturalearth1_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/mapapp_exam_world_bases_20260615 2/world_mapapp_robinson_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/north_pole_exam_110m_azimuthal_30n_coloring.svg`
+- `new-project-8/outputs/map_assets/north_pole_exam_coast110m_azimuthal_30n_coloring.svg`
+- `new-project-8/outputs/map_assets/north_pole_exam_coast50m_azimuthal_30n_coloring.svg`
+- `new-project-8/outputs/map_assets/north_pole_mapapp_azimuthal_10m_coloring.svg`
+- `new-project-8/outputs/map_assets/north_pole_mapapp_azimuthal_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/south_pole_exam_coast50m_azimuthal_30s_coloring.svg`
+- `new-project-8/outputs/map_assets/south_pole_mapapp_azimuthal_10m_coloring.svg`
+- `new-project-8/outputs/map_assets/south_pole_mapapp_azimuthal_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/world_countries_50m_azimuthal_north_pole_coloring.svg`
+- `new-project-8/outputs/map_assets/world_countries_50m_azimuthal_south_pole_coloring.svg`
+- `new-project-8/outputs/map_assets/world_countries_50m_naturalearth1_coloring.svg`
+- `new-project-8/outputs/map_assets/world_countries_50m_naturalearth1_no_antarctica_coloring.svg`
+- `new-project-8/outputs/map_assets/world_countries_50m_plate_carree_coloring.svg`
+- `new-project-8/outputs/map_assets/world_countries_50m_plate_carree_no_antarctica_coloring.svg`
+- `new-project-8/outputs/map_assets/world_exam_110m_rectangular_no_antarctica_coloring.svg`
+- `new-project-8/outputs/map_assets/world_exam_110m_robinson_coloring.svg`
+- `new-project-8/outputs/map_assets/world_exam_110m_robinson_no_antarctica_coloring.svg`
+- `new-project-8/outputs/map_assets/world_exam_coast110m_rectangular_no_antarctica_coloring.svg`
+- `new-project-8/outputs/map_assets/world_exam_coast50m_rectangular_no_antarctica_coloring.svg`
+- `new-project-8/outputs/map_assets/world_exam_coast50m_robinson_no_antarctica_coloring.svg`
+- `new-project-8/outputs/map_assets/world_mapapp_equalearth_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/world_mapapp_miller_10m_coloring.svg`
+- `new-project-8/outputs/map_assets/world_mapapp_miller_110m_coloring.svg`
+- `new-project-8/outputs/map_assets/world_mapapp_miller_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/world_mapapp_naturalearth1_50m_coloring.svg`
+- `new-project-8/outputs/map_assets/world_mapapp_robinson_50m_coloring.svg`
+- `new-project-8/outputs/river_terrace_extract/river_terrace_map_labels_removed_ai_embed_280px.svg`
+- `new-project-8/outputs/river_terrace_extract/river_terrace_map_labels_removed_ai_embed.svg`
+- `new-project-8/outputs/river_terrace_extract/river_terrace_map_labels_removed_trace.svg`
+- `new-project-8/outputs/river_terrace_extract/river_terrace_map_labels_removed_trace2.svg`
+- `new-project-8/outputs/river_terrace_extract/river_terrace_map_labels_removed.svg`
+
+### brandAsset (7)
+
+- `codex-documents/2026-07-10/svg/outputs/_final_primary.svg`
+- `codex-documents/2026-07-10/svg/outputs/_final_wire.svg`
+- `codex-documents/2026-07-10/svg/outputs/_pm_clean.svg`
+- `codex-documents/2026-07-10/svg/outputs/_pm_outline.svg`
+- `codex-documents/2026-07-10/svg/outputs/prime-meridian-logo-solid.svg`
+- `codex-documents/2026-07-10/svg/outputs/prime-meridian-logo-wire.svg`
+- `codex-documents/2026-07-10/svg/outputs/prime-meridian-logo.svg`
+
+### educationalDiagram (3)
+
+- `new-project-8/dry_asia_country_crossword_310px_font_rule.svg`
+- `new-project-8/dry_asia_country_crossword_310px.svg`
+- `new-project-8/dry_asia_country_crossword_620px.svg`

@@ -9,6 +9,7 @@ const rootDir = rootArgument ? path.resolve(projectRoot, rootArgument) : project
 const htmlFiles = [
   path.join(rootDir, "index.html"),
   path.join(rootDir, "map.html"),
+  path.join(rootDir, "tools", "stats", "index.html"),
   path.join(rootDir, "tools", "climate", "index.html"),
   path.join(rootDir, "tools", "climate", "korea.html"),
   path.join(rootDir, "tools", "cut", "index.html"),
@@ -38,6 +39,37 @@ for (const htmlPath of htmlFiles) {
       );
     }
   }
+}
+
+const graphCatalogPath = path.join(rootDir, "data", "graph-catalog.json");
+const graphCatalog = JSON.parse(fs.readFileSync(graphCatalogPath, "utf8"));
+const graphItems = Array.isArray(graphCatalog.items) ? graphCatalog.items : [];
+if (graphItems.length === 0 || Number(graphCatalog.meta?.itemCount) !== graphItems.length) {
+  errors.push(`기존 그래프 카탈로그 수 불일치: ${graphCatalog.meta?.itemCount} / ${graphItems.length}`);
+}
+
+const supplementalPath = path.join(rootDir, "data", "supplemental-stats.json");
+const supplemental = JSON.parse(fs.readFileSync(supplementalPath, "utf8"));
+const supplementalDatasets = Array.isArray(supplemental.datasets) ? supplemental.datasets : [];
+const supplementalPointers = Array.isArray(supplemental.sourcePointers) ? supplemental.sourcePointers : [];
+if (supplementalDatasets.length === 0 || Number(supplemental.meta?.normalizedDatasetCount) !== supplementalDatasets.length) {
+  errors.push("보완 통계 공개 레지스트리의 데이터셋 수가 비어 있거나 메타와 다릅니다.");
+}
+if (Number(supplemental.meta?.sourcePointerCount) !== supplementalPointers.length) {
+  errors.push("보완 통계 공개 레지스트리의 원천 포인터 수가 메타와 다릅니다.");
+}
+const supplementalText = JSON.stringify(supplemental);
+for (const forbidden of ["sourceRootConfig", "data_downloads/", "/Users/", "Documents/New project", "Fieldwork_"]) {
+  if (supplementalText.includes(forbidden)) errors.push(`보완 통계 공개본에 내부 경로 단서가 남아 있습니다: ${forbidden}`);
+}
+
+const worldClimate = JSON.parse(fs.readFileSync(path.join(rootDir, "tools", "climate", "data", "climate-data.json"), "utf8"));
+const koreaClimate = JSON.parse(fs.readFileSync(path.join(rootDir, "tools", "climate", "data", "korea-climate-data.json"), "utf8"));
+if (worldClimate.regions?.length !== worldClimate.summary?.regionCount) {
+  errors.push(`세계 기후 지점 수 불일치: ${worldClimate.regions?.length} / ${worldClimate.summary?.regionCount}`);
+}
+if (koreaClimate.regions?.length !== koreaClimate.summary?.regionCount) {
+  errors.push(`한국 기후 지점 수 불일치: ${koreaClimate.regions?.length} / ${koreaClimate.summary?.regionCount}`);
 }
 
 const cutDataPath = path.join(rootDir, "tools", "cut", "data", "ebsi_geo_data.json");
@@ -121,6 +153,7 @@ if (errors.length > 0) {
 console.log(
   `정적 사이트 검증 완료(${path.relative(projectRoot, rootDir) || "source"}): ` +
     `HTML ${htmlFiles.length}개 · 로컬 링크/에셋 ${localReferenceCount}개 · ` +
+    `통계 지표 레퍼런스 ${graphItems.length}개 · 보완 자료 ${supplementalDatasets.length}개 · ` +
     `등급컷 기록 ${cutRecords.length}개 · 문항 이미지 검증 완료`
 );
 
