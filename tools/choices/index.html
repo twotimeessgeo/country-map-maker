@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choice Lab | Promenade Geography</title>
+    <meta
+      name="description"
+      content="세계지리 기출에서 반복되는 지형·종교·인구·도시·자원·지역지리 선지 패턴을 검색하고 조합합니다."
+    />
+    <meta name="theme-color" content="#efefec" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+    />
+    <link rel="stylesheet" href="../../tokens.css?v=20260717" />
+    <link rel="stylesheet" href="../../base.css?v=20260717" />
+    <link rel="stylesheet" href="../../components.css?v=20260717" />
+    <link rel="stylesheet" href="./styles.css?v=20260717" />
+  </head>
+  <body>
+    <div class="tw-page tw-stack choice-page">
+      <nav class="app-context-bar" aria-label="Promenade Geography">
+        <a class="app-context-brand" href="../../index.html" aria-label="Promenade Geography home">
+          <span>Promenade</span>
+        </a>
+        <details class="app-context-menu">
+          <summary>
+            <span class="app-menu-mark" aria-hidden="true"></span>
+            <span>Menu</span>
+          </summary>
+          <div class="app-context-menu-panel">
+            <a href="../../map.html">Map Editor</a>
+            <a href="../stats/index.html">Data Library</a>
+            <a href="../climate/index.html">Climate Atlas</a>
+            <a class="is-active" href="./index.html" aria-current="page">Choice Lab</a>
+            <a href="../cut/index.html">Grade Cut Archive</a>
+          </div>
+        </details>
+      </nav>
+
+      <header class="tw-hero choice-hero">
+        <div>
+          <p class="tw-kicker" lang="en">EXAM STATEMENT PATTERNS</p>
+          <h1 lang="en">Choice Lab</h1>
+          <p>2021~2025학년도 평가원 세계지리에서 되풀이된 정형 선지를 단원·판정 방식별로 정리한 제작용 라이브러리임.</p>
+        </div>
+        <dl class="choice-coverage" aria-label="선지 패턴 수록 현황">
+          <div><dt>전체 패턴</dt><dd id="totalCount">—</dd></div>
+          <div><dt>현재 결과</dt><dd id="resultCount">—</dd></div>
+          <div><dt>조합 선택</dt><dd id="selectionCount">0 / 5</dd></div>
+        </dl>
+      </header>
+
+      <main class="choice-layout">
+        <section class="tw-panel choice-controls" aria-labelledby="filterTitle">
+          <div class="choice-section-heading">
+            <div>
+              <p class="choice-index" lang="en">01 · FILTER</p>
+              <h2 id="filterTitle">패턴 찾기</h2>
+            </div>
+            <button class="tw-button" id="resetFiltersButton" type="button">초기화</button>
+          </div>
+          <label class="tw-field">
+            <span>선지·판정 규칙·함정·기출 검색</span>
+            <input id="searchInput" type="search" placeholder="예: 카르스트, 부양비, 수도, 2025 수능" autocomplete="off" />
+          </label>
+          <div class="choice-filter-group">
+            <p>단원</p>
+            <div class="choice-chip-row" id="unitFilters" role="group" aria-label="단원 필터"></div>
+          </div>
+          <div class="choice-filter-group">
+            <p>판정 방식</p>
+            <div class="choice-chip-row" id="automationFilters" role="group" aria-label="판정 방식 필터"></div>
+          </div>
+          <div class="choice-safety-note">
+            <strong>자동화 안전선</strong>
+            <p>연도형은 연도·단위·출처가, 맥락형은 해당 지도나 그래프가 없으면 선지를 생성하지 않도록 분리함.</p>
+            <p>기출 표시는 패턴을 추출한 근거 회차이며 원문 선지를 옮긴 것이 아님. 최종 출제 전 해당 문항 원문과 반드시 대조해야 함.</p>
+          </div>
+        </section>
+
+        <section class="tw-panel choice-results" aria-labelledby="resultsTitle">
+          <div class="choice-section-heading">
+            <div>
+              <p class="choice-index" lang="en">02 · LIBRARY</p>
+              <h2 id="resultsTitle">빈출 선지 패턴</h2>
+            </div>
+            <p id="resultSummary" role="status" aria-live="polite">불러오는 중</p>
+          </div>
+          <div class="choice-grid" id="patternGrid"></div>
+          <div class="choice-empty" id="emptyState" hidden>조건에 맞는 패턴이 없음.</div>
+        </section>
+
+        <aside class="tw-panel choice-composer" aria-labelledby="composerTitle">
+          <div class="choice-section-heading">
+            <div>
+              <p class="choice-index" lang="en">03 · SET</p>
+              <h2 id="composerTitle">5개 조합</h2>
+            </div>
+            <button class="tw-button" id="clearSelectionButton" type="button">비우기</button>
+          </div>
+          <p class="choice-composer-help">같은 문항에 쓸 후보를 최대 5개까지 담고, 템플릿·규칙·오답 함정을 한 번에 복사함.</p>
+          <ol class="choice-selection-list" id="selectionList"></ol>
+          <button class="tw-button is-primary choice-copy-button" id="copySelectionButton" type="button" disabled>선택 조합 복사</button>
+          <p class="choice-copy-status" id="copyStatus" role="status" aria-live="polite"></p>
+        </aside>
+      </main>
+    </div>
+
+    <noscript>선지 패턴을 검색하고 조합하려면 JavaScript가 필요함.</noscript>
+    <script src="./data/exam-choice-patterns.js?v=20260717"></script>
+    <script src="./app.js?v=20260717"></script>
+  </body>
+</html>

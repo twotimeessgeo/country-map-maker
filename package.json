@@ -13,10 +13,11 @@
     "check:stats:graph-catalog": "node scripts/sync-graph-catalog.mjs --check",
     "data:stats:index": "node scripts/build-statistics-index.mjs --write",
     "check:stats:index": "node scripts/build-statistics-index.mjs --check",
-    "check:js": "node --check app.js && node --check tools/stats/app.js && node --check scripts/build-statistics-index.mjs && node --check scripts/check-exam-workbench.mjs && node --check tools/climate/app.js && node --check tools/climate/korea-app.js && node --check tools/cut/cut.js",
+    "check:js": "node --check app.js && node --check tools/stats/app.js && node --check scripts/build-statistics-index.mjs && node --check scripts/check-exam-workbench.mjs && node --check scripts/check-exam-statements.mjs && node --check tools/climate/app.js && node --check tools/climate/korea-app.js && node --check tools/climate/data/exam-climate-statements.js && node --check tools/choices/app.js && node --check tools/choices/data/exam-choice-patterns.js && node --check tools/cut/cut.js",
     "check:exam": "node scripts/check-exam-workbench.mjs",
+    "check:statements": "node scripts/check-exam-statements.mjs",
     "check:site": "node scripts/check-static-site.mjs",
-    "check": "npm run check:climate && npm run check:climate:korea && npm run check:stats:supplemental && npm run check:stats:graph-catalog && npm run check:stats:index && npm run check:js && npm run check:exam && npm run check:site",
+    "check": "npm run check:climate && npm run check:climate:korea && npm run check:stats:supplemental && npm run check:stats:graph-catalog && npm run check:stats:index && npm run check:js && npm run check:exam && npm run check:statements && npm run check:site",
     "build": "npm run check && node scripts/build-static-site.mjs && node scripts/check-static-site.mjs dist"
   },
   "keywords": [

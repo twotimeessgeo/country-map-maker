@@ -1494,6 +1494,7 @@ tfoot td {
 .exam-source-summary span {
   color: var(--muted);
   font-size: 0.8rem;
+  text-align: right;
 }
 
 .exam-source-content {
@@ -2016,6 +2017,15 @@ tfoot td {
 .exam-source-details summary {
   cursor: pointer;
   font-weight: var(--weight-ui);
+}
+
+.exam-source-details .exam-source-note {
+  margin-top: 10px;
+}
+
+.exam-statement-item.is-reference-only {
+  border-style: dashed;
+  background: #fafafa;
 }
 
 .charts-grid {

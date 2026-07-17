@@ -12,6 +12,7 @@ const htmlFiles = [
   path.join(rootDir, "tools", "stats", "index.html"),
   path.join(rootDir, "tools", "climate", "index.html"),
   path.join(rootDir, "tools", "climate", "korea.html"),
+  path.join(rootDir, "tools", "choices", "index.html"),
   path.join(rootDir, "tools", "cut", "index.html"),
 ];
 const errors = [];

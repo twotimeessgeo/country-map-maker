@@ -73,15 +73,37 @@ const EXAM_POSITIVE_DIRECTION_WEIGHT = 0.72;
 const EXAM_DUPLICATE_CATEGORY_GROUPS = {
   tropicOfCancerDistance: "tropicDistance",
   tropicOfCapricornDistance: "tropicDistance",
+  janJulTemperatureRange: "temperatureRange",
+  annualTemperatureRange: "temperatureRange",
+  janJulPrecipitationRange: "precipitationRange",
+  monthlyPrecipitationRange: "precipitationRange",
+  winterPrecipitationShare: "seasonalPrecipitationShare",
+  summerPrecipitationShare: "seasonalPrecipitationShare",
 };
 const EXAM_STATEMENT_PERIOD_LABELS = {
-  "2022-suneung-q17-opt-03": { 가: "1월" },
-  "2022-suneung-q17-opt-04": { 나: "7월" },
+  "2021-suneung-q17-opt-03": { 가: "7월" },
+  "2021-suneung-q17-opt-04": { 나: "1월" },
   "2025-suneung-q19-opt-03": { 가: "1월" },
+};
+const EXAM_NORMALIZATION_LABELS = {
+  "period-resolved": "기간 확정",
+  inverted: "논리 반전",
+  corrected: "참 명제 재작성",
+};
+const EXAM_FEATURE_PREDICATES = {
+  coldestMonthAtLeast18: (region) => getColdestMonthTemperature(region) >= 18,
+  coldestMonthBelow18: (region) => getColdestMonthTemperature(region) < 18,
+  southernHemisphere: (region) => Number(region.coordinates?.latitude) < 0,
 };
 const EXAM_COMPARISON_TEMPLATES = [
   {
-    sourceIds: ["2021-06-q03-opt-02", "2023-09-q16-opt-05", "2025-09-q19-opt-02"],
+    sourceIds: [
+      "2021-06-q03-opt-02",
+      "2023-06-q16-opt-05",
+      "2023-09-q15-opt-04",
+      "2023-suneung-q19-opt-04",
+      "2025-suneung-q13-opt-02",
+    ],
     categoryKey: "monthlyPrecipitation",
     title: "월 강수량 비교",
     label: (context) => `${context.monthLabel} 강수량`,
@@ -103,7 +125,7 @@ const EXAM_COMPARISON_TEMPLATES = [
       `${scopeLabel} 중에서 ${context.monthLabel} 강수량이 가장 적은 곳은 ${region.name}이다.`,
   },
   {
-    sourceIds: ["2021-06-q03-opt-01", "2021-09-q04-opt-03"],
+    sourceIds: ["2021-06-q03-opt-01", "2021-09-q04-opt-03", "2022-06-q18-opt-03"],
     categoryKey: "monthlyTemperature",
     title: "월 평균 기온 비교",
     label: (context) => `${context.monthLabel} 평균 기온`,
@@ -143,7 +165,143 @@ const EXAM_COMPARISON_TEMPLATES = [
       `${scopeLabel} 중에서 연 강수량이 가장 적은 곳은 ${region.name}이다.`,
   },
   {
-    sourceIds: ["2021-06-q03-opt-04", "2023-09-q16-opt-03", "2025-06-q19-opt-02", "2025-suneung-q19-opt-04"],
+    sourceIds: [
+      "2021-06-q03-opt-05",
+      "2022-06-q18-opt-04",
+      "2022-suneung-q19-opt-03",
+    ],
+    categoryKey: "janJulPrecipitationRange",
+    title: "1월·7월 강수량 차이",
+    label: "1월·7월 강수량 차이",
+    pattern: "한 지역은 다른 지역보다 1월과 7월의 강수량 차이가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 1월과 7월의 강수량 차이가 작다.",
+    unit: "mm",
+    minDifference: 20,
+    getValue: getJanuaryJulyPrecipitationRange,
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 강수량 차이가 크다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 1월과 7월의 강수량 차이가 작다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 강수량 차이가 작다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 강수량 차이가 가장 큰 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 강수량 차이가 가장 작은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2021-09-q07-opt-04"],
+    categoryKey: "monthlyPrecipitationRange",
+    title: "강수의 계절 차",
+    label: "월 강수량의 연중 범위",
+    pattern: "한 지역은 다른 지역보다 월 강수량의 연중 범위가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 월 강수량의 연중 범위가 작다.",
+    unit: "mm",
+    minDifference: 30,
+    getValue: getMonthlyPrecipitationRange,
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 월 강수량의 연중 범위가 크다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 월 강수량의 연중 범위가 작다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 월 강수량의 연중 범위가 작다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 월 강수량의 연중 범위가 가장 큰 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 월 강수량의 연중 범위가 가장 작은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2022-09-q13-opt-02", "2024-09-q06-opt-01"],
+    categoryKey: "winterPrecipitationShare",
+    title: "겨울 강수 집중률",
+    label: "겨울 3개월 강수 집중률",
+    pattern: "한 지역은 다른 지역보다 겨울 3개월 강수 집중률이 높다.",
+    reversePattern: "한 지역은 다른 지역보다 겨울 3개월 강수 집중률이 낮다.",
+    unit: "%",
+    minDifference: 5,
+    getValue: (region) => getLocalSeasonPrecipitationShare(region, "winter"),
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 겨울 3개월 강수 집중률이 높다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 겨울 3개월 강수 집중률이 낮다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 겨울 3개월 강수 집중률이 낮다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 겨울 3개월 강수 집중률이 가장 높은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 겨울 3개월 강수 집중률이 가장 낮은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2025-09-q19-opt-03"],
+    categoryKey: "summerPrecipitation",
+    title: "여름 강수량",
+    label: "여름 3개월 강수량",
+    pattern: "한 지역은 다른 지역보다 여름 3개월 강수량이 많다.",
+    reversePattern: "한 지역은 다른 지역보다 여름 3개월 강수량이 적다.",
+    unit: "mm",
+    minDifference: 50,
+    getValue: (region) => getLocalSeasonPrecipitation(region, "summer"),
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 3개월 강수량이 많다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 여름 3개월 강수량이 적다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 3개월 강수량이 적다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 여름 3개월 강수량이 가장 많은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 여름 3개월 강수량이 가장 적은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2024-suneung-q19-opt-03", "2025-06-q07-opt-04"],
+    categoryKey: "summerPrecipitationShare",
+    title: "여름 강수 집중률",
+    label: "여름 3개월 강수 집중률",
+    pattern: "한 지역은 다른 지역보다 여름 3개월 강수 집중률이 높다.",
+    reversePattern: "한 지역은 다른 지역보다 여름 3개월 강수 집중률이 낮다.",
+    unit: "%",
+    minDifference: 5,
+    getValue: (region) => getLocalSeasonPrecipitationShare(region, "summer"),
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 3개월 강수 집중률이 높다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 여름 3개월 강수 집중률이 낮다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 3개월 강수 집중률이 낮다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 여름 3개월 강수 집중률이 가장 높은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 여름 3개월 강수 집중률이 가장 낮은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2021-06-q03-opt-04"],
+    categoryKey: "janJulTemperatureRange",
+    title: "1월·7월 기온 차이",
+    label: "1월·7월 평균 기온 차이",
+    pattern: "한 지역은 다른 지역보다 1월과 7월의 평균 기온 차이가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 1월과 7월의 평균 기온 차이가 작다.",
+    unit: "°C",
+    minDifference: 1.5,
+    getValue: getJanuaryJulyTemperatureRange,
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 평균 기온 차이가 크다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 1월과 7월의 평균 기온 차이가 작다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 평균 기온 차이가 작다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 평균 기온 차이가 가장 큰 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 평균 기온 차이가 가장 작은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2023-06-q16-opt-03",
+      "2023-suneung-q19-opt-02",
+      "2025-06-q07-opt-03",
+      "2025-09-q19-opt-02",
+      "2025-suneung-q19-opt-04",
+    ],
     categoryKey: "annualTemperatureRange",
     title: "연교차 비교",
     label: "기온의 연교차",
@@ -179,7 +337,13 @@ const EXAM_COMPARISON_TEMPLATES = [
       `${scopeLabel} 중에서 연평균 기온이 가장 낮은 곳은 ${region.name}이다.`,
   },
   {
-    sourceIds: ["2021-09-q04-opt-01", "2024-09-q06-opt-04", "2025-suneung-q19-opt-01"],
+    sourceIds: [
+      "2021-09-q04-opt-01",
+      "2022-suneung-q19-opt-02",
+      "2024-09-q06-opt-04",
+      "2025-06-q07-opt-02",
+      "2025-suneung-q19-opt-01",
+    ],
     categoryKey: "coldestMonthTemperature",
     title: "최한월 평균 기온 비교",
     label: "최한월 평균 기온",
@@ -197,7 +361,19 @@ const EXAM_COMPARISON_TEMPLATES = [
       `${scopeLabel} 중에서 최한월 평균 기온이 가장 낮은 곳은 ${region.name}이다.`,
   },
   {
-    sourceIds: ["2021-06-q03-opt-03", "2022-suneung-q17-opt-05", "2023-06-q13-opt-01", "2024-09-q06-opt-05", "2025-06-q19-opt-04", "2025-09-q19-opt-04"],
+    sourceIds: [
+      "2021-06-q03-opt-03",
+      "2021-suneung-q17-opt-05",
+      "2022-06-q18-opt-05",
+      "2022-09-q13-opt-01",
+      "2023-06-q16-opt-02",
+      "2023-09-q15-opt-03",
+      "2023-suneung-q19-opt-03",
+      "2024-09-q06-opt-05",
+      "2024-suneung-q19-opt-05",
+      "2025-09-q19-opt-04",
+      "2025-suneung-q13-opt-04",
+    ],
     categoryKey: "dayLength",
     title: (context) => `${context.dayNightLabel} 비교`,
     label: (context) => `${context.monthLabel} ${context.dayNightLabel}`,
@@ -223,7 +399,11 @@ const EXAM_COMPARISON_TEMPLATES = [
       `${scopeLabel} 중에서 ${context.monthLabel} ${context.dayNightLabel}가 가장 짧은 곳은 ${region.name}이다.`,
   },
   {
-    sourceIds: ["2025-suneung-q19-opt-03"],
+    sourceIds: [
+      "2022-suneung-q19-opt-01",
+      "2024-suneung-q19-opt-04",
+      "2025-suneung-q19-opt-03",
+    ],
     categoryKey: "solarNoonAltitude",
     title: "태양 고도각 비교",
     label: (context) => `${context.monthLabel} 정오 태양 고도각`,
@@ -245,7 +425,7 @@ const EXAM_COMPARISON_TEMPLATES = [
       `${scopeLabel} 중에서 ${context.monthLabel} 정오의 태양 고도가 가장 낮은 곳은 ${region.name}이다.`,
   },
   {
-    sourceIds: ["2023-06-q13-opt-04", "2023-09-q16-opt-04"],
+    sourceIds: ["2022-09-q13-opt-04", "2023-06-q16-opt-04", "2023-09-q15-opt-02"],
     categoryKey: "equatorDistance",
     title: "적도 거리 비교",
     label: "적도까지의 거리",
@@ -263,7 +443,7 @@ const EXAM_COMPARISON_TEMPLATES = [
       `${scopeLabel} 중에서 적도에 가장 가까운 곳은 ${region.name}이다.`,
   },
   {
-    sourceIds: ["2024-09-q06-opt-02"],
+    sourceIds: ["2024-09-q06-opt-02", "2025-06-q07-opt-05"],
     categoryKey: "tropicOfCancerDistance",
     title: "북회귀선 거리 비교",
     label: "북회귀선까지의 위도 차",
@@ -771,6 +951,9 @@ function bindEvents() {
       state.examQuestionSeed += 1;
       pushUrlStateOnNextRender();
       render();
+      elements.comparisonContent
+        .querySelector("[data-exam-region-random]")
+        ?.focus({ preventScroll: true });
       return;
     }
 
@@ -781,6 +964,9 @@ function bindEvents() {
 
     state.examQuestionSeed += 1;
     render();
+    elements.comparisonContent
+      .querySelector("[data-exam-question-refresh]")
+      ?.focus({ preventScroll: true });
   });
 
   elements.continentChips.addEventListener("click", (event) => {
@@ -1135,7 +1321,7 @@ function removeCustomRegion(regionId) {
     elements.searchInput.value = "";
   }
   persistCustomRegions();
-  state.apiMessage = `${region.name}을(를) 이 기기의 추가 지역에서 삭제했습니다.`;
+  state.apiMessage = `${withObjectParticle(region.name)} 이 기기의 추가 지역에서 삭제했습니다.`;
   pushUrlStateOnNextRender();
   render();
 }
@@ -1479,6 +1665,9 @@ function setSelectionUtilityStatus(message, tone = "success") {
 }
 
 function render() {
+  const examSourcePanelWasOpen = elements.comparisonContent
+    .querySelector(".exam-source-panel")
+    ?.hasAttribute("open");
   resetClimateCsvExports();
 
   const visibleRegions = sortDisplayedRegions(getVisibleRegions());
@@ -1516,6 +1705,9 @@ function render() {
   }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  if (examSourcePanelWasOpen) {
+    elements.comparisonContent.querySelector(".exam-source-panel")?.setAttribute("open", "");
+  }
   const urlSyncMode = nextUrlSyncMode;
   nextUrlSyncMode = "replace";
   syncUrlState(urlSyncMode);
@@ -2040,7 +2232,7 @@ async function addRegionFromApiResult(resultIndex) {
   const existingRegion = findExistingRegionForApiResult(result);
   if (existingRegion) {
     toggleRegion(existingRegion.id, true);
-    state.apiMessage = `${existingRegion.name}은(는) 이미 데이터셋에 있어 바로 선택했습니다.`;
+    state.apiMessage = `${withTopicParticle(existingRegion.name)} 이미 데이터셋에 있어 바로 선택했습니다.`;
     pushUrlStateOnNextRender();
     render();
     return;
@@ -2064,7 +2256,7 @@ async function addRegionFromApiResult(resultIndex) {
     state.climateGroup = "전체";
     state.query = region.name;
     elements.searchInput.value = region.name;
-    state.apiMessage = `${region.name}을(를) 데이터셋에 추가했습니다.`;
+    state.apiMessage = `${withObjectParticle(region.name)} 데이터셋에 추가했습니다.`;
     pushUrlStateOnNextRender();
   } catch (error) {
     state.apiMessage =
@@ -2535,6 +2727,7 @@ function renderExamClimateSourcePanel(selectedRegions) {
   const generatedGroups = buildExamGeneratedComparisonGroups(selectedRegions, statements, monthContext);
   const matchedFeatureGroups = getMatchedExamFeatureGroups(selectedRegions, statements);
   const comparisonCatalog = buildExamComparisonTemplateCatalog(statements, monthContext);
+  const statementInventory = buildExamStatementInventory(statements);
   const multipleChoiceQuestion = buildExamMultipleChoiceQuestion(
     selectedRegions,
     generatedGroups,
@@ -2546,10 +2739,11 @@ function renderExamClimateSourcePanel(selectedRegions) {
   return `
     <details class="exam-source-panel">
       <summary class="exam-source-summary">
-        <strong>기출 선지</strong>
-        <span>${statements.length}개</span>
+        <strong>기출 기반 선지</strong>
+        <span>수록 ${statements.length} · 자동 ${statementInventory.automated.length} · 참조 ${statementInventory.referenceOnly.length}</span>
       </summary>
       <div class="exam-source-content">
+        <p class="exam-source-note">‘기간 확정’은 원문 방향을 유지한 채 시기 기호를 풀거나 자동화 문장으로 정리한 항목, ‘논리 반전’은 거짓 선지의 긍부정·비교 방향을 뒤집은 항목, ‘참 명제 재작성’은 내용을 자동화용 참 명제로 다시 쓴 항목이며 모두 원문 그대로가 아님.</p>
         ${renderExamMultipleChoiceQuestion(multipleChoiceQuestion)}
         <div class="exam-source-grid">
           <section class="exam-source-block">
@@ -2557,7 +2751,6 @@ function renderExamClimateSourcePanel(selectedRegions) {
             ${
               generatedGroups.length > 0
                 ? `<div class="exam-generated-list">${generatedGroups
-                    .slice(0, 13)
                     .map(renderExamGeneratedGroup)
                     .join("")}</div>`
                 : renderExamMiniEmptyState("비교 선지 없음")
@@ -2568,7 +2761,6 @@ function renderExamClimateSourcePanel(selectedRegions) {
             ${
               matchedFeatureGroups.length > 0
                 ? `<div class="exam-statement-list">${matchedFeatureGroups
-                    .slice(0, 16)
                     .map(renderExamFeatureItem)
                     .join("")}</div>`
                 : renderExamMiniEmptyState("지역 선지 없음")
@@ -2579,6 +2771,13 @@ function renderExamClimateSourcePanel(selectedRegions) {
           <summary>전체 카테고리</summary>
           <div class="exam-statement-list compact">
             ${comparisonCatalog.map(renderExamComparisonCatalogItem).join("")}
+          </div>
+        </details>
+        <details class="exam-source-details">
+          <summary>참조 전용 선지 ${statementInventory.referenceOnly.length}개</summary>
+          <p class="exam-source-note">현재 데이터만으로 참·거짓을 고정할 수 없는 해류·바람·식생·생활 양식·강수일수 선지는 자동 5지선다에서 제외함.</p>
+          <div class="exam-statement-list compact">
+            ${statementInventory.referenceOnly.map(renderExamReferenceStatementItem).join("")}
           </div>
         </details>
       </div>
@@ -2592,6 +2791,18 @@ function getExamClimateStatements() {
   }
 
   return window.EXAM_CLIMATE_STATEMENTS.filter((statement) => !statement.source?.includes("해설"));
+}
+
+function buildExamStatementInventory(statements) {
+  const comparisonSourceIds = new Set(EXAM_COMPARISON_TEMPLATES.flatMap((template) => template.sourceIds));
+  const automated = statements.filter(
+    (statement) => comparisonSourceIds.has(statement.id) || isExamFeatureAutomatable(statement)
+  );
+  const automatedIds = new Set(automated.map((statement) => statement.id));
+  return {
+    automated,
+    referenceOnly: statements.filter((statement) => !automatedIds.has(statement.id)),
+  };
 }
 
 function getExamMonthContext() {
@@ -2735,7 +2946,7 @@ function getMatchedExamFeatureGroups(selectedRegions, statements) {
   const selectedNames = new Set(selectedRegions.map((region) => normalizeText(region.name)));
 
   return statements
-    .filter((statement) => statement.kind === "region-feature")
+    .filter(isExamFeatureAutomatable)
     .map((statement) => ({
       statement,
       matchingRegions: selectedRegions.filter((region) => doesExamFeatureMatchRegion(statement, region)),
@@ -2751,12 +2962,38 @@ function getMatchedExamFeatureGroups(selectedRegions, statements) {
     });
 }
 
+function isExamFeatureAutomatable(statement) {
+  if (statement.kind !== "region-feature" || statement.automation === "reference-only") {
+    return false;
+  }
+  if (statement.automation === "computed") {
+    return typeof EXAM_FEATURE_PREDICATES[statement.predicateKey] === "function";
+  }
+  if (statement.automation === "climate-group") {
+    return (statement.climateGroups ?? []).length > 0;
+  }
+  if (statement.automation === "allowlist") {
+    return (statement.regions ?? []).length > 0;
+  }
+  return false;
+}
+
 function doesExamFeatureMatchRegion(statement, region) {
+  if (!isExamFeatureAutomatable(statement)) {
+    return false;
+  }
   const regionMatches = (statement.regions ?? []).some((regionName) => normalizeText(regionName) === normalizeText(region.name));
-  const climateMatches =
+  if (regionMatches) {
+    return true;
+  }
+  if (statement.automation === "computed") {
+    return Boolean(EXAM_FEATURE_PREDICATES[statement.predicateKey]?.(region));
+  }
+  return (
+    statement.automation === "climate-group" &&
     region.classificationReview?.status !== "review-required" &&
-    (statement.climateGroups ?? []).includes(region.climateGroup);
-  return regionMatches || climateMatches;
+    (statement.climateGroups ?? []).includes(region.climateGroup)
+  );
 }
 
 function resolveExamTemplateValue(value, monthContext) {
@@ -3026,7 +3263,7 @@ function buildComparisonChoiceCandidate(group, example, isTrue, seed) {
         { label: example.lowerName, value: lowerValue },
         { label: "차이", value: difference },
       ],
-      summary: `${example.higherName}이 ${example.lowerName}보다 ${group.metricLabel} 값이 큽니다.`,
+      summary: `${withSubjectParticle(example.higherName)} ${example.lowerName}보다 ${group.metricLabel} 값이 큽니다.`,
     },
   };
 }
@@ -3085,7 +3322,7 @@ function buildSuperlativeChoiceCandidate(group, monthContext, isTrue, seed) {
         label: entry.region.name,
         value: formatExamMetricValue(entry.value, group.unit),
       })),
-      summary: `${correctEntry.region.name}이 ${scopeLabel} 중 ${correctDirectionLabel}입니다.`,
+      summary: `${withSubjectParticle(correctEntry.region.name)} ${scopeLabel} 중 ${correctDirectionLabel}입니다.`,
     },
   };
 }
@@ -3116,6 +3353,9 @@ function buildFeatureChoiceCandidate(statement, region, isTrue, seed = 0) {
 }
 
 function buildFeatureChoiceEvidence(statement, region, isTrue) {
+  if (statement.automation === "computed") {
+    return buildComputedFeatureChoiceEvidence(statement, region, isTrue);
+  }
   const rows = [
     { label: region.name, value: `기후 ${region.climateCode || region.climateGroup}` },
     Number.isFinite(region.annualMeanTemperatureC)
@@ -3131,8 +3371,34 @@ function buildFeatureChoiceEvidence(statement, region, isTrue) {
     title: "지역 데이터",
     rows,
     summary: isTrue
-      ? `${region.name}은 기출 원문 조건에 해당합니다.`
-      : `${region.name}은 기출 원문 조건에 해당하지 않습니다.`,
+      ? `${withTopicParticle(region.name)} 기출 원문 조건에 해당합니다.`
+      : `${withTopicParticle(region.name)} 기출 원문 조건에 해당하지 않습니다.`,
+  };
+}
+
+function buildComputedFeatureChoiceEvidence(statement, region, isTrue) {
+  const latitude = Number(region.coordinates?.latitude);
+  if (statement.predicateKey === "southernHemisphere") {
+    return {
+      title: "좌표 판정",
+      rows: [{ label: region.name, value: Number.isFinite(latitude) ? formatLatitude(latitude) : "좌표 없음" }],
+      summary: isTrue
+        ? `${withTopicParticle(region.name)} 남반구에 위치합니다.`
+        : `${withTopicParticle(region.name)} 남반구에 위치하지 않습니다.`,
+    };
+  }
+
+  const coldestMonthTemperature = getColdestMonthTemperature(region);
+  const thresholdRelation = statement.predicateKey === "coldestMonthAtLeast18" ? "18℃ 이상" : "18℃ 미만";
+  return {
+    title: "월별 평년값 판정",
+    rows: [
+      { label: region.name, value: `최한월 ${formatTemp(coldestMonthTemperature)}` },
+      { label: "판정 기준", value: thresholdRelation },
+    ],
+    summary: isTrue
+      ? `${region.name}의 최한월 평균 기온은 ${thresholdRelation}입니다.`
+      : `${region.name}의 최한월 평균 기온은 ${thresholdRelation}이 아닙니다.`,
   };
 }
 
@@ -3142,8 +3408,7 @@ function getExamFeatureRegionLabel(statement, region) {
 
 function buildFalseFeatureChoiceCandidates(selectedRegions, statements, seed = 0) {
   return statements
-    .filter((statement) => statement.kind === "region-feature")
-    .filter((statement) => (statement.regions ?? []).length > 0 || (statement.climateGroups ?? []).length > 0)
+    .filter(isExamFeatureAutomatable)
     .filter((statement) => isExamFeatureDiscriminatingForSelection(statement, selectedRegions))
     .flatMap((statement, statementIndex) =>
       selectedRegions
@@ -3161,6 +3426,9 @@ function isExamFeatureDiscriminatingForSelection(statement, selectedRegions) {
 }
 
 function isPlausibleFalseFeatureChoice(statement, region) {
+  if (statement.automation === "computed") {
+    return true;
+  }
   const statementGroups = statement.climateGroups ?? [];
   if (
     statementGroups.length === 0 ||
@@ -3403,7 +3671,6 @@ function renderExamMultipleChoiceQuestion(question) {
                 <p>
                   <span class="exam-choice-line">
                     <span class="exam-choice-text">${escapeHtml(formatExamQuestionText(choice.text, question.variables))}</span>
-                    ${renderExamTruthBadge(choice)}
                   </span>
                   ${renderExamBadgeSet(choice.badges)}
                 </p>
@@ -3601,7 +3868,8 @@ function renderExamGeneratedGroup(group) {
       ${renderExamGroupTransformControls(group, isReversed)}
       <div class="exam-generated-meta">
         <span>기출 선지 ${group.sources.length}개</span>
-        <span>${escapeHtml(group.sources.map((source) => source.source).join(" · "))}</span>
+        ${renderExamNormalizationBadges(group.sources)}
+        <span>${escapeHtml(group.sources.map(formatExamStatementSource).join(" · "))}</span>
         <span>적용 가능 ${group.examples.length}개 조합</span>
         <span>최대 차이 ${escapeHtml(formatExamMetricValue(group.maxDifference, group.unit))}</span>
       </div>
@@ -3664,7 +3932,8 @@ function renderExamFeatureItem(group) {
         <strong>${escapeHtml(normalizedText)}</strong>
       </div>
       <div class="exam-generated-meta">
-        <span>${escapeHtml(statement.source)}</span>
+        <span>${escapeHtml(formatExamStatementSource(statement))}</span>
+        ${renderExamNormalizationBadges([statement])}
         ${tags.slice(0, 5).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
       </div>
       <div class="exam-region-pills">
@@ -3673,6 +3942,24 @@ function renderExamFeatureItem(group) {
           .slice(0, 10)
           .map((region) => `<span>${escapeHtml(region.name)}</span>`)
           .join("")}
+      </div>
+    </article>
+  `;
+}
+
+function renderExamReferenceStatementItem(statement) {
+  const statusLabel = statement.automation === "reference-only" ? "참조 전용" : "평가 규칙 미연결";
+  return `
+    <article class="exam-statement-item is-reference-only">
+      <div class="exam-category-heading">
+        <p>${escapeHtml(getExamFeatureTitle(statement))}</p>
+        <strong>${escapeHtml(normalizeExamFeatureStatementText(statement.text, getExamStatementPeriodLabels(statement)))}</strong>
+      </div>
+      <div class="exam-generated-meta">
+        <span>${escapeHtml(statusLabel)}</span>
+        <span>${escapeHtml(formatExamStatementSource(statement))}</span>
+        ${renderExamNormalizationBadges([statement])}
+        ${(statement.tags ?? []).slice(0, 5).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
       </div>
     </article>
   `;
@@ -3689,9 +3976,10 @@ function renderExamComparisonCatalogItem(item) {
         <span>${escapeHtml(item.metricLabel)}</span>
         <span>반대: ${escapeHtml(item.reversePattern)}</span>
         <span>기출 선지 ${item.sources.length}개</span>
+        ${renderExamNormalizationBadges(item.sources)}
       </div>
       <div class="exam-generated-meta">
-        ${item.sources.map((source) => `<span>${escapeHtml(source.source)}</span>`).join("")}
+        ${item.sources.map((source) => `<span>${escapeHtml(formatExamStatementSource(source))}</span>`).join("")}
       </div>
     </article>
   `;
@@ -3699,6 +3987,22 @@ function renderExamComparisonCatalogItem(item) {
 
 function renderExamMiniEmptyState(message) {
   return `<div class="exam-mini-empty">${escapeHtml(message)}</div>`;
+}
+
+function renderExamNormalizationBadges(statements) {
+  const labels = [
+    ...new Set(
+      (statements ?? [])
+        .filter((statement) => statement.normalized)
+        .map((statement) => EXAM_NORMALIZATION_LABELS[statement.normalizationKind])
+        .filter(Boolean)
+    ),
+  ];
+  return labels.map((label) => `<span>${escapeHtml(label)}</span>`).join("");
+}
+
+function formatExamStatementSource(statement) {
+  return statement.sourceItem ? `${statement.source} <보기> ${statement.sourceItem}` : statement.source;
 }
 
 function getExamFeatureTitle(statement) {
@@ -3713,6 +4017,7 @@ function getExamFeatureTitle(statement) {
   if (tags.has("적도 수렴대")) return "적도 수렴대 영향";
   if (tags.has("아열대 고압대") || tags.has("건기")) return "아열대 고압대와 건기";
   if (tags.has("최한월 평균 기온")) return "최한월 평균 기온 조건";
+  if (tags.has("남반구") || tags.has("반구")) return "반구 판정";
   if (tags.has("커피") || tags.has("카카오") || tags.has("플랜테이션")) return "플랜테이션 농업";
   if (tags.has("대추야자") || tags.has("오아시스") || tags.has("외래 하천")) return "건조 지역 농업";
   if (tags.has("고상 가옥")) return "고상 가옥";
@@ -3843,6 +4148,14 @@ function degreesToRadians(degrees) {
 
 function withTopicParticle(text) {
   return `${text}${hasFinalConsonant(text) ? "은" : "는"}`;
+}
+
+function withSubjectParticle(text) {
+  return `${text}${hasFinalConsonant(text) ? "이" : "가"}`;
+}
+
+function withObjectParticle(text) {
+  return `${text}${hasFinalConsonant(text) ? "을" : "를"}`;
 }
 
 function hasFinalConsonant(text) {
@@ -5705,6 +6018,40 @@ function getWarmestMonthTemperature(region) {
 
 function getColdestMonthTemperature(region) {
   return Math.min(...region.monthlyTemperatureC);
+}
+
+function getJanuaryJulyPrecipitationRange(region) {
+  return Math.abs(region.monthlyPrecipitationMm[0] - region.monthlyPrecipitationMm[6]);
+}
+
+function getJanuaryJulyTemperatureRange(region) {
+  return Math.abs(region.monthlyTemperatureC[0] - region.monthlyTemperatureC[6]);
+}
+
+function getMonthlyPrecipitationRange(region) {
+  return Math.max(...region.monthlyPrecipitationMm) - Math.min(...region.monthlyPrecipitationMm);
+}
+
+function getLocalSeasonMonthIndexes(region, season) {
+  const isSouthernHemisphere = getHemisphere(region) === "남반구";
+  if (season === "summer") {
+    return isSouthernHemisphere ? [11, 0, 1] : [5, 6, 7];
+  }
+  return isSouthernHemisphere ? [5, 6, 7] : [11, 0, 1];
+}
+
+function getLocalSeasonPrecipitation(region, season) {
+  return sumMonthValues(region.monthlyPrecipitationMm, getLocalSeasonMonthIndexes(region, season));
+}
+
+function getLocalSeasonPrecipitationShare(region, season) {
+  const annualPrecipitation = Number.isFinite(region.annualPrecipitationMm)
+    ? region.annualPrecipitationMm
+    : sumMonthValues(region.monthlyPrecipitationMm, [...Array(12).keys()]);
+  if (annualPrecipitation <= 0) {
+    return Number.NaN;
+  }
+  return (getLocalSeasonPrecipitation(region, season) / annualPrecipitation) * 100;
 }
 
 function getWorldAnnualTemperatureRange(region) {
