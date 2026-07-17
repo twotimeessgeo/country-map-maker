@@ -25,6 +25,7 @@ const requiredOutputs = [
   "map.html",
   "app.js",
   "data/country-stats.js",
+  "data/exam-country-catalog.js",
   "data/graph-catalog.js",
   "data/graph-catalog.json",
   "data/statistics-index.js",

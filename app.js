@@ -1250,6 +1250,7 @@ const examGraphReadableLabelMap = new Map([
   ["Tanzania, United Republic of", "Tanzania"],
   ["Venezuela, Bolivarian Republic of", "Venezuela"],
 ]);
+const examCountryCatalog = window.EXAM_COUNTRY_CATALOG ?? {};
 const examGraphCompositionDefinitions = [
   {
     key: "urban-rural",
@@ -1600,103 +1601,15 @@ const examGraphAvailableContinents = [...new Set(
     .map((stats) => stats?.continent?.name)
     .filter(Boolean),
 )].sort((a, b) => a.localeCompare(b, "en"));
-const examGraphRandomExcludedIso3 = new Set([
-  "ABW",
-  "AIA",
-  "ASM",
-  "BLM",
-  "BMU",
-  "COK",
-  "CUW",
-  "CYM",
-  "FRO",
-  "GLP",
-  "GRL",
-  "GUF",
-  "GUM",
-  "HKG",
-  "MAC",
-  "MAF",
-  "MTQ",
-  "NCL",
-  "NIU",
-  "PRI",
-  "PYF",
-  "REU",
-  "SPM",
-  "TCA",
-  "VGB",
-  "VIR",
-  "WLF",
-  "FJI",
-  "PNG",
-]);
-const examGraphTextbookPriorityIso3 = new Set([
-  "USA",
-  "CHN",
-  "IND",
-  "JPN",
-  "KOR",
-  "PRK",
-  "RUS",
-  "GBR",
-  "DEU",
-  "FRA",
-  "ITA",
-  "ESP",
-  "NLD",
-  "SWE",
-  "NOR",
-  "POL",
-  "UKR",
-  "TUR",
-  "SAU",
-  "ARE",
-  "QAT",
-  "IRN",
-  "IRQ",
-  "ISR",
-  "EGY",
-  "NGA",
-  "ETH",
-  "KEN",
-  "UGA",
-  "ZAF",
-  "COD",
-  "SDN",
-  "SSD",
-  "AFG",
-  "SYR",
-  "MMR",
-  "PAK",
-  "BGD",
-  "IDN",
-  "VNM",
-  "THA",
-  "PHL",
-  "SGP",
-  "AUS",
-  "NZL",
-  "CAN",
-  "MEX",
-  "BRA",
-  "ARG",
-  "CHL",
-  "PER",
-  "COL",
-  "VEN",
-  "BOL",
-  "ECU",
-  "NER",
-  "RWA",
-  "BDI",
-  "MAR",
-  "DZA",
-  "KWT",
-  "ISL",
-  "DNK",
-  "MYS",
-]);
+const examGraphQuickCountryIso3 = ["CHN", "IND", "USA", "BRA", "JPN", "DEU", "NGA", "SAU", "AUS", "RUS"];
+const examGraphTopicLabels = {
+  demography: "인구·도시",
+  agriculture: "식량·농업",
+  economy: "산업·교역",
+  energy: "자원·에너지",
+  religion: "종교·문화",
+  region: "지역 판별",
+};
 const examItemLabCoreIso3ByTopic = {
   demography: new Set(
     "USA CAN MEX BRA ARG CHL COL PER CHN IND JPN KOR IDN BGD PAK PHL VNM THA RUS GBR DEU FRA ITA ESP SWE NOR POL UKR TUR SAU ARE QAT IRN ISR EGY NGA ETH KEN ZAF COD NER AUS NZL".split(" "),
@@ -1782,6 +1695,11 @@ const examItemLabCoreIso3ByScenario = new Map([
   ["rankBars:religion-christians-share", examItemLabCountryPools.christianRank],
   ["rankBars:religion-muslims-share", examItemLabCountryPools.muslimRank],
   ["rankBars:religion-buddhists-share", examItemLabCountryPools.buddhistRank],
+]);
+const examItemLabPinnedFallbackCountryIdsByTemplate = new Map([
+  // A stable five-country set prevents the strict two-panel readability filter from
+  // returning null when random samples miss the small valid region of the pool.
+  ["demography-structure-scale", ["276", "392", "586", "50", "76"]],
 ]);
 const KOREA_ADMIN_DATA_URL = "./data/korea-admin.js";
 const KOREA_ROUTE_DATA_URL = "./data/korea-routes.js?v=20260423g";
@@ -2253,6 +2171,7 @@ const state = {
   examGraphScatterSizeKey: "population-total",
   examGraphFocusCountryIds: [],
   examGraphFocusLabel: "",
+  examGraphFocusKind: "",
   guides: {
     equator: false,
     lat30: false,
@@ -2396,6 +2315,9 @@ let examDrillPanelCount = 2;
 let examDrillRowCount = 4;
 let examDrillPoolKey = "core";
 let examDrillResult = null;
+let examDrillFailureMessage = "";
+let examGraphCountrySearchQuery = "";
+let examGraphCountrySearchEntriesCache = null;
 const examDrillRecentSignatures = [];
 let embeddedMapFontDataUrl = window.EMBEDDED_MAP_FONT_DATA_URL ?? null;
 let activeGestureScale = 1;
@@ -2438,6 +2360,10 @@ const workspacePersistence = {
 };
 
 const initialWorkspaceRestore = restoreSavedWorkspace();
+const initialExamGraphUrlIntent = applyInitialExamGraphUrlIntent();
+if (initialExamGraphUrlIntent?.applied) {
+  initialWorkspaceRestore.requestedMapVersion = "world";
+}
 if (!workspacePersistence.lastEditorSerialized) {
   workspacePersistence.lastEditorSerialized = serializeWorkspaceEditorSnapshot();
 }
@@ -2449,13 +2375,22 @@ attachEventListeners();
 ensureDocumentMapFontStyle();
 syncControls();
 setStatus(
-  initialWorkspaceRestore.restored
+  initialExamGraphUrlIntent?.message ?? (initialWorkspaceRestore.restored
     ? "저장된 로컬 작업공간을 복원했습니다."
-    : getDefaultStatusMessage(),
+    : getDefaultStatusMessage()),
+  Boolean(initialExamGraphUrlIntent && !initialExamGraphUrlIntent.applied),
 );
 renderSelectionViews();
 renderAnnotations();
 renderMap();
+if (initialExamGraphUrlIntent?.applied && elements.examGraphModule) {
+  elements.examGraphModule.open = true;
+  window.requestAnimationFrame(() => {
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    elements.examGraphModule.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    document.querySelector("#examGraphCountrySearchInput")?.focus({ preventScroll: true });
+  });
+}
 void finishInitialWorkspaceRestore(initialWorkspaceRestore);
 void loadEmbeddedMapFontData();
 
@@ -3443,6 +3378,10 @@ function handleWindowKeyDown(event) {
     return;
   }
 
+  if (!isPreviewKeyboardContext(event.target)) {
+    return;
+  }
+
   if (event.code === "Space") {
     event.preventDefault();
     if (!keyboardState.temporaryPanSourceMode && getActiveViewMode() !== "pan") {
@@ -3540,6 +3479,10 @@ function isFormControl(target) {
       "input, select, textarea, button, a[href], summary, [role='button'], [contenteditable]:not([contenteditable='false'])"
     )
   );
+}
+
+function isPreviewKeyboardContext(target) {
+  return target instanceof HTMLElement && Boolean(target.closest("#previewStage, .canvas-shell"));
 }
 
 function getDefaultStatusMessage() {
@@ -5067,10 +5010,12 @@ function renderSelectionViews() {
   if (
     state.mapVersion === "world" &&
     renderedStatsSelectionSignature !== null &&
-    renderedStatsSelectionSignature !== nextSelectionSignature
+    renderedStatsSelectionSignature !== nextSelectionSignature &&
+    !["custom", "deep-link"].includes(state.examGraphFocusKind)
   ) {
     state.examGraphFocusCountryIds = [];
     state.examGraphFocusLabel = "";
+    state.examGraphFocusKind = "";
   }
   renderedStatsSelectionSignature = nextSelectionSignature;
   renderSelectedCountries();
@@ -8426,7 +8371,7 @@ function buildMinimalMetricExplorerControls(definitions, visibleDefinitions, act
   topNInput.max = "30";
   topNInput.step = "1";
   topNInput.value = String(getMetricExplorerTopN());
-  topNInput.addEventListener("input", () => {
+  topNInput.addEventListener("change", () => {
     beginHistoryStep("지표 탐색기 변경");
     state.metricExplorerTopN = clamp(Math.round(Number(topNInput.value) || 5), 1, 30);
     renderSelectionViews();
@@ -12041,16 +11986,282 @@ function getExamGraphPopulationYears() {
   )].sort((a, b) => a - b);
 }
 
+function normalizeExamGraphCountrySearch(value) {
+  return String(value ?? "")
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/gu, "")
+    .toLocaleLowerCase("ko")
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+}
+
+function getExamCountryCatalogDefinition(iso3) {
+  const normalizedIso3 = String(iso3 ?? "").trim().toUpperCase();
+  const catalogDefinition = examCountryCatalog?.[normalizedIso3];
+  if (catalogDefinition?.tier === "core" || catalogDefinition?.tier === "support") {
+    return catalogDefinition;
+  }
+  return null;
+}
+
+function getExamGraphCountryTier(iso3) {
+  return getExamCountryCatalogDefinition(iso3)?.tier ?? "reference";
+}
+
+function getExamGraphCurrentTopicKey() {
+  if (["timeCompare", "trendLine"].includes(state.examGraphPresetKey)) {
+    return "demography";
+  }
+  if (state.examGraphPresetKey === "stacked100" || state.examGraphPresetKey === "groupedBars") {
+    return getExamGraphCompositionCategoryKey(state.examGraphCompositionKey);
+  }
+  if (state.examGraphPresetKey === "pairedBars") {
+    return getExamGraphPairCategoryKey(state.examGraphPairKey);
+  }
+  if (state.examGraphPresetKey === "rankBars") {
+    return getMetricExplorerDefinitionCategoryKey(getExamGraphMetricDefinition());
+  }
+  if (state.examGraphPresetKey === "scatter") {
+    return getMetricExplorerDefinitionCategoryKey(
+      getMetricExplorerDefinitionByKey(getMetricExplorerDefinitions(), state.examGraphScatterYKey),
+    );
+  }
+  if (state.examGraphPresetKey === "top3share") {
+    const metricKey = String(state.examGraphTopShareMetricKey ?? "");
+    if (metricKey.startsWith("crops") || metricKey.startsWith("livestock")) return "agriculture";
+    if (metricKey.includes("energy") || metricKey.includes("electricity") || metricKey.includes("fossil")) return "energy";
+    if (metricKey.includes("religion")) return "religion";
+    if (metricKey.includes("export") || metricKey.includes("gdp")) return "economy";
+    return "demography";
+  }
+  return "region";
+}
+
+function getExamGraphCountrySearchEntries() {
+  if (examGraphCountrySearchEntriesCache) {
+    return examGraphCountrySearchEntriesCache;
+  }
+  examGraphCountrySearchEntriesCache = Object.entries(countryStatsById)
+    .map(([countryId, stats]) => {
+      const iso3 = String(stats?.iso3 ?? "").trim().toUpperCase();
+      const name = getExamGraphReadableLabel(
+        stats?.atlasName ?? countryById.get(countryId)?.properties?.name ?? String(countryId),
+      );
+      const catalogDefinition = getExamCountryCatalogDefinition(iso3);
+      const aliases = [catalogDefinition?.nameKo, ...(catalogDefinition?.aliases ?? [])].filter(Boolean);
+      return {
+        id: countryId,
+        iso3,
+        name,
+        nameKo: catalogDefinition?.nameKo ?? "",
+        tier: catalogDefinition?.tier ?? "reference",
+        topics: catalogDefinition?.topics ?? [],
+        continent: stats?.continent?.name ?? "",
+        aliases,
+        searchText: normalizeExamGraphCountrySearch([name, iso3, countryId, ...aliases].join(" ")),
+        stats,
+      };
+    })
+    .filter((entry) => entry.name && entry.iso3 && entry.tier !== "reference")
+    .sort((first, second) => {
+      const tierOrder = { core: 0, support: 1 };
+      return (tierOrder[first.tier] ?? 9) - (tierOrder[second.tier] ?? 9) ||
+        (first.nameKo || first.name).localeCompare(second.nameKo || second.name, "ko");
+    });
+  return examGraphCountrySearchEntriesCache;
+}
+
+function findExamGraphCountrySearchEntry(value) {
+  const query = normalizeExamGraphCountrySearch(value);
+  if (!query) {
+    return null;
+  }
+  return getExamGraphCountrySearchEntries().find((entry) =>
+    String(entry.id) === String(value).trim() ||
+    normalizeExamGraphCountrySearch(entry.iso3) === query ||
+    normalizeExamGraphCountrySearch(entry.name) === query ||
+    entry.aliases.some((alias) => normalizeExamGraphCountrySearch(alias) === query)
+  ) ?? null;
+}
+
+function applyInitialExamGraphUrlIntent() {
+  const params = new URLSearchParams(window.location.search);
+  const requestedTokens = params
+    .getAll("graphCountry")
+    .flatMap((value) => String(value).split(","))
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (!requestedTokens.length) {
+    return null;
+  }
+  const entries = requestedTokens
+    .map(findExamGraphCountrySearchEntry)
+    .filter(Boolean);
+  const matchedTokens = new Set(
+    entries.flatMap((entry) => [entry.iso3, entry.name, String(entry.id), ...entry.aliases].map(normalizeExamGraphCountrySearch)),
+  );
+  const ignoredTokens = requestedTokens.filter((token) => !matchedTokens.has(normalizeExamGraphCountrySearch(token)));
+  const uniqueIds = [...new Set(entries.map((entry) => entry.id))].slice(0, 12);
+  if (!uniqueIds.length) {
+    return {
+      applied: false,
+      message: `Data Library에서 요청한 국가를 찾지 못했습니다. (${requestedTokens.join(", ")})`,
+    };
+  }
+  state.mapVersion = "world";
+  state.examGraphFocusCountryIds = uniqueIds;
+  state.examGraphFocusLabel = "Data Library에서 가져온 후보";
+  state.examGraphFocusKind = "deep-link";
+  state.examGraphTopN = Math.max(3, uniqueIds.length);
+  return {
+    applied: true,
+    message: `${entries.map((entry) => `${entry.nameKo || entry.name} (${entry.iso3})`).join(" · ")}를 Graph Builder 후보로 불러왔습니다.${
+      ignoredTokens.length ? ` 찾지 못한 값: ${ignoredTokens.join(", ")}.` : ""
+    }`,
+  };
+}
+
+function getCurrentExamGraphScenarioConfig() {
+  return {
+    presetKey: state.examGraphPresetKey,
+    compositionKey: state.examGraphCompositionKey,
+    metricKey: state.examGraphMetricKey,
+    pairKey: state.examGraphPairKey,
+    timeMetricKey: state.examGraphTimeMetricKey,
+    topShareMetricKey: state.examGraphTopShareMetricKey,
+    scatterXKey: state.examGraphScatterXKey,
+    scatterYKey: state.examGraphScatterYKey,
+    scatterSizeKey: state.examGraphScatterSizeKey,
+    yearStart: state.examGraphYearStart,
+    yearEnd: state.examGraphYearEnd,
+    grouping: state.examGraphGrouping,
+    valueMode: state.examGraphValueMode,
+  };
+}
+
+function getExamGraphCountryAvailability(entryOrId) {
+  const entry = typeof entryOrId === "object" && entryOrId?.stats
+    ? entryOrId
+    : getExamGraphCountrySearchEntries().find((candidate) => String(candidate.id) === String(entryOrId));
+  if (!entry?.stats) {
+    return { status: "missing", included: false, reason: "국가 통계 없음" };
+  }
+  const stats = entry.stats;
+  const metricDefinitions = getMetricExplorerDefinitions();
+  const isKnownNumber = (value) => value !== null && value !== undefined && Number.isFinite(Number(value));
+  const countKnownEntries = (entries) => entries.filter((value) => isKnownNumber(value)).length;
+
+  if (state.examGraphPresetKey === "stacked100" || state.examGraphPresetKey === "groupedBars") {
+    const definition = getExamGraphCompositionDefinition();
+    const components = definition?.getComponents?.(stats) ?? [];
+    const knownComponents = components.filter((component) => isKnownNumber(component?.value) && Number(component.value) >= 0);
+    const total = d3.sum(knownComponents, (component) => Number(component.value));
+    if (!knownComponents.length || total <= 0) {
+      return { status: knownComponents.length ? "partial" : "missing", included: false, reason: "구성값 부족" };
+    }
+    return {
+      status: knownComponents.length === components.length ? "available" : "partial",
+      included: true,
+      reason: knownComponents.length === components.length ? "모든 구성값 수록" : `${knownComponents.length}/${components.length}개 구성값 수록`,
+    };
+  }
+
+  if (state.examGraphPresetKey === "rankBars") {
+    const entryValue = getExamDrillMetricEntry(getExamGraphMetricDefinition(), stats);
+    return entryValue
+      ? { status: "available", included: true, reason: "지표 수록" }
+      : { status: "missing", included: false, reason: "지표 미수록" };
+  }
+
+  if (state.examGraphPresetKey === "pairedBars") {
+    const pairDefinition = getExamGraphPairDefinition();
+    const values = (pairDefinition?.metricKeys ?? []).map((key) =>
+      getExamDrillMetricEntry(getMetricExplorerDefinitionByKey(metricDefinitions, key), stats),
+    );
+    const knownCount = values.filter(Boolean).length;
+    return knownCount === values.length && values.length === 2
+      ? { status: "available", included: true, reason: "두 지표 수록" }
+      : knownCount
+        ? { status: "partial", included: false, reason: `${knownCount}/2개 지표 수록` }
+        : { status: "missing", included: false, reason: "두 지표 모두 미수록" };
+  }
+
+  if (state.examGraphPresetKey === "timeCompare") {
+    const definition = getExamGraphTimeMetricDefinition();
+    const values = [
+      definition?.getYearValue?.(stats, state.examGraphYearStart),
+      definition?.getYearValue?.(stats, state.examGraphYearEnd),
+    ];
+    const knownCount = countKnownEntries(values);
+    return knownCount === 2
+      ? { status: "available", included: true, reason: "두 시점 수록" }
+      : knownCount
+        ? { status: "partial", included: false, reason: "한 시점만 수록" }
+        : { status: "missing", included: false, reason: "비교 시점 미수록" };
+  }
+
+  if (state.examGraphPresetKey === "trendLine") {
+    const definition = getExamGraphTimeMetricDefinition();
+    const pointCount = examGraphPopulationYears
+      .filter((year) => Number(year) >= Number(state.examGraphYearStart) && Number(year) <= Number(state.examGraphYearEnd))
+      .filter((year) => isKnownNumber(definition?.getYearValue?.(stats, year)))
+      .length;
+    return pointCount >= 2
+      ? { status: "available", included: true, reason: `${pointCount}개 시점 수록` }
+      : pointCount === 1
+        ? { status: "partial", included: false, reason: "한 시점만 수록" }
+        : { status: "missing", included: false, reason: "구간 자료 미수록" };
+  }
+
+  if (state.examGraphPresetKey === "scatter") {
+    const values = [state.examGraphScatterXKey, state.examGraphScatterYKey, state.examGraphScatterSizeKey]
+      .map((key) => getExamDrillMetricEntry(getMetricExplorerDefinitionByKey(metricDefinitions, key), stats));
+    const knownCount = values.filter(Boolean).length;
+    return knownCount === 3
+      ? { status: "available", included: true, reason: "X·Y·크기 수록" }
+      : knownCount
+        ? { status: "partial", included: false, reason: `${knownCount}/3개 변수 수록` }
+        : { status: "missing", included: false, reason: "산포도 변수 미수록" };
+  }
+
+  if (state.examGraphPresetKey === "top3share") {
+    const metric = getExamGraphTopShareMetricDefinition()?.getValue?.(entry.stats);
+    return isKnownNumber(metric?.value)
+      ? { status: "available", included: true, reason: "대륙 집계에 포함 가능" }
+      : { status: "missing", included: false, reason: "집계 지표 미수록" };
+  }
+
+  return { status: "missing", included: false, reason: "지원하지 않는 자료 구조" };
+}
+
+function isExamGraphCountryAvailableForCurrentConfig(entryOrId) {
+  return getExamGraphCountryAvailability(entryOrId).included;
+}
+
+function getExamGraphScopeAvailability(rows = getExamGraphSelectedCountryRows()) {
+  const results = (rows ?? []).map((row) =>
+    getExamGraphCountryAvailability({
+      id: row.id,
+      stats: row.stats,
+    }),
+  );
+  return {
+    total: rows.length,
+    available: results.filter((result) => result.included).length,
+    partial: results.filter((result) => !result.included && result.status === "partial").length,
+    missing: results.filter((result) => result.status === "missing").length,
+  };
+}
+
 function getExamGraphAlias(index) {
   const token = examGraphAliasLetters[index] ?? `A${index + 1}`;
   return `(${token})`;
 }
 
-function getExamGraphAliasIndex(row, fallbackIndex) {
-  const focusIds = Array.isArray(state.examGraphFocusCountryIds) ? state.examGraphFocusCountryIds : [];
-  const sourceIds = focusIds.length ? focusIds : (state.selected ?? []).map((country) => country.id);
-  const fixedIndex = sourceIds.findIndex((countryId) => String(countryId) === String(row?.id));
-  return fixedIndex >= 0 ? fixedIndex : fallbackIndex;
+function getExamGraphAliasIndex(_row, fallbackIndex) {
+  // Missing-data candidates are removed before labels are assigned. Aliases therefore
+  // follow the visible row order so the first rendered row is always (가), without gaps.
+  return fallbackIndex;
 }
 
 function getExamGraphPresetDefinition(presetKey = state.examGraphPresetKey) {
@@ -12100,7 +12311,11 @@ function getExamGraphFocusedCountryRows() {
       }
       return {
         id: countryId,
-        label: stats.atlasName ?? countryById.get(countryId)?.properties?.name ?? String(countryId),
+        label:
+          getExamCountryCatalogDefinition(stats?.iso3)?.nameKo ??
+          stats.atlasName ??
+          countryById.get(countryId)?.properties?.name ??
+          String(countryId),
         stats,
       };
     })
@@ -12140,24 +12355,31 @@ function getExamGraphScopeSourceText() {
   if (state.selected.length) {
     return "지도 선택 국가";
   }
-  return "자동 상위 추출";
+  return "수능 핵심 사례국 자동 추출";
 }
 
 function getExamGraphCountryScopeLabel(count) {
   const scopeMode = getExamGraphScopeMode();
   if (scopeMode === "auto") {
-    return `전체 자료 상위 ${count}개국`;
+    return `핵심 사례국 상위 ${count}개국`;
   }
   if (scopeMode === "focus") {
+    if (["custom", "deep-link"].includes(state.examGraphFocusKind)) {
+      return `직접 후보 ${count}개`;
+    }
+    if (state.examGraphFocusKind === "item-lab") {
+      return `Item Lab 후보 ${count}개`;
+    }
     return `추천 국가 ${count}개`;
   }
   return `지도 선택 국가 ${count}개`;
 }
 
-function isExamGraphRandomCountryAllowed(entryOrStats) {
+function isExamGraphRandomCountryAllowed(entryOrStats, { includeSupport = false } = {}) {
   const stats = entryOrStats?.stats ?? entryOrStats;
   const iso3 = String(stats?.iso3 ?? "").trim().toUpperCase();
-  return iso3 ? !examGraphRandomExcludedIso3.has(iso3) : true;
+  const tier = getExamGraphCountryTier(iso3);
+  return tier === "core" || (includeSupport && tier === "support");
 }
 
 function getExamGraphRandomCountryPriority(entryOrStats) {
@@ -12166,8 +12388,11 @@ function getExamGraphRandomCountryPriority(entryOrStats) {
   if (!iso3) {
     return 0;
   }
-  if (examGraphTextbookPriorityIso3.has(iso3)) {
-    return 2;
+  if (getExamGraphCountryTier(iso3) === "core") {
+    return 3;
+  }
+  if (getExamGraphCountryTier(iso3) === "support") {
+    return 1;
   }
   return 0;
 }
@@ -12189,15 +12414,22 @@ function getExamItemLabScenarioPoolKey(scenarioDefinition) {
 function getExamItemLabCountryTier(scenarioDefinition, entryOrStats) {
   const stats = entryOrStats?.stats ?? entryOrStats;
   const iso3 = String(stats?.iso3 ?? "").trim().toUpperCase();
-  if (!iso3 || !isExamGraphRandomCountryAllowed(stats)) {
+  const catalogDefinition = getExamCountryCatalogDefinition(iso3);
+  if (!iso3 || !catalogDefinition) {
     return 0;
   }
   const scenarioPool = examItemLabCoreIso3ByScenario.get(getExamItemLabScenarioPoolKey(scenarioDefinition));
   const topicPool = examItemLabCoreIso3ByTopic[scenarioDefinition?.topicKey];
-  if (scenarioPool?.has(iso3) || (!scenarioPool && topicPool?.has(iso3))) {
+  const matchesTopic = Boolean(
+    topicPool?.has(iso3) || catalogDefinition.topics?.includes(scenarioDefinition?.topicKey),
+  );
+  if (
+    catalogDefinition.tier === "core" &&
+    (scenarioPool?.has(iso3) || (!scenarioPool && matchesTopic))
+  ) {
     return 3;
   }
-  if (examDrillPoolKey === "extended" && topicPool?.has(iso3)) {
+  if (examDrillPoolKey === "extended" && matchesTopic) {
     return 2;
   }
   return 0;
@@ -12240,12 +12472,45 @@ function getExamGraphContinentScopeLabel(count) {
   return `지도 선택 국가가 속한 대륙 ${count}곳${getExamGraphContinentScopeSuffix("continents")}`;
 }
 
-function getExamGraphAllCountryRows() {
+function getExamGraphRawCountryRows() {
   return Object.entries(countryStatsById).map(([countryId, stats]) => ({
     id: countryId,
-    label: stats.atlasName ?? countryById.get(countryId)?.properties?.name ?? String(countryId),
+    label:
+      getExamCountryCatalogDefinition(stats?.iso3)?.nameKo ??
+      stats.atlasName ??
+      countryById.get(countryId)?.properties?.name ??
+      String(countryId),
     stats,
   }));
+}
+
+function getExamGraphAllCountryRows({ includeSupport = false } = {}) {
+  return getExamGraphRawCountryRows().filter((entry) => {
+    const tier = getExamGraphCountryTier(entry.stats?.iso3);
+    return tier === "core" || (includeSupport && tier === "support");
+  });
+}
+
+function getExamGraphAggregateSourceRows(selectedRows, grouping, presetKey = state.examGraphPresetKey) {
+  if (grouping !== "continents") {
+    return selectedRows.length ? selectedRows : getExamGraphAllCountryRows();
+  }
+  const rawRows = getExamGraphRawCountryRows();
+  if (!selectedRows.length) {
+    return rawRows;
+  }
+  const selectedContinents = new Set(
+    selectedRows
+      .map((entry) =>
+        getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping, presetKey }),
+      )
+      .filter(Boolean),
+  );
+  return rawRows.filter((entry) =>
+    selectedContinents.has(
+      getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping, presetKey }),
+    ),
+  );
 }
 
 function getExamGraphTopN() {
@@ -12398,6 +12663,12 @@ function ensureExamGraphState() {
   }
   state.examGraphFocusCountryIds = state.examGraphFocusCountryIds.filter((countryId) => Boolean(countryStatsById[countryId]));
   state.examGraphFocusLabel = typeof state.examGraphFocusLabel === "string" ? state.examGraphFocusLabel : "";
+  state.examGraphFocusKind = ["recommendation", "item-lab", "custom", "deep-link"].includes(state.examGraphFocusKind)
+    ? state.examGraphFocusKind
+    : "";
+  if (!state.examGraphFocusCountryIds.length) {
+    state.examGraphFocusKind = "";
+  }
 
   state.examGraphTopN = getExamGraphTopN();
   state.examGraphAliasMode = Boolean(state.examGraphAliasMode);
@@ -13327,6 +13598,7 @@ function buildExamItemLabPanelResult(panelDefinition, countryIds, rowCount = exa
   applyExamGraphScenarioConfig(panelDefinition.config);
   state.examGraphFocusCountryIds = panelDefinition.scope === "seed" ? [...countryIds] : [];
   state.examGraphFocusLabel = panelDefinition.scope === "seed" ? "Item Lab · shared countries" : "World dataset";
+  state.examGraphFocusKind = panelDefinition.scope === "seed" ? "item-lab" : "";
   state.examGraphTopN = panelDefinition.scope === "seed" ? countryIds.length : resolvedRowCount;
   state.examGraphAliasMode = true;
   state.examGraphOrientation = "auto";
@@ -13513,10 +13785,11 @@ function createExamDrillResult(
     state.examGraphMergeAmericas = false;
     state.examGraphFocusCountryIds = [];
     state.examGraphFocusLabel = "";
+    state.examGraphFocusKind = "";
     ensureExamGraphState();
     const drillSnapshot = captureExamGraphStateSnapshot();
     const templateCandidates = getExamItemLabTemplateCandidates(topicKey, patternKey, templateKey, panelCount);
-    const countrySampleCount = templateKey || templateCandidates.length === 1 ? 160 : 48;
+      const countrySampleCount = templateKey || templateCandidates.length === 1 ? 160 : 48;
     for (const templateDefinition of templateCandidates) {
       const { scenarioDefinition } = templateDefinition;
       const eligibleCountryIds = getExamItemLabTemplateEligibleCountryIds(templateDefinition);
@@ -13548,6 +13821,14 @@ function createExamDrillResult(
         (countryId) => getExamItemLabTemplateCountryTier(templateDefinition, countryStatsById[countryId]),
         resolvedRowCount,
       );
+      const pinnedFallbackIds = examItemLabPinnedFallbackCountryIdsByTemplate.get(templateDefinition.key) ?? [];
+      if (
+        examDrillPoolKey === "core" &&
+        resolvedRowCount === pinnedFallbackIds.length &&
+        pinnedFallbackIds.every((countryId) => eligibleCountryIds.includes(countryId))
+      ) {
+        countrySets.unshift([...pinnedFallbackIds]);
+      }
       for (const countryIds of countrySets) {
         const panelResults = templateDefinition.panels.map((panelDefinition, panelIndex) => {
           if (panelDefinition.scope === "world") {
@@ -13635,12 +13916,19 @@ function tryCreateExamDrillResult(
     rowCount = examDrillRowCount,
   } = {},
 ) {
-  try {
-    return createExamDrillResult(topicKey, { templateKey, patternKey, panelCount, rowCount });
-  } catch (error) {
-    console.error("Item Lab 자료를 생성하지 못했습니다.", error);
-    return null;
+  const attemptLimit = templateKey ? 5 : 3;
+  for (let attempt = 0; attempt < attemptLimit; attempt += 1) {
+    try {
+      const result = createExamDrillResult(topicKey, { templateKey, patternKey, panelCount, rowCount });
+      if (result) {
+        return result;
+      }
+    } catch (error) {
+      console.error("Item Lab 자료를 생성하지 못했습니다.", error);
+      return null;
+    }
   }
+  return null;
 }
 
 function generateExamDrillResult({
@@ -13649,21 +13937,24 @@ function generateExamDrillResult({
   panelCount = examDrillPanelCount,
   rowCount = examDrillRowCount,
 } = {}) {
-  const previousPanelCount = examDrillResult?.panels?.length ?? examDrillPanelCount;
-  const previousRowCount = examDrillResult?.rowCount ?? examDrillResult?.recommendation?.ids?.length ?? examDrillRowCount;
+  const requestedPanelCount = normalizeExamItemLabPanelCount(panelCount);
+  const requestedRowCount = normalizeExamItemLabRowCount(rowCount);
+  examDrillFailureMessage = "";
   const nextResult = tryCreateExamDrillResult(examDrillTopicKey, {
     templateKey,
     patternKey: examDrillPatternKey,
-    panelCount,
-    rowCount,
+    panelCount: requestedPanelCount,
+    rowCount: requestedRowCount,
   });
   if (nextResult) {
     examDrillResult = nextResult;
     examDrillPanelCount = nextResult.panels.length;
     examDrillRowCount = nextResult.rowCount;
   } else {
-    examDrillPanelCount = normalizeExamItemLabPanelCount(previousPanelCount);
-    examDrillRowCount = normalizeExamItemLabRowCount(previousRowCount);
+    examDrillResult = null;
+    examDrillPanelCount = requestedPanelCount;
+    examDrillRowCount = requestedRowCount;
+    examDrillFailureMessage = `${requestedPanelCount}개 패널 · ${requestedRowCount}개 행 조건을 모두 만족하는 조합을 찾지 못했습니다. 기존 결과를 그대로 보여 주지 않고 비워 두었습니다.`;
   }
   if (nextResult?.signature) {
     examDrillRecentSignatures.push(nextResult.signature);
@@ -13861,6 +14152,7 @@ function applyExamDrillResultToBuilder(panelIndex = 0) {
   applyExamGraphScenarioConfig(panelDefinition.config);
   state.examGraphFocusCountryIds = focusIds;
   state.examGraphFocusLabel = panelDefinition.scope === "world" ? "World dataset" : recommendation.label;
+  state.examGraphFocusKind = panelDefinition.scope === "world" ? "" : "item-lab";
   state.examGraphAliasMode = true;
   state.examGraphTopN = panelResult.model.rows.length;
   state.examGraphOrientation = "auto";
@@ -13896,7 +14188,7 @@ function renderExamDrillPanel() {
   if (state.mapVersion !== "world") {
     return;
   }
-  if (!examDrillResult) {
+  if (!examDrillResult && !examDrillFailureMessage) {
     examDrillResult = tryCreateExamDrillResult(examDrillTopicKey);
     if (examDrillResult?.signature) {
       examDrillRecentSignatures.push(examDrillResult.signature);
@@ -14086,7 +14378,10 @@ function renderExamDrillPanel() {
   shell.appendChild(toolbar);
 
   if (!examDrillResult?.model) {
-    const empty = createEmptyState("출제 구도가 선명한 통계 조합을 찾지 못했습니다.");
+    const empty = createEmptyState(
+      examDrillFailureMessage || "출제 구도가 선명한 통계 조합을 찾지 못했습니다.",
+      { tagName: "div", role: "status" },
+    );
     const retry = document.createElement("button");
     retry.id = "examDrillRetryButton";
     retry.type = "button";
@@ -14191,13 +14486,29 @@ function renderExamGraphPanel() {
   output.setAttribute("aria-label", "그래프 미리보기와 값");
 
   if (!model) {
-    output.appendChild(
-      createEmptyState(
-        state.examGraphPresetKey
-          ? "현재 후보와 지표로 만들 수 있는 자료가 없습니다. 후보 또는 통계 설정을 바꿔 보세요."
-          : "‘구성비 누적’을 선택해 후보 간 구성 차이를 불러오세요.",
-      ),
-    );
+    const scopeRows = getExamGraphSelectedCountryRows();
+    const availability = getExamGraphScopeAvailability(scopeRows);
+    const message = scopeRows.length
+      ? `${scopeRows.length}개 후보 중 현재 구조로 그릴 수 있는 국가는 ${availability.available}개입니다. 부분 수록 ${availability.partial}개, 미수록 ${availability.missing}개이므로 후보나 통계 설정을 바꿔 보세요.`
+      : state.examGraphPresetKey
+        ? "현재 자동 범위와 지표로 만들 수 있는 자료가 없습니다. 자료 추천을 다시 실행해 보세요."
+        : "‘구성비 누적’을 선택해 후보 간 구성 차이를 불러오세요.";
+    const empty = createEmptyState(message, { tagName: "div", role: "status" });
+    empty.classList.add("exam-graph-empty");
+    const actions = document.createElement("div");
+    actions.className = "exam-graph-empty__actions";
+    const recommendButton = document.createElement("button");
+    recommendButton.type = "button";
+    recommendButton.className = "exam-graph-builder-action is-primary";
+    recommendButton.textContent = "현재 후보에 맞는 자료 추천";
+    recommendButton.addEventListener("click", () => applyExamGraphRandomScenario({ graphOnly: true }));
+    const libraryLink = document.createElement("a");
+    libraryLink.className = "exam-graph-builder-action";
+    libraryLink.href = "./tools/stats/index.html";
+    libraryLink.textContent = "Data Library에서 범위 확인";
+    actions.append(recommendButton, libraryLink);
+    empty.appendChild(actions);
+    output.appendChild(empty);
     workbench.appendChild(output);
     shell.appendChild(workbench);
     elements.examGraphPanel.appendChild(shell);
@@ -14223,13 +14534,29 @@ function renderExamGraphPanel() {
   const readiness = document.createElement("div");
   readiness.className = "exam-graph-readiness";
   const scopeCount = Array.isArray(model.rows) ? model.rows.length : getExamGraphSelectedCountryRows().length || getExamGraphTopN();
-  [
+  const activeCountryRows = getExamGraphSelectedCountryRows();
+  const availability = getExamGraphScopeAvailability(activeCountryRows);
+  const readinessLabels = [
     `${scopeCount}개 후보`,
-    `${formatExamGraphPtLabel()}`,
+    "사이트 기본 서체",
     state.examGraphAliasMode ? "문항 라벨" : "원래 이름",
-  ].forEach((label) => {
+  ];
+  if (availability.total) {
+    const excludedCount = availability.partial + availability.missing;
+    readinessLabels.splice(
+      1,
+      0,
+      excludedCount
+        ? `${availability.available}/${availability.total}개 현재 통계 사용`
+        : `${availability.total}개 데이터 확인`,
+    );
+  }
+  readinessLabels.forEach((label) => {
     const item = document.createElement("span");
     item.textContent = label;
+    if ((availability.partial || availability.missing) && label.includes("현재 통계")) {
+      item.classList.add("has-warning");
+    }
     readiness.appendChild(item);
   });
   outputHeader.append(outputCopy, readiness);
@@ -14607,13 +14934,33 @@ function buildExamGraphScopeCard() {
     const visibleNames = rows.slice(0, 5).map((row) => getExamGraphReadableLabel(row.label));
     detail.textContent = `${visibleNames.join(" · ")}${rows.length > visibleNames.length ? ` 외 ${rows.length - visibleNames.length}개` : ""}`;
   } else {
-    detail.textContent = `지도에서 3~5개 국가를 고르거나 후보 추천을 사용함 · 현재 ${getExamGraphTopN()}개 자동 추출`;
+    detail.textContent = `지도에서 고르거나 아래 검색에서 국가·영토를 직접 추가함 · 현재 ${getExamGraphTopN()}개 자동 추출`;
   }
   copy.append(label, detail);
+  if (rows.length) {
+    const availability = getExamGraphScopeAvailability(rows);
+    const availabilityText = document.createElement("small");
+    const excludedCount = availability.partial + availability.missing;
+    availabilityText.className = `exam-graph-scope-card__availability${excludedCount ? " has-missing" : ""}`;
+    availabilityText.textContent = excludedCount
+      ? `현재 그래프에 ${availability.available}/${availability.total}개 포함 · 부분 수록 ${availability.partial} · 미수록 ${availability.missing}`
+      : `현재 통계에서 ${availability.available}개 모두 사용 가능`;
+    copy.appendChild(availabilityText);
+  }
 
   const badge = document.createElement("span");
   badge.className = "exam-graph-scope-card__badge";
-  badge.textContent = scopeMode === "focus" ? "추천 후보" : scopeMode === "selected" ? `${rows.length}개 선택` : "자동 범위";
+  badge.textContent = scopeMode === "focus"
+    ? state.examGraphFocusKind === "custom"
+      ? "직접 후보"
+      : state.examGraphFocusKind === "deep-link"
+        ? "Library 후보"
+        : state.examGraphFocusKind === "item-lab"
+          ? "Item Lab"
+          : "추천 후보"
+    : scopeMode === "selected"
+      ? `${rows.length}개 선택`
+      : "자동 범위";
   card.append(copy, badge);
 
   if (scopeMode === "focus") {
@@ -14625,12 +14972,299 @@ function buildExamGraphScopeCard() {
       updateExamGraphState("비교 그래프 대상 복귀", () => {
         state.examGraphFocusCountryIds = [];
         state.examGraphFocusLabel = "";
+        state.examGraphFocusKind = "";
       });
       setStatus("그래프 범위를 지도 선택 기준으로 되돌렸습니다.");
     });
     card.appendChild(reset);
   }
+  card.appendChild(buildExamGraphCountryPicker());
   return card;
+}
+
+function getExamGraphCountrySearchResults(query, limit = 10) {
+  const entries = getExamGraphCountrySearchEntries();
+  const normalizedQuery = normalizeExamGraphCountrySearch(query);
+  const topicKey = getExamGraphCurrentTopicKey();
+  if (!normalizedQuery) {
+    const spotlightOrder = new Map(examGraphQuickCountryIso3.map((iso3, index) => [iso3, index]));
+    const topicEntries = entries.filter(
+      (entry) => entry.tier === "core" && (!entry.topics.length || entry.topics.includes(topicKey)),
+    );
+    return (topicEntries.length ? topicEntries : entries.filter((entry) => entry.tier === "core"))
+      .sort((first, second) => {
+        const firstAvailable = getExamGraphCountryAvailability(first).included ? 1 : 0;
+        const secondAvailable = getExamGraphCountryAvailability(second).included ? 1 : 0;
+        return secondAvailable - firstAvailable ||
+          (spotlightOrder.get(first.iso3) ?? 99) - (spotlightOrder.get(second.iso3) ?? 99) ||
+          (first.nameKo || first.name).localeCompare(second.nameKo || second.name, "ko");
+      })
+      .slice(0, limit);
+  }
+  const tokens = normalizedQuery.split(" ").filter(Boolean);
+  return entries
+    .map((entry) => {
+      const normalizedName = normalizeExamGraphCountrySearch(entry.name);
+      const normalizedIso3 = normalizeExamGraphCountrySearch(entry.iso3);
+      const normalizedAliases = entry.aliases.map(normalizeExamGraphCountrySearch);
+      let score = 0;
+      if (normalizedIso3 === normalizedQuery) score = 240;
+      else if (normalizedName === normalizedQuery || normalizedAliases.includes(normalizedQuery)) score = 220;
+      else if (normalizedName.startsWith(normalizedQuery) || normalizedAliases.some((alias) => alias.startsWith(normalizedQuery))) score = 170;
+      else if (tokens.every((token) => entry.searchText.includes(token))) score = 120;
+      else if (entry.searchText.includes(normalizedQuery)) score = 90;
+      if (score && entry.topics.includes(topicKey)) score += 20;
+      if (score && entry.tier === "core") score += 10;
+      return { entry, score };
+    })
+    .filter((result) => result.score > 0)
+    .sort((first, second) => second.score - first.score || first.entry.name.localeCompare(second.entry.name, "en"))
+    .slice(0, limit)
+    .map((result) => result.entry);
+}
+
+function focusExamGraphCountrySearch() {
+  window.requestAnimationFrame(() => {
+    const input = document.querySelector("#examGraphCountrySearchInput");
+    if (input) {
+      input.focus({ preventScroll: true });
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+  });
+}
+
+function addExamGraphCountryToFocus(countryId) {
+  const currentFocusIds = Array.isArray(state.examGraphFocusCountryIds) ? state.examGraphFocusCountryIds : [];
+  const baseIds = currentFocusIds.length
+    ? currentFocusIds
+    : getExamGraphSelectedCountryRows().map((row) => row.id);
+  if (baseIds.some((id) => String(id) === String(countryId))) {
+    setStatus("이미 Graph Builder 후보에 들어 있는 국가입니다.");
+    return;
+  }
+  if (baseIds.length >= 12) {
+    setStatus("Graph Builder 직접 후보는 최대 12개까지 둘 수 있습니다.", true);
+    return;
+  }
+  const nextIds = [...baseIds, countryId];
+  const entry = getExamGraphCountrySearchEntries().find((candidate) => String(candidate.id) === String(countryId));
+  examGraphCountrySearchQuery = "";
+  updateExamGraphState("비교 그래프 직접 후보 추가", () => {
+    state.examGraphFocusCountryIds = nextIds;
+    state.examGraphFocusLabel = "직접 검색한 후보";
+    state.examGraphFocusKind = "custom";
+    state.examGraphTopN = Math.max(3, nextIds.length);
+  });
+  setStatus(`${entry?.nameKo || entry?.name || "국가"} (${entry?.iso3 ?? countryId})를 Graph Builder 후보에 추가했습니다.`);
+  focusExamGraphCountrySearch();
+}
+
+function removeExamGraphCountryFromFocus(countryId) {
+  const currentIds = Array.isArray(state.examGraphFocusCountryIds) ? state.examGraphFocusCountryIds : [];
+  if (!currentIds.some((id) => String(id) === String(countryId))) {
+    return;
+  }
+  const nextIds = currentIds.filter((id) => String(id) !== String(countryId));
+  updateExamGraphState("비교 그래프 직접 후보 제거", () => {
+    state.examGraphFocusCountryIds = nextIds;
+    state.examGraphFocusLabel = nextIds.length ? "직접 검색한 후보" : "";
+    state.examGraphFocusKind = nextIds.length ? "custom" : "";
+    if (nextIds.length) {
+      state.examGraphTopN = Math.max(3, nextIds.length);
+    }
+  });
+  setStatus(nextIds.length ? "Graph Builder 후보에서 국가를 제외했습니다." : "직접 후보를 비우고 지도 선택 기준으로 돌아왔습니다.");
+  focusExamGraphCountrySearch();
+}
+
+function moveExamGraphCountryFocus(countryId, offset) {
+  const currentIds = [...(state.examGraphFocusCountryIds ?? [])];
+  const currentIndex = currentIds.findIndex((id) => String(id) === String(countryId));
+  const nextIndex = clamp(currentIndex + offset, 0, currentIds.length - 1);
+  if (currentIndex < 0 || currentIndex === nextIndex) {
+    return;
+  }
+  [currentIds[currentIndex], currentIds[nextIndex]] = [currentIds[nextIndex], currentIds[currentIndex]];
+  updateExamGraphState("비교 그래프 후보 순서 변경", () => {
+    state.examGraphFocusCountryIds = currentIds;
+    state.examGraphFocusLabel = "직접 검색한 후보";
+    state.examGraphFocusKind = "custom";
+  });
+  setStatus("Graph Builder 후보 순서를 바꿨습니다. 가명과 정답표도 이 순서를 따릅니다.");
+  window.requestAnimationFrame(() => {
+    document.querySelector(`[data-exam-graph-country-id="${CSS.escape(String(countryId))}"]`)?.focus({
+      preventScroll: true,
+    });
+  });
+}
+
+function buildExamGraphSelectedCountryList() {
+  const rows = getExamGraphFocusedCountryRows();
+  if (!rows.length) {
+    return null;
+  }
+  const list = document.createElement("ol");
+  list.className = "exam-graph-country-selection";
+  list.setAttribute("aria-label", "Graph Builder 직접 후보 순서");
+  rows.forEach((row, index) => {
+    const entry = getExamGraphCountrySearchEntries().find((candidate) => String(candidate.id) === String(row.id));
+    const item = document.createElement("li");
+    item.tabIndex = -1;
+    item.dataset.examGraphCountryId = String(row.id);
+    item.setAttribute("aria-label", `${getExamGraphAlias(index)} ${entry?.nameKo || getExamGraphReadableLabel(row.label)}`);
+    const order = document.createElement("span");
+    order.className = "exam-graph-country-selection__order";
+    order.textContent = getExamGraphAlias(index);
+    const copy = document.createElement("span");
+    copy.className = "exam-graph-country-selection__copy";
+    const name = document.createElement("strong");
+    name.textContent = entry?.nameKo || getExamGraphReadableLabel(row.label);
+    const meta = document.createElement("small");
+    meta.textContent = [entry?.nameKo ? entry.name : "", entry?.iso3, entry?.tier === "core" ? "핵심" : "보조"].filter(Boolean).join(" · ");
+    copy.append(name, meta);
+    const actions = document.createElement("span");
+    actions.className = "exam-graph-country-selection__actions";
+    [
+      { label: "위", offset: -1, disabled: index === 0 },
+      { label: "아래", offset: 1, disabled: index === rows.length - 1 },
+    ].forEach((action) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = action.label;
+      button.disabled = action.disabled;
+      button.setAttribute("aria-label", `${name.textContent} 후보를 ${action.label}로 이동`);
+      button.addEventListener("click", () => moveExamGraphCountryFocus(row.id, action.offset));
+      actions.appendChild(button);
+    });
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.textContent = "제외";
+    remove.setAttribute("aria-label", `${name.textContent} 후보 제외`);
+    remove.addEventListener("click", () => removeExamGraphCountryFromFocus(row.id));
+    actions.appendChild(remove);
+    item.append(order, copy, actions);
+    list.appendChild(item);
+  });
+  return list;
+}
+
+function buildExamGraphCountryPicker() {
+  const picker = document.createElement("section");
+  picker.className = "exam-graph-country-picker";
+  picker.setAttribute("aria-labelledby", "examGraphCountryPickerTitle");
+
+  const heading = document.createElement("div");
+  heading.className = "exam-graph-country-picker__heading";
+  const headingCopy = document.createElement("div");
+  const title = document.createElement("strong");
+  title.id = "examGraphCountryPickerTitle";
+  title.textContent = "출제 후보 직접 찾기";
+  const hint = document.createElement("p");
+  hint.textContent = "수능 세계지리의 핵심·보조 사례국만 검색함. 속령·미소국과 원자료용 국가는 숨김.";
+  headingCopy.append(title, hint);
+  const libraryLink = document.createElement("a");
+  libraryLink.href = "./tools/stats/index.html#countryIndexTitle";
+  libraryLink.textContent = "Data Library";
+  heading.append(headingCopy, libraryLink);
+  picker.appendChild(heading);
+
+  const selectedList = buildExamGraphSelectedCountryList();
+  if (selectedList) {
+    picker.appendChild(selectedList);
+  }
+
+  const searchLabel = document.createElement("label");
+  searchLabel.className = "exam-graph-country-search";
+  const searchLabelText = document.createElement("span");
+  searchLabelText.textContent = "국가명 또는 ISO3";
+  const input = document.createElement("input");
+  input.id = "examGraphCountrySearchInput";
+  input.type = "search";
+  input.autocomplete = "off";
+  input.placeholder = "대한민국, South Korea, KOR";
+  input.value = examGraphCountrySearchQuery;
+  searchLabel.append(searchLabelText, input);
+
+  const resultMeta = document.createElement("p");
+  resultMeta.className = "exam-graph-country-results__meta";
+  resultMeta.setAttribute("aria-live", "polite");
+  const results = document.createElement("div");
+  results.className = "exam-graph-country-results";
+
+  const renderResults = () => {
+    const resultEntries = getExamGraphCountrySearchResults(examGraphCountrySearchQuery);
+    resultMeta.textContent = examGraphCountrySearchQuery
+      ? `${resultEntries.length}개 검색 결과`
+      : `${examGraphTopicLabels[getExamGraphCurrentTopicKey()] ?? "현재 주제"} 핵심 사례국`;
+    results.replaceChildren();
+    if (!resultEntries.length) {
+      results.appendChild(
+        createEmptyState(
+          "출제 후보 목록에서 일치하는 국가가 없습니다. 한국어명·영문명·ISO3를 확인해 보세요.",
+          { tagName: "div", role: "status" },
+        ),
+      );
+      return;
+    }
+    const focusIds = state.examGraphFocusCountryIds ?? [];
+    resultEntries.forEach((entry) => {
+      const selected = focusIds.some((id) => String(id) === String(entry.id));
+      const availability = getExamGraphCountryAvailability(entry);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "exam-graph-country-result";
+      button.classList.toggle("is-selected", selected);
+      button.classList.toggle("is-partial", availability.status === "partial");
+      button.classList.toggle("has-missing", availability.status === "missing");
+      button.setAttribute("aria-pressed", String(selected));
+      const copy = document.createElement("span");
+      const name = document.createElement("strong");
+      name.textContent = entry.nameKo || entry.name;
+      const meta = document.createElement("small");
+      meta.textContent = [entry.nameKo ? entry.name : "", entry.iso3, entry.continent].filter(Boolean).join(" · ");
+      copy.append(name, meta);
+      const status = document.createElement("span");
+      status.className = "exam-graph-country-result__status";
+      status.textContent = [
+        selected ? "선택됨" : entry.tier === "core" ? "핵심 사례국" : "보조 사례국",
+        availability.included
+          ? availability.status === "partial"
+            ? "일부 구성으로 그래프 가능"
+            : "현재 그래프 가능"
+          : availability.status === "partial"
+            ? "일부 변수만 수록"
+            : "현재 통계 미수록",
+      ].join(" · ");
+      button.append(copy, status);
+      button.addEventListener("click", () => {
+        if (selected) {
+          removeExamGraphCountryFromFocus(entry.id);
+        } else {
+          addExamGraphCountryToFocus(entry.id);
+        }
+      });
+      results.appendChild(button);
+    });
+  };
+
+  input.addEventListener("input", () => {
+    examGraphCountrySearchQuery = input.value;
+    renderResults();
+  });
+  input.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || !normalizeExamGraphCountrySearch(examGraphCountrySearchQuery)) {
+      return;
+    }
+    const firstResult = getExamGraphCountrySearchResults(examGraphCountrySearchQuery, 1)[0];
+    if (!firstResult) {
+      return;
+    }
+    event.preventDefault();
+    addExamGraphCountryToFocus(firstResult.id);
+  });
+  picker.append(searchLabel, resultMeta, results);
+  renderResults();
+  return picker;
 }
 
 function buildExamGraphPresetPicker() {
@@ -14789,6 +15423,7 @@ function captureExamGraphStateSnapshot() {
     examGraphMergeAmericas: state.examGraphMergeAmericas,
     examGraphFocusCountryIds: [...state.examGraphFocusCountryIds],
     examGraphFocusLabel: state.examGraphFocusLabel,
+    examGraphFocusKind: state.examGraphFocusKind,
   };
 }
 
@@ -14817,6 +15452,7 @@ function restoreExamGraphStateSnapshot(snapshot) {
     examGraphMergeAmericas: snapshot.examGraphMergeAmericas,
     examGraphFocusCountryIds: [...snapshot.examGraphFocusCountryIds],
     examGraphFocusLabel: snapshot.examGraphFocusLabel,
+    examGraphFocusKind: snapshot.examGraphFocusKind,
   });
 }
 
@@ -15484,6 +16120,7 @@ function tryApplyRandomExamGraphScenario({ includeCountries = false } = {}) {
       }
       state.examGraphFocusCountryIds = recommendation.ids;
       state.examGraphFocusLabel = recommendation.label;
+      state.examGraphFocusKind = "recommendation";
       state.examGraphGrouping = scenario.grouping ?? "countries";
       ensureExamGraphState();
     }
@@ -15510,6 +16147,7 @@ function applyExamGraphRandomCountries() {
   updateExamGraphState("비교 그래프 국가 추천", () => {
     state.examGraphFocusCountryIds = recommendation.ids;
     state.examGraphFocusLabel = recommendation.label;
+    state.examGraphFocusKind = "recommendation";
   });
   setStatus(`추천 대상을 그래프 범위에 반영했습니다. (${recommendation.label})`);
 }
@@ -15526,6 +16164,7 @@ function applyExamGraphRandomScenario({ graphOnly = false } = {}) {
     if (!graphOnly && result.recommendation?.ids?.length) {
       state.examGraphFocusCountryIds = result.recommendation.ids;
       state.examGraphFocusLabel = result.recommendation.label;
+      state.examGraphFocusKind = "recommendation";
     }
   });
 
@@ -15973,7 +16612,7 @@ function buildExamScatterGraphModel() {
         ? `대륙별 평균 또는 합계${getExamGraphContinentScopeSuffix("continents")}`
         : selectedRows.length
           ? `선택 국가 ${displayRows.length}개`
-          : `전체 자료 상위 ${displayRows.length}개국`,
+          : `핵심 사례국 상위 ${displayRows.length}개국`,
     rowCountText: `${displayRows.length}개 점`,
     rows: displayRows,
     xFormatter: xDefinition.formatter,
@@ -16003,7 +16642,7 @@ function buildExamTopShareGraphModel() {
       .filter(Boolean),
   )];
   const allowedContinentSet = selectedContinents.length ? new Set(selectedContinents) : null;
-  const contributors = getExamGraphAllCountryRows()
+  const contributors = getExamGraphRawCountryRows()
     .filter((entry) => !allowedContinentSet || allowedContinentSet.has(getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping: "continents", presetKey: "top3share" })))
     .map((entry) => {
       const metric = definition.getValue(entry.stats);
@@ -16105,7 +16744,7 @@ function buildExamTopShareGraphModel() {
 
 function getExamGraphCompositionRows(definition, grouping) {
   const selectedRows = getExamGraphSelectedCountryRows();
-  const sourceRows = selectedRows.length ? selectedRows : getExamGraphAllCountryRows();
+  const sourceRows = getExamGraphAggregateSourceRows(selectedRows, grouping);
   const countryRows = sourceRows
     .map((entry) => {
       const components = (definition.getComponents(entry.stats) ?? [])
@@ -16136,7 +16775,7 @@ function getExamGraphCompositionRows(definition, grouping) {
   if (grouping === "countries") {
     return {
       rows: selectedRows.length ? countryRows : countryRows.sort((a, b) => Number(b.total) - Number(a.total)).slice(0, getExamGraphTopN()),
-      scopeLabel: selectedRows.length ? getExamGraphCountryScopeLabel(countryRows.length) : `전체 자료 상위 ${Math.min(countryRows.length, getExamGraphTopN())}개국`,
+      scopeLabel: selectedRows.length ? getExamGraphCountryScopeLabel(countryRows.length) : `핵심 사례국 상위 ${Math.min(countryRows.length, getExamGraphTopN())}개국`,
     };
   }
 
@@ -16204,7 +16843,7 @@ function getExamGraphCompositionRows(definition, grouping) {
 
 function getExamGraphTimeRows(definition, grouping, yearStart, yearEnd) {
   const selectedRows = getExamGraphSelectedCountryRows();
-  const sourceRows = selectedRows.length ? selectedRows : getExamGraphAllCountryRows();
+  const sourceRows = getExamGraphAggregateSourceRows(selectedRows, grouping);
 
   if (grouping === "countries") {
     const rows = sourceRows
@@ -16233,7 +16872,7 @@ function getExamGraphTimeRows(definition, grouping, yearStart, yearEnd) {
 
     return {
       rows: selectedRows.length ? rows : rows.sort((a, b) => Number(b.endValue) - Number(a.endValue)).slice(0, getExamGraphTopN()),
-      scopeLabel: selectedRows.length ? getExamGraphCountryScopeLabel(rows.length) : `전체 자료 상위 ${Math.min(rows.length, getExamGraphTopN())}개국`,
+      scopeLabel: selectedRows.length ? getExamGraphCountryScopeLabel(rows.length) : `핵심 사례국 상위 ${Math.min(rows.length, getExamGraphTopN())}개국`,
     };
   }
 
@@ -16293,7 +16932,7 @@ function getExamGraphTimeGroupValue(definition, entries, year) {
 
 function getExamGraphMetricRows(definition, grouping) {
   const selectedRows = getExamGraphSelectedCountryRows();
-  const sourceRows = selectedRows.length ? selectedRows : getExamGraphAllCountryRows();
+  const sourceRows = getExamGraphAggregateSourceRows(selectedRows, grouping);
   const countryRows = sourceRows
     .map((entry) => {
       const metric = definition.getValue(entry.stats);
@@ -16364,7 +17003,7 @@ function getExamGraphPairRows(pairDefinition, grouping) {
   const firstDefinition = getMetricExplorerDefinitionByKey(metricDefinitions, pairDefinition.metricKeys[0]);
   const secondDefinition = getMetricExplorerDefinitionByKey(metricDefinitions, pairDefinition.metricKeys[1]);
   const selectedRows = getExamGraphSelectedCountryRows();
-  const sourceRows = selectedRows.length ? selectedRows : getExamGraphAllCountryRows();
+  const sourceRows = getExamGraphAggregateSourceRows(selectedRows, grouping);
   const countryRows = sourceRows
     .map((entry) => {
       const firstMetric = firstDefinition.getValue(entry.stats);
@@ -16450,7 +17089,7 @@ function getExamGraphPairRows(pairDefinition, grouping) {
 function getExamGraphTrendRows(definition, grouping, yearStart, yearEnd) {
   const years = examGraphPopulationYears.filter((year) => Number(year) >= Number(yearStart) && Number(year) <= Number(yearEnd));
   const selectedRows = getExamGraphSelectedCountryRows();
-  const sourceRows = selectedRows.length ? selectedRows : getExamGraphAllCountryRows();
+  const sourceRows = getExamGraphAggregateSourceRows(selectedRows, grouping);
 
   if (grouping === "countries") {
     const rows = sourceRows
@@ -16524,7 +17163,7 @@ function getExamGraphTrendRows(definition, grouping, yearStart, yearEnd) {
 
 function getExamGraphScatterRows(xDefinition, yDefinition, sizeDefinition, grouping) {
   const selectedRows = getExamGraphSelectedCountryRows();
-  const sourceRows = selectedRows.length ? selectedRows : getExamGraphAllCountryRows();
+  const sourceRows = getExamGraphAggregateSourceRows(selectedRows, grouping);
   const countryRows = sourceRows
     .map((entry) => {
       const xMetric = xDefinition.getValue(entry.stats);
@@ -18463,7 +19102,11 @@ function buildExamGraphCsvRows(model) {
       ...new Set(rows.flatMap((row) => (row.segments ?? []).map((segment) => segment.label))),
     ];
     return [
-      ["표시명", "실제명", ...segmentLabels.flatMap((label) => [`${label} 값`, `${label} 비율(%)`])],
+      [
+        "표시명",
+        "실제명",
+        ...segmentLabels.flatMap((label) => [`${label} 실제 항목`, `${label} 값`, `${label} 비율(%)`]),
+      ],
       ...rows.map((row) => {
         const segmentMap = new Map((row.segments ?? []).map((segment) => [segment.label, segment]));
         return [
@@ -18472,6 +19115,7 @@ function buildExamGraphCsvRows(model) {
           ...segmentLabels.flatMap((label) => {
             const segment = segmentMap.get(label);
             return [
+              segment?.actualLabel ?? "",
               normalizeExamGraphCsvValue(segment?.value),
               normalizeExamGraphCsvValue(segment?.share),
             ];
@@ -20185,7 +20829,6 @@ function renderInsetList() {
       beginHistoryStep("인셋 라벨 변경");
       inset.label = labelInput.value;
       renderMap();
-      renderAnnotations();
     });
 
     const xInput = buildNumberInput(inset.panelX, 0, state.width, 1, "인셋 위치 변경", (value) => {
@@ -20327,9 +20970,12 @@ function renderInsetList() {
   });
 }
 
-function createEmptyState(text) {
-  const item = document.createElement("li");
+function createEmptyState(text, { tagName = "li", role = "" } = {}) {
+  const item = document.createElement(tagName);
   item.className = "empty-state";
+  if (role) {
+    item.setAttribute("role", role);
+  }
   item.textContent = text;
   return item;
 }
@@ -23565,8 +24211,8 @@ function mountPreviewCanvas() {
     return;
   }
 
-  const maxWidth = Math.max(260, elements.previewStage.clientWidth - 28);
-  const maxHeight = Math.max(260, elements.previewStage.clientHeight - 28);
+  const maxWidth = Math.max(160, elements.previewStage.clientWidth - 28);
+  const maxHeight = Math.max(200, elements.previewStage.clientHeight - 28);
   // Keep every edge reachable like a slide editor, while still enlarging compact canvases.
   currentPreviewScale = clamp(Math.min(maxWidth / state.width, maxHeight / state.height), 0.1, 2.5);
 
@@ -23575,6 +24221,8 @@ function mountPreviewCanvas() {
   canvasShell.style.width = `${Math.round(state.width * currentPreviewScale)}px`;
   canvasShell.style.height = `${Math.round(state.height * currentPreviewScale)}px`;
   canvasShell.style.backgroundColor = state.oceanColor;
+  canvasShell.tabIndex = 0;
+  canvasShell.setAttribute("aria-label", "지도 미리보기. 숫자 1부터 4로 도구를 바꾸고 Space를 누른 동안 이동할 수 있습니다.");
   canvasShell.addEventListener("pointerdown", handleCanvasPointerDown);
   canvasShell.addEventListener("wheel", handleCanvasWheel, { passive: false });
   canvasShell.addEventListener("gesturestart", handleCanvasGestureStart);
@@ -24427,6 +25075,7 @@ function handleCanvasPointerDown(event) {
   }
 
   const shell = event.currentTarget;
+  shell.focus?.({ preventScroll: true });
   const startPoint = getCanvasPointFromEvent(event, shell);
   if (!startPoint) {
     return;

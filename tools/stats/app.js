@@ -2,7 +2,20 @@
   "use strict";
 
   const index = window.STATISTICS_DATA_INDEX;
+  const countryTopicLabels = {
+    demography: "인구·도시",
+    agriculture: "식량·농업",
+    economy: "산업·교역",
+    energy: "자원·에너지",
+    religion: "종교·문화",
+    region: "지역 판별",
+  };
+  const countryPageSize = window.matchMedia("(max-width: 700px)").matches ? 8 : 24;
   const state = {
+    countrySearch: "",
+    countryTier: "core",
+    countryTopic: "all",
+    countryVisibleCount: countryPageSize,
     scope: "all",
     category: "all",
     search: "",
@@ -22,6 +35,8 @@
     bindEvents();
     renderCoverage();
     renderWorkflows();
+    renderCountryTopicOptions();
+    renderCountries();
     renderCategoryOptions();
     renderMetrics();
   }
@@ -30,12 +45,39 @@
     for (const id of [
       "metricCoverage", "worldCoverage", "koreaCoverage", "workflowGrid", "scopeFilter",
       "metricSearch", "categoryFilter", "metricResultCount", "metricTableBody", "loadMoreMetrics",
+      "countrySearch", "countryTierFilter", "countryTopicFilter", "countryResultCount", "countryGrid", "loadMoreCountries",
     ]) {
       dom[id] = document.getElementById(id);
     }
   }
 
   function bindEvents() {
+    dom.countryTierFilter.addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-tier]");
+      if (!button || button.dataset.tier === state.countryTier) return;
+      state.countryTier = button.dataset.tier;
+      state.countryVisibleCount = countryPageSize;
+      dom.countryTierFilter.querySelectorAll("button[data-tier]").forEach((candidate) => {
+        const active = candidate.dataset.tier === state.countryTier;
+        candidate.classList.toggle("is-active", active);
+        candidate.setAttribute("aria-pressed", String(active));
+      });
+      renderCountries();
+    });
+    dom.countryTopicFilter.addEventListener("change", () => {
+      state.countryTopic = dom.countryTopicFilter.value;
+      state.countryVisibleCount = countryPageSize;
+      renderCountries();
+    });
+    dom.countrySearch.addEventListener("input", () => {
+      state.countrySearch = dom.countrySearch.value.trim();
+      state.countryVisibleCount = countryPageSize;
+      renderCountries();
+    });
+    dom.loadMoreCountries.addEventListener("click", () => {
+      state.countryVisibleCount += countryPageSize;
+      renderCountries();
+    });
     dom.scopeFilter.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-scope]");
       if (!button || button.dataset.scope === state.scope) return;
@@ -68,7 +110,7 @@
   function renderCoverage() {
     const coverage = index.coverage;
     dom.metricCoverage.textContent = `${coverage.metricIndexEntries.toLocaleString("ko-KR")}개 지표`;
-    dom.worldCoverage.textContent = `${coverage.worldCountries.toLocaleString("ko-KR")}개 국가 · 기후 ${coverage.worldClimateStations}곳`;
+    dom.worldCoverage.textContent = `출제국 ${coverage.examCountries.toLocaleString("ko-KR")}개 · 원자료 ${coverage.worldCountries.toLocaleString("ko-KR")}개`;
     const koreaRegionCount = Object.values(coverage.koreaRegions || {}).reduce((sum, value) => sum + Number(value || 0), 0);
     dom.koreaCoverage.textContent = `${koreaRegionCount.toLocaleString("ko-KR")}개 권역 · 기후 ${coverage.koreaClimateStations}곳`;
   }
@@ -81,6 +123,82 @@
         <p>${escapeHtml(workflow.description)}</p>
       </a>
     `).join("");
+  }
+
+  function renderCountryTopicOptions() {
+    const topics = [...new Set((index.countries || []).flatMap((country) => country.topics || []))]
+      .sort((a, b) => Object.keys(countryTopicLabels).indexOf(a) - Object.keys(countryTopicLabels).indexOf(b));
+    dom.countryTopicFilter.innerHTML = [
+      `<option value="all">전체 주제</option>`,
+      ...topics.map((topic) => `<option value="${escapeHtml(topic)}">${escapeHtml(countryTopicLabels[topic] || topic)}</option>`),
+    ].join("");
+  }
+
+  function renderCountries() {
+    const query = normalizeSearch(state.countrySearch);
+    const countries = (index.countries || []).filter((country) => {
+      if (state.countryTier !== "all" && country.tier !== state.countryTier) return false;
+      if (state.countryTopic !== "all" && !country.topics.includes(state.countryTopic)) return false;
+      if (!query) return true;
+      const topicText = country.topics.map((topic) => countryTopicLabels[topic] || topic).join(" ");
+      return normalizeSearch([country.nameKo, ...(country.aliases || []), country.name, country.iso3, country.continent, topicText].join(" ")).includes(query);
+    });
+    const visible = countries.slice(0, state.countryVisibleCount);
+    dom.countryResultCount.textContent = `${visible.length.toLocaleString("ko-KR")} / ${countries.length.toLocaleString("ko-KR")}개 표시 · 핵심 ${index.coverage.examCoreCountries.toLocaleString("ko-KR")} · 보조 ${index.coverage.examSupportCountries.toLocaleString("ko-KR")}`;
+    dom.loadMoreCountries.hidden = visible.length >= countries.length;
+    dom.loadMoreCountries.textContent = `출제 국가 더 보기 · ${Math.min(countryPageSize, countries.length - visible.length)}개`;
+    dom.countryGrid.innerHTML = visible.length
+      ? visible.map(renderCountryCard).join("")
+      : `<p class="empty-state">조건에 맞는 출제 국가가 없음.</p>`;
+  }
+
+  function renderCountryCard(country) {
+    const categoryRows = country.categoryCoverage.map((group) => {
+      const statusClass = group.availableCount === 0
+        ? "is-missing"
+        : group.missingCount === 0 && group.partialCount === 0
+          ? "is-complete"
+          : "is-partial";
+      const partialText = group.partialCount ? ` · 부분 ${group.partialCount.toLocaleString("ko-KR")}` : "";
+      return `<li class="country-category ${statusClass}">
+        <span>${escapeHtml(group.category)}</span>
+        <strong>${group.availableCount.toLocaleString("ko-KR")} / ${group.totalCount.toLocaleString("ko-KR")}</strong>
+        <small>빈칸 ${group.missingCount.toLocaleString("ko-KR")}${partialText}</small>
+      </li>`;
+    }).join("");
+    const coverageLabel = `${country.nameKo} 전체 지표 수록률 ${country.coverageRate.toFixed(1)}%`;
+    const missingGroups = country.missingCategories.length
+      ? `완전 빈 지표군: ${country.missingCategories.join(", ")}`
+      : "모든 지표군에 수록 자료가 있음";
+    const tierLabel = country.tier === "core" ? "핵심" : "보조";
+    const topicTags = country.topics.map((topic) => `<li>${escapeHtml(countryTopicLabels[topic] || topic)}</li>`).join("");
+    return `<article class="country-card">
+      <header class="country-card__header">
+        <div>
+          <p>${escapeHtml(country.continent)} · <span lang="en">${escapeHtml(country.iso3)}</span> · <span class="country-tier country-tier--${escapeHtml(country.tier)}">${tierLabel}</span></p>
+          <h3>${escapeHtml(country.nameKo)}</h3>
+          <p class="country-card__english" lang="en">${escapeHtml(country.name)}</p>
+        </div>
+        <strong class="country-card__rate">${country.coverageRate.toFixed(1)}%</strong>
+      </header>
+      <ul class="country-topic-list" aria-label="수능 주제">${topicTags}</ul>
+      <div class="country-coverage-bar" role="img" aria-label="${escapeHtml(coverageLabel)}">
+        <span style="width: ${country.coverageRate.toFixed(1)}%"></span>
+      </div>
+      <p class="country-card__summary">
+        ${country.availableMetricCount.toLocaleString("ko-KR")}개 수록 · ${country.missingMetricCount.toLocaleString("ko-KR")}개 빈칸${country.partialMetricCount ? ` · 부분 ${country.partialMetricCount.toLocaleString("ko-KR")}` : ""}
+      </p>
+      <details class="country-card__details">
+        <summary>지표군별 가용성 보기</summary>
+        <ul>${categoryRows}</ul>
+        <p>${escapeHtml(missingGroups)}</p>
+      </details>
+      <a
+        class="country-handoff"
+        href="${escapeHtml(country.graphBuilderHref)}"
+        aria-label="${escapeHtml(`${country.nameKo} (${country.iso3})를 Graph Builder 후보로 가져가기`)}"
+      >Graph Builder로 가져가기 <span aria-hidden="true">→</span></a>
+    </article>`;
   }
 
   function renderCategoryOptions() {
@@ -119,18 +237,27 @@
   }
 
   function renderMetricRow(metric) {
-    const source = metric.sourceUrl
-      ? `<a class="source-link" href="${escapeHtml(metric.sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(shortenSource(metric.sourceName))}</a>`
-      : `<span class="source-link is-missing">${escapeHtml(shortenSource(metric.sourceName))}</span>`;
+    const source = renderMetricSource(metric);
     const partialCoverage = Number(metric.partialCoverageCount || 0);
     const coverageDetail = `${metric.coverageCount.toLocaleString("ko-KR")} / ${metric.totalCount.toLocaleString("ko-KR")}${partialCoverage ? ` · 부분 ${partialCoverage.toLocaleString("ko-KR")}` : ""}`;
     return `<tr>
-      <td><span class="metric-scope">${escapeHtml(metric.scopeLabel)}</span></td>
-      <td class="metric-name"><strong>${escapeHtml(metric.label)}</strong><small>${escapeHtml(metric.category)} · ${escapeHtml(metric.unit || "단위 없음")}</small></td>
-      <td>${escapeHtml(metric.latestPeriod)}</td>
-      <td class="coverage-cell"><strong>${metric.coverageRate.toFixed(1)}%</strong><small>${coverageDetail}</small></td>
-      <td>${source}</td>
+      <td data-label="범위"><span class="metric-scope">${escapeHtml(metric.scopeLabel)}</span></td>
+      <td class="metric-name" data-label="지표"><strong>${escapeHtml(metric.label)}</strong><small>${escapeHtml(metric.category)} · ${escapeHtml(metric.unit || "단위 없음")}</small></td>
+      <td data-label="최신 수록 시점">${escapeHtml(metric.latestPeriod)}</td>
+      <td class="coverage-cell" data-label="수록률"><strong>${metric.coverageRate.toFixed(1)}%</strong><small>${coverageDetail}</small></td>
+      <td data-label="출처">${source}</td>
     </tr>`;
+  }
+
+  function renderMetricSource(metric) {
+    if (metric.sourceLinks?.length) {
+      return `<span class="source-link-group">${metric.sourceLinks.map((source) => `
+        <a class="source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer">${escapeHtml(shortenSource(source.label))}</a>
+      `).join("")}</span>`;
+    }
+    return metric.sourceUrl
+      ? `<a class="source-link" href="${escapeHtml(metric.sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(shortenSource(metric.sourceName))}</a>`
+      : `<span class="source-link is-missing">${escapeHtml(shortenSource(metric.sourceName))}</span>`;
   }
 
   function matchesScope(metric) {

@@ -15,13 +15,22 @@ if (shouldWrite === shouldCheck) fail("--write 또는 --check 중 하나만 지�
 
 function main() {
   const worldBundle = readBrowserBundle(path.join(ROOT_DIR, "data", "country-stats.js"));
+  const examCountryCatalogBundle = readBrowserBundle(path.join(ROOT_DIR, "data", "exam-country-catalog.js"));
   const koreaBundle = readBrowserBundle(path.join(ROOT_DIR, "data", "korea-stats.js"));
   const worldClimate = readJson(path.join(ROOT_DIR, "tools", "climate", "data", "climate-data.json"));
   const koreaClimate = readJson(path.join(ROOT_DIR, "tools", "climate", "data", "korea-climate-data.json"));
   const supplemental = readJson(path.join(ROOT_DIR, "data", "supplemental-stats.json"));
   const graphCatalog = readJson(path.join(ROOT_DIR, "data", "graph-catalog.json"));
 
-  const index = buildIndex({ worldBundle, koreaBundle, worldClimate, koreaClimate, supplemental, graphCatalog });
+  const index = buildIndex({
+    worldBundle,
+    examCountryCatalog: examCountryCatalogBundle.EXAM_COUNTRY_CATALOG || {},
+    koreaBundle,
+    worldClimate,
+    koreaClimate,
+    supplemental,
+    graphCatalog,
+  });
   validateIndex(index);
 
   const jsonOutput = `${JSON.stringify(index, null, 2)}\n`;
@@ -42,14 +51,16 @@ function main() {
   }
 }
 
-function buildIndex({ worldBundle, koreaBundle, worldClimate, koreaClimate, supplemental, graphCatalog }) {
+function buildIndex({ worldBundle, examCountryCatalog, koreaBundle, worldClimate, koreaClimate, supplemental, graphCatalog }) {
   const worldMeta = worldBundle.COUNTRY_STATS_META || {};
   const worldById = worldBundle.COUNTRY_STATS_BY_ID || {};
   const koreaMeta = koreaBundle.KOREA_GEO_STATS_META || {};
   const koreaRegions = koreaBundle.KOREA_GEO_STATS_REGIONS || {};
   const koreaMetrics = koreaBundle.KOREA_GEO_STATS_METRICS || {};
+  const worldMetrics = buildWorldMetrics(worldMeta, worldById);
+  const countries = buildWorldCountryIndex(worldById, worldMetrics, examCountryCatalog);
   const metrics = [
-    ...buildWorldMetrics(worldMeta, worldById),
+    ...worldMetrics,
     ...buildKoreaMetrics(koreaMetrics, koreaRegions),
     ...buildClimateMetrics(worldClimate, koreaClimate),
   ].sort((a, b) => `${a.scopeOrder}|${a.category}|${a.label}|${a.level || ""}`.localeCompare(`${b.scopeOrder}|${b.category}|${b.label}|${b.level || ""}`, "ko"));
@@ -66,7 +77,7 @@ function buildIndex({ worldBundle, koreaBundle, worldClimate, koreaClimate, supp
 
   return {
     meta: {
-      schemaVersion: 1,
+      schemaVersion: 2,
       snapshotDate: graphCatalog.meta?.snapshotDate || worldMeta.cacheSnapshotDate || "unknown",
       worldGeneratedAt: worldMeta.generatedAt || "",
       koreaGeneratedAt: koreaMeta.generatedAt || "",
@@ -74,6 +85,9 @@ function buildIndex({ worldBundle, koreaBundle, worldClimate, koreaClimate, supp
     },
     coverage: {
       worldCountries: Object.values(worldById).filter((entry) => entry?.iso3).length,
+      examCountries: countries.length,
+      examCoreCountries: countries.filter((country) => country.tier === "core").length,
+      examSupportCountries: countries.filter((country) => country.tier === "support").length,
       koreaRegions: koreaLevelCoverage,
       koreaMetrics: koreaMetricCoverage,
       worldClimateStations: worldClimate.regions?.length || 0,
@@ -109,7 +123,8 @@ function buildIndex({ worldBundle, koreaBundle, worldClimate, koreaClimate, supp
       },
     ],
     graphPatterns: patternDefinitions,
-    metrics: metrics.map(({ scopeOrder, ...metric }) => metric),
+    countries,
+    metrics: metrics.map(({ scopeOrder, entityAvailability, ...metric }) => metric),
     supplemental: {
       datasets: (supplemental.datasets || []).map((dataset) => ({
         id: dataset.id,
@@ -141,7 +156,9 @@ function buildIndex({ worldBundle, koreaBundle, worldClimate, koreaClimate, supp
 }
 
 function buildWorldMetrics(meta, statsById) {
-  const entities = Object.values(statsById).filter((entry) => entry?.iso3);
+  const entities = Object.entries(statsById)
+    .filter(([, entry]) => entry?.iso3)
+    .map(([id, entry]) => ({ id: String(id), entry }));
   const metrics = [];
   const seriesSpecs = [
     ["population", "총인구", "population.rows", "population", "명", "population"],
@@ -155,10 +172,10 @@ function buildWorldMetrics(meta, statsById) {
   ];
 
   for (const [key, label, rowsPath, valueKey, unit, sourceKey] of seriesSpecs) {
-    const observations = entities.map((entity) => {
-      const rows = (getPath(entity, rowsPath) || []).filter((row) => isFiniteNumber(row?.[valueKey]));
+    const observations = entities.map(({ id, entry }) => {
+      const rows = (getPath(entry, rowsPath) || []).filter((row) => isFiniteNumber(row?.[valueKey]));
       const row = rows.at(-1);
-      return { value: row?.[valueKey], period: row?.year };
+      return { entityId: id, value: row?.[valueKey], period: row?.year };
     });
     metrics.push(makeMetric({
       id: `world:series:${key}`,
@@ -178,15 +195,15 @@ function buildWorldMetrics(meta, statsById) {
 
   const objectPaths = new Map();
   for (const entity of entities) {
-    walkWorldEntryObjects(entity, [], (entryPath, entry) => {
+    walkWorldEntryObjects(entity.entry, [], (entryPath, entry) => {
       if (!objectPaths.has(entryPath)) objectPaths.set(entryPath, entry);
     });
   }
   for (const [entryPath, sample] of objectPaths) {
-    const observations = entities.map((entity) => {
+    const observations = entities.map(({ id, entry: entity }) => {
       const entry = getPath(entity, entryPath);
-      if (isFiniteNumber(entry?.latest?.value)) return { value: entry.latest.value, period: entry.latest.year };
-      return { value: entry?.value, period: entry?.year };
+      if (isFiniteNumber(entry?.latest?.value)) return { entityId: id, value: entry.latest.value, period: entry.latest.year };
+      return { entityId: id, value: entry?.value, period: entry?.year };
     });
     metrics.push(makeMetric({
       id: `world:entry:${entryPath}`,
@@ -199,7 +216,7 @@ function buildWorldMetrics(meta, statsById) {
       kind: "scalar",
       observations,
       totalCount: entities.length,
-      source: sourceFromWorldMeta(meta, sourceKeyForWorldPath(entryPath)),
+      source: sourceFromWorldMeta(meta, sourceKeyForWorldPath(entryPath), entryPath),
       uses: ["대상 비교", "교차 지표", "Map Editor"],
     }));
   }
@@ -207,11 +224,11 @@ function buildWorldMetrics(meta, statsById) {
   const primitiveRoots = ["populationStructure", "economy.industry", "religion2020", "energy", "agriculture.crops.use"];
   const primitivePaths = new Set();
   for (const entity of entities) {
-    for (const root of primitiveRoots) walkNumericLeaves(getPath(entity, root), root.split("."), primitivePaths);
+    for (const root of primitiveRoots) walkNumericLeaves(getPath(entity.entry, root), root.split("."), primitivePaths);
   }
   for (const primitivePath of primitivePaths) {
     if (shouldSkipPrimitivePath(primitivePath)) continue;
-    const observations = entities.map((entity) => resolveWorldPrimitive(entity, primitivePath));
+    const observations = entities.map(({ id, entry }) => ({ entityId: id, ...resolveWorldPrimitive(entry, primitivePath) }));
     const isShare = primitivePath.includes("share") || primitivePath.includes("shares") || primitivePath.includes("dependencyRatios");
     metrics.push(makeMetric({
       id: `world:value:${primitivePath}`,
@@ -224,7 +241,7 @@ function buildWorldMetrics(meta, statsById) {
       kind: "scalar",
       observations,
       totalCount: entities.length,
-      source: sourceFromWorldMeta(meta, sourceKeyForWorldPath(primitivePath)),
+      source: sourceFromWorldMeta(meta, sourceKeyForWorldPath(primitivePath), primitivePath),
       uses: isShare ? ["구성비", "사례국 비교", "Map Editor"] : ["대상 비교", "교차 지표", "Map Editor"],
     }));
   }
@@ -241,11 +258,12 @@ function buildWorldMetrics(meta, statsById) {
     ["maize-use", "옥수수 용도별 구성", "cropUse", "agriculture.crops.use.maize.shares", ["food", "feed", "bioenergy", "other"]],
   ];
   for (const [key, label, sourceKey, root, components] of compositions) {
-    const observations = entities.map((entity) => {
-      const componentValues = components.map((component) => resolveWorldPrimitive(entity, `${root}.${component}`));
+    const observations = entities.map(({ id, entry }) => {
+      const componentValues = components.map((component) => resolveWorldPrimitive(entry, `${root}.${component}`));
       const validValues = componentValues.filter((entry) => isFiniteNumber(entry.value));
       const complete = validValues.length === components.length;
       return {
+        entityId: id,
         value: complete ? validValues.reduce((sum, entry) => sum + entry.value, 0) : null,
         period: complete ? summarizePeriods(validValues.map((entry) => entry.period)).label : "",
         partial: validValues.length > 0 && !complete,
@@ -262,7 +280,7 @@ function buildWorldMetrics(meta, statsById) {
       kind: "composition",
       observations,
       totalCount: entities.length,
-      source: sourceFromWorldMeta(meta, sourceKey),
+      source: sourceFromWorldMeta(meta, sourceKey, root),
       uses: ["구성비", "병렬 비교", "Map Editor"],
       coverageBasis: "complete-components",
       partialCoverageCount: observations.filter((observation) => observation.partial).length,
@@ -270,6 +288,74 @@ function buildWorldMetrics(meta, statsById) {
   }
 
   return uniqueBy(metrics, (metric) => metric.id);
+}
+
+function buildWorldCountryIndex(statsById, worldMetrics, examCountryCatalog) {
+  const categories = [...new Set(worldMetrics.map((metric) => metric.category).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b, "ko"));
+  const statsByIso3 = new Map(
+    Object.entries(statsById)
+      .filter(([, entry]) => entry?.iso3)
+      .map(([id, entry]) => [String(entry.iso3).toUpperCase(), { id: String(id), entry }])
+  );
+  const availabilityByMetric = new Map(
+    worldMetrics.map((metric) => [
+      metric.id,
+      new Map((metric.entityAvailability || []).map((entry) => [entry.entityId, entry.status])),
+    ])
+  );
+
+  return Object.entries(examCountryCatalog)
+    .map(([rawIso3, definition]) => {
+      const iso3 = String(rawIso3).toUpperCase();
+      const source = statsByIso3.get(iso3);
+      if (!source) fail(`출제 국가 카탈로그와 원자료를 연결할 수 없습니다: ${iso3}`);
+      const { id, entry } = source;
+      const categoryCoverage = categories.map((category) => {
+        const categoryMetrics = worldMetrics.filter((metric) => metric.category === category);
+        const statuses = categoryMetrics.map((metric) => availabilityByMetric.get(metric.id)?.get(String(id)) || "missing");
+        const availableCount = statuses.filter((status) => status === "available").length;
+        const partialCount = statuses.filter((status) => status === "partial").length;
+        const missingCount = statuses.length - availableCount - partialCount;
+        return {
+          category,
+          availableCount,
+          partialCount,
+          missingCount,
+          totalCount: statuses.length,
+          coverageRate: statuses.length ? Number(((availableCount / statuses.length) * 100).toFixed(1)) : 0,
+        };
+      });
+      const availableMetricCount = categoryCoverage.reduce((sum, group) => sum + group.availableCount, 0);
+      const partialMetricCount = categoryCoverage.reduce((sum, group) => sum + group.partialCount, 0);
+      const missingMetricCount = categoryCoverage.reduce((sum, group) => sum + group.missingCount, 0);
+      const totalMetricCount = categoryCoverage.reduce((sum, group) => sum + group.totalCount, 0);
+      return {
+        id: String(id),
+        iso3,
+        tier: definition.tier,
+        nameKo: definition.nameKo,
+        aliases: Array.isArray(definition.aliases) ? definition.aliases : [],
+        topics: definition.topics,
+        name: entry.atlasName || iso3,
+        continent: entry.continent?.name || "대륙 분류 없음",
+        availableMetricCount,
+        partialMetricCount,
+        missingMetricCount,
+        totalMetricCount,
+        coverageRate: totalMetricCount ? Number(((availableMetricCount / totalMetricCount) * 100).toFixed(1)) : 0,
+        availableCategoryCount: categoryCoverage.filter((group) => group.availableCount > 0).length,
+        missingCategories: categoryCoverage.filter((group) => group.availableCount === 0).map((group) => group.category),
+        categoryCoverage,
+        graphBuilderHref: `../../map.html?graphCountry=${encodeURIComponent(iso3)}#examGraphModule`,
+      };
+    })
+    .sort((a, b) => {
+      const tierOrder = { core: 0, support: 1 };
+      return (tierOrder[a.tier] ?? 9) - (tierOrder[b.tier] ?? 9)
+        || a.nameKo.localeCompare(b.nameKo, "ko")
+        || a.name.localeCompare(b.name, "en");
+    });
 }
 
 function buildKoreaMetrics(metricsByLevel, regionsByLevel) {
@@ -353,8 +439,15 @@ function buildClimateMetrics(worldClimate, koreaClimate) {
 function makeMetric({ observations, totalCount, source, ...metric }) {
   const valid = observations.filter((observation) => isFiniteNumber(observation?.value));
   const periods = summarizePeriods(valid.map((observation) => observation.period));
+  const entityAvailability = observations
+    .filter((observation) => observation?.entityId != null)
+    .map((observation) => ({
+      entityId: String(observation.entityId),
+      status: isFiniteNumber(observation.value) ? "available" : observation.partial ? "partial" : "missing",
+    }));
   return {
     ...metric,
+    category: normalizeExamMetricCategory(metric.category),
     coverageCount: valid.length,
     totalCount,
     coverageRate: totalCount ? Number(((valid.length / totalCount) * 100).toFixed(1)) : 0,
@@ -363,7 +456,28 @@ function makeMetric({ observations, totalCount, source, ...metric }) {
     sourceName: source.name || "출처 정보 확인 필요",
     sourceUrl: source.url || "",
     ...(source.links?.length ? { sourceLinks: source.links } : {}),
+    ...(entityAvailability.length ? { entityAvailability } : {}),
   };
+}
+
+function normalizeExamMetricCategory(category) {
+  const normalized = String(category || "기타").trim();
+  const aliases = {
+    "인구 구조": "인구·도시",
+    "인구 구조·이동": "인구·도시",
+    "인구 이동": "인구·도시",
+    "인구·도시": "인구·도시",
+    "도시·정주": "인구·도시",
+    "농업·토지": "식량·농업",
+    "농업·촌락": "식량·농업",
+    "경제·산업": "산업·교역",
+    "공업·서비스": "산업·교역",
+    "에너지": "자원·에너지",
+    "기후·에너지": "자원·에너지",
+    "기후": "기후",
+    "종교": "종교·문화",
+  };
+  return aliases[normalized] || normalized;
 }
 
 function buildGraphPatterns(items) {
@@ -529,9 +643,33 @@ function findNearestYear(data, entryPath) {
   return "";
 }
 
-function sourceFromWorldMeta(meta, sourceKey) {
+function sourceFromWorldMeta(meta, sourceKey, entryPath = "") {
   const source = meta?.sources?.[WORLD_SOURCE_KEYS[sourceKey] || sourceKey] || {};
-  return { name: source.label || "저장된 원천 자료", url: source.url || "" };
+  const indicatorCodes = worldBankIndicatorCodesForPath(entryPath);
+  if (!indicatorCodes.length) return { name: source.label || "저장된 원천 자료", url: source.url || "" };
+  const links = indicatorCodes.map((indicatorCode) => ({
+    label: `World Bank WDI · ${indicatorCode}`,
+    url: worldBankIndicatorUrl(indicatorCode),
+  }));
+  return {
+    name: `${source.label || "World Bank WDI"} · ${indicatorCodes.join(" · ")}`,
+    url: links[0].url,
+    links,
+  };
+}
+
+function worldBankIndicatorCodesForPath(entryPath) {
+  const exact = WORLD_BANK_INDICATORS_BY_PATH[entryPath];
+  if (exact) return Array.isArray(exact) ? exact : [exact];
+  const ageKey = entryPath.match(/^populationStructure\.(?:shares|counts)\.([^.]+)$/)?.[1];
+  if (ageKey && WORLD_BANK_AGE_INDICATORS[ageKey]) return [WORLD_BANK_AGE_INDICATORS[ageKey]];
+  const industryKey = entryPath.match(/^economy\.industry\.shares\.([^.]+)$/)?.[1];
+  if (industryKey && WORLD_BANK_INDUSTRY_INDICATORS[industryKey]) return [WORLD_BANK_INDUSTRY_INDICATORS[industryKey]];
+  return [];
+}
+
+function worldBankIndicatorUrl(indicatorCode) {
+  return `https://api.worldbank.org/v2/country/all/indicator/${indicatorCode}?format=json&per_page=20000&mrv=5`;
 }
 
 function worldClimateSource(worldClimate) {
@@ -675,8 +813,34 @@ function nullableNonNegativeNumber(value) {
 }
 
 function validateIndex(index) {
-  if (index.meta?.schemaVersion !== 1) fail("지원하지 않는 통계 색인 스키마입니다.");
+  if (index.meta?.schemaVersion !== 2) fail("지원하지 않는 통계 색인 스키마입니다.");
   if (!Array.isArray(index.metrics) || index.metrics.length < 100) fail("통계 색인 항목이 지나치게 적습니다.");
+  if (!Array.isArray(index.countries) || index.countries.length < 40 || index.countries.length >= index.coverage.worldCountries) {
+    fail("출제 국가 카탈로그가 없거나 원자료 전체와 분리되지 않았습니다.");
+  }
+  if (index.coverage.examCountries !== index.countries.length) fail("출제 국가 카탈로그 수가 coverage와 다릅니다.");
+  if (index.coverage.examCoreCountries + index.coverage.examSupportCountries !== index.countries.length) {
+    fail("핵심·보조 출제 국가 수의 합이 카탈로그 전체와 다릅니다.");
+  }
+  const allowedTopics = new Set(EXAM_COUNTRY_TOPIC_KEYS);
+  for (const country of index.countries) {
+    if (!country.id || !country.iso3 || !country.name || !country.continent) fail(`국가·영토 기본 식별자가 누락되었습니다: ${country.id || "unknown"}`);
+    if (!country.nameKo || !["core", "support"].includes(country.tier)) fail(`출제 국가 분류 또는 한국어명이 누락되었습니다: ${country.iso3}`);
+    if (!Array.isArray(country.aliases) || country.aliases.some((alias) => typeof alias !== "string" || !alias.trim())) {
+      fail(`출제 국가 검색 별칭이 유효하지 않습니다: ${country.iso3}`);
+    }
+    if (!Array.isArray(country.topics) || !country.topics.length || country.topics.some((topic) => !allowedTopics.has(topic))) {
+      fail(`출제 국가 주제 태그가 유효하지 않습니다: ${country.iso3}`);
+    }
+    if (country.graphBuilderHref !== `../../map.html?graphCountry=${encodeURIComponent(country.iso3)}#examGraphModule`) {
+      fail(`Graph Builder 연결이 올바르지 않습니다: ${country.iso3}`);
+    }
+    if (!Array.isArray(country.categoryCoverage) || !country.categoryCoverage.length) fail(`지표군 가용성 요약이 누락되었습니다: ${country.iso3}`);
+    if (country.availableMetricCount + country.partialMetricCount + country.missingMetricCount !== country.totalMetricCount) {
+      fail(`국가·영토 지표 가용성 합계가 맞지 않습니다: ${country.iso3}`);
+    }
+  }
+  if (new Set(index.countries.map((country) => country.iso3)).size !== index.countries.length) fail("출제 국가 ISO3가 중복됩니다.");
   if (!Array.isArray(index.graphPatterns) || index.graphPatterns.length !== 7) fail("수능형 그래프 패턴이 7종이 아닙니다.");
   if (index.graphPatterns.reduce((sum, pattern) => sum + pattern.count, 0) !== index.coverage.examPatternReferences) {
     fail("수능형 그래프 패턴 합계가 수능형 SVG 레퍼런스 수와 다릅니다.");
@@ -686,6 +850,12 @@ function validateIndex(index) {
   }
   const ids = index.metrics.map((metric) => metric.id);
   if (new Set(ids).size !== ids.length) fail("통계 색인 id가 중복됩니다.");
+  const metricCategories = new Set(index.metrics.map((metric) => metric.category));
+  const unexpectedCategories = [...metricCategories].filter((category) => !EXAM_METRIC_CATEGORY_KEYS.includes(category));
+  const missingCategories = EXAM_METRIC_CATEGORY_KEYS.filter((category) => !metricCategories.has(category));
+  if (unexpectedCategories.length || missingCategories.length) {
+    fail(`수능 대분류가 일관되지 않습니다. 초과: ${unexpectedCategories.join(", ") || "없음"} · 누락: ${missingCategories.join(", ") || "없음"}`);
+  }
   const garbageValuePaths = ids.filter((id) => id.startsWith("world:value:") && id.endsWith(".value"));
   if (garbageValuePaths.length) fail(`stat-entry의 value leaf가 별도 지표로 수록되었습니다: ${garbageValuePaths.join(", ")}`);
   const redundantEnergyPaths = ids.filter((id) => /^world:value:energy\.(consumption|electricity)\.summary(Shares|AmountsTWh)\.nuclear$/.test(id));
@@ -721,6 +891,11 @@ function validateIndex(index) {
   ));
   if (missingKnownWorldSources.length) fail(`URL이 알려진 세계 통계의 출처 연결이 누락되었습니다: ${missingKnownWorldSources.map((metric) => metric.id).join(", ")}`);
 
+  const netMigration = index.metrics.find((metric) => metric.id === "world:entry:migration.netMigration");
+  if (!netMigration?.sourceUrl.includes("/indicator/SM.POP.NETM?")) {
+    fail("순이동 지표가 World Bank SM.POP.NETM 원천으로 연결되지 않았습니다.");
+  }
+
   const worldClimateMetrics = index.metrics.filter((metric) => metric.scope === "climate-world");
   for (const metric of worldClimateMetrics) {
     const sourceUrls = (metric.sourceLinks || []).map((source) => source.url);
@@ -752,7 +927,7 @@ function readJson(filePath) {
 }
 
 function summary(index, prefix) {
-  return `${prefix}: ${index.metrics.length}개 지표 · SVG ${index.coverage.graphReferences}개 중 수능형 ${index.coverage.examPatternReferences}개를 ${index.graphPatterns.length}개 패턴으로 분류 · 참고용 ${index.coverage.referenceOnlyReferences}개`;
+  return `${prefix}: 출제 국가 ${index.countries.length}개(핵심 ${index.coverage.examCoreCountries} · 보조 ${index.coverage.examSupportCountries}) · 원자료 ${index.coverage.worldCountries}개 국가·영토 · ${index.metrics.length}개 지표 · SVG ${index.coverage.graphReferences}개 중 수능형 ${index.coverage.examPatternReferences}개를 ${index.graphPatterns.length}개 패턴으로 분류 · 참고용 ${index.coverage.referenceOnlyReferences}개`;
 }
 
 function fail(message) {
@@ -787,6 +962,37 @@ const SEGMENT_LABELS = {
 
 const PRIMARY_ENERGY_KEYS = ["coal", "oil", "gas", "nuclear", "hydropower", "wind", "solar", "biofuels", "otherRenewables"];
 const ELECTRICITY_KEYS = ["coal", "oil", "gas", "nuclear", "hydropower", "wind", "solar", "bioenergy", "otherRenewables"];
+const EXAM_COUNTRY_TOPIC_KEYS = ["demography", "agriculture", "economy", "energy", "religion", "region"];
+const EXAM_METRIC_CATEGORY_KEYS = ["인구·도시", "식량·농업", "산업·교역", "자원·에너지", "기후", "종교·문화"];
+
+const WORLD_BANK_AGE_INDICATORS = {
+  age0To14: "SP.POP.0014.TO.ZS",
+  age15To64: "SP.POP.1564.TO.ZS",
+  age65Plus: "SP.POP.65UP.TO.ZS",
+};
+
+const WORLD_BANK_INDUSTRY_INDICATORS = {
+  agriculture: "NV.AGR.TOTL.ZS",
+  industry: "NV.IND.TOTL.ZS",
+  services: "NV.SRV.TOTL.ZS",
+};
+
+const WORLD_BANK_INDICATORS_BY_PATH = {
+  "agriculture.land.agriculturalLandShare": "AG.LND.AGRI.ZS",
+  "economy.exports.shareOfGdp": "NE.EXP.GNFS.ZS",
+  "economy.exports.valueCurrentUsd": "NE.EXP.GNFS.CD",
+  "economy.gdp.valueCurrentUsd": "NY.GDP.MKTP.CD",
+  "economy.industry.shares": Object.values(WORLD_BANK_INDUSTRY_INDICATORS),
+  "migration.migrantStockShare": "SM.POP.TOTL.ZS",
+  "migration.migrantStockTotal": ["SM.POP.TOTL.ZS", "SP.POP.TOTL"],
+  "migration.netMigration": "SM.POP.NETM",
+  "populationStructure.density": "EN.POP.DNST",
+  "populationStructure.dependencyRatios.oldAge": "SP.POP.DPND.OL",
+  "populationStructure.dependencyRatios.total": "SP.POP.DPND",
+  "populationStructure.dependencyRatios.youth": "SP.POP.DPND.YG",
+  "populationStructure.shares": Object.values(WORLD_BANK_AGE_INDICATORS),
+  "populationStructure.totalPopulation": "SP.POP.TOTL",
+};
 
 const WORLD_SOURCE_KEYS = {
   population: "population",

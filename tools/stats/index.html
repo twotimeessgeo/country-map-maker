@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="../../tokens.css?v=20260716d" />
     <link rel="stylesheet" href="../../base.css?v=20260716d" />
     <link rel="stylesheet" href="../../components.css?v=20260716d" />
-    <link rel="stylesheet" href="./styles.css?v=20260716u" />
+    <link rel="stylesheet" href="./styles.css?v=20260717c" />
   </head>
   <body>
     <div class="tw-page tw-stack data-page">
@@ -66,10 +66,44 @@
           <div class="workflow-grid" id="workflowGrid"></div>
         </section>
 
+        <section class="tw-panel data-panel" aria-labelledby="countryIndexTitle">
+          <div class="data-section-heading">
+            <div>
+              <p class="data-section-index" lang="en">02 · COUNTRY AVAILABILITY</p>
+              <h2 id="countryIndexTitle">수능 세계지리 국가 색인</h2>
+            </div>
+            <p id="countryResultCount" aria-live="polite">—</p>
+          </div>
+
+          <div class="country-toolbar">
+            <div class="country-tier-filter" id="countryTierFilter" role="group" aria-label="출제 활용 등급">
+              <button class="is-active" type="button" data-tier="core" aria-pressed="true">핵심</button>
+              <button type="button" data-tier="all" aria-pressed="false">핵심 + 보조</button>
+              <button type="button" data-tier="support" aria-pressed="false">보조</button>
+            </div>
+            <label class="data-field">
+              <span>수능 주제</span>
+              <select id="countryTopicFilter"><option value="all">전체 주제</option></select>
+            </label>
+            <label class="data-field data-search-field">
+              <span>한국어명·영문명·ISO3 검색</span>
+              <input
+                id="countrySearch"
+                type="search"
+                placeholder="예: 사우디아라비아, Brazil, IND"
+                autocomplete="off"
+              />
+            </label>
+            <p>기본은 핵심 사례국만 표시함. 보조 47개국은 대단원 사례·지도 판별이 필요할 때 별도로 열어 볼 수 있음.</p>
+          </div>
+          <div class="country-grid" id="countryGrid"></div>
+          <button class="load-more-button" id="loadMoreCountries" type="button" hidden>출제 국가 더 보기</button>
+        </section>
+
         <section class="tw-panel data-panel" aria-labelledby="metricIndexTitle">
           <div class="data-section-heading">
             <div>
-              <p class="data-section-index" lang="en">02 · METRIC INDEX</p>
+              <p class="data-section-index" lang="en">03 · METRIC INDEX</p>
               <h2 id="metricIndexTitle">최신 통계 색인</h2>
             </div>
             <p id="metricResultCount" aria-live="polite">—</p>
@@ -114,7 +148,7 @@
     </div>
 
     <noscript>통계 색인을 검색하려면 JavaScript가 필요함.</noscript>
-    <script src="../../data/statistics-index.js?v=20260716d"></script>
-    <script src="./app.js?v=20260716u"></script>
+    <script src="../../data/statistics-index.js?v=20260717d"></script>
+    <script src="./app.js?v=20260717d"></script>
   </body>
 </html>
