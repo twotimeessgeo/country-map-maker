@@ -146,8 +146,29 @@ function runAuditInsideAppScope() {
   if (searchEntries.length !== catalogEntries.length || searchEntries.some((entry) => entry.tier === "reference")) {
     catalogErrors.push(`검색 후보 ${searchEntries.length}개가 카탈로그 ${catalogEntries.length}개와 일치하지 않음`);
   }
-  if (automaticCountryRows.some((entry) => getExamGraphCountryTier(entry.stats?.iso3) !== "core")) {
-    catalogErrors.push("자동 그래프 후보에 보조·원자료 전용 국가가 섞임");
+  const invalidAutomaticRows = automaticCountryRows.filter((entry) => {
+    const definition = getExamCountryCatalogDefinition(entry.stats?.iso3);
+    return definition?.tier !== "core" && !(
+      definition?.tier === "support" &&
+      (Number(definition.examWeight) >= 4 || getExamCountryTopicWeight(entry.stats, getExamGraphCurrentTopicKey()) >= 5)
+    );
+  });
+  if (invalidAutomaticRows.length) {
+    catalogErrors.push(`자동 그래프 후보에 저빈도 보조국이 섞임: ${invalidAutomaticRows.map((entry) => entry.stats?.iso3).join(", ")}`);
+  }
+  if (!automaticCountryRows.some((entry) => getExamCountryCatalogDefinition(entry.stats?.iso3)?.tier === "support")) {
+    catalogErrors.push("평가원 반복 사례인 보조국이 자동 후보에 한 곳도 포함되지 않음");
+  }
+  const incompletePriorityEntries = catalogEntries.filter(([, definition]) =>
+    definition.dataTier !== definition.tier ||
+    !["A", "B", "C"].includes(definition.examBand) ||
+    !Number.isFinite(Number(definition.examWeight)) ||
+    Number(definition.examWeight) < 1 ||
+    !["demography", "agriculture", "economy", "energy", "religion", "region"]
+      .every((topic) => Object.hasOwn(definition.topicWeights ?? {}, topic)),
+  );
+  if (incompletePriorityEntries.length) {
+    catalogErrors.push(`출제 빈도·주제 가중치 메타 누락: ${incompletePriorityEntries.slice(0, 5).map(([iso3]) => iso3).join(", ")}`);
   }
   if (!findExamGraphCountrySearchEntry("KOR") || !findExamGraphCountrySearchEntry("대한민국")) {
     catalogErrors.push("ISO3 또는 한국어명 검색이 핵심 사례국을 찾지 못함");
@@ -165,9 +186,9 @@ function runAuditInsideAppScope() {
     catalogErrors.push("아메리칸사모아가 직접 검색에 노출됨");
   }
   addCheck(
-    "수능 출제국 카탈로그 분리",
+    "수능 출제국 카탈로그·빈도 메타",
     catalogErrors,
-    `원자료 ${rawCountryRows.length}개는 보존하고 핵심 ${catalogCoreCount}개·보조 ${catalogSupportCount}개만 검색, 자동 후보는 핵심만 사용`,
+    `원자료 ${rawCountryRows.length}개는 보존하고 핵심 ${catalogCoreCount}개·보조 ${catalogSupportCount}개를 검색, 자동 후보는 핵심+고빈도 보조국만 사용`,
   );
 
   const seededRandom = (seed) => {
@@ -266,11 +287,272 @@ function runAuditInsideAppScope() {
     if (csvAliases.join("|") !== expectedAliases.join("|")) {
       directSelectionErrors.push(`${config.presetKey}: CSV 가명 순서 오류`);
     }
+
+    state.selected = [];
+    state.examGraphFocusCountryIds = selectedIds;
+    state.examGraphFocusKind = "custom";
+    ensureExamGraphState();
+    const focusedModel = buildExamGraphModel();
+    const focusedIds = (focusedModel?.rows ?? []).map((row) => String(row.id));
+    const focusedAliases = (focusedModel?.rows ?? []).map((row) => row.displayLabel);
+    const focusedAnswerAliases = (focusedModel?.answerRows ?? []).map((row) => row.label);
+    const focusedCsvAliases = buildExamGraphCsvRows(focusedModel).slice(1).map((row) => row[0]);
+    if (focusedIds.join("|") !== expectedIds.join("|")) {
+      directSelectionErrors.push(`${config.presetKey}: focus 경로 국가 순서 오류`);
+    }
+    if (
+      focusedAliases.join("|") !== expectedAliases.join("|") ||
+      focusedAnswerAliases.join("|") !== expectedAliases.join("|") ||
+      focusedCsvAliases.join("|") !== expectedAliases.join("|")
+    ) {
+      directSelectionErrors.push(`${config.presetKey}: focus 경로 그래프·정답표·CSV 가명 순서 오류`);
+    }
   }
   addCheck(
     "직접 선택 국가 순서",
     directSelectionErrors,
-    `${directSelectionConfigs.length}개 국가형 프리셋에서 역순 5개국의 그래프·정답표·CSV 순서 보존`,
+    `${directSelectionConfigs.length}개 국가형 프리셋의 지도 선택·focus 두 경로에서 역순 5개국과 가명·정답표·CSV 순서 보존`,
+  );
+
+  const recommendationErrors = [];
+  const recommendationConfigs = [
+    { presetKey: "stacked100", compositionKey: "industry-structure", valueMode: "share", grouping: "countries" },
+    { presetKey: "stacked100", compositionKey: "electricity-breakdown", valueMode: "share", grouping: "countries" },
+    { presetKey: "pairedBars", pairKey: "christians-muslims-share", valueMode: "amount", grouping: "countries" },
+    { presetKey: "rankBars", metricKey: "exports-value", valueMode: "amount", grouping: "countries" },
+    {
+      presetKey: "scatter",
+      grouping: "countries",
+      scatterXKey: "population-urban-share",
+      scatterYKey: "age-65plus-share",
+      scatterSizeKey: "population-total",
+    },
+  ];
+  for (const config of recommendationConfigs) {
+    state.selected = [];
+    state.examGraphFocusCountryIds = [];
+    state.examGraphTopN = 4;
+    applyExamGraphScenarioConfig(config);
+    ensureExamGraphState();
+    const recommendation = getExamGraphRecommendedFocus();
+    if ((recommendation?.ids?.length ?? 0) !== 4) {
+      recommendationErrors.push(`${config.presetKey}:${config.compositionKey ?? config.pairKey ?? config.metricKey ?? "scatter"}: 4개국 추천 실패`);
+      continue;
+    }
+    const signatures = [...new Set(recommendation.ids.map((countryId) => getExamGraphCurrentYearSignature(countryId)).filter(Boolean))];
+    if (signatures.length !== 1 || signatures[0] !== recommendation.yearSignature) {
+      recommendationErrors.push(
+        `${config.presetKey}:${config.compositionKey ?? config.pairKey ?? config.metricKey ?? "scatter"}: 기준연도 혼합 ${signatures.join("/") || "없음"}`,
+      );
+    }
+    if (!recommendation.label.includes("평가원 빈도·자료 판별력")) {
+      recommendationErrors.push(`${config.presetKey}: 추천 근거 라벨 누락`);
+    }
+  }
+
+  const randomScenarios = getExamGraphRandomScenarioPool();
+  const randomPresetCounts = new Map();
+  const randomPresetMass = new Map();
+  randomScenarios.forEach((scenario) => {
+    const weight = Number(scenario.examWeight);
+    randomPresetCounts.set(scenario.presetKey, (randomPresetCounts.get(scenario.presetKey) ?? 0) + 1);
+    randomPresetMass.set(scenario.presetKey, (randomPresetMass.get(scenario.presetKey) ?? 0) + (Number.isFinite(weight) ? weight : 0));
+    if (!(weight > 0)) recommendationErrors.push(`${scenario.presetKey}: 그래프 유형 가중치 누락`);
+  });
+  if (!(randomPresetCounts.get("rankBars") > 0)) {
+    recommendationErrors.push("평가원 빈출 단일 지표 비교(rankBars)가 랜덤 풀에 없음");
+  }
+  if (randomScenarios.some((scenario) => scenario.compositionKey === "industry-structure" && scenario.valueMode === "amount")) {
+    recommendationErrors.push("산업 구조 비율을 실제 양으로 오인하는 랜덤 조합이 남아 있음");
+  }
+  const frequentStyleMass = ["stacked100", "pairedBars", "rankBars", "groupedBars"]
+    .reduce((sum, presetKey) => sum + (randomPresetMass.get(presetKey) ?? 0), 0);
+  const temporalStyleMass = ["timeCompare", "trendLine"]
+    .reduce((sum, presetKey) => sum + (randomPresetMass.get(presetKey) ?? 0), 0);
+  if (frequentStyleMass <= temporalStyleMass) {
+    recommendationErrors.push(`빈출 구성·순위형 가중합 ${frequentStyleMass}이 시계열형 ${temporalStyleMass}보다 크지 않음`);
+  }
+
+  const expectedPresetMass = new Map([
+    ["stacked100", 6], ["pairedBars", 5], ["rankBars", 5], ["groupedBars", 4],
+    ["timeCompare", 3], ["scatter", 2.5], ["trendLine", 2], ["top3share", 1],
+  ]);
+  for (const [presetKey, expectedMass] of expectedPresetMass) {
+    if (Math.abs((randomPresetMass.get(presetKey) ?? 0) - expectedMass) > 1e-9) {
+      recommendationErrors.push(`${presetKey}: 유형 내 설정 수로 정규화한 가중합이 ${expectedMass}가 아님 (${randomPresetMass.get(presetKey) ?? 0})`);
+    }
+  }
+
+  let mixedComponentRowsRejected = 0;
+  const assertUniformComponentYears = (label, total, entries, accessor = (entry) => entry) => {
+    const years = entries.map((entry) => Number(accessor(entry)?.year)).filter(Number.isFinite);
+    const mixed = years.length === entries.length && new Set(years).size > 1;
+    if (mixed && total === null) mixedComponentRowsRejected += 1;
+    if (total !== null && (years.length !== entries.length || new Set(years).size !== 1)) {
+      recommendationErrors.push(`${label}: 합계 지표가 내부 혼합연도를 수용함 (${years.join("/")})`);
+    }
+  };
+  getExamGraphRawCountryRows().forEach((entry) => {
+    const crops = getCropTotals(entry.stats?.agriculture?.crops);
+    assertUniformComponentYears(`${entry.stats?.iso3}:곡물 생산`, crops.productionTotal, crops.productionEntries);
+    assertUniformComponentYears(`${entry.stats?.iso3}:곡물 수입`, crops.importTotal, crops.tradeEntries, (row) => row.import);
+    assertUniformComponentYears(`${entry.stats?.iso3}:곡물 수출`, crops.exportTotal, crops.tradeEntries, (row) => row.export);
+    const livestock = getLivestockTotals(entry.stats?.agriculture?.livestock);
+    assertUniformComponentYears(`${entry.stats?.iso3}:가축 사육`, livestock.stockTotal, livestock.stockEntries);
+    assertUniformComponentYears(`${entry.stats?.iso3}:육류 생산`, livestock.meatTotal, livestock.meatEntries);
+  });
+  if (!mixedComponentRowsRejected) {
+    recommendationErrors.push("내부 혼합연도 합계 차단 회귀검사가 실제 혼합 자료를 포착하지 못함");
+  }
+  const syntheticStats = JSON.parse(JSON.stringify(findExamGraphCountrySearchEntry("CHN")?.stats ?? {}));
+  if (syntheticStats?.agriculture?.crops) {
+    state.worldStatsYearMode = "exam";
+    const nullCrop = JSON.parse(JSON.stringify(syntheticStats.agriculture.crops));
+    nullCrop.production.maize.value = null;
+    if (getCropTotals(nullCrop).productionTotal !== null) recommendationErrors.push("곡물 합계가 null 생산량을 0으로 수용함");
+    const mixedUnitCrop = JSON.parse(JSON.stringify(syntheticStats.agriculture.crops));
+    mixedUnitCrop.production.maize.unit = "kg";
+    if (getCropTotals(mixedUnitCrop).productionTotal !== null) recommendationErrors.push("곡물 합계가 혼합 단위를 수용함");
+    const nullTrade = JSON.parse(JSON.stringify(syntheticStats.agriculture.crops));
+    nullTrade.trade.maize.import.value = "";
+    if (getCropTotals(nullTrade).importTotal !== null) recommendationErrors.push("곡물 교역 합계가 빈 문자열을 0으로 수용함");
+  } else {
+    recommendationErrors.push("합계 결측·혼합 단위 synthetic fixture 원자료를 찾지 못함");
+  }
+
+  let fullScenarioRecommendationCount = 0;
+  let aggregateSourceRowCount = 0;
+  for (const scenario of randomScenarios) {
+    state.selected = [];
+    state.examGraphFocusCountryIds = [];
+    state.examGraphFocusKind = "";
+    state.examGraphTopN = 4;
+    state.examGraphAliasMode = true;
+    applyExamGraphScenarioConfig(scenario);
+    ensureExamGraphState();
+    const scenarioKey = `${scenario.presetKey}:${scenario.compositionKey ?? scenario.pairKey ?? scenario.metricKey ?? scenario.timeMetricKey ?? scenario.topShareMetricKey ?? scenario.scatterYKey ?? "unknown"}`;
+    const recommendation = getExamGraphRecommendedFocus();
+    if ((recommendation?.ids?.length ?? 0) !== 4) {
+      recommendationErrors.push(`${scenarioKey}: 동일 연도 4개국 추천 실패`);
+      continue;
+    }
+    const rawSignatures = recommendation.ids.map((countryId) => getExamGraphCurrentYearSignature(countryId));
+    if (rawSignatures.some((signature) => !signature) || new Set(rawSignatures).size !== 1 || rawSignatures[0] !== recommendation.yearSignature) {
+      recommendationErrors.push(`${scenarioKey}: 추천국 기준연도 누락·혼합 ${rawSignatures.join("/")}`);
+      continue;
+    }
+    fullScenarioRecommendationCount += 1;
+    state.examGraphFocusCountryIds = recommendation.ids;
+    state.examGraphFocusKind = "recommendation";
+    const selectedRows = getExamGraphSelectedCountryRows();
+    const aggregateRows = getExamGraphAggregateSourceRows(selectedRows, scenario.grouping, scenario.presetKey);
+    const aggregateSignatures = aggregateRows.map((row) => getExamGraphCurrentYearSignature(row));
+    aggregateSourceRowCount += aggregateRows.length;
+    if (
+      !aggregateRows.length ||
+      aggregateSignatures.some((signature) => !signature) ||
+      new Set(aggregateSignatures).size !== 1 ||
+      aggregateSignatures[0] !== recommendation.yearSignature
+    ) {
+      recommendationErrors.push(`${scenarioKey}: 실제 집계 원자료 기준연도 혼합 ${[...new Set(aggregateSignatures)].join("/") || "없음"}`);
+      continue;
+    }
+    if (!buildExamGraphModel()) {
+      recommendationErrors.push(`${scenarioKey}: 추천국 반영 뒤 그래프 모델 생성 실패`);
+    }
+
+    state.examGraphFocusCountryIds = [];
+    state.examGraphFocusKind = "";
+    const automaticRows = getExamGraphAggregateSourceRows([], scenario.grouping, scenario.presetKey);
+    const automaticSignatures = automaticRows.map((row) => getExamGraphCurrentYearSignature(row));
+    if (
+      !automaticRows.length ||
+      automaticSignatures.some((signature) => !signature) ||
+      new Set(automaticSignatures).size !== 1 ||
+      !buildExamGraphModel()
+    ) {
+      recommendationErrors.push(`${scenarioKey}: 국가 미지정 그래프가 단일 기준연도 원자료로 생성되지 않음`);
+    }
+  }
+
+  for (const pairDefinition of examGraphPairMetricDefinitions.filter((definition) => !definition.partsOfWhole)) {
+    state.examGraphPresetKey = "pairedBars";
+    state.examGraphPairKey = pairDefinition.key;
+    state.examGraphValueMode = "share";
+    ensureExamGraphState();
+    if (state.examGraphValueMode === "share" || getExamGraphAllowedValueModes("pairedBars").includes("share")) {
+      recommendationErrors.push(`${pairDefinition.key}: 전체의 부분이 아닌 두 지표를 100%로 재정규화할 수 있음`);
+    }
+  }
+
+  applyExamGraphScenarioConfig({
+    presetKey: "scatter",
+    grouping: "countries",
+    scatterXKey: "religion-christians-share",
+    scatterYKey: "religion-muslims-share",
+    scatterSizeKey: "population-total",
+  });
+  ensureExamGraphState();
+  const mixedYearEntry = findExamGraphCountrySearchEntry("USA");
+  if (mixedYearEntry && getExamGraphCurrentYearSignature(mixedYearEntry)) {
+    recommendationErrors.push("2020년 종교 비율과 2023년 총인구가 같은 연도 산포도로 승인됨");
+  }
+
+  applyExamGraphScenarioConfig({ presetKey: "pairedBars", pairKey: "grain-total-trade", valueMode: "amount", grouping: "continents" });
+  ensureExamGraphState();
+  const mixedTradeEntry = ["COD", "QAT"]
+    .map((iso3) => findExamGraphCountrySearchEntry(iso3))
+    .find((entry) => entry && !getExamGraphCurrentYearSignature(entry));
+  if (!mixedTradeEntry) {
+    recommendationErrors.push("직접 선택 혼합연도 대륙 집계 차단 fixture를 찾지 못함");
+  } else {
+    state.examGraphFocusCountryIds = [mixedTradeEntry.id];
+    state.examGraphFocusKind = "custom";
+    const mixedRows = getExamGraphSelectedCountryRows();
+    const availability = getExamGraphScopeAvailability(mixedRows);
+    if (getExamGraphAggregateSourceRows(mixedRows, "continents", "pairedBars").length !== 0 || availability.invalidYearSignatureCount !== 1) {
+      recommendationErrors.push(`${mixedTradeEntry.stats?.iso3}: 혼합연도 직접 선택이 대륙 전체 원자료로 확장됨`);
+    }
+  }
+
+  applyExamGraphScenarioConfig({ presetKey: "pairedBars", pairKey: "christians-muslims-share", valueMode: "amount", grouping: "countries" });
+  ensureExamGraphState();
+  const sriLankaEntry = findExamGraphCountrySearchEntry("LKA");
+  if (!sriLankaEntry || !isExamGraphRandomCountryAllowed(sriLankaEntry.stats)) {
+    recommendationErrors.push("종교 주제 고빈도 보조국 스리랑카가 자동 후보에서 제외됨");
+  }
+  if (!sriLankaEntry || getExamItemLabCountryTier({
+    topicKey: "religion",
+    config: { presetKey: "pairedBars", pairKey: "hindus-buddhists-share", valueMode: "amount", grouping: "countries" },
+  }, sriLankaEntry.stats) < 3) {
+    recommendationErrors.push("종교 주제 고빈도 보조국 스리랑카가 Item Lab 핵심 후보에서 제외됨");
+  }
+
+  const distributionRandom = seededRandom(20260717);
+  const sampledPresetCounts = new Map();
+  const distributionSamples = 5000;
+  for (let sampleIndex = 0; sampleIndex < distributionSamples; sampleIndex += 1) {
+    let selectedScenario = null;
+    let bestOrder = Infinity;
+    randomScenarios.forEach((scenario) => {
+      const order = -Math.log(Math.max(distributionRandom(), 1e-9)) / getExamGraphScenarioSamplingWeight(scenario);
+      if (order < bestOrder) {
+        bestOrder = order;
+        selectedScenario = scenario;
+      }
+    });
+    sampledPresetCounts.set(selectedScenario.presetKey, (sampledPresetCounts.get(selectedScenario.presetKey) ?? 0) + 1);
+  }
+  const temporalSampleShare = ((sampledPresetCounts.get("timeCompare") ?? 0) + (sampledPresetCounts.get("trendLine") ?? 0)) / distributionSamples;
+  const rankSampleShare = (sampledPresetCounts.get("rankBars") ?? 0) / distributionSamples;
+  if (temporalSampleShare > 0.25 || rankSampleShare < 0.1) {
+    recommendationErrors.push(`유형 가중 추출 분포 이상: 시계열 ${(temporalSampleShare * 100).toFixed(1)}%, 단일 지표 ${(rankSampleShare * 100).toFixed(1)}%`);
+  }
+  addCheck(
+    "동일 연도 국가 추천·그래프 유형 가중치",
+    recommendationErrors,
+    `${recommendationConfigs.length}개 대표+랜덤 ${fullScenarioRecommendationCount}/${randomScenarios.length}개 전수 추천, 집계 원자료 ${aggregateSourceRowCount}행 동일 연도, 시계열 표본 ${(temporalSampleShare * 100).toFixed(1)}%`,
+    recommendationErrors.join("; "),
   );
 
   const missingAliasErrors = [];
@@ -440,36 +722,70 @@ function runAuditInsideAppScope() {
         csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}: CSV 행 수 불일치`);
         continue;
       }
-      if (String(csv[0]?.[0]) !== "표시명" || String(csv[0]?.[1]) !== "실제명") {
-        csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}: CSV 기본 헤더 누락`);
+      const studentHeaders = new Set((csv[0] ?? []).map(String));
+      if (String(csv[0]?.[0]) !== "표시명") {
+        csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}: 학생 CSV 표시명 헤더 누락`);
+      }
+      if (["실제명", "실제 항목", "ISO3", "상세"].some((header) => [...studentHeaders].some((value) => value.includes(header)))) {
+        csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}: 학생 CSV에 제작자 필드 노출`);
+      }
+      const studentValues = new Set(csv.flat().map(String));
+      if (model.isAnonymous && (model.valueRows ?? []).some((row) => row.value || !/^\([가-하]\)$/u.test(String(row.label ?? "")))) {
+        csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}: 값 정리 카드에 실제명 또는 비가명 라벨 노출`);
       }
       model.rows.forEach((row, rowIndex) => {
         const csvRow = csv[rowIndex + 1] ?? [];
-        if (String(csvRow[0]) !== String(row.displayLabel ?? row.label)) {
+        if (String(csvRow[0]) !== String(getExamGraphStudentLabel(model, row))) {
           csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}:${rowIndex}: 표시명 불일치`);
         }
-        if (String(csvRow[1]) !== String(row.actualLabel ?? row.label)) {
-          csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}:${rowIndex}: 실제명 불일치`);
+        const forbiddenActualLabels = [row.actualLabel, row.label]
+          .map((value) => getExamGraphReadableLabel(value))
+          .filter((value) => value && value !== row.displayLabel);
+        if (model.isAnonymous && forbiddenActualLabels.some((value) => studentValues.has(String(value)))) {
+          csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}:${rowIndex}: 학생 CSV 실제명 누출`);
+        }
+        const iso3 = String(countryStatsById[row.id]?.iso3 ?? row.iso3 ?? "").toUpperCase();
+        if (model.isAnonymous && iso3 && studentValues.has(iso3)) {
+          csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}:${rowIndex}: 학생 CSV ISO3 누출`);
         }
         if (csvRow.some((value) => String(value) === "undefined" || String(value) === "NaN")) {
           csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}:${rowIndex}: 비정상 값`);
         }
         buildExamGraphCsvLine(csvRow);
       });
+      const authorMap = buildExamGraphAuthorMappingCsvRows(model);
+      const authorValues = new Set(authorMap.flat().map(String));
+      if (String(authorMap[0]?.[0]) !== "구분" || !authorMap[0]?.includes("실제명") || !authorMap[0]?.includes("ISO3")) {
+        csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}: 제작자 대응표 헤더 누락`);
+      }
+      if (model.isAnonymous) {
+        model.rows.forEach((row, rowIndex) => {
+          const actualLabel = getExamGraphReadableLabel(row.actualLabel ?? row.label);
+          if (actualLabel && !authorValues.has(String(actualLabel))) {
+            csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}:${rowIndex}: 제작자 대응표 실제명 누락`);
+          }
+        });
+      }
       if (model.presetKey === "top3share") {
-        const csvValues = new Set(csv.flat().map(String));
-        const missingMappings = model.rows.flatMap((row) =>
+        const leakedMappings = model.rows.flatMap((row) =>
           (row.segments ?? [])
             .filter((segment) => segment.label !== "기타" && segment.actualLabel)
             .map((segment) => String(segment.actualLabel))
-            .filter((actualLabel) => !csvValues.has(actualLabel)),
+            .filter((actualLabel) => studentValues.has(actualLabel)),
         );
-        if (missingMappings.length > 0) {
+        if (leakedMappings.length > 0) {
           csvErrors.push(
-            `${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}: top3 국가 매핑 누락 ` +
-              `(${[...new Set(missingMappings)].slice(0, 4).join(", ")})`,
+            `${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}: 학생 CSV top3 실제명 누출 ` +
+              `(${[...new Set(leakedMappings)].slice(0, 4).join(", ")})`,
           );
         }
+        const missingAuthorMappings = model.rows.flatMap((row) =>
+          (row.segments ?? [])
+            .filter((segment) => segment.label !== "기타" && segment.actualLabel)
+            .map((segment) => String(segment.actualLabel))
+            .filter((actualLabel) => !authorValues.has(actualLabel)),
+        );
+        if (missingAuthorMappings.length > 0) csvErrors.push(`${entry.definition.key}:Rows${entry.rowCount}:${panel.definition.label}: 제작자 top3 매핑 누락`);
       }
     }
   }
@@ -480,7 +796,7 @@ function runAuditInsideAppScope() {
   addCheck(
     "Graph Builder CSV 구조",
     csvErrors,
-    `${csvModelCount}개 모델의 행·헤더·가명·실제명·escaping·top3 매핑 보존`,
+    `${csvModelCount}개 모델의 학생용/제작자용 분리·가명 순서·escaping·top3 매핑 보존`,
     csvErrors.slice(0, 8).join("; "),
   );
 

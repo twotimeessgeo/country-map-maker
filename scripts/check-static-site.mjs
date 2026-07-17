@@ -124,8 +124,14 @@ const drillScenarioEnd = mapAppText.indexOf("\n];", drillScenarioStart + 1);
 const drillScenarioText = drillScenarioStart >= 0
   ? mapAppText.slice(drillScenarioStart, drillScenarioEnd >= 0 ? drillScenarioEnd + 3 : undefined)
   : "";
-if (!randomScenarioText || /presetKey:\s*["']rankBars["']/.test(randomScenarioText)) {
-  errors.push("Graph Builder 랜덤 추천에 단일 지표 순위가 남아 있습니다.");
+if (!randomScenarioText || !/presetKey:\s*["']rankBars["']/.test(randomScenarioText)) {
+  errors.push("Graph Builder 랜덤 추천에 평가원 빈출 단일 지표 비교가 없습니다.");
+}
+if (!randomScenarioText.includes("examWeight") || !randomScenarioText.includes("weightByPreset")) {
+  errors.push("Graph Builder 랜덤 그래프 유형에 평가원 빈도 가중치가 없습니다.");
+}
+if (/\["industry-structure",\s*"amount"/.test(randomScenarioText)) {
+  errors.push("산업 구조 비율을 실제 양으로 오인하는 랜덤 조합이 남아 있습니다.");
 }
 if (!drillScenarioText || /skillKey:\s*["']rank["']/.test(drillScenarioText)) {
   errors.push("Exam Drill 자동 후보에 단일 지표 순위가 남아 있습니다.");

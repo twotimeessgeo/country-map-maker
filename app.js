@@ -447,7 +447,7 @@ const examDrillSkillPrompts = {
 const examDrillScenarioDefinitions = [
   { topicKey: "demography", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "urban-rural", valueMode: "share", grouping: "countries" } },
   { topicKey: "demography", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "age-structure", valueMode: "share", grouping: "countries" } },
-  { topicKey: "demography", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "young-old-share", valueMode: "share", grouping: "countries" } },
+  { topicKey: "demography", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "young-old-share", valueMode: "amount", grouping: "countries" } },
   { topicKey: "demography", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "birth-death-rate", valueMode: "amount", grouping: "countries" } },
   { topicKey: "demography", skillKey: "change", config: { presetKey: "timeCompare", timeMetricKey: "population-total", valueMode: "amount", grouping: "countries", yearStart: 1970, yearEnd: 2023 } },
   { topicKey: "demography", skillKey: "change", config: { presetKey: "trendLine", timeMetricKey: "population-urban-share", valueMode: "amount", grouping: "countries", yearStart: 1970, yearEnd: 2023 } },
@@ -460,16 +460,28 @@ const examDrillScenarioDefinitions = [
   { topicKey: "agriculture", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "rice-trade", valueMode: "amount", grouping: "countries" } },
   { topicKey: "agriculture", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "maize-trade", valueMode: "amount", grouping: "countries" } },
   { topicKey: "economy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "industry-structure", valueMode: "share", grouping: "countries" } },
-  { topicKey: "economy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "agri-services-share", valueMode: "share", grouping: "countries" } },
+  { topicKey: "economy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "agri-services-share", valueMode: "amount", grouping: "countries" } },
   { topicKey: "energy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "energy-summary", valueMode: "share", grouping: "countries" } },
   { topicKey: "energy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "electricity-breakdown", valueMode: "share", grouping: "countries" } },
   { topicKey: "energy", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "fossil-production", valueMode: "share", grouping: "countries" } },
   { topicKey: "energy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "solar-wind-amount", valueMode: "amount", grouping: "countries" } },
   { topicKey: "energy", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "oil-gas-production", valueMode: "amount", grouping: "countries" } },
   { topicKey: "religion", skillKey: "composition", config: { presetKey: "stacked100", compositionKey: "religion-major", valueMode: "share", grouping: "countries" } },
-  { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "christians-muslims-share", valueMode: "share", grouping: "countries" } },
-  { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "hindus-buddhists-share", valueMode: "share", grouping: "countries" } },
+  { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "christians-muslims-share", valueMode: "amount", grouping: "countries" } },
+  { topicKey: "religion", skillKey: "compare", config: { presetKey: "pairedBars", pairKey: "hindus-buddhists-share", valueMode: "amount", grouping: "countries" } },
 ];
+const examItemLabTemplateStyleWeights = {
+  "demography-structure-scale": 5,
+  "demography-transition-cross": 4,
+  "demography-urban-parallel": 3,
+  "agriculture-grain-scale": 5,
+  "agriculture-crop-balance": 4,
+  "agriculture-livestock-parallel": 3,
+  "economy-structure-cross": 4,
+  "energy-balance-parallel": 5,
+  "energy-production-scale": 4,
+  "religion-scale": 5,
+};
 const examItemLabTemplateDefinitions = [
   {
     key: "demography-structure-scale",
@@ -729,6 +741,7 @@ const examItemLabTemplateDefinitions = [
   }));
   return {
     ...definition,
+    examStyleWeight: examItemLabTemplateStyleWeights[definition.key] ?? 2,
     maxPanelCount: Number(definition.maxPanelCount) === 3 ? 3 : 2,
     panels,
     scenarioDefinition: {
@@ -1134,7 +1147,7 @@ const examGraphBasicPatternDefinitions = [
   { key: "basic-horizontal", pattern: "horizontal" },
 ];
 const examGraphValueModeDefinitions = [
-  { key: "amount", label: "양" },
+  { key: "amount", label: "원값" },
   { key: "share", label: "비율" },
   { key: "relative", label: "상댓값100" },
 ];
@@ -1281,10 +1294,11 @@ const examGraphCompositionDefinitions = [
         { key: "age65Plus", label: "65세 이상", value: totalPopulation ? (Number(structure?.shares?.age65Plus) || 0) * totalPopulation / 100 : null },
       ];
     },
-    getYears: (stats) => [
-      stats?.populationStructure?.year,
-      !Number(stats?.populationStructure?.totalPopulation) ? getLatestPopulationRow(stats?.population)?.year : null,
-    ],
+    getYears: (stats) => {
+      const years = [stats?.populationStructure?.year];
+      if (!Number(stats?.populationStructure?.totalPopulation)) years.push(getLatestPopulationRow(stats?.population)?.year);
+      return years;
+    },
   },
   {
     key: "industry-structure",
@@ -1501,6 +1515,7 @@ const examGraphPairMetricDefinitions = [
     label: "도시/촌락 인구",
     description: "도시 인구와 촌락 인구를 짝막대로 비교",
     metricKeys: ["population-urban-total", "population-rural-total"],
+    partsOfWhole: true,
   },
   {
     key: "young-old-share",
@@ -1601,7 +1616,14 @@ const examGraphAvailableContinents = [...new Set(
     .map((stats) => stats?.continent?.name)
     .filter(Boolean),
 )].sort((a, b) => a.localeCompare(b, "en"));
-const examGraphQuickCountryIso3 = ["CHN", "IND", "USA", "BRA", "JPN", "DEU", "NGA", "SAU", "AUS", "RUS"];
+const examGraphQuickCountryIso3ByTopic = {
+  demography: ["CHN", "IND", "USA", "BRA", "NGA", "JPN", "DEU", "KOR", "NER", "ETH"],
+  agriculture: ["BRA", "CHN", "USA", "IND", "ARG", "RUS", "THA", "VNM", "IDN", "AUS"],
+  economy: ["USA", "MEX", "CHN", "IND", "JPN", "DEU", "ITA", "AUS", "SGP", "BRA"],
+  energy: ["USA", "CHN", "IND", "BRA", "RUS", "SAU", "IRN", "AUS", "NOR", "FRA"],
+  religion: ["IND", "IDN", "THA", "MMR", "PAK", "BGD", "NGA", "TUR", "RUS", "USA"],
+  region: ["MEX", "BOL", "CHL", "PER", "TUR", "EGY", "IDN", "MMR", "CHE", "KEN"],
+};
 const examGraphTopicLabels = {
   demography: "인구·도시",
   agriculture: "식량·농업",
@@ -9168,6 +9190,20 @@ function getMetricExplorerDefinitions() {
       getValue: (stats) => getReligionMetric(stats, "buddhists"),
     },
     {
+      key: "religion-population-2020",
+      category: "종교",
+      label: "2020년 총인구",
+      aggregation: "sum",
+      formatter: (value) => formatPeopleAmount(value),
+      getValue: (stats) => {
+        const value = stats?.religion2020?.totalPopulation;
+        const year = stats?.religion2020?.year;
+        return Number.isFinite(Number(value)) && Number.isFinite(Number(year))
+          ? { value: Number(value), year: Number(year), detail: "종교 구성 추계의 기준 인구" }
+          : null;
+      },
+    },
+    {
       key: "energy-consumption-total",
       category: "에너지 · 자원",
       label: "1차 에너지 소비량",
@@ -11447,9 +11483,15 @@ function getOrderedMetricEntries(map, order) {
   return order
     .map((key) => {
       const entry = getVersionedStatEntry(map?.[key]);
-      return entry && Number.isFinite(Number(entry.value)) ? { key, ...entry } : null;
+      return entry && isStrictExamStatNumber(entry.value) ? { key, ...entry } : null;
     })
     .filter(Boolean);
+}
+
+function isStrictExamStatNumber(value) {
+  if (value === null || value === undefined || typeof value === "boolean") return false;
+  if (typeof value === "string" && !value.trim()) return false;
+  return Number.isFinite(Number(value));
 }
 
 function computeChangePercent(start, end) {
@@ -11458,6 +11500,20 @@ function computeChangePercent(start, end) {
   }
 
   return ((Number(end) - Number(start)) / Number(start)) * 100;
+}
+
+function getUniformExamStatYear(entries, accessor = (entry) => entry) {
+  const rawYears = (entries ?? []).map((entry) => accessor(entry)?.year);
+  if (!rawYears.length || rawYears.some((year) => year === null || year === undefined || typeof year === "boolean" || (typeof year === "string" && !year.trim()))) {
+    return null;
+  }
+  const years = rawYears.map(Number);
+  return years.every(Number.isFinite) && new Set(years).size === 1 ? years[0] : null;
+}
+
+function hasUniformExamStatUnit(entries, accessor = (entry) => entry) {
+  const units = (entries ?? []).map((entry) => String(accessor(entry)?.unit ?? "").trim());
+  return units.length > 0 && units.every(Boolean) && new Set(units).size === 1;
 }
 
 function getCropTotals(crops) {
@@ -11476,11 +11532,20 @@ function getCropTotals(crops) {
       };
     })
     .filter(Boolean);
-  const hasCompleteProduction = productionEntries.length === countryStatsCropOrder.length;
+  const productionYear = getUniformExamStatYear(productionEntries);
+  const importYear = getUniformExamStatYear(tradeEntries, (entry) => entry.import);
+  const exportYear = getUniformExamStatYear(tradeEntries, (entry) => entry.export);
+  const hasCompleteProduction = productionEntries.length === countryStatsCropOrder.length
+    && productionYear !== null
+    && hasUniformExamStatUnit(productionEntries);
   const hasCompleteImports = tradeEntries.length === countryStatsCropOrder.length
-    && tradeEntries.every((entry) => Number.isFinite(Number(entry.import?.value)));
+    && tradeEntries.every((entry) => isStrictExamStatNumber(entry.import?.value))
+    && importYear !== null
+    && hasUniformExamStatUnit(tradeEntries, (entry) => entry.import);
   const hasCompleteExports = tradeEntries.length === countryStatsCropOrder.length
-    && tradeEntries.every((entry) => Number.isFinite(Number(entry.export?.value)));
+    && tradeEntries.every((entry) => isStrictExamStatNumber(entry.export?.value))
+    && exportYear !== null
+    && hasUniformExamStatUnit(tradeEntries, (entry) => entry.export);
   const productionTotal = hasCompleteProduction
     ? productionEntries.reduce((sum, entry) => sum + Number(entry.value), 0)
     : null;
@@ -11503,13 +11568,9 @@ function getCropTotals(crops) {
     productionTotal,
     importTotal,
     exportTotal,
-    productionYear: hasCompleteProduction ? Math.max(...productionEntries.map((entry) => entry.year || 0)) : null,
-    importYear: hasCompleteImports
-      ? Math.max(...tradeEntries.map((entry) => entry.import?.year || 0))
-      : null,
-    exportYear: hasCompleteExports
-      ? Math.max(...tradeEntries.map((entry) => entry.export?.year || 0))
-      : null,
+    productionYear: hasCompleteProduction ? productionYear : null,
+    importYear: hasCompleteImports ? importYear : null,
+    exportYear: hasCompleteExports ? exportYear : null,
     topCropLabel: topCrop?.label ?? null,
     topCropShare: productionTotal > 0 && topCrop ? (topCrop.value / productionTotal) * 100 : null,
   };
@@ -11518,8 +11579,14 @@ function getCropTotals(crops) {
 function getLivestockTotals(livestock) {
   const stockEntries = getOrderedMetricEntries(livestock?.stocks, countryStatsLivestockOrder);
   const meatEntries = getOrderedMetricEntries(livestock?.meat, countryStatsLivestockOrder);
-  const hasCompleteStocks = stockEntries.length === countryStatsLivestockOrder.length;
-  const hasCompleteMeat = meatEntries.length === countryStatsLivestockOrder.length;
+  const stockYear = getUniformExamStatYear(stockEntries);
+  const meatYear = getUniformExamStatYear(meatEntries);
+  const hasCompleteStocks = stockEntries.length === countryStatsLivestockOrder.length
+    && stockYear !== null
+    && hasUniformExamStatUnit(stockEntries);
+  const hasCompleteMeat = meatEntries.length === countryStatsLivestockOrder.length
+    && meatYear !== null
+    && hasUniformExamStatUnit(meatEntries);
   const stockTotal = hasCompleteStocks
     ? stockEntries.reduce((sum, entry) => sum + Number(entry.value), 0)
     : null;
@@ -11538,8 +11605,8 @@ function getLivestockTotals(livestock) {
     meatEntries,
     stockTotal,
     meatTotal,
-    stockYear: hasCompleteStocks ? Math.max(...stockEntries.map((entry) => entry.year || 0)) : null,
-    meatYear: hasCompleteMeat ? Math.max(...meatEntries.map((entry) => entry.year || 0)) : null,
+    stockYear: hasCompleteStocks ? stockYear : null,
+    meatYear: hasCompleteMeat ? meatYear : null,
     topMeatLabel: topMeat?.label ?? null,
     topMeatShare: meatTotal > 0 && topMeat ? (topMeat.value / meatTotal) * 100 : null,
   };
@@ -12055,6 +12122,10 @@ function getExamGraphCountrySearchEntries() {
         name,
         nameKo: catalogDefinition?.nameKo ?? "",
         tier: catalogDefinition?.tier ?? "reference",
+        dataTier: catalogDefinition?.dataTier ?? catalogDefinition?.tier ?? "reference",
+        examBand: catalogDefinition?.examBand ?? "C",
+        examWeight: Number(catalogDefinition?.examWeight) || 0,
+        topicWeights: catalogDefinition?.topicWeights ?? {},
         topics: catalogDefinition?.topics ?? [],
         continent: stats?.continent?.name ?? "",
         aliases,
@@ -12066,6 +12137,7 @@ function getExamGraphCountrySearchEntries() {
     .sort((first, second) => {
       const tierOrder = { core: 0, support: 1 };
       return (tierOrder[first.tier] ?? 9) - (tierOrder[second.tier] ?? 9) ||
+        Number(second.examWeight || 0) - Number(first.examWeight || 0) ||
         (first.nameKo || first.name).localeCompare(second.nameKo || second.name, "ko");
     });
   return examGraphCountrySearchEntriesCache;
@@ -12238,6 +12310,15 @@ function isExamGraphCountryAvailableForCurrentConfig(entryOrId) {
   return getExamGraphCountryAvailability(entryOrId).included;
 }
 
+function getExamGraphCurrentYearSignature(entryOrId) {
+  const stats = entryOrId?.stats ?? countryStatsById[entryOrId?.id ?? entryOrId];
+  if (!stats) return "";
+  return getExamDrillSourceYearSignature(
+    { topicKey: getExamGraphCurrentTopicKey(), config: getCurrentExamGraphScenarioConfig() },
+    stats,
+  );
+}
+
 function getExamGraphScopeAvailability(rows = getExamGraphSelectedCountryRows()) {
   const results = (rows ?? []).map((row) =>
     getExamGraphCountryAvailability({
@@ -12245,11 +12326,17 @@ function getExamGraphScopeAvailability(rows = getExamGraphSelectedCountryRows())
       stats: row.stats,
     }),
   );
+  const rawYearSignatures = (rows ?? []).map((row) => getExamGraphCurrentYearSignature(row));
+  const yearSignatures = [...new Set(rawYearSignatures.filter(Boolean))];
+  const invalidYearSignatureCount = rawYearSignatures.filter((signature) => !signature).length;
   return {
     total: rows.length,
     available: results.filter((result) => result.included).length,
     partial: results.filter((result) => !result.included && result.status === "partial").length,
     missing: results.filter((result) => result.status === "missing").length,
+    yearSignatures,
+    invalidYearSignatureCount,
+    periodMismatch: invalidYearSignatureCount > 0 || yearSignatures.length > 1,
   };
 }
 
@@ -12298,7 +12385,11 @@ function getExamGraphTopShareMetricDefinition() {
 
 function getExamGraphAllowedValueModes(presetKey = state.examGraphPresetKey) {
   const preset = getExamGraphPresetDefinition(presetKey);
-  return preset.allowedValueModes ?? [];
+  const allowedModes = preset.allowedValueModes ?? [];
+  if (presetKey === "pairedBars" && !getExamGraphPairDefinition()?.partsOfWhole) {
+    return allowedModes.filter((mode) => mode !== "share");
+  }
+  return allowedModes;
 }
 
 function getExamGraphFocusedCountryRows() {
@@ -12379,22 +12470,24 @@ function isExamGraphRandomCountryAllowed(entryOrStats, { includeSupport = false 
   const stats = entryOrStats?.stats ?? entryOrStats;
   const iso3 = String(stats?.iso3 ?? "").trim().toUpperCase();
   const tier = getExamGraphCountryTier(iso3);
-  return tier === "core" || (includeSupport && tier === "support");
+  const examWeight = Number(getExamCountryCatalogDefinition(iso3)?.examWeight) || 0;
+  const topicWeight = getExamCountryTopicWeight(stats, getExamGraphCurrentTopicKey());
+  return tier === "core" || (tier === "support" && (includeSupport || examWeight >= 4 || topicWeight >= 5));
+}
+
+function getExamCountryTopicWeight(entryOrStats, topicKey = getExamGraphCurrentTopicKey()) {
+  const stats = entryOrStats?.stats ?? entryOrStats;
+  const iso3 = String(stats?.iso3 ?? "").trim().toUpperCase();
+  const definition = getExamCountryCatalogDefinition(iso3);
+  if (!definition) return 0;
+  if (Object.hasOwn(definition.topicWeights ?? {}, topicKey)) {
+    return Number(definition.topicWeights[topicKey]) || 0;
+  }
+  return Number(definition.examWeight) || 0;
 }
 
 function getExamGraphRandomCountryPriority(entryOrStats) {
-  const stats = entryOrStats?.stats ?? entryOrStats;
-  const iso3 = String(stats?.iso3 ?? "").trim().toUpperCase();
-  if (!iso3) {
-    return 0;
-  }
-  if (getExamGraphCountryTier(iso3) === "core") {
-    return 3;
-  }
-  if (getExamGraphCountryTier(iso3) === "support") {
-    return 1;
-  }
-  return 0;
+  return getExamCountryTopicWeight(entryOrStats, getExamGraphCurrentTopicKey());
 }
 
 function getExamItemLabScenarioPoolKey(scenarioDefinition) {
@@ -12423,8 +12516,10 @@ function getExamItemLabCountryTier(scenarioDefinition, entryOrStats) {
   const matchesTopic = Boolean(
     topicPool?.has(iso3) || catalogDefinition.topics?.includes(scenarioDefinition?.topicKey),
   );
+  const topicWeight = getExamCountryTopicWeight(stats, scenarioDefinition?.topicKey);
+  const isFrequentEnoughForCore = catalogDefinition.tier === "core" || Number(catalogDefinition.examWeight) >= 4 || topicWeight >= 5;
   if (
-    catalogDefinition.tier === "core" &&
+    isFrequentEnoughForCore &&
     (scenarioPool?.has(iso3) || (!scenarioPool && matchesTopic))
   ) {
     return 3;
@@ -12487,30 +12582,60 @@ function getExamGraphRawCountryRows() {
 function getExamGraphAllCountryRows({ includeSupport = false } = {}) {
   return getExamGraphRawCountryRows().filter((entry) => {
     const tier = getExamGraphCountryTier(entry.stats?.iso3);
-    return tier === "core" || (includeSupport && tier === "support");
+    const examWeight = Number(getExamCountryCatalogDefinition(entry.stats?.iso3)?.examWeight) || 0;
+    const topicWeight = getExamCountryTopicWeight(entry.stats, getExamGraphCurrentTopicKey());
+    return tier === "core" || (tier === "support" && (includeSupport || examWeight >= 4 || topicWeight >= 5));
   });
 }
 
 function getExamGraphAggregateSourceRows(selectedRows, grouping, presetKey = state.examGraphPresetKey) {
+  const getUniformYearSignature = (rows) => {
+    const signatures = (rows ?? []).map((row) => getExamGraphCurrentYearSignature(row));
+    return signatures.length && signatures.every(Boolean) && new Set(signatures).size === 1 ? signatures[0] : "";
+  };
+  const selectBestYearSignature = (rows) => {
+    const groups = new Map();
+    (rows ?? []).forEach((row) => {
+      const signature = getExamGraphCurrentYearSignature(row);
+      if (!signature) return;
+      if (!groups.has(signature)) groups.set(signature, []);
+      groups.get(signature).push(row);
+    });
+    return [...groups.entries()]
+      .sort((first, second) => {
+        const priority = (group) => d3.sum(group, (row) => getExamCountryTopicWeight(row, getExamGraphCurrentTopicKey()));
+        return priority(second[1]) - priority(first[1]) || second[1].length - first[1].length;
+      })[0]?.[0] ?? "";
+  };
+
   if (grouping !== "continents") {
-    return selectedRows.length ? selectedRows : getExamGraphAllCountryRows();
+    if (selectedRows.length) return selectedRows;
+    const automaticRows = getExamGraphAllCountryRows();
+    const automaticSignature = selectBestYearSignature(automaticRows);
+    return automaticSignature
+      ? automaticRows.filter((row) => getExamGraphCurrentYearSignature(row) === automaticSignature)
+      : [];
   }
   const rawRows = getExamGraphRawCountryRows();
-  if (!selectedRows.length) {
-    return rawRows;
-  }
-  const selectedContinents = new Set(
-    selectedRows
-      .map((entry) =>
-        getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping, presetKey }),
+  const selectedContinents = selectedRows.length
+    ? new Set(
+        selectedRows
+          .map((entry) => getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping, presetKey }))
+          .filter(Boolean),
       )
-      .filter(Boolean),
-  );
-  return rawRows.filter((entry) =>
-    selectedContinents.has(
-      getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping, presetKey }),
-    ),
-  );
+    : null;
+  const continentRows = selectedContinents
+    ? rawRows.filter((entry) => selectedContinents.has(
+        getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping, presetKey }),
+      ))
+    : rawRows;
+  const targetSignature = getUniformYearSignature(selectedRows) || (!selectedRows.length ? selectBestYearSignature(continentRows) : "");
+  if (selectedRows.length && !targetSignature) {
+    return [];
+  }
+  return targetSignature
+    ? continentRows.filter((row) => getExamGraphCurrentYearSignature(row) === targetSignature)
+    : continentRows;
 }
 
 function getExamGraphTopN() {
@@ -12727,12 +12852,10 @@ function getExamDrillSourceYearSignature(scenarioDefinition, stats) {
   const config = scenarioDefinition?.config ?? {};
   const metricDefinitions = getMetricExplorerDefinitions();
   const buildSingleYearSignature = (years) => {
-    const knownYears = [...new Set(
-      (years ?? [])
-        .filter((year) => year !== null && year !== undefined && year !== "")
-        .map((year) => Number(year))
-        .filter(Number.isFinite),
-    )];
+    if (!Array.isArray(years) || !years.length || years.some((year) => year === null || year === undefined || year === "" || !Number.isFinite(Number(year)))) {
+      return "";
+    }
+    const knownYears = [...new Set(years.map((year) => Number(year)))];
     return knownYears.length === 1 ? String(knownYears[0]) : "";
   };
 
@@ -12752,8 +12875,18 @@ function getExamDrillSourceYearSignature(scenarioDefinition, stats) {
       ),
     );
   }
-  if (config.presetKey === "timeCompare" || config.presetKey === "trendLine") {
+  if (config.presetKey === "timeCompare") {
     return `${config.yearStart}:${config.yearEnd}`;
+  }
+  if (config.presetKey === "trendLine") {
+    const definition = examGraphTimeMetricDefinitions.find((item) => item.key === config.timeMetricKey);
+    const observedYears = examGraphPopulationYears
+      .filter((year) => Number(year) >= Number(config.yearStart) && Number(year) <= Number(config.yearEnd))
+      .filter((year) => {
+        const value = definition?.getYearValue?.(stats, year);
+        return value !== null && value !== undefined && Number.isFinite(Number(value));
+      });
+    return observedYears.length >= 2 ? observedYears.join(":") : "";
   }
   if (config.presetKey === "scatter") {
     return buildSingleYearSignature(
@@ -13436,7 +13569,10 @@ function applyExamItemLabSharedAliases(model, countryIds) {
       return {
         ...sourceRow,
         label: rows[index].displayLabel,
-        value: getExamGraphReadableLabel(rows[index].actualLabel ?? rows[index].label),
+        value:
+          sourceKey === "answerRow"
+            ? getExamGraphReadableLabel(rows[index].actualLabel ?? rows[index].label)
+            : "",
       };
     });
   return {
@@ -13689,8 +13825,7 @@ function getExamItemLabTemplateCandidates(
   panelCount = examDrillPanelCount,
 ) {
   const normalizedCount = normalizeExamItemLabPanelCount(panelCount);
-  return shuffleExamGraphItems(
-    examItemLabTemplateDefinitions.filter((definition) => {
+  return examItemLabTemplateDefinitions.filter((definition) => {
       if (templateKey && definition.key !== templateKey) {
         return false;
       }
@@ -13701,8 +13836,13 @@ function getExamItemLabTemplateCandidates(
         return false;
       }
       return definition.maxPanelCount >= normalizedCount && definition.panels.length >= normalizedCount;
-    }).map((definition) => resolveExamItemLabTemplateDefinition(definition, normalizedCount)),
-  );
+    })
+    .map((definition) => ({
+      definition: resolveExamItemLabTemplateDefinition(definition, normalizedCount),
+      weightedOrder: -Math.log(Math.max(Math.random(), 1e-9)) / Math.max(1, Number(definition.examStyleWeight) || 1),
+    }))
+    .sort((first, second) => first.weightedOrder - second.weightedOrder)
+    .map((entry) => entry.definition);
 }
 
 function getWeightedExamDrillScenarios(topicKey) {
@@ -13721,6 +13861,21 @@ function getWeightedExamDrillScenarios(topicKey) {
     }))
     .sort((first, second) => first.order - second.order)
     .map((entry) => entry.definition);
+}
+
+function getWeightedExamCountryIdOrder(countryIds, topicKey, tierGetter = () => 0) {
+  return countryIds
+    .map((countryId) => ({
+      countryId,
+      order:
+        -Math.log(Math.max(Math.random(), 1e-9)) /
+        Math.max(
+          0.25,
+          getExamCountryTopicWeight(countryStatsById[countryId], topicKey) + Number(tierGetter(countryId) || 0) * 0.15,
+        ),
+    }))
+    .sort((first, second) => first.order - second.order)
+    .map((entry) => entry.countryId);
 }
 
 function getExamDrillCountrySetSamples(
@@ -13746,9 +13901,10 @@ function getExamDrillCountrySetSamples(
 
   for (let attempt = 0; attempt < sampleCount * 5 && resultByKey.size < sampleCount; attempt += 1) {
     const useExtended = canUseExtended;
-    const nextIds = shuffleExamGraphItems(coreIds).slice(0, targetCount - (useExtended ? 1 : 0));
+    const nextIds = getWeightedExamCountryIdOrder(coreIds, scenarioDefinition?.topicKey, tierGetter)
+      .slice(0, targetCount - (useExtended ? 1 : 0));
     if (useExtended) {
-      nextIds.push(shuffleExamGraphItems(extendedIds)[0]);
+      nextIds.push(getWeightedExamCountryIdOrder(extendedIds, scenarioDefinition?.topicKey, tierGetter)[0]);
     }
     if (nextIds.length !== targetCount) {
       continue;
@@ -13861,18 +14017,20 @@ function createExamDrillResult(
         const relevanceScore =
           ((d3.mean(
             countryIds,
-            (countryId) =>
-              getExamItemLabTemplateCountryTier(templateDefinition, countryStatsById[countryId]),
+            (countryId) => getExamCountryTopicWeight(countryStatsById[countryId], templateDefinition.topicKey),
           ) ?? 0) /
-            3) *
+            5) *
           100;
+        const styleScore = (Number(templateDefinition.examStyleWeight) || 1) * 20;
         const primaryMeta = panelResults[0].authoringMeta;
         const authoringMeta = {
           ...primaryMeta,
           valid: true,
           angle: templateDefinition.angle,
-          score: compositeMeta.score * 0.82 + relevanceScore * 0.18,
+          score: compositeMeta.score * 0.72 + relevanceScore * 0.18 + styleScore * 0.1,
           composite: compositeMeta,
+          examRelevance: relevanceScore,
+          examStyleScore: styleScore,
         };
         const result = {
           topicKey: templateDefinition.topicKey,
@@ -14569,7 +14727,7 @@ function renderExamGraphPanel() {
   sideColumn.className = "exam-graph-side-column";
   sideColumn.appendChild(buildExamGraphValueCard(model));
   if (model.answerRows?.length) {
-    sideColumn.appendChild(buildExamGraphAnswerCard(model.answerRows));
+    sideColumn.appendChild(buildExamGraphAnswerCard(model));
   }
   grid.appendChild(sideColumn);
 
@@ -14714,7 +14872,9 @@ function buildExamGraphControls() {
   designControls.append(orientationField, previewCountField, fontSizeField);
   const outputHint = document.createElement("p");
   outputHint.className = "exam-graph-output-hint";
-  outputHint.textContent = "그래프 값 CSV와 가명 정답표는 미리보기 옆에서 바로 확인할 수 있음.";
+  outputHint.textContent = state.examGraphAliasMode
+    ? "학생용 값 CSV에는 가명과 수치만 포함함. 실제명·ISO3 대응은 제작자용 파일로 별도 저장함."
+    : "그래프 값 CSV와 자료 요약은 미리보기 옆에서 바로 확인할 수 있음.";
   designControls.appendChild(outputHint);
 
   if (state.examGraphPresetKey === "stacked100" || state.examGraphPresetKey === "groupedBars") {
@@ -14942,7 +15102,12 @@ function buildExamGraphScopeCard() {
     const availabilityText = document.createElement("small");
     const excludedCount = availability.partial + availability.missing;
     availabilityText.className = `exam-graph-scope-card__availability${excludedCount ? " has-missing" : ""}`;
-    availabilityText.textContent = excludedCount
+    availabilityText.classList.toggle("has-missing", Boolean(excludedCount || availability.periodMismatch));
+    availabilityText.textContent = availability.invalidYearSignatureCount
+      ? `기준연도 미완결 ${availability.invalidYearSignatureCount}개 · 대륙 집계는 단일 연도 자료만 허용`
+      : availability.periodMismatch
+      ? `기준연도 불일치: ${availability.yearSignatures.join(" · ")} · 자동 추천은 같은 연도만 묶음`
+      : excludedCount
       ? `현재 그래프에 ${availability.available}/${availability.total}개 포함 · 부분 수록 ${availability.partial} · 미수록 ${availability.missing}`
       : `현재 통계에서 ${availability.available}개 모두 사용 가능`;
     copy.appendChild(availabilityText);
@@ -14987,15 +15152,16 @@ function getExamGraphCountrySearchResults(query, limit = 10) {
   const normalizedQuery = normalizeExamGraphCountrySearch(query);
   const topicKey = getExamGraphCurrentTopicKey();
   if (!normalizedQuery) {
-    const spotlightOrder = new Map(examGraphQuickCountryIso3.map((iso3, index) => [iso3, index]));
+    const spotlightOrder = new Map((examGraphQuickCountryIso3ByTopic[topicKey] ?? []).map((iso3, index) => [iso3, index]));
     const topicEntries = entries.filter(
-      (entry) => entry.tier === "core" && (!entry.topics.length || entry.topics.includes(topicKey)),
+      (entry) => (!entry.topics.length || entry.topics.includes(topicKey)) && Number(entry.topicWeights?.[topicKey] || entry.examWeight) > 0,
     );
-    return (topicEntries.length ? topicEntries : entries.filter((entry) => entry.tier === "core"))
+    return (topicEntries.length ? topicEntries : entries)
       .sort((first, second) => {
         const firstAvailable = getExamGraphCountryAvailability(first).included ? 1 : 0;
         const secondAvailable = getExamGraphCountryAvailability(second).included ? 1 : 0;
         return secondAvailable - firstAvailable ||
+          Number(second.topicWeights?.[topicKey] || second.examWeight || 0) - Number(first.topicWeights?.[topicKey] || first.examWeight || 0) ||
           (spotlightOrder.get(first.iso3) ?? 99) - (spotlightOrder.get(second.iso3) ?? 99) ||
           (first.nameKo || first.name).localeCompare(second.nameKo || second.name, "ko");
       })
@@ -15014,7 +15180,7 @@ function getExamGraphCountrySearchResults(query, limit = 10) {
       else if (tokens.every((token) => entry.searchText.includes(token))) score = 120;
       else if (entry.searchText.includes(normalizedQuery)) score = 90;
       if (score && entry.topics.includes(topicKey)) score += 20;
-      if (score && entry.tier === "core") score += 10;
+      if (score) score += Number(entry.topicWeights?.[topicKey] || entry.examWeight || 0) * 3;
       return { entry, score };
     })
     .filter((result) => result.score > 0)
@@ -15226,7 +15392,7 @@ function buildExamGraphCountryPicker() {
       const status = document.createElement("span");
       status.className = "exam-graph-country-result__status";
       status.textContent = [
-        selected ? "선택됨" : entry.tier === "core" ? "핵심 사례국" : "보조 사례국",
+        selected ? "선택됨" : `평가원 빈도 ${entry.examBand} · 자료 ${entry.dataTier === "core" ? "핵심" : "보조"}`,
         availability.included
           ? availability.status === "partial"
             ? "일부 구성으로 그래프 가능"
@@ -15673,10 +15839,15 @@ function selectExamGraphRecommendedCountries(candidates, desiredCount = getExamG
     if (!candidate?.id || seenIds.has(candidate.id) || !Number.isFinite(Number(candidate.score)) || !isExamGraphRandomCountryAllowed(stats)) {
       return;
     }
+    const yearSignature = getExamGraphCurrentYearSignature({ id: candidate.id, stats });
+    if (!yearSignature) {
+      return;
+    }
     seenIds.add(candidate.id);
     uniqueCandidates.push({
       ...candidate,
       priority: getExamGraphRandomCountryPriority(stats),
+      yearSignature,
       continent: getExamGraphContinentGroupName(candidate.continent, { grouping: state.examGraphGrouping, presetKey: state.examGraphPresetKey }),
     });
   });
@@ -15685,16 +15856,50 @@ function selectExamGraphRecommendedCountries(candidates, desiredCount = getExamG
     return [];
   }
 
-  const preferredCandidates = uniqueCandidates.filter((candidate) => candidate.priority > 0);
-  const candidateBase = preferredCandidates.length >= desiredCount ? preferredCandidates : uniqueCandidates;
-  const pool = shuffleExamGraphItems(
-    [...candidateBase]
-      .sort((a, b) => Number(b.priority || 0) - Number(a.priority || 0) || Number(b.score) - Number(a.score))
-      .slice(0, Math.max(desiredCount * 5, 18)),
-  );
+  const topicCandidates = uniqueCandidates.filter((candidate) => Number(candidate.priority) > 0);
+  const periodCandidates = topicCandidates.length >= desiredCount ? topicCandidates : uniqueCandidates;
+  const groupsByPeriod = new Map();
+  periodCandidates.forEach((candidate) => {
+    if (!groupsByPeriod.has(candidate.yearSignature)) groupsByPeriod.set(candidate.yearSignature, []);
+    groupsByPeriod.get(candidate.yearSignature).push(candidate);
+  });
+  const compatibleGroups = [...groupsByPeriod.entries()]
+    .filter(([, group]) => group.length >= desiredCount)
+    .sort((first, second) => {
+      const groupScore = (group) => {
+        const extent = d3.extent(group, (candidate) => Number(candidate.score));
+        const span = Math.max(0, Number(extent[1]) - Number(extent[0]));
+        const contrast = d3.mean(group, (candidate) =>
+          span > 0 ? (Number(candidate.score) - Number(extent[0])) / span : 0.5,
+        ) ?? 0;
+        return {
+          frequency: d3.mean(group, (candidate) => Number(candidate.priority) || 0) ?? 0,
+          contrast,
+        };
+      };
+      const firstScore = groupScore(first[1]);
+      const secondScore = groupScore(second[1]);
+      return secondScore.frequency - firstScore.frequency ||
+        secondScore.contrast - firstScore.contrast ||
+        second[1].length - first[1].length;
+    });
+  if (!compatibleGroups.length) {
+    return [];
+  }
+  const candidateBase = compatibleGroups[0][1];
+  const scoreExtent = d3.extent(candidateBase, (candidate) => Number(candidate.score));
+  const scoreSpan = Math.max(0, Number(scoreExtent[1]) - Number(scoreExtent[0]));
+  const pool = [...candidateBase]
+    .map((candidate) => ({
+      ...candidate,
+      selectionScore:
+        Number(candidate.priority || 0) * 100 +
+        (scoreSpan > 0 ? ((Number(candidate.score) - Number(scoreExtent[0])) / scoreSpan) * 60 : 30),
+    }))
+    .sort((first, second) => second.selectionScore - first.selectionScore)
+    .slice(0, Math.max(desiredCount * 6, 24));
   const selected = [];
   const usedIds = new Set();
-  const usedContinents = new Set();
   const usedGroups = new Set();
 
   const takeCandidates = (predicate) => {
@@ -15704,18 +15909,13 @@ function selectExamGraphRecommendedCountries(candidates, desiredCount = getExamG
       }
       selected.push(candidate);
       usedIds.add(candidate.id);
-      if (candidate.continent) {
-        usedContinents.add(candidate.continent);
-      }
       if (candidate.groupKey) {
         usedGroups.add(candidate.groupKey);
       }
     });
   };
 
-  takeCandidates((candidate) => candidate.groupKey && !usedGroups.has(candidate.groupKey) && candidate.continent && !usedContinents.has(candidate.continent));
   takeCandidates((candidate) => candidate.groupKey && !usedGroups.has(candidate.groupKey));
-  takeCandidates((candidate) => candidate.continent && !usedContinents.has(candidate.continent));
   takeCandidates(() => true);
 
   return selected.slice(0, desiredCount);
@@ -15731,9 +15931,11 @@ function buildExamGraphRecommendation(baseLabel, candidates, allowedCountryIds =
     ? (candidates ?? []).filter((candidate) => allowedSet.has(candidate.id))
     : candidates;
   const picked = selectExamGraphRecommendedCountries(scopedCandidates);
+  const periodLabel = picked[0]?.yearSignature ? ` · ${picked[0].yearSignature}` : "";
   return {
     ids: picked.map((candidate) => candidate.id),
-    label: picked.length ? `${baseLabel} · 수능특강 등장국 우선 ${picked.length}개국` : "",
+    yearSignature: picked[0]?.yearSignature ?? "",
+    label: picked.length ? `${baseLabel} · 평가원 빈도·자료 판별력 ${picked.length}개국${periodLabel}` : "",
   };
 }
 
@@ -15891,30 +16093,26 @@ function getExamGraphRandomYearPairs() {
   if (examGraphPopulationYears.length < 2) {
     return [];
   }
-
-  const indices = [
-    0,
-    Math.floor(examGraphPopulationYears.length * 0.25),
-    Math.floor(examGraphPopulationYears.length * 0.5),
-    Math.max(0, examGraphPopulationYears.length - 6),
+  const knownYears = new Set(examGraphPopulationYears.map(Number));
+  const preferredPairs = [
+    [1960, 2020],
+    [1990, 2020],
+    [2000, 2020],
+    [1970, 2023],
+    [2000, 2023],
   ];
-  const endYear = examGraphPopulationYears[examGraphPopulationYears.length - 1];
-  return [...new Set(indices.map((index) => clamp(index, 0, examGraphPopulationYears.length - 2)))]
-    .map((index) => ({
-      yearStart: examGraphPopulationYears[index],
-      yearEnd: endYear,
-    }))
-    .filter((pair) => Number(pair.yearStart) < Number(pair.yearEnd));
+  return preferredPairs
+    .filter(([yearStart, yearEnd]) => knownYears.has(yearStart) && knownYears.has(yearEnd))
+    .map(([yearStart, yearEnd]) => ({ yearStart, yearEnd }));
 }
 
 function getExamGraphRandomScenarioPool() {
   const yearPairs = getExamGraphRandomYearPairs();
-  return [
+  const scenarios = [
     ...[
       ["crops-production", "amount", "countries"],
       ["livestock-stocks", "amount", "countries"],
       ["livestock-meat", "amount", "countries"],
-      ["industry-structure", "amount", "countries"],
       ["energy-summary", "amount", "countries"],
     ].map(([compositionKey, valueMode, grouping]) => ({
       presetKey: "groupedBars",
@@ -15941,18 +16139,18 @@ function getExamGraphRandomScenarioPool() {
     })),
     ...[
       ["urban-rural-total", "amount", "countries"],
-      ["young-old-share", "share", "countries"],
+      ["young-old-share", "amount", "countries"],
       ["birth-death-rate", "amount", "countries"],
-      ["dependency-balance", "share", "countries"],
-      ["christians-muslims-share", "share", "countries"],
-      ["hindus-buddhists-share", "share", "countries"],
+      ["dependency-balance", "amount", "countries"],
+      ["christians-muslims-share", "amount", "countries"],
+      ["hindus-buddhists-share", "amount", "countries"],
       ["grain-total-trade", "amount", "continents"],
       ["wheat-trade", "amount", "countries"],
       ["rice-trade", "amount", "countries"],
       ["maize-trade", "amount", "countries"],
       ["solar-wind-amount", "amount", "countries"],
       ["oil-gas-production", "amount", "countries"],
-      ["agri-services-share", "share", "countries"],
+      ["agri-services-share", "amount", "countries"],
     ].map(([pairKey, valueMode, grouping]) => ({
       presetKey: "pairedBars",
       pairKey,
@@ -16034,12 +16232,11 @@ function getExamGraphRandomScenarioPool() {
     ...[
       ["population-urban-share", "age-65plus-share", "population-total"],
       ["population-birth-rate", "population-death-rate", "population-total"],
-      ["population-natural-increase-rate", "migration-net", "population-total"],
       ["industry-agriculture-share", "industry-services-share", "exports-value"],
       ["energy-renewables-share", "electricity-coal-share", "energy-consumption-total"],
       ["crops-total-exports", "crops-total-imports", "crops-total-production"],
-      ["religion-christians-share", "religion-muslims-share", "population-total"],
-      ["religion-hindus-share", "religion-buddhists-share", "population-total"],
+      ["religion-christians-share", "religion-muslims-share", "religion-population-2020"],
+      ["religion-hindus-share", "religion-buddhists-share", "religion-population-2020"],
     ].map(([xKey, yKey, sizeKey]) => ({
       presetKey: "scatter",
       grouping: "countries",
@@ -16062,6 +16259,42 @@ function getExamGraphRandomScenarioPool() {
       valueMode: "share",
     })),
   ];
+  const rankScenarios = [
+    ["population-total", "amount"],
+    ["population-urban-share", "amount"],
+    ["population-natural-increase-rate", "amount"],
+    ["age-65plus-share", "amount"],
+    ["exports-value", "amount"],
+    ["energy-consumption-per-capita", "amount"],
+    ["energy-renewables-share", "amount"],
+    ["religion-christians-share", "amount"],
+    ["religion-muslims-share", "amount"],
+  ].map(([metricKey, valueMode]) => ({
+    presetKey: "rankBars",
+    metricKey,
+    valueMode,
+    grouping: "countries",
+  }));
+  const weightByPreset = {
+    stacked100: 6,
+    pairedBars: 5,
+    rankBars: 5,
+    groupedBars: 4,
+    timeCompare: 3,
+    scatter: 2.5,
+    trendLine: 2,
+    top3share: 1,
+  };
+  const allScenarios = [...scenarios, ...rankScenarios];
+  const countByPreset = allScenarios.reduce((counts, scenario) => {
+    counts[scenario.presetKey] = (counts[scenario.presetKey] ?? 0) + 1;
+    return counts;
+  }, {});
+  return allScenarios.map((scenario) => ({
+    ...scenario,
+    // 같은 유형 안의 세부 설정 수가 많아도 유형 전체 확률이 부풀지 않도록 정규화함.
+    examWeight: (weightByPreset[scenario.presetKey] ?? 1) / Math.max(1, countByPreset[scenario.presetKey] ?? 1),
+  }));
 }
 
 function applyExamGraphScenarioConfig(config) {
@@ -16103,9 +16336,20 @@ function applyExamGraphScenarioConfig(config) {
   }
 }
 
+function getExamGraphScenarioSamplingWeight(scenario) {
+  const weight = Number(scenario?.examWeight);
+  return Number.isFinite(weight) && weight > 0 ? Math.max(1e-6, weight) : 1;
+}
+
 function tryApplyRandomExamGraphScenario({ includeCountries = false } = {}) {
   const snapshot = captureExamGraphStateSnapshot();
-  const scenarios = shuffleExamGraphItems(getExamGraphRandomScenarioPool());
+  const scenarios = getExamGraphRandomScenarioPool()
+    .map((scenario) => ({
+      scenario,
+      weightedOrder: -Math.log(Math.max(Math.random(), 1e-9)) / getExamGraphScenarioSamplingWeight(scenario),
+    }))
+    .sort((first, second) => first.weightedOrder - second.weightedOrder)
+    .map((entry) => entry.scenario);
 
   for (const scenario of scenarios) {
     restoreExamGraphStateSnapshot(snapshot);
@@ -16233,6 +16477,7 @@ function buildExamGraphModel() {
   model.styleModeLabel = getExamGraphStyleModeDefinition(model.styleMode).label;
   model.fontSizePt = getExamGraphFontSizePt();
   model.fontStretchPercent = getActiveExamGraphVisualTheme().font.stretchPercent;
+  model.isAnonymous = Boolean(state.examGraphAliasMode);
   return model;
 }
 
@@ -16636,20 +16881,21 @@ function buildExamScatterGraphModel() {
 
 function buildExamTopShareGraphModel() {
   const definition = getExamGraphTopShareMetricDefinition();
+  const selectedCountryRows = getExamGraphSelectedCountryRows();
   const selectedContinents = [...new Set(
-    getExamGraphSelectedCountryRows()
+    selectedCountryRows
       .map((entry) => getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping: "continents", presetKey: "top3share" }))
       .filter(Boolean),
   )];
-  const allowedContinentSet = selectedContinents.length ? new Set(selectedContinents) : null;
-  const contributors = getExamGraphRawCountryRows()
-    .filter((entry) => !allowedContinentSet || allowedContinentSet.has(getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping: "continents", presetKey: "top3share" })))
+  const contributors = getExamGraphAggregateSourceRows(selectedCountryRows, "continents", "top3share")
     .map((entry) => {
       const metric = definition.getValue(entry.stats);
       if (!metric || !Number.isFinite(Number(metric.value))) {
         return null;
       }
       return {
+        countryId: entry.id,
+        iso3: String(entry.stats?.iso3 ?? "").toUpperCase(),
         label: entry.label,
         continent: getExamGraphContinentGroupName(entry.stats?.continent?.name, { grouping: "continents", presetKey: "top3share" }),
         value: Number(metric.value),
@@ -16671,6 +16917,8 @@ function buildExamTopShareGraphModel() {
         key: `top-${index + 1}`,
         label: String.fromCharCode(65 + index),
         actualLabel: entry.label,
+        countryId: entry.countryId,
+        iso3: entry.iso3,
         value: Number(entry.value),
         share: (Number(entry.value) / total) * 100,
       }));
@@ -17274,8 +17522,8 @@ function transformExamGraphRowsByMode(rows, mode) {
       displayValue: Number(row.value),
     })),
     valueFormatter: (value) => validRows[0]?.formatter?.(value) ?? String(value),
-    displayModeLabel: "양",
-    displayModeDetail: "실제 값을 같은 눈금으로 비교",
+    displayModeLabel: "원값",
+    displayModeDetail: "원자료 단위의 값을 같은 눈금으로 비교",
   };
 }
 
@@ -17331,8 +17579,8 @@ function transformExamGraphPairRowsByMode(rows, mode, firstDefinition, secondDef
     })),
     valueFormatter: (value, seriesIndex = 0) =>
       (seriesIndex === 0 ? firstDefinition.formatter : secondDefinition.formatter)(value),
-    displayModeLabel: "양",
-    displayModeDetail: "실제 값을 같은 눈금으로 비교",
+    displayModeLabel: "원값",
+    displayModeDetail: "각 지표의 원자료 값을 같은 눈금으로 비교",
   };
 }
 
@@ -17399,8 +17647,8 @@ function transformExamGraphTrendRowsByMode(rows, years, mode, formatter) {
       })),
     })),
     valueFormatter: formatter,
-    displayModeLabel: "양",
-    displayModeDetail: "실제 값을 같은 축에서 비교",
+    displayModeLabel: "원값",
+    displayModeDetail: "원자료 단위의 값을 같은 축에서 비교",
   };
 }
 
@@ -17456,8 +17704,8 @@ function transformExamGraphTimeRowsByMode(rows, mode, formatter) {
       displayEndValue: Number(row.endValue),
     })),
     valueFormatter: formatter,
-    displayModeLabel: "양",
-    displayModeDetail: "실제 값을 같은 눈금으로 비교",
+    displayModeLabel: "원값",
+    displayModeDetail: "원자료 단위의 값을 같은 눈금으로 비교",
   };
 }
 
@@ -17510,8 +17758,8 @@ function applyExamGraphDisplayLabels(rows) {
 
 function buildExamGraphValueRows(rows, detailBuilder) {
   return rows.map((row) => ({
-    label: state.examGraphAliasMode ? row.displayLabel : row.actualLabel ?? row.label ?? row.displayLabel,
-    value: state.examGraphAliasMode ? getExamGraphReadableLabel(row.actualLabel ?? row.label) : "",
+    label: row.displayLabel ?? getExamGraphReadableLabel(row.label),
+    value: "",
     detail: detailBuilder(row),
   }));
 }
@@ -19049,7 +19297,7 @@ function buildExamGraphValueCard(model) {
   const downloadButton = document.createElement("button");
   downloadButton.type = "button";
   downloadButton.className = "exam-graph-download-button";
-  downloadButton.textContent = "CSV 다운로드";
+  downloadButton.textContent = model.isAnonymous ? "학생용 CSV" : "CSV 다운로드";
   downloadButton.addEventListener("click", () => downloadExamGraphCsv(model));
   head.append(title, downloadButton);
   card.appendChild(head);
@@ -19091,6 +19339,13 @@ function normalizeExamGraphCsvValue(value) {
   return String(value);
 }
 
+function getExamGraphStudentLabel(model, row) {
+  if (model?.isAnonymous) {
+    return row?.displayLabel ?? "";
+  }
+  return row?.displayLabel ?? getExamGraphReadableLabel(row?.label);
+}
+
 function buildExamGraphCsvRows(model) {
   const rows = Array.isArray(model?.rows) ? model.rows : [];
   if (!rows.length) {
@@ -19104,18 +19359,15 @@ function buildExamGraphCsvRows(model) {
     return [
       [
         "표시명",
-        "실제명",
-        ...segmentLabels.flatMap((label) => [`${label} 실제 항목`, `${label} 값`, `${label} 비율(%)`]),
+        ...segmentLabels.flatMap((label) => [`${label} 값`, `${label} 비율(%)`]),
       ],
       ...rows.map((row) => {
         const segmentMap = new Map((row.segments ?? []).map((segment) => [segment.label, segment]));
         return [
-          row.displayLabel ?? row.label,
-          row.actualLabel ?? row.label,
+          getExamGraphStudentLabel(model, row),
           ...segmentLabels.flatMap((label) => {
             const segment = segmentMap.get(label);
             return [
-              segment?.actualLabel ?? "",
               normalizeExamGraphCsvValue(segment?.value),
               normalizeExamGraphCsvValue(segment?.share),
             ];
@@ -19127,25 +19379,22 @@ function buildExamGraphCsvRows(model) {
 
   if (rows.some((row) => row.firstValue != null || row.secondValue != null)) {
     return [
-      ["표시명", "실제명", "첫 번째 원값", "두 번째 원값", "첫 번째 그래프값", "두 번째 그래프값", "상세"],
+      ["표시명", "첫 번째 원값", "두 번째 원값", "첫 번째 그래프값", "두 번째 그래프값"],
       ...rows.map((row) => [
-        row.displayLabel ?? row.label,
-        row.actualLabel ?? row.label,
+        getExamGraphStudentLabel(model, row),
         normalizeExamGraphCsvValue(row.firstValue),
         normalizeExamGraphCsvValue(row.secondValue),
         normalizeExamGraphCsvValue(row.displayFirstValue),
         normalizeExamGraphCsvValue(row.displaySecondValue),
-        row.detail ?? "",
       ]),
     ];
   }
 
   if (rows.some((row) => row.startValue != null || row.endValue != null)) {
     return [
-      ["표시명", "실제명", `${model.startYear ?? "시작"} 원값`, `${model.endYear ?? "종료"} 원값`, "시작 그래프값", "종료 그래프값"],
+      ["표시명", `${model.startYear ?? "시작"} 원값`, `${model.endYear ?? "종료"} 원값`, "시작 그래프값", "종료 그래프값"],
       ...rows.map((row) => [
-        row.displayLabel ?? row.label,
-        row.actualLabel ?? row.label,
+        getExamGraphStudentLabel(model, row),
         normalizeExamGraphCsvValue(row.startValue),
         normalizeExamGraphCsvValue(row.endValue),
         normalizeExamGraphCsvValue(row.displayStartValue),
@@ -19159,12 +19408,11 @@ function buildExamGraphCsvRows(model) {
       ...new Set(rows.flatMap((row) => (row.points ?? []).map((point) => point.year))),
     ].sort((left, right) => Number(left) - Number(right));
     return [
-      ["표시명", "실제명", ...years.map((year) => `${year}년`)],
+      ["표시명", ...years.map((year) => `${year}년`)],
       ...rows.map((row) => {
         const pointMap = new Map((row.points ?? []).map((point) => [point.year, point]));
         return [
-          row.displayLabel ?? row.label,
-          row.actualLabel ?? row.label,
+          getExamGraphStudentLabel(model, row),
           ...years.map((year) => normalizeExamGraphCsvValue(pointMap.get(year)?.value)),
         ];
       }),
@@ -19173,10 +19421,9 @@ function buildExamGraphCsvRows(model) {
 
   if (rows.some((row) => row.xValue != null || row.yValue != null)) {
     return [
-      ["표시명", "실제명", model.xLabel ?? "X", model.yLabel ?? "Y", model.sizeLabel ?? "크기"],
+      ["표시명", model.xLabel ?? "X", model.yLabel ?? "Y", model.sizeLabel ?? "크기"],
       ...rows.map((row) => [
-        row.displayLabel ?? row.label,
-        row.actualLabel ?? row.label,
+        getExamGraphStudentLabel(model, row),
         normalizeExamGraphCsvValue(row.xValue),
         normalizeExamGraphCsvValue(row.yValue),
         normalizeExamGraphCsvValue(row.sizeValue),
@@ -19185,15 +19432,45 @@ function buildExamGraphCsvRows(model) {
   }
 
   return [
-    ["표시명", "실제명", "원값", "그래프값", "상세"],
+    ["표시명", "원값", "그래프값"],
     ...rows.map((row) => [
-      row.displayLabel ?? row.label,
-      row.actualLabel ?? row.label,
+      getExamGraphStudentLabel(model, row),
       normalizeExamGraphCsvValue(row.value),
       normalizeExamGraphCsvValue(row.displayValue),
-      row.detail ?? "",
     ]),
   ];
+}
+
+function buildExamGraphAuthorMappingCsvRows(model) {
+  const rows = Array.isArray(model?.rows) ? model.rows : [];
+  const output = [["구분", "상위 표시명", "표시명", "실제명", "ISO3", "원천 ID"]];
+  rows.forEach((row) => {
+    const stats = countryStatsById[row.id] ?? null;
+    output.push([
+      "행",
+      "",
+      row.displayLabel ?? "",
+      getExamGraphReadableLabel(row.actualLabel ?? row.label ?? ""),
+      String(stats?.iso3 ?? row.iso3 ?? "").toUpperCase(),
+      row.id ?? "",
+    ]);
+    const segments = model?.presetKey === "top3share"
+      ? (row.segments ?? []).filter((segment) => segment.key !== "others" && segment.label !== "기타")
+      : [];
+    if (segments.length) {
+      segments.forEach((segment) => {
+        output.push([
+          "계열",
+          row.displayLabel ?? "",
+          segment.label ?? "",
+          getExamGraphReadableLabel(segment.actualLabel ?? ""),
+          segment.iso3 ?? "",
+          segment.countryId ?? "",
+        ]);
+      });
+    }
+  });
+  return output;
 }
 
 function buildExamGraphCsvLine(values) {
@@ -19210,17 +19487,33 @@ function downloadExamGraphCsv(model) {
   const blob = new Blob(["\uFEFF" + csvRows.join("\n")], {
     type: "text/csv;charset=utf-8",
   });
-  downloadBlob(blob, String(model?.exportName ?? "exam-graph.csv").replace(/\.[a-z0-9]+$/iu, ".csv"));
+  const suffix = model?.isAnonymous ? "-student.csv" : ".csv";
+  downloadBlob(blob, String(model?.exportName ?? "exam-graph.csv").replace(/\.[a-z0-9]+$/iu, suffix));
 }
 
-function buildExamGraphAnswerCard(answerRows) {
+function downloadExamGraphAuthorMappingCsv(model) {
+  const csvRows = buildExamGraphAuthorMappingCsvRows(model).map(buildExamGraphCsvLine);
+  const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8" });
+  downloadBlob(blob, String(model?.exportName ?? "exam-graph.csv").replace(/\.[a-z0-9]+$/iu, "-author-map.csv"));
+}
+
+function buildExamGraphAnswerCard(model) {
+  const answerRows = model.answerRows ?? [];
   const card = document.createElement("div");
   card.className = "exam-graph-data-card";
 
+  const head = document.createElement("div");
+  head.className = "exam-graph-data-card__head";
   const title = document.createElement("h5");
   title.className = "metric-explorer-table__title";
-  title.textContent = "가명 정답표";
-  card.appendChild(title);
+  title.textContent = "제작자용 대응표";
+  const downloadButton = document.createElement("button");
+  downloadButton.type = "button";
+  downloadButton.className = "exam-graph-download-button";
+  downloadButton.textContent = "실제명·ISO3 CSV";
+  downloadButton.addEventListener("click", () => downloadExamGraphAuthorMappingCsv(model));
+  head.append(title, downloadButton);
+  card.appendChild(head);
 
   const list = document.createElement("div");
   list.className = "country-stats-breakdown-list";

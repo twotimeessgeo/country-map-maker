@@ -88,3 +88,34 @@ window.EXAM_COUNTRY_CATALOG = {
   UZB: { tier: "support", nameKo: "우즈베키스탄", topics: ["agriculture", "energy", "region"] },
   VEN: { tier: "support", nameKo: "베네수엘라", topics: ["economy", "energy", "region"] },
 };
+
+window.EXAM_COUNTRY_PRIORITY_META = {
+  scope: "2021~2025학년도 평가원 세계지리 15회",
+  method: "문항·해설의 국가 언급과 반복 국가 조합을 A~C 구간으로 코딩함. 원자료 가용성과 출제 빈도는 별도 필드로 관리함.",
+  caution: "examWeight는 같은 연도·단위 자료가 모두 있는 후보 사이의 추천 우선순위일 뿐 정답 근거가 아님.",
+};
+
+const EXAM_COUNTRY_BAND_A = new Set("USA CHN IND BRA AUS MEX THA IDN FRA ESP".split(" "));
+const EXAM_COUNTRY_BAND_B = new Set(
+  "DEU SAU TUR EGY NGA JPN CAN ARG ITA GBR RUS ZAF VNM IRN CHL NLD PHL ETH BOL MMR CHE BEL BWA LBY DZA SDN COL KEN".split(" "),
+);
+const EXAM_COUNTRY_TOPIC_PRIORITY = {
+  demography: "CHN IND USA BRA MEX NGA JPN DEU KOR NER ETH BGD PAK IDN".split(" "),
+  agriculture: "BRA CHN USA IND ARG RUS UKR THA VNM IDN AUS CAN".split(" "),
+  economy: "USA MEX CHN IND JPN DEU ITA AUS SGP BRA".split(" "),
+  energy: "USA CHN IND BRA RUS SAU IRN AUS NOR FRA".split(" "),
+  religion: "IND IDN THA MMR PAK BGD LKA NGA TUR RUS USA BRA".split(" "),
+  region: "MEX BOL CHL PER TUR EGY IDN MMR CHE BEL BWA KEN".split(" "),
+};
+
+Object.entries(window.EXAM_COUNTRY_CATALOG).forEach(([iso3, definition]) => {
+  definition.dataTier = definition.tier;
+  definition.examBand = EXAM_COUNTRY_BAND_A.has(iso3) ? "A" : EXAM_COUNTRY_BAND_B.has(iso3) ? "B" : "C";
+  definition.examWeight = definition.examBand === "A" ? 5 : definition.examBand === "B" ? 4 : definition.tier === "core" ? 3 : 2;
+  definition.topicWeights = Object.fromEntries(
+    Object.entries(EXAM_COUNTRY_TOPIC_PRIORITY).map(([topic, priorityIso3]) => [
+      topic,
+      priorityIso3.includes(iso3) ? 5 : definition.topics.includes(topic) ? definition.examWeight : 0,
+    ]),
+  );
+});
