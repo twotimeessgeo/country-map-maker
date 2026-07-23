@@ -6,17 +6,32 @@ import { fileURLToPath } from "node:url";
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const rootArgument = process.argv.slice(2).find((argument) => !argument.startsWith("--"));
 const rootDir = rootArgument ? path.resolve(projectRoot, rootArgument) : projectRoot;
-const htmlFiles = [
+const isSourceCheck = rootDir === projectRoot;
+const publicHtmlFiles = [
   path.join(rootDir, "index.html"),
   path.join(rootDir, "map.html"),
-  path.join(rootDir, "tools", "stats", "index.html"),
   path.join(rootDir, "tools", "climate", "index.html"),
   path.join(rootDir, "tools", "climate", "korea.html"),
-  path.join(rootDir, "tools", "choices", "index.html"),
   path.join(rootDir, "tools", "cut", "index.html"),
 ];
+const htmlFiles = isSourceCheck
+  ? [
+      ...publicHtmlFiles,
+      path.join(rootDir, "tools", "stats", "index.html"),
+      path.join(rootDir, "tools", "choices", "index.html"),
+    ]
+  : publicHtmlFiles;
 const errors = [];
 let localReferenceCount = 0;
+const unpublishedToolRoots = ["tools/stats", "tools/choices"];
+
+if (!isSourceCheck) {
+  for (const relativePath of unpublishedToolRoots) {
+    if (fs.existsSync(path.join(rootDir, relativePath))) {
+      errors.push(`공개 제외 도구가 빌드 결과에 남았습니다: ${relativePath}`);
+    }
+  }
+}
 
 for (const htmlPath of htmlFiles) {
   const html = fs.readFileSync(htmlPath, "utf8");
@@ -39,6 +54,16 @@ for (const htmlPath of htmlFiles) {
         `${path.relative(rootDir, htmlPath)}: ${reference} -> ${path.relative(rootDir, resolvedPath)}`
       );
     }
+  }
+}
+
+const publicSurfaceText = [
+  ...publicHtmlFiles.map((htmlPath) => fs.readFileSync(htmlPath, "utf8")),
+  fs.readFileSync(path.join(rootDir, "app.js"), "utf8"),
+].join("\n");
+for (const forbidden of ["Data Library", "Choice Lab", "tools/stats/", "tools/choices/"]) {
+  if (publicSurfaceText.includes(forbidden)) {
+    errors.push(`공개 화면에 숨김 도구의 이름 또는 링크가 남았습니다: ${forbidden}`);
   }
 }
 
@@ -72,21 +97,23 @@ if (
 ) {
   errors.push("통계 색인의 수능형 SVG 패턴 수가 맞지 않습니다.");
 }
-const statsUiText = [
-  fs.readFileSync(path.join(rootDir, "tools", "stats", "index.html"), "utf8"),
-  fs.readFileSync(path.join(rootDir, "tools", "stats", "app.js"), "utf8"),
-].join("\n");
-for (const forbidden of [
-  "SidaeAi_S",
-  "downloadSvgButton",
-  "downloadCurrentSvg",
-  "탐색기에서 열기",
-  "기존 SVG에서 확인한 수능형 자료 구조",
-  "보완 통계와 출처 상태",
-  "patternGrid",
-  "sourceAudit",
-]) {
-  if (statsUiText.includes(forbidden)) errors.push(`Data Library에 제거 대상 기능이 남아 있습니다: ${forbidden}`);
+if (isSourceCheck) {
+  const statsUiText = [
+    fs.readFileSync(path.join(rootDir, "tools", "stats", "index.html"), "utf8"),
+    fs.readFileSync(path.join(rootDir, "tools", "stats", "app.js"), "utf8"),
+  ].join("\n");
+  for (const forbidden of [
+    "SidaeAi_S",
+    "downloadSvgButton",
+    "downloadCurrentSvg",
+    "탐색기에서 열기",
+    "기존 SVG에서 확인한 수능형 자료 구조",
+    "보완 통계와 출처 상태",
+    "patternGrid",
+    "sourceAudit",
+  ]) {
+    if (statsUiText.includes(forbidden)) errors.push(`Data Library에 제거 대상 기능이 남아 있습니다: ${forbidden}`);
+  }
 }
 
 const mapAppText = fs.readFileSync(path.join(rootDir, "app.js"), "utf8");

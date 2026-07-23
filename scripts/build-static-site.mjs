@@ -35,9 +35,6 @@ const requiredOutputs = [
   "data/korea-stats.js",
   "data/supplemental-stats.js",
   "data/supplemental-stats.json",
-  "tools/stats/index.html",
-  "tools/stats/styles.css",
-  "tools/stats/app.js",
   "tools/climate/index.html",
   "tools/climate/data/climate-data.js",
   "tools/climate/data/climate-data.json",
@@ -45,15 +42,16 @@ const requiredOutputs = [
   "tools/climate/data/korea-climate-data.js",
   "tools/climate/data/korea-climate-data.json",
   "tools/climate/data/exam-climate-statements.js",
-  "tools/choices/index.html",
-  "tools/choices/styles.css",
-  "tools/choices/app.js",
-  "tools/choices/data/exam-choice-patterns.js",
   "tools/cut/index.html",
   "tools/cut/data/ebsi_geo_data.json",
   "tools/cut/data/question-image-manifest.json",
   "tools/cut/question-images",
 ];
+const forbiddenOutputs = [
+  "tools/stats",
+  "tools/choices",
+];
+const unpublishedToolRoots = ["tools/stats", "tools/choices"];
 
 fs.rmSync(outputDir, { recursive: true, force: true });
 fs.mkdirSync(outputDir, { recursive: true });
@@ -76,6 +74,12 @@ for (const requiredPath of requiredOutputs) {
   }
 }
 
+for (const forbiddenPath of forbiddenOutputs) {
+  if (fs.existsSync(path.join(outputDir, forbiddenPath))) {
+    throw new Error(`공개 제외 파일이 정적 빌드에 남았습니다: ${forbiddenPath}`);
+  }
+}
+
 const publishedFiles = listFiles(outputDir);
 const totalBytes = publishedFiles.reduce(
   (total, filePath) => total + fs.statSync(filePath).size,
@@ -91,6 +95,9 @@ function shouldPublish(sourcePath) {
   const relativePath = path.relative(rootDir, sourcePath).split(path.sep).join("/");
   if (!relativePath) return true;
   if (path.basename(sourcePath) === ".DS_Store") return false;
+  if (unpublishedToolRoots.some((root) => relativePath === root || relativePath.startsWith(`${root}/`))) {
+    return false;
+  }
   if (/^tools\/climate\/data\/climate-data_jma_\d{8}\.json$/.test(relativePath)) {
     return false;
   }

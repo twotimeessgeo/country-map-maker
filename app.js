@@ -12177,12 +12177,12 @@ function applyInitialExamGraphUrlIntent() {
   if (!uniqueIds.length) {
     return {
       applied: false,
-      message: `Data Library에서 요청한 국가를 찾지 못했습니다. (${requestedTokens.join(", ")})`,
+      message: `공유 링크에서 요청한 국가를 찾지 못했습니다. (${requestedTokens.join(", ")})`,
     };
   }
   state.mapVersion = "world";
   state.examGraphFocusCountryIds = uniqueIds;
-  state.examGraphFocusLabel = "Data Library에서 가져온 후보";
+  state.examGraphFocusLabel = "공유 링크에서 가져온 후보";
   state.examGraphFocusKind = "deep-link";
   state.examGraphTopN = Math.max(3, uniqueIds.length);
   return {
@@ -14660,11 +14660,7 @@ function renderExamGraphPanel() {
     recommendButton.className = "exam-graph-builder-action is-primary";
     recommendButton.textContent = "현재 후보에 맞는 자료 추천";
     recommendButton.addEventListener("click", () => applyExamGraphRandomScenario({ graphOnly: true }));
-    const libraryLink = document.createElement("a");
-    libraryLink.className = "exam-graph-builder-action";
-    libraryLink.href = "./tools/stats/index.html";
-    libraryLink.textContent = "Data Library에서 범위 확인";
-    actions.append(recommendButton, libraryLink);
+    actions.appendChild(recommendButton);
     empty.appendChild(actions);
     output.appendChild(empty);
     workbench.appendChild(output);
@@ -15328,10 +15324,7 @@ function buildExamGraphCountryPicker() {
   const hint = document.createElement("p");
   hint.textContent = "수능 세계지리의 핵심·보조 사례국만 검색함. 속령·미소국과 원자료용 국가는 숨김.";
   headingCopy.append(title, hint);
-  const libraryLink = document.createElement("a");
-  libraryLink.href = "./tools/stats/index.html#countryIndexTitle";
-  libraryLink.textContent = "Data Library";
-  heading.append(headingCopy, libraryLink);
+  heading.appendChild(headingCopy);
   picker.appendChild(heading);
 
   const selectedList = buildExamGraphSelectedCountryList();
