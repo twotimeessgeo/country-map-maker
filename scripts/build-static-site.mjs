@@ -30,7 +30,7 @@ const requiredOutputs = [
   "tools/climate/data/exam-climate-statements.js",
   "tools/cut/index.html",
   "tools/stats/index.html",
-  "tools/stats/data/textbook-stats.json",
+  "tools/stats/data/stats.json",
   "tools/cut/data/ebsi_geo_data.json",
   "tools/cut/data/question-image-manifest.json",
   "tools/cut/question-images",
@@ -58,7 +58,7 @@ const forbiddenOutputs = [
 const unpublishedToolRoots = ["tools/choices"];
 const publicStatsFiles = new Set([
   "tools/stats", "tools/stats/index.html", "tools/stats/app.js", "tools/stats/styles.css",
-  "tools/stats/data", "tools/stats/data/textbook-stats.json",
+  "tools/stats/data", "tools/stats/data/stats.json",
 ]);
 const publicDataFiles = new Set([
   "data/graph-catalog.js",

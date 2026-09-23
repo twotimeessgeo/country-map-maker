@@ -3,10 +3,11 @@ import path from "node:path";
 import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import { subjects as inventory } from "../tools/stats/spec/tables.mjs";
-import { textbookCountryRows, busanDistrictRows } from "../tools/stats/spec/reference-rows.mjs";
+import { compose, slugFor, topicFor } from "../tools/stats/spec/compose.mjs";
+import { majorCountryRows, busanDistrictRows } from "../tools/stats/spec/major-country-rows.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const output = path.join(root, "tools/stats/data/textbook-stats.json");
+const output = path.join(root, "tools/stats/data/stats.json");
 const gapsOutput = path.join(root, "tools/stats/GAPS.md");
 const check = process.argv.includes("--check");
 const context = vm.createContext({ window: {} });
@@ -22,8 +23,8 @@ const names = data.EXAM_COUNTRY_CATALOG;
 const countrySources = data.COUNTRY_STATS_META.sources;
 const supplemental = JSON.parse(fs.readFileSync(path.join(root, "data/supplemental-stats.json"), "utf8"));
 const regionSets = {
-  monsoon: textbookCountryRows.monsoon,
-  dry: textbookCountryRows.dry,
+  monsoon: majorCountryRows.monsoon,
+  dry: majorCountryRows.dry,
 };
 const continentNames = {
   Africa: "아프리카", Asia: "아시아", Europe: "유럽",
@@ -361,8 +362,8 @@ function make(target) {
   }
   if (kind === "religion-asia" || kind === "religion-africa") {
     const isos = kind === "religion-asia"
-      ? textbookCountryRows.religionAsia
-      : textbookCountryRows.religionAfrica;
+      ? majorCountryRows.religionAsia
+      : majorCountryRows.religionAfrica;
     const rows = worldRows(isos, (c) => c.religion2020?.year === 2020 ? c.religion2020.shares : null)
       .map(({ country, value }) => row(cName(country), [value.christians, value.muslims, value.hindus, value.buddhists]))
       .filter((r) => r.values.every(f));
@@ -403,24 +404,24 @@ function make(target) {
     return rows.length === 6 ? table(target, unit, "2025", wupSource, columns, rows) : null;
   }
   if (kind === "world-population") {
-    const rows = worldRows(textbookCountryRows.population, (country) => wppCountry.get(country.iso3))
+    const rows = worldRows(majorCountryRows.population, (country) => wppCountry.get(country.iso3))
       .map(({ country, value }) => row(cName(country), [Math.round(Number(value.population_thousands) * 1000)]))
       .sort((a, b) => b.values[0] - a.values[0]);
     return rows.length ? table(target, "명", "2025", wppSource, ["국가", "총인구"], rows) : null;
   }
   if (kind === "world-rates") {
-    const rows = worldRows(textbookCountryRows.rates, (country) => wppCountry.get(country.iso3))
+    const rows = worldRows(majorCountryRows.rates, (country) => wppCountry.get(country.iso3))
       .map(({ country, value }) => row(cName(country), [round(Number(value.birth_rate_per_1000), 2), round(Number(value.death_rate_per_1000), 2)]));
     return rows.length ? table(target, "‰", "2025", wppSource, ["국가", "출생률", "사망률"], rows) : null;
   }
   if (kind === "world-migration") {
-    const rows = worldRows(textbookCountryRows.migration, (country) => wppCountry.get(country.iso3))
+    const rows = worldRows(majorCountryRows.migration, (country) => wppCountry.get(country.iso3))
       .map(({ country, value }) => row(cName(country), [Math.round(Number(value.net_migration_thousands) * 1000)]));
     return rows.length ? table(target, "명", "2025", wppSource, ["국가", "순이동"], rows) : null;
   }
   if (kind === "urban-continent") {
     const variants = Object.entries(continentNames).map(([continent, label]) => {
-      const rows = worldRows(textbookCountryRows.urban[continent], (country) => wupCountry.get(country.iso3))
+      const rows = worldRows(majorCountryRows.urban[continent], (country) => wupCountry.get(country.iso3))
         .filter(({ value }) => f(Number(value.urban_share)))
         .sort((a, b) => Number(b.value.urban_share) - Number(a.value.urban_share))
         .map(({ country, value }) => row(cName(country), [round(Number(value.urban_share), 2)]));
@@ -439,16 +440,18 @@ function make(target) {
       ["작물", "식용", "사료용", "바이오에너지", "기타"], rows);
   }
   if (kind === "crop-top3") {
-    const records = readCsv("wheat_rice_maize_top3_producers_2024.csv");
-    const variants = [["Wheat", "밀"], ["Rice", "쌀"], ["Maize (corn)", "옥수수"]].map(([crop, label]) => ({
-      id: crop.split(" ")[0].toLowerCase(), label,
-      rows: records.filter((r) => r.crop === crop).map((r) => row(r.area_ko, [Number(r.rank), Number(r.production_t)])),
-    }));
-    return table(target, "t", "2024", source("FAOSTAT", "https://www.fao.org/faostat/en/#data/QCL"),
-      ["국가", "순위", "생산량"], variants[0].rows, { variants });
+    const variants = Object.entries(cropNames).map(([key,label]) => {
+      const rows = allCountries.map((country) => ({country,value:country.agriculture?.crops?.production?.[key]?.latest}))
+        .filter(({value}) => value?.year === 2024 && f(value.value))
+        .sort((a,b) => b.value.value-a.value.value).slice(0,5)
+        .map(({country,value},index) => row(cName(country),[index+1,Math.round(value.value)]));
+      return {id:key,label,rows};
+    });
+    return table(target,"t","2024",source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL"),
+      ["국가","순위","생산량"],variants[0].rows,{variants});
   }
   if (kind === "crop-countries" || kind === "region-crops") {
-    const isos = kind === "region-crops" ? regionSets[arg] : textbookCountryRows.crops;
+    const isos = kind === "region-crops" ? regionSets[arg] : majorCountryRows.crops;
     const rows = worldRows(isos, (c) => {
       const crop = c.agriculture?.crops?.production;
       const values = ["wheat", "rice", "maize"].map((k) => crop?.[k]?.latest);
@@ -458,7 +461,7 @@ function make(target) {
       ["국가", "밀", "쌀", "옥수수"], rows) : null;
   }
   if (kind === "livestock-countries") {
-    const rows = worldRows(textbookCountryRows.livestock, (c) => {
+    const rows = worldRows(majorCountryRows.livestock, (c) => {
       const stocks = c.agriculture?.livestock?.stocks;
       const meats = c.agriculture?.livestock?.meat;
       const values = ["cattle", "pigs", "sheep"].map((k) => stocks?.[k]?.latest);
@@ -470,16 +473,18 @@ function make(target) {
       ["국가", "소", "돼지", "양", "소고기"], rows) : null;
   }
   if (kind === "livestock-top3") {
-    const records = readCsv("cattle_sheep_pig_top3_stocks_2024.csv");
-    const variants = Object.entries(keyForAnimal).map(([key, value]) => ({
-      id: key, label: animalNames[key],
-      rows: records.filter((r) => r.livestock === value).map((r) => row(r.area_ko, [Number(r.rank), Number(r.stock_head)])),
-    }));
-    return table(target, "마리", "2024", source("FAOSTAT", "https://www.fao.org/faostat/en/#data/QCL"),
-      ["국가", "순위", "사육 두수"], variants[0].rows, { variants });
+    const variants = Object.entries(animalNames).map(([key,label]) => {
+      const rows = allCountries.map((country) => ({country,value:country.agriculture?.livestock?.stocks?.[key]?.latest}))
+        .filter(({value}) => value?.year === 2024 && f(value.value))
+        .sort((a,b) => b.value.value-a.value.value).slice(0,5)
+        .map(({country,value},index) => row(cName(country),[index+1,Math.round(value.value)]));
+      return {id:key,label,rows};
+    });
+    return table(target,"마리","2024",source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL"),
+      ["국가","순위","사육 두수"],variants[0].rows,{variants});
   }
   if (kind === "nuclear-countries") {
-    const rows = worldRows(textbookCountryRows.energy, (c) => c.energy?.electricity?.latest)
+    const rows = worldRows(majorCountryRows.energy, (c) => c.energy?.electricity?.latest)
       .filter(({ value }) => value.year === 2025 && f(value.amountBreakdownTWh?.nuclear) && value.amountBreakdownTWh.nuclear > 0)
       .sort((a, b) => b.value.amountBreakdownTWh.nuclear - a.value.amountBreakdownTWh.nuclear).map(({ country, value }) => row(cName(country), [
         round(value.amountBreakdownTWh.nuclear, 2), round(value.shareBreakdown.nuclear, 2),
@@ -488,7 +493,7 @@ function make(target) {
       ["국가", "원자력 발전량", "발전 비율"], rows) : null;
   }
   if (kind === "energy-countries") {
-    const rows = worldRows(textbookCountryRows.energy, (c) => c.energy?.consumption?.latest)
+    const rows = worldRows(majorCountryRows.energy, (c) => c.energy?.consumption?.latest)
       .filter(({ value }) => value.year === 2024 && f(value.totalTWh) && f(value.shareBreakdown?.coal))
       .sort((a, b) => b.value.totalTWh - a.value.totalTWh)
       .map(({ country, value }) => row(cName(country), [
@@ -500,7 +505,7 @@ function make(target) {
       {}) : null;
   }
   if (kind === "electricity-countries") {
-    const rows = worldRows(textbookCountryRows.energy, (c) => c.energy?.electricity?.latest)
+    const rows = worldRows(majorCountryRows.energy, (c) => c.energy?.electricity?.latest)
       .filter(({ value }) => value.year === 2025 && f(value.totalTWh))
       .sort((a, b) => b.value.totalTWh - a.value.totalTWh)
       .map(({ country, value }) => row(cName(country), [
@@ -584,7 +589,7 @@ function make(target) {
         .map((country) => country.energy?.electricity?.latest));
       return values ? { ...row(continentLabels[name], values), group: "continent" } : null;
     }).filter(Boolean);
-    const countryRows = worldRows(textbookCountryRows.energy, (country) => country.energy?.electricity?.latest)
+    const countryRows = worldRows(majorCountryRows.energy, (country) => country.energy?.electricity?.latest)
       .filter(({ value }) => value.year === 2025)
       .map(({ country, value }) => ({ ...row(cName(country), electricityValues([value])), group: "country", continent: continentLabelFor(country) }))
       .filter((record) => record.values);
@@ -595,12 +600,22 @@ function make(target) {
       [...continentRows, ...countryRows], { note: "국가 합산; 신재생은 수력 제외" });
   }
   if (kind === "extra-industry") {
-    const isos = arg === "europeAmerica" ? ["USA"] : textbookCountryRows.africaLatin;
-    const rows = worldRows(isos, (country) => country.economy?.industry?.latest)
-      .filter(({ value }) => value.year === 2025 && ["agriculture", "industry", "services"].every((key) => f(value.shares?.[key])))
-      .map(({ country, value }) => row(cName(country), [value.shares.agriculture, value.shares.industry, value.shares.services]));
-    return rows.length ? table(target, "GDP 대비 %", "2025", sourceFromCountry("worldBankIndustry"),
-      ["국가", "농업", "광공업", "서비스업"], rows) : null;
+    if (arg === "europeAmerica") {
+      const rows = worldRows(majorCountryRows.europeAmerica, (country) => {
+        const industry = country.economy?.industry;
+        return industry?.latest || (industry?.year ? industry : null);
+      }).filter(({value}) => ["agriculture","industry","services"].every((key) => f(value.shares?.[key])))
+        .map(({country,value}) => row(cName(country),[
+          value.shares.agriculture,value.shares.industry,value.shares.services,String(value.year),
+        ]));
+      return rows.length ? table(target,"GDP 대비 %","2021–2025",sourceFromCountry("worldBankIndustry"),
+        ["국가","농업","광공업","서비스업","기준"],rows) : null;
+    }
+    const rows = worldRows(majorCountryRows.africaLatin, (country) => country.economy?.industry?.latest)
+      .filter(({value}) => value.year === 2025 && ["agriculture","industry","services"].every((key) => f(value.shares?.[key])))
+      .map(({country,value}) => row(cName(country),[value.shares.agriculture,value.shares.industry,value.shares.services]));
+    return rows.length ? table(target,"GDP 대비 %","2025",sourceFromCountry("worldBankIndustry"),
+      ["국가","농업","광공업","서비스업"],rows) : null;
   }
   if (kind === "region-industry") {
     const rows = worldRows(regionSets[arg], (c) => c.economy?.industry?.latest)
@@ -613,66 +628,44 @@ function make(target) {
 }
 
 const gaps = [];
-const result = {
-  meta: { schemaVersion: 1, builtAt: "2026-09-24", textbook: "2027 수능특강 통계", sources: [
-    "data/korea-stats.js", "data/country-stats.js", "data-sources/stats",
-  ] },
-  subjects: {},
-};
+const rawTables = [];
 for (const [subject, definition] of Object.entries(inventory)) {
-  const units = definition.units.map((unitDef) => ({
-    id: unitDef.id, title: unitDef.title, ...(unitDef.climate ? { climate: true } : {}),
-    chapters: unitDef.chapters.map((chapterDef) => {
-      const tables = [];
+  for (const unitDef of definition.units) {
+    for (const chapterDef of unitDef.chapters) {
       for (const target of chapterDef.targets) {
         let built = null;
         try { built = make(target); } catch (error) {
-          gaps.push({ subject, unit: unitDef.id, chapter: chapterDef.no, target, reason: "변환 실패: " + error.message });
+          gaps.push({ subject, target, reason: "변환 실패: " + error.message });
           continue;
         }
         if (built?.rows?.length && subject === "world" && unitDef.id === "III" && [
           "religion-asia", "religion-africa", "world-population", "world-rates", "world-migration",
           "urban-continent", "crop-countries", "livestock-countries", "nuclear-countries", "energy-countries", "electricity-countries",
         ].includes(target.kind)) built = withContinentRows(built, target.kind);
-        if (built?.rows?.length) tables.push(built);
-        else gaps.push({ subject, unit: unitDef.id, chapter: chapterDef.no, target, reason: target.need || "로컬 원천에서 같은 정의·시점의 완전한 표를 확인하지 못함" });
+        if (built?.rows?.length) rawTables.push({ subject, target, table: built });
+        else gaps.push({ subject, target, reason: target.need || "같은 정의와 시점의 완전한 값을 확인하지 못함" });
       }
-      return { no: chapterDef.no, title: chapterDef.title, tables };
-    }).filter((chapterDef) => chapterDef.tables.length),
-  })).filter((unitDef) => unitDef.climate || unitDef.chapters.length);
-  result.subjects[subject] = { units };
+    }
+  }
 }
-result.meta.tableCount = Object.fromEntries(Object.entries(result.subjects).map(([key, value]) =>
-  [key, value.units.flatMap((unitDef) => unitDef.chapters).reduce((sum, chapterDef) => sum + chapterDef.tables.length, 0)]));
-result.meta.gapCount = gaps.length;
+const result = compose(rawTables, gaps);
 const json = JSON.stringify(result, null, 2) + "\n";
 const gapAttempts = {
-  "k-5-04": "data_downloads/kpx 발전량 CSV(4개 에너지원만 포함); EPSIS 전체 전원 표 미정리",
-  "k-x-01": "Map/data/korea-stats.js(시군 취업자 통근 비율, 광역시 누락); KOSIS DT_1PA2021(통근통학 혼합으로 제외)",
-  "w-x-03": "Map/data/country-stats.js(미국 2021); World Bank API NV.AGR.TOTL.ZS(공식 최신 2021 확인)",
+  "k-5-04": "data_downloads/kpx 발전량 CSV는 네 전원만 포함; 전체 전원 표 추가 확인 필요",
+  "k-x-01": "data/korea-stats.js의 시군 취업자 통근 비율에는 광역시가 없음; KOSIS DT_1PA2021은 통근통학 혼합",
+  "w-x-03": "data/country-stats.js 미국 값은 2021년; World Bank API NV.AGR.TOTL.ZS 최신 2021년",
 };
-const gapLine = ({ subject, unit, chapter, target, reason }) => [
-  target.id, (subject === "korea" ? "한국" : "세계") + " " + unit + " / " + chapter,
+const gapLine = ({ subject, target, reason }) => [
+  slugFor(subject, target.id), subject === "korea" ? "한국 " + topicFor(subject, target.id) : "세계 " + topicFor(subject, target.id),
   target.title, reason,
-  gapAttempts[target.id] || "Map/data 원천 3종; data_downloads CATALOG_scraped_stats_20260703.md, README.md; 확보한 주제별 파일",
+  gapAttempts[target.id] || "data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그",
 ].map((value) => String(value).replaceAll("|", "\\|")).join(" | ").replace(/^/, "| ").replace(/$/, " |");
 const gapMarkdown = [
-  "# Statistics 미수록 표",
-  "",
-  "빈 표와 추정값은 페이지에 싣지 않았습니다. 아래 원천을 확보하고 정의와 최신 연도를 확인해야 합니다.",
-  "",
-  "## 교재 표 보류",
-  "",
-  "| ID | 대단원 / 소단원 | 표 | 필요한 원천 또는 사유 | 확인한 경로 |",
+  "# Statistics 미수록 표", "",
+  "값이나 정의를 확인하지 못한 표입니다. 확인한 원천과 누락 사유를 기록합니다.", "",
+  "| ID | 주제 | 표 | 필요한 원천 또는 사유 | 확인한 경로 |",
   "| --- | --- | --- | --- | --- |",
-  ...gaps.filter((gap) => !gap.target.extra).map(gapLine),
-  "",
-  "## 추가 표 보류",
-  "",
-  "| ID | 대단원 / 소단원 | 표 | 필요한 원천 또는 사유 | 확인한 경로 |",
-  "| --- | --- | --- | --- | --- |",
-  ...gaps.filter((gap) => gap.target.extra).map(gapLine),
-  "",
+  ...gaps.map(gapLine), "",
 ].join("\n");
 if (check) {
   for (const [filename, expected] of [[output, json], [gapsOutput, gapMarkdown]]) {
@@ -685,4 +678,3 @@ if (check) {
   fs.writeFileSync(gapsOutput, gapMarkdown);
 }
 console.log("Statistics: 한국 " + result.meta.tableCount.korea + "표, 세계 " + result.meta.tableCount.world + "표, GAPS " + gaps.length + "건");
-

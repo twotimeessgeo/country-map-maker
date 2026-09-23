@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Statistics | Promenade Geography</title>
-    <meta name="description" content="한국지리와 세계지리의 대단원별 통계표" />
+    <meta name="description" content="한국지리와 세계지리 통계표" />
     <meta name="theme-color" content="#ffffff" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../../ds/fonts.css?v=32" />
@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="../../ds/base.css?v=38" />
     <link rel="stylesheet" href="../../ds/components.css?v=43" />
     <link rel="stylesheet" href="../../ds/patterns.css?v=32" />
-    <link rel="stylesheet" href="./styles.css?v=1" />
+    <link rel="stylesheet" href="./styles.css?v=2" />
   </head>
   <body>
     <header class="tw-nav is-static">
@@ -34,43 +34,33 @@
         </details>
       </nav>
     </header>
-
     <header class="tw-page tw-hero stats-hero">
       <h1 class="tw-display" lang="en">Statistics</h1>
       <nav class="tw-segmented stats-subject" aria-label="과목">
-        <a href="?subject=korea" data-subject="korea">한국지리</a>
-        <a href="?subject=world" data-subject="world">세계지리</a>
+        <a href="?subject=korea&topic=population" data-subject="korea">한국지리</a>
+        <a href="?subject=world&topic=religion" data-subject="world">세계지리</a>
       </nav>
     </header>
-
-    <div class="tw-subnav stats-toolbar">
+    <div class="tw-subnav stats-toolbar" id="statsToolbar">
       <div class="tw-subnav-inner">
         <label class="tw-search stats-search">
           <span class="tw-sr-only">통계표 검색</span>
           <input class="tw-input" id="statsSearch" type="search" placeholder="표 또는 지역 검색" autocomplete="off" />
         </label>
-        <span id="resultCount" class="stats-count" role="status" aria-live="polite"></span>
       </div>
+      <div class="stats-search-results" id="statsSearchResults" hidden></div>
     </div>
-
+    <div class="stats-sticky-overlay" id="statsStickyOverlay" hidden></div>
     <main class="tw-page stats-layout">
-      <aside class="stats-aside" aria-label="대단원">
-        <nav class="tw-segmented stats-set" aria-label="표 범위">
-          <a href="#" data-set="all">전체</a>
-          <a href="#" data-set="textbook">교재</a>
-        </nav>
-        <nav class="stats-units" id="unitList" aria-label="대단원 목록"></nav>
-        <label class="stats-unit-select">
-          <span class="tw-sr-only">대단원</span>
-          <select class="tw-select" id="unitSelect"></select>
-        </label>
+      <aside class="stats-aside" aria-label="주제">
+        <nav class="stats-topics" id="topicList" aria-label="주제 목록"></nav>
       </aside>
       <div class="stats-content" id="statsContent" aria-live="polite"></div>
     </main>
     <div class="tw-toast" id="statsToast" role="status" aria-live="polite" aria-atomic="true"></div>
     <footer class="tw-footer"><div class="tw-footer-inner"><span class="tw-latin">Promenade Geography</span></div></footer>
     <noscript>통계표를 보려면 JavaScript를 켜 주세요</noscript>
-    <script src="./app.js?v=1"></script>
+    <script src="./app.js?v=2"></script>
     <script src="../../ds/motion.js?v=41"></script>
   </body>
 </html>

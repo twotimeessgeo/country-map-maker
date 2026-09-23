@@ -1,6 +1,5 @@
-// Country and district selection from the two local reference PDFs.
-// Only row labels and table structure were transcribed; no textbook values.
-export const textbookCountryRows = {
+// Exam-relevant country and district selections, kept compact for the public tables.
+export const majorCountryRows = {
   religionAsia: ["MMR", "THA", "LKA", "MYS", "PHL", "IDN", "PAK", "IND"],
   religionAfrica: ["EGY", "DZA", "MAR", "SDN", "ZAF", "NGA", "ETH", "CIV"],
   population: ["IND", "CHN", "USA", "IDN", "PAK", "NGA", "BRA", "BGD"],

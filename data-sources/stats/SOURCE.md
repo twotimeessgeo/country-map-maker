@@ -1,6 +1,6 @@
 # Statistics build sources
 
-These source tables are excluded from the public static build. The generated page reads only `tools/stats/data/textbook-stats.json`.
+These source tables are excluded from the public static build. The generated page reads only `tools/stats/data/stats.json`.
 
 - `korea_generation_by_energy_source_2014_2024.csv`: Korea Power Exchange, 2024 Energy Source Generation, GWh. Local source: `data_downloads/kpx/`; the workbook/PDF provenance and EPSIS cross-check are recorded in that folder's `SOURCE.md`. Public source: https://new.kpx.or.kr/boardDownload.es?bid=0085&list_no=75637&seq=1
 - `wheat_rice_maize_top3_producers_2024.csv`: FAOSTAT Crops and Livestock Products, 2024 production in tonnes. Local source: `data_downloads/faostat/`; FAOSTAT flags are retained in the copied file. Public source: https://www.fao.org/faostat/en/#data/QCL

@@ -120,45 +120,56 @@ if (isSourceCheck) {
   ]) {
     if (statsUiText.includes(forbidden)) errors.push(`Data Library에 제거 대상 기능이 남아 있습니다: ${forbidden}`);
   }
-  const textbookPath = path.join(rootDir, "tools", "stats", "data", "textbook-stats.json");
-  const textbook = JSON.parse(fs.readFileSync(textbookPath, "utf8"));
+  const statsPath = path.join(rootDir, "tools", "stats", "data", "stats.json");
+  const stats = JSON.parse(fs.readFileSync(statsPath, "utf8"));
   const seenIds = new Set();
-  for (const [subject, value] of Object.entries(textbook.subjects || {})) {
-    let count = 0;
-    for (const unit of value.units || []) {
-      for (const chapter of unit.chapters || []) {
-        for (const table of chapter.tables || []) {
-          count += 1;
-          if (!table.id || seenIds.has(table.id)) errors.push("Statistics 표 ID가 없거나 중복되었습니다: " + table.id);
-          seenIds.add(table.id);
-          if (!table.year || !table.source?.name || !table.columns?.length || !table.rows?.length) {
-            errors.push("Statistics 표 메타나 행이 비었습니다: " + table.id);
-          }
-          if (subject === "world" && unit.id !== "II" && table.rows.filter((row) => row.group === "country").length > 8) {
-            errors.push("Statistics 세계 표 주요 국가가 8개를 넘습니다: " + table.id);
-          }
-          for (const rows of [table.rows, ...(table.variants || []).map((variant) => variant.rows)]) {
-            if (!rows?.length) errors.push("Statistics 전환 표 행이 비었습니다: " + table.id);
-            for (const row of rows || []) {
-              if (!row.label || row.values?.length !== table.columns.length || row.values.some((cell) =>
-                cell === undefined || cell === null || typeof cell === "number" && !Number.isFinite(cell) ||
-                typeof cell === "string" && /^(?:NaN|undefined|null)$/i.test(cell))) {
-                errors.push("Statistics 행 값이 올바르지 않습니다: " + table.id + " / " + row.label);
-              }
-            }
-          }
-        }
+  const checkView = (view, tableId) => {
+    if (!view?.rows?.length || !view.columns?.length || !view.source?.name || !view.source?.url) {
+      errors.push("Statistics 표 내용·출처가 비었습니다: " + tableId); return;
+    }
+    const checkTime = (time) => !time || /^\d{4}년(?: \d{1,2}(?:~\d{1,2})?월(?: \d{1,2}일)?| 하반기)?$/.test(time);
+    if (!checkTime(view.year)) errors.push("Statistics 기준 시점 표기 오류: " + tableId + " / " + view.year);
+    for (const column of view.columns) {
+      if (!checkTime(column.year) || /\d{4}\.\d|\d{4}[–-]\d{4}/.test(column.label)) errors.push("Statistics 열 시점 표기 오류: " + tableId);
+    }
+    for (const row of view.rows) {
+      if (!row.label || row.values?.length !== view.columns.length || row.values.some((cell) =>
+        cell === undefined || typeof cell === "number" && !Number.isFinite(cell) ||
+        typeof cell === "string" && /^(?:NaN|undefined|null)$/i.test(cell) ||
+        cell && typeof cell === "object" && (!cell.name || !Number.isFinite(cell.value)))) {
+        errors.push("Statistics 행 값이 올바르지 않습니다: " + tableId + " / " + row.label);
       }
     }
-    if (count !== textbook.meta?.tableCount?.[subject]) errors.push("Statistics 표 수가 메타와 다릅니다: " + subject);
+    for (const sub of view.subviews || []) checkView(sub, tableId);
+  };
+  for (const [subject, value] of Object.entries(stats.subjects || {})) {
+    let count = 0;
+    for (const topic of value.topics || []) {
+      if (!topic.id || !topic.title) errors.push("Statistics 주제 메타가 비었습니다: " + subject);
+      const tables = topic.regions ? topic.regions.flatMap((region) => region.tables) : topic.tables || [];
+      for (const table of tables) {
+        count += 1;
+        if (!table.id || seenIds.has(table.id) || !/^(?:korea|world)-[a-z0-9-]+$/.test(table.id)) errors.push("Statistics 표 ID 오류: " + table.id);
+        seenIds.add(table.id);
+        if (!table.title || !table.views?.length) errors.push("Statistics 표 제목·전환 누락: " + table.id);
+        for (const view of table.views || []) checkView(view, table.id);
+      }
+    }
+    if (count !== stats.meta?.tableCount?.[subject]) errors.push("Statistics 표 수가 메타와 다릅니다: " + subject);
   }
-  if (JSON.stringify(textbook).includes("stats-ref/") || JSON.stringify(textbook).includes("Documents/New project")) {
-    errors.push("Statistics 공개 JSON에 로컬 참조 경로가 남았습니다.");
+  const publicStatsText = [
+    fs.readFileSync(path.join(rootDir,"tools","stats","index.html"),"utf8"),
+    fs.readFileSync(path.join(rootDir,"tools","stats","app.js"),"utf8"),
+    fs.readFileSync(statsPath,"utf8"),
+  ].join("\n");
+  for (const forbidden of ["textbook", "교재", "수능특강", "textbook-stats.json"]) {
+    if (publicStatsText.includes(forbidden)) errors.push("Statistics 공개 파일에 이전 분류 표현이 남았습니다: " + forbidden);
   }
+  if (publicStatsText.includes("stats-ref/") || publicStatsText.includes("Documents/New project")) errors.push("Statistics 공개 파일에 로컬 참조 경로가 남았습니다.");
   try {
-    execFileSync(process.execPath, [path.join(projectRoot, "scripts", "build-textbook-stats.mjs"), "--check"], { cwd: projectRoot, stdio: "pipe" });
+    execFileSync(process.execPath, [path.join(projectRoot,"scripts","build-stats.mjs"),"--check"], {cwd:projectRoot,stdio:"pipe"});
   } catch (error) {
-    errors.push("Statistics 생성본이 원천/정의와 다릅니다: " + String(error.stderr || error.message).trim());
+    errors.push("Statistics 생성본이 원천·정의와 다릅니다: " + String(error.stderr || error.message).trim());
   }
 }
 
