@@ -85,4 +85,8 @@
   --tw-ease: cubic-bezier(0.2, 0, 0, 1);
   --tw-fast: 140ms;
   --tw-base: 220ms;
+  --tw-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --tw-dur-1: 120ms;
+  --tw-dur-2: 240ms;
+  --tw-dur-3: 400ms;
 }

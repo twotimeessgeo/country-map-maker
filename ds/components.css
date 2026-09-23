@@ -185,8 +185,8 @@
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--tw-fast) var(--tw-ease), color var(--tw-fast) var(--tw-ease),
-    opacity var(--tw-fast) var(--tw-ease), transform var(--tw-fast) var(--tw-ease);
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), color var(--tw-dur-1) var(--tw-ease-out),
+    opacity var(--tw-dur-1) var(--tw-ease-out), transform var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .tw-button:hover {
@@ -257,6 +257,7 @@ a:hover .tw-arrow::after,
 /* ───────── Segmented control ───────── */
 
 .tw-segmented {
+  position: relative;
   display: inline-flex;
   gap: 2px;
   padding: 3px;
@@ -281,7 +282,7 @@ a:hover .tw-arrow::after,
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--tw-fast) var(--tw-ease), color var(--tw-fast) var(--tw-ease);
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), color var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .tw-segmented > :hover {
@@ -294,6 +295,34 @@ a:hover .tw-arrow::after,
   background: var(--tw-bg);
   color: var(--tw-ink);
   box-shadow: var(--tw-shadow-thumb);
+}
+
+.tw-segmented.has-motion-thumb::before,
+.map-scope.has-motion-thumb::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 0;
+  width: var(--seg-width);
+  height: calc(100% - 6px);
+  border-radius: var(--tw-radius-pill);
+  background: var(--tw-bg);
+  box-shadow: var(--tw-shadow-thumb);
+  transform: translateX(var(--seg-x));
+  transition: transform var(--tw-dur-2) var(--tw-ease-out), width var(--tw-dur-2) var(--tw-ease-out);
+  pointer-events: none;
+}
+.tw-segmented.has-motion-thumb > *,
+.map-scope.has-motion-thumb > * {
+  position: relative;
+  z-index: 1;
+}
+.tw-segmented.has-motion-thumb > .is-active,
+.tw-segmented.has-motion-thumb > [aria-current="page"],
+.tw-segmented.has-motion-thumb > [aria-pressed="true"],
+.map-scope.has-motion-thumb > .is-active {
+  background: transparent;
+  box-shadow: none;
 }
 
 /* ───────── Chips ───────── */

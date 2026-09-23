@@ -172,7 +172,7 @@
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--tw-fast) var(--tw-ease), color var(--tw-fast) var(--tw-ease);
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), color var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .chip-button:hover {
@@ -386,6 +386,7 @@
 }
 
 .map-scope {
+  position: relative;
   display: inline-flex;
   gap: 2px;
   padding: 3px;
@@ -408,6 +409,21 @@
   background: var(--tw-bg);
   color: var(--tw-ink);
   box-shadow: var(--tw-shadow-thumb);
+}
+
+.map-scope.has-motion-thumb .chip-button.is-active {
+  background: transparent;
+  box-shadow: none;
+}
+
+.map-marker.is-selected::before {
+  border: 1px solid var(--tw-ink);
+  animation: tw-marker-ring 240ms var(--tw-ease-out) both;
+}
+
+@keyframes tw-marker-ring {
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .world-map-frame {

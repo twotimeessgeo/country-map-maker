@@ -1717,6 +1717,8 @@ function setSelectionUtilityStatus(message, tone = "success") {
 }
 
 function render() {
+  const trayMotion = window.TwMotion?.snapshotTray(elements.selectedTray);
+  const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
   const examSourcePanelWasOpen = elements.comparisonContent
     .querySelector(".exam-source-panel")
     ?.hasAttribute("open");
@@ -1730,7 +1732,10 @@ function render() {
   elements.heroCount.textContent = `${state.regions.length}개 지역`;
   elements.heroCaption.textContent = buildHeroCaption();
   elements.selectionSummary.textContent = `${selectedRegions.length}개 선택됨`;
-  if (elements.selectedTray) elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
+  if (elements.selectedTray) {
+    elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
+    window.TwMotion?.animateTray(elements.selectedTray, trayMotion);
+  }
   elements.mapSummary.textContent = buildMapSummary(mappableRegions, selectedRegions);
   elements.continentChips.innerHTML = renderContinentChips();
   elements.hemisphereChips.innerHTML = renderHemisphereChips();
@@ -1758,6 +1763,7 @@ function render() {
   }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
   if (examSourcePanelWasOpen) {
     elements.comparisonContent.querySelector(".exam-source-panel")?.setAttribute("open", "");
   }
@@ -2044,7 +2050,7 @@ function renderSelectedRegions(selectedRegions) {
       );
 
       return `
-        <article class="region-card world-region-card">
+        <article class="region-card world-region-card" data-region-id="${escapeHtml(region.id)}">
           <header class="region-card-head">
             <div class="region-card-title">
               <h3>${escapeHtml(region.name)}</h3>

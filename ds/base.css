@@ -129,3 +129,87 @@ a {
     animation-iteration-count: 1 !important;
   }
 }
+
+@view-transition {
+  navigation: auto;
+}
+
+.tw-nav {
+  view-transition-name: site-nav;
+}
+
+.tw-hero h1 {
+  view-transition-name: page-title;
+}
+
+::view-transition-old(root) {
+  animation: 180ms ease-out both tw-page-out;
+}
+
+::view-transition-new(root) {
+  animation: 180ms ease-out both tw-page-in;
+}
+
+::view-transition-old(site-nav),
+::view-transition-new(site-nav),
+::view-transition-old(page-title),
+::view-transition-new(page-title) {
+  animation: none;
+}
+
+@keyframes tw-page-out { to { opacity: 0; } }
+@keyframes tw-page-in { from { opacity: 0; } }
+
+.tw-hero-sequence > .tw-meta-line,
+.tw-hero-sequence > h1,
+.tw-hero-sequence > .tw-hero-actions,
+.tw-hero-sequence > .tw-segmented {
+  animation: tw-reveal-in var(--tw-dur-3) var(--tw-ease-out) both;
+}
+.tw-hero-sequence > h1 { animation-delay: 60ms; }
+.tw-hero-sequence > .tw-hero-actions,
+.tw-hero-sequence > .tw-segmented { animation-delay: 120ms; }
+
+.tw-reveal {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.tw-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity var(--tw-dur-3) var(--tw-ease-out), transform var(--tw-dur-3) var(--tw-ease-out);
+}
+@keyframes tw-reveal-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+details[open] > :not(summary) {
+  animation: tw-detail-in var(--tw-dur-2) var(--tw-ease-out) both;
+}
+@keyframes tw-detail-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.tw-chart-enter .tw-chart-bar {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: tw-chart-bar-in 360ms var(--tw-ease-out) both;
+}
+.tw-chart-enter .tw-chart-line {
+  stroke-dasharray: var(--chart-line-length, 1200);
+  animation: tw-chart-line-in 360ms var(--tw-ease-out) both;
+}
+.tw-chart-enter .tw-chart-dot {
+  animation: tw-chart-dot-in 160ms ease-out 240ms both;
+}
+@keyframes tw-chart-bar-in { from { transform: scaleY(0); } }
+@keyframes tw-chart-line-in { from { stroke-dashoffset: var(--chart-line-length, 1200); } to { stroke-dashoffset: 0; } }
+@keyframes tw-chart-dot-in { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation: none !important; }
+  .tw-reveal { opacity: 1; transform: none; }
+}

@@ -109,17 +109,17 @@
       hits += `<rect class="chart-hit" x="${m.left + stepX * i}" y="${m.top}" width="${stepX}" height="${plotH}" fill="transparent"><title>${esc(tip)}</title></rect>`;
       if (Number.isFinite(p)) {
         const y = yP(p);
-        bars += `<path d="${barPath(cx(i) - barW / 2, y, barW, m.top + plotH - y, 3)}" fill="${BAR}" />`;
+        bars += `<path class="tw-chart-bar" d="${barPath(cx(i) - barW / 2, y, barW, m.top + plotH - y, 3)}" fill="${BAR}" />`;
       }
       if (Number.isFinite(t)) points.push([cx(i), yT(t)]);
       labels += `<text x="${cx(i)}" y="${height - 8}" text-anchor="middle" fill="${INK_3}">${i + 1}</text>`;
     }
 
     const line = points.length
-      ? `<polyline points="${points.map((point) => point.join(",")).join(" ")}" fill="none" stroke="${INK}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />`
+      ? `<polyline class="tw-chart-line" points="${points.map((point) => point.join(",")).join(" ")}" fill="none" stroke="${INK}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />`
       : "";
     const dots = points
-      .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.4" fill="${INK}" stroke="#ffffff" stroke-width="1.5" />`)
+      .map(([x, y]) => `<circle class="tw-chart-dot" cx="${x}" cy="${y}" r="3.4" fill="${INK}" stroke="#ffffff" stroke-width="1.5" />`)
       .join("");
 
     const legendX = width / 2;

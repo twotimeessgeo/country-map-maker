@@ -60,7 +60,7 @@
   function marker(kind, x, y, r = 3.6) {
     const fill = kind.endsWith("-o") ? "#ffffff" : INK;
     const shape = kind.replace("-o", "");
-    const common = `fill="${fill}" stroke="${INK}" stroke-width="1.4"`;
+    const common = `class="tw-chart-dot tw-value-shape" fill="${fill}" stroke="${INK}" stroke-width="1.4"`;
     if (shape === "square") return `<rect x="${x - r}" y="${y - r}" width="${r * 2}" height="${r * 2}" ${common} />`;
     if (shape === "triangle") return `<path d="M${x},${y - r * 1.2}L${x + r * 1.1},${y + r * 0.8}L${x - r * 1.1},${y + r * 0.8}Z" ${common} />`;
     if (shape === "diamond") return `<path d="M${x},${y - r * 1.25}L${x + r * 1.1},${y}L${x},${y + r * 1.25}L${x - r * 1.1},${y}Z" ${common} />`;
@@ -111,7 +111,7 @@
     series.forEach((item, index) => {
       const style = seriesStyle(index);
       const points = item.values.map((value, i) => [x(i), axis.y(value), value]).filter((point) => Number.isFinite(point[2]));
-      body += `<polyline points="${points.map((p) => `${p[0]},${p[1]}`).join(" ")}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" stroke-linejoin="round" />`;
+      body += `<polyline class="tw-chart-line tw-value-shape" points="${points.map((p) => `${p[0]},${p[1]}`).join(" ")}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" stroke-linejoin="round" />`;
       body += points
         .map((p, i) => `<g>${marker(style.marker, p[0], p[1])}<title>${esc(`${item.name}  ${i + 1}월  ${num(p[2], signed)}${unit}`)}</title></g>`)
         .join("");
@@ -144,9 +144,9 @@
         const y1 = axis.y(value);
         const top = Math.min(y0, y1);
         const h = Math.max(Math.abs(y1 - y0), 0.5);
-        body += `<g><rect x="${cx - barW / 2}" y="${top}" width="${barW}" height="${h}" rx="3" fill="${BAR}" />${tip}</g>`;
+        body += `<g><rect class="tw-chart-bar tw-value-shape" x="${cx - barW / 2}" y="${top}" width="${barW}" height="${h}" rx="3" fill="${BAR}" />${tip}</g>`;
       } else {
-        body += `<g><circle cx="${cx}" cy="${axis.y(value)}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" />${tip}</g>`;
+        body += `<g><circle class="tw-chart-dot tw-value-shape" cx="${cx}" cy="${axis.y(value)}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" />${tip}</g>`;
       }
     });
     return frame(width, height, body, label);

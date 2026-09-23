@@ -666,6 +666,8 @@ function normalizeComparisonBaseline(selectedRegions) {
 }
 
 function render() {
+  const trayMotion = window.TwMotion?.snapshotTray(elements.selectedTray);
+  const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
   resetClimateCsvExports();
 
   const visibleRegions = sortDisplayedRegions(getVisibleRegions());
@@ -684,6 +686,7 @@ function render() {
   }
   if (elements.selectedTray) {
     elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
+    window.TwMotion?.animateTray(elements.selectedTray, trayMotion);
   }
   if (elements.mapSummary) {
     const mapRegions = getMapRegions(visibleRegions, selectedRegions);
@@ -705,6 +708,7 @@ function render() {
   }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
   renderMap(visibleRegions, selectedRegions);
   renderMapCandidatePicker();
   const urlSyncMode = nextUrlSyncMode;
@@ -907,7 +911,7 @@ function renderRegionCard(region, sharedChartScale) {
   );
 
   return `
-    <article class="region-card">
+    <article class="region-card" data-region-id="${escapeHtml(region.id)}">
       <header class="region-card-head">
         <div class="region-card-title">
           <h3>${escapeHtml(region.name)}</h3>
