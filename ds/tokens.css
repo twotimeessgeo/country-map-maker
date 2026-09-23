@@ -1,0 +1,88 @@
+/*
+ * Promenade Design System 3.0 — tokens
+ * Monochrome, soft surfaces, pill controls, generous whitespace.
+ * Latin/numerals: TWK Lausanne (200·300). Korean: Pretendard.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Color — strictly neutral. No hue anywhere. */
+  --tw-bg: #ffffff;
+  --tw-surface: #f4f4f4;
+  --tw-surface-2: #ebebeb;
+  --tw-surface-3: #e0e0e0;
+  --tw-ink: #0d0d0d;
+  --tw-ink-2: #5d5d5d;
+  --tw-ink-3: #8f8f8f;
+  --tw-ink-4: #b4b4b4;
+  --tw-inverse: #ffffff;
+  --tw-hairline: rgba(0, 0, 0, 0.08);
+  --tw-hairline-strong: rgba(0, 0, 0, 0.14);
+  --tw-scrim: rgba(255, 255, 255, 0.86);
+  --tw-focus: 0 0 0 2px var(--tw-bg), 0 0 0 4px rgba(13, 13, 13, 0.9);
+  --tw-shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.1);
+  --tw-shadow-thumb: 0 1px 2px rgba(0, 0, 0, 0.08), 0 1px 1px rgba(0, 0, 0, 0.04);
+
+  /* Type */
+  --tw-font-latin: "TWK Lausanne", "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  --tw-font-sans: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --tw-weight-display: 200;
+  --tw-weight-latin: 300;
+  --tw-weight-body: 400;
+  --tw-weight-medium: 500;
+  --tw-weight-strong: 600;
+
+  --tw-text-2xs: 0.6875rem; /* 11 */
+  --tw-text-xs: 0.75rem; /* 12 */
+  --tw-text-sm: 0.8125rem; /* 13 */
+  --tw-text-md: 0.9375rem; /* 15 */
+  --tw-text-lg: 1.0625rem; /* 17 */
+  --tw-text-xl: 1.375rem; /* 22 */
+  --tw-text-2xl: 1.75rem; /* 28 */
+  --tw-text-3xl: clamp(2rem, 3.2vw, 2.75rem);
+  --tw-text-display: clamp(2.75rem, 6.4vw, 5.25rem);
+  --tw-text-hero: clamp(3.5rem, 11vw, 9rem);
+
+  --tw-leading-tight: 1.08;
+  --tw-leading-snug: 1.3;
+  --tw-leading-body: 1.6;
+  --tw-track-display: -0.035em;
+  --tw-track-heading: -0.015em;
+
+  /* Space — 4px grid */
+  --tw-space-1: 4px;
+  --tw-space-2: 8px;
+  --tw-space-3: 12px;
+  --tw-space-4: 16px;
+  --tw-space-5: 20px;
+  --tw-space-6: 24px;
+  --tw-space-8: 32px;
+  --tw-space-10: 40px;
+  --tw-space-12: 48px;
+  --tw-space-16: 64px;
+  --tw-space-20: 80px;
+  --tw-space-24: 96px;
+
+  /* Radius */
+  --tw-radius-xs: 6px;
+  --tw-radius-sm: 10px;
+  --tw-radius-md: 14px;
+  --tw-radius-lg: 20px;
+  --tw-radius-xl: 28px;
+  --tw-radius-pill: 999px;
+
+  /* Size */
+  --tw-control-sm: 32px;
+  --tw-control-md: 40px;
+  --tw-control-lg: 48px;
+  --tw-nav-height: 60px;
+  --tw-page-max: 1320px;
+  --tw-read-max: 720px;
+  --tw-gutter: clamp(16px, 4vw, 40px);
+
+  /* Motion */
+  --tw-ease: cubic-bezier(0.2, 0, 0, 1);
+  --tw-fast: 140ms;
+  --tw-base: 220ms;
+}

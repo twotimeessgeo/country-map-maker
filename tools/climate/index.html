@@ -8,127 +8,139 @@
       name="description"
       content="세계 주요 지역의 1991–2020 월별 기온과 강수량을 비교하고 그래프로 확인합니다."
     />
-    <meta name="theme-color" content="#111111" />
+    <meta name="theme-color" content="#ffffff" />
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="styles.css?v=20260717u" />
+    <link rel="stylesheet" href="../../ds/fonts.css?v=30" />
+    <link rel="stylesheet" href="../../ds/tokens.css?v=30" />
+    <link rel="stylesheet" href="../../ds/base.css?v=30" />
+    <link rel="stylesheet" href="../../ds/components.css?v=30" />
+    <link rel="stylesheet" href="../../ds/patterns.css?v=30" />
+    <link rel="stylesheet" href="styles.css?v=30" />
   </head>
   <body data-app-mode="world">
-    <div class="page-shell">
-      <nav class="app-context-bar" aria-label="Promenade Geography">
-        <a class="app-context-brand" href="../../index.html" aria-label="Promenade Geography home">
-          <span>Promenade</span>
+    <header class="tw-nav is-static">
+      <nav class="tw-nav-inner" aria-label="Promenade Geography">
+        <a class="tw-brand" href="../../index.html" aria-label="Promenade Geography home">
+          <span class="tw-brand-mark" aria-hidden="true"></span>
+          <span lang="en">Promenade</span>
         </a>
-        <details class="app-context-menu">
-          <summary>
-            <span class="app-menu-mark" aria-hidden="true"></span>
-            <span>Menu</span>
-          </summary>
-          <div class="app-context-menu-panel">
-            <a href="../../map.html">Map Editor</a>
-            <a class="is-active" href="./index.html" aria-current="page">Climate Atlas</a>
-            <a href="../cut/index.html">Grade Cut Archive</a>
+        <div class="tw-nav-links">
+          <a class="tw-nav-link" lang="en" href="../../map.html">Map Editor</a>
+          <a class="tw-nav-link" lang="en" href="./index.html" aria-current="page">Climate Atlas</a>
+          <a class="tw-nav-link" lang="en" href="../cut/index.html">Grade Cut Archive</a>
+        </div>
+        <span class="tw-nav-spacer"></span>
+        <details class="tw-nav-menu">
+          <summary aria-label="메뉴"><span class="tw-nav-menu-icon" aria-hidden="true"></span></summary>
+          <div class="tw-nav-menu-panel">
+            <a lang="en" href="../../map.html">Map Editor</a>
+            <a lang="en" href="./index.html" aria-current="page">Climate Atlas</a>
+            <a lang="en" href="../cut/index.html">Grade Cut Archive</a>
           </div>
         </details>
       </nav>
-      <header class="hero">
-        <div class="hero-copy">
-          <h1 lang="en">Climate Atlas</h1>
-          <nav class="app-switch" aria-label="지역 범위">
-            <a class="app-switch-link is-active" lang="en" href="./index.html">World</a>
-            <a class="app-switch-link" lang="en" href="./korea.html">Korea</a>
-          </nav>
+    </header>
+
+    <header class="tw-page tw-hero atlas-hero">
+      <p class="tw-meta-line">
+        <span id="heroCount">169개 지역</span>
+        <span id="heroCaption" lang="en">JMA · 1991–2020</span>
+      </p>
+      <h1 class="tw-display" lang="en">Climate Atlas</h1>
+      <p class="tw-lede">세계 주요 지역의 월별 기온과 강수량을 고르고, 같은 축의 기후 그래프로 나란히 비교합니다.</p>
+      <nav class="tw-segmented app-switch" aria-label="지역 범위">
+        <a class="app-switch-link is-active" lang="en" href="./index.html" aria-current="page">World</a>
+        <a class="app-switch-link" lang="en" href="./korea.html">Korea</a>
+      </nav>
+    </header>
+
+    <div class="tw-subnav atlas-toolbar">
+      <div class="tw-subnav-inner">
+        <nav class="tw-subnav-links" aria-label="페이지 구역">
+          <a href="#select">지역 선택</a>
+          <a href="#selectedPanel">기후 그래프</a>
+          <a href="#comparisonPanel">비교</a>
+        </nav>
+        <div class="tw-subnav-actions atlas-actions" aria-label="선택 도구">
+          <span class="atlas-count" id="selectionSummary" role="status" aria-live="polite" aria-atomic="true">0개 선택됨</span>
+          <button type="button" class="tw-button is-ghost is-sm" id="randomClimateSelectionButton">4곳 랜덤</button>
+          <button type="button" class="tw-button is-ghost is-sm" id="clearSelectionButton">선택 해제</button>
+          <button type="button" class="tw-button is-sm" id="downloadSelectedCsvButton" disabled>CSV</button>
+          <button type="button" class="tw-button is-primary is-sm" id="copyShareLinkButton">링크 복사</button>
         </div>
-        <div class="hero-note">
-          <strong id="heroCount">169개 지역</strong>
-          <span id="heroCaption" lang="en">JMA · 1991–2020</span>
-        </div>
-      </header>
+      </div>
+    </div>
 
-      <main class="layout">
-        <section class="panel controls-panel">
-          <div class="section-heading">
-            <div>
-              <h2>지역 선택</h2>
+    <main class="tw-page layout">
+      <section class="tw-section atlas-select" id="select" aria-labelledby="selectTitle">
+        <h2 class="tw-sr-only" id="selectTitle">지역 선택</h2>
+        <div class="tw-workspace">
+          <aside class="tw-sidebar picker" aria-label="지역 찾기">
+            <div class="picker-search">
+              <label class="tw-field" for="searchInput">
+                <span class="tw-field-label">지역 검색</span>
+                <span class="tw-search">
+                  <input
+                    class="tw-input"
+                    id="searchInput"
+                    type="search"
+                    placeholder="케이프타운, 파리, Aw"
+                    autocomplete="off"
+                  />
+                </span>
+              </label>
+              <label class="tw-field" for="regionSortSelect">
+                <span class="tw-field-label">정렬</span>
+                <select class="tw-select" id="regionSortSelect">
+                  <option value="default">기본순</option>
+                  <option value="name">가나다순</option>
+                  <option value="annualPrecipitationDesc">연 강수량 많은 순</option>
+                  <option value="annualRangeDesc">연교차 큰 순</option>
+                  <option value="warmestMonthDesc">최난월 기온 높은 순</option>
+                  <option value="coldestMonthAsc">최한월 기온 낮은 순</option>
+                </select>
+              </label>
             </div>
-            <div class="selection-summary" id="selectionSummary" role="status" aria-live="polite" aria-atomic="true">0개 선택됨</div>
-          </div>
 
-          <div class="control-bar has-sort">
-            <label class="search-field" for="searchInput">
-              <span>지역 검색</span>
-              <input
-                id="searchInput"
-                type="search"
-                placeholder="예: 케이프타운, 파리, Aw"
-                autocomplete="off"
-              />
-            </label>
-            <label class="search-field sort-field" for="regionSortSelect">
-              <span>지역 정렬</span>
-              <select id="regionSortSelect">
-                <option value="default">기본순</option>
-                <option value="name">가나다순</option>
-                <option value="annualPrecipitationDesc">연 강수량 많은 순</option>
-                <option value="annualRangeDesc">연교차 큰 순</option>
-                <option value="warmestMonthDesc">최난월 기온 높은 순</option>
-                <option value="coldestMonthAsc">최한월 기온 낮은 순</option>
-              </select>
-            </label>
-            <div class="action-row">
-              <button type="button" class="ghost-button" id="randomClimateSelectionButton">
-                4곳 랜덤
-              </button>
-              <button type="button" class="ghost-button" id="clearSelectionButton">선택 해제</button>
+            <div class="picker-list">
+              <p class="picker-list-title">지역 목록</p>
+              <div class="region-list" id="regionList"></div>
             </div>
-          </div>
+          </aside>
 
-          <div class="selection-utility-bar" aria-label="선택 결과 내보내기">
-            <div class="selection-utility-actions">
-              <button type="button" class="ghost-button" id="downloadSelectedCsvButton" disabled>
-                CSV
-              </button>
-              <button type="button" class="ghost-button utility-primary-button" id="copyShareLinkButton">
-                링크 복사
-              </button>
+          <div class="tw-canvas">
+            <div class="selected-tray-wrap">
+              <p class="selected-tray-label">선택한 지역</p>
+              <div class="selected-tray" id="selectedTray" aria-label="선택한 지역"></div>
             </div>
-            <span class="selection-utility-status" id="selectionUtilityStatus" role="status" aria-live="polite" aria-atomic="true"></span>
-          </div>
 
-          <div class="filter-stack">
-            <div class="filter-group">
-              <p class="filter-label">대륙</p>
-              <div class="chip-row" id="continentChips"></div>
-            </div>
-            <div class="filter-group">
-              <p class="filter-label">반구</p>
-              <div class="chip-row" id="hemisphereChips"></div>
-            </div>
-            <div class="filter-group">
-              <p class="filter-label">기후</p>
-              <div class="chip-row" id="climateChips"></div>
-            </div>
-          </div>
-
-          <div class="explore-grid">
-            <article class="world-stage">
-              <div class="section-heading compact nested-heading">
-                <div>
-                  <h2>지도</h2>
-                </div>
-                <div class="selection-summary is-muted" id="mapSummary" role="status" aria-live="polite" aria-atomic="true" hidden>지도 준비 중</div>
+            <div class="filter-bar" role="group" aria-label="필터">
+              <div class="filter-group">
+                <p class="filter-label">대륙</p>
+                <div class="chip-row" id="continentChips"></div>
               </div>
-              <div class="map-toolbar">
-                <div class="filter-group">
-                  <p class="filter-label">표시</p>
-                  <div class="chip-row" id="mapScopeChips"></div>
-                </div>
+              <div class="filter-group">
+                <p class="filter-label">반구</p>
+                <div class="chip-row" id="hemisphereChips"></div>
+              </div>
+              <div class="filter-group">
+                <p class="filter-label">기후</p>
+                <div class="chip-row" id="climateChips"></div>
+              </div>
+            </div>
+
+            <article class="world-stage map-card">
+              <div class="map-card-head">
+                <h3>지도</h3>
+                <span class="map-summary" id="mapSummary" role="status" aria-live="polite" aria-atomic="true" hidden>지도 준비 중</span>
+                <div class="map-scope" id="mapScopeChips" role="group" aria-label="지도 표시 범위"></div>
               </div>
               <div id="worldMap"></div>
               <p class="map-selection-help" id="mapSelectionHelp">
-                점이 밀집된 곳은 점을 누르면 클릭 위치에 가까운 후보를 펼칩니다.
+                점을 누르면 선택됩니다. 점이 밀집된 곳은 가까운 후보를 펼쳐 보여줍니다.
               </p>
               <div
                 class="map-candidate-picker"
@@ -140,78 +152,77 @@
               ></div>
             </article>
 
-            <article class="region-picker">
-              <details class="region-picker-details" open>
-                <summary class="region-picker-summary">
-                  <div class="section-heading compact nested-heading">
-                    <div>
-                      <h2>지역 목록</h2>
-                    </div>
-                  </div>
-                </summary>
-                <div class="region-list" id="regionList"></div>
-              </details>
-            </article>
-
-            <article class="api-stage">
-              <div class="section-heading compact nested-heading">
-                <div>
-                  <h2>지역 추가</h2>
-                </div>
-                <div class="selection-summary is-muted" id="apiStatusSummary" role="status" aria-live="polite" aria-atomic="true" hidden>
-                  JMA 기본 자료 + 온라인 검색
-                </div>
-              </div>
-              <div class="control-bar api-control-bar">
-                <label class="search-field" for="apiSearchInput">
-                  <span>도시·지역</span>
-                  <input
-                    id="apiSearchInput"
-                    type="search"
-                    placeholder="예: 뉴델리, 시드니, 마드리드"
-                    autocomplete="off"
-                  />
-                </label>
-                <div class="action-row">
-                  <button type="button" class="ghost-button" id="apiSearchButton">검색</button>
-                  <button type="button" class="ghost-button" id="resetCustomRegionsButton" disabled>
+            <details class="api-stage tw-card">
+              <summary class="api-stage-summary">
+                <span>
+                  <strong>목록에 없는 도시 추가</strong>
+                  <span class="api-stage-hint" id="apiStatusSummary" role="status" aria-live="polite" aria-atomic="true">JMA 기본 자료 + 온라인 검색</span>
+                </span>
+              </summary>
+              <div class="api-stage-body">
+                <div class="api-control-bar">
+                  <label class="tw-field" for="apiSearchInput">
+                    <span class="tw-field-label">도시·지역</span>
+                    <span class="tw-search">
+                      <input
+                        class="tw-input"
+                        id="apiSearchInput"
+                        type="search"
+                        placeholder="뉴델리, 시드니, 마드리드"
+                        autocomplete="off"
+                      />
+                    </span>
+                  </label>
+                  <button type="button" class="tw-button is-primary" id="apiSearchButton">검색</button>
+                  <button type="button" class="tw-button is-ghost" id="resetCustomRegionsButton" disabled>
                     추가 지역 없음
                   </button>
                 </div>
+                <p class="map-note" id="apiStatusText">
+                  JMA 미수록 지역은 Open-Meteo 1991-2020으로 보완합니다.
+                </p>
+                <div class="api-results" id="apiResults"></div>
               </div>
-              <p class="map-note" id="apiStatusText">
-                JMA 미수록 지역은 Open-Meteo 1991-2020으로 보완합니다.
-              </p>
-              <div class="api-results" id="apiResults"></div>
-            </article>
+            </details>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section class="panel" id="selectedPanel">
-          <div class="section-heading">
-            <div>
-              <h2>기후 그래프</h2>
-            </div>
+      <section class="tw-section" id="selectedPanel" aria-labelledby="chartsTitle">
+        <div class="tw-section-head">
+          <div>
+            <h2 id="chartsTitle">기후 그래프</h2>
+            <p>선택한 모든 지역을 같은 기온·강수량 축으로 그립니다.</p>
           </div>
-          <div id="selectedRegionsContent" class="selected-grid"></div>
-        </section>
+        </div>
+        <div id="selectedRegionsContent" class="selected-grid"></div>
+      </section>
 
-        <section class="panel comparison-panel" id="comparisonPanel">
-          <div class="section-heading">
-            <div>
-              <h2>비교</h2>
-            </div>
+      <section class="tw-section comparison-panel" id="comparisonPanel" aria-labelledby="comparisonTitle">
+        <div class="tw-section-head">
+          <div>
+            <h2 id="comparisonTitle">비교</h2>
+            <p>1월·7월 값과 월별 편차, 누적 강수량을 한 번에 봅니다.</p>
           </div>
-          <div id="comparisonContent"></div>
-        </section>
-      </main>
-    </div>
+        </div>
+        <div id="comparisonContent"></div>
+      </section>
+    </main>
+
+    <footer class="tw-footer">
+      <div class="tw-footer-inner">
+        <span class="tw-latin">Promenade Geography</span>
+        <span>JMA 세계 기후 평년값 1991–2020 · 미수록 지역 Open-Meteo 보완</span>
+      </div>
+    </footer>
+
+    <div class="tw-toast selection-utility-status" id="selectionUtilityStatus" role="status" aria-live="polite" aria-atomic="true"></div>
 
     <script src="data/climate-data.js?v=20260716"></script>
     <script src="data/exam-climate-statements.js?v=20260717"></script>
     <script src="data/world-countries-50m.js"></script>
     <script src="data/vendor-d3.min.js"></script>
     <script src="data/vendor-topojson-client.min.js"></script>
-    <script src="app.js?v=20260717u"></script>
+    <script src="app.js?v=30"></script>
   </body>
 </html>

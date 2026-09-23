@@ -751,6 +751,7 @@ const elements = {
   copyShareLinkButton: document.querySelector("#copyShareLinkButton"),
   downloadSelectedCsvButton: document.querySelector("#downloadSelectedCsvButton"),
   selectionUtilityStatus: document.querySelector("#selectionUtilityStatus"),
+  selectedTray: document.querySelector("#selectedTray"),
 };
 
 init();
@@ -843,6 +844,17 @@ async function fetchWorldTopologyWithFallback(urls) {
 }
 
 function bindEvents() {
+  elements.selectedTray?.addEventListener("click", (event) => {
+    const chip = event.target.closest("[data-tray-remove-id]");
+    if (!chip) return;
+    const chips = [...elements.selectedTray.querySelectorAll("[data-tray-remove-id]")];
+    const index = chips.indexOf(chip);
+    toggleRegion(chip.dataset.trayRemoveId, false);
+    pushUrlStateOnNextRender();
+    render();
+    focusSelectedTrayAfterRemoval(index);
+  });
+
   elements.selectedRegionsContent?.addEventListener("click", (event) => {
     const deleteButton = event.target.closest("[data-delete-custom-region-id]");
     if (deleteButton) {
@@ -1293,6 +1305,35 @@ function pickRandomClimateSelection() {
   return shuffleArray(state.regions).slice(0, RANDOM_CLIMATE_SELECTION_SIZE);
 }
 
+function renderSelectedTray(selectedRegions) {
+  if (selectedRegions.length === 0) {
+    return `<span class="selected-tray-empty">지도나 목록에서 지역을 고르세요</span>`;
+  }
+
+  return selectedRegions
+    .map(
+      (region) => `
+        <button
+          type="button"
+          class="selected-tray-chip"
+          data-tray-remove-id="${escapeHtml(region.id)}"
+          aria-label="${escapeHtml(region.name)} 선택 해제"
+          title="선택 해제"
+        >
+          <span>${escapeHtml(region.name)}</span>
+          <span class="selected-tray-x" aria-hidden="true"></span>
+        </button>
+      `
+    )
+    .join("");
+}
+
+function focusSelectedTrayAfterRemoval(index) {
+  const chips = elements.selectedTray?.querySelectorAll("[data-tray-remove-id]") ?? [];
+  const next = chips[Math.min(index, chips.length - 1)];
+  next?.focus({ preventScroll: true });
+}
+
 function toggleRegion(regionId, isChecked) {
   const nextSelected = new Set(state.selectedIds);
   if (isChecked) {
@@ -1678,6 +1719,7 @@ function render() {
   elements.heroCount.textContent = `${state.regions.length}개 지역`;
   elements.heroCaption.textContent = buildHeroCaption();
   elements.selectionSummary.textContent = `${selectedRegions.length}개 선택됨`;
+  if (elements.selectedTray) elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
   elements.mapSummary.textContent = buildMapSummary(mappableRegions, selectedRegions);
   elements.continentChips.innerHTML = renderContinentChips();
   elements.hemisphereChips.innerHTML = renderHemisphereChips();
@@ -6361,7 +6403,10 @@ function pickDeviationTemperatureStep(maxAbs) {
 function pickDeviationPrecipitationStep(maxAbs) {
   if (maxAbs <= 80) return 20;
   if (maxAbs <= 200) return 50;
-  return 100;
+  if (maxAbs <= 500) return 100;
+  if (maxAbs <= 1000) return 200;
+  if (maxAbs <= 2500) return 500;
+  return 1000;
 }
 
 function buildSymmetricTicks(maxValue, step) {
