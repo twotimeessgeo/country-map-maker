@@ -904,7 +904,9 @@
 /* Climograph (chart-kit.js) */
 .svg-chart text {
   font-family: var(--tw-font-latin);
+  font-size: 11px;
 }
+.svg-chart .chart-axis-unit { font-size: 12px; }
 
 .climograph .chart-hit {
   transition: fill var(--tw-dur-1) var(--tw-ease-out);
@@ -1156,7 +1158,7 @@ tfoot td {
 }
 
 #comparisonContent > .charts-grid > .chart-card h4{
-  font-size: var(--tw-text-md);
+  font-size: 13px;
 }
 
 .chart-card {
@@ -1176,7 +1178,7 @@ tfoot td {
 }
 
 .chart-card h4 {
-  font-size: var(--tw-text-sm);
+  font-size: 13px;
   font-weight: var(--tw-weight-strong);
 }
 
@@ -2023,10 +2025,6 @@ tfoot td {
 }
 
 @media (max-width: 760px) {
-  .climograph text {
-    font-size: 19px;
-  }
-
   .region-card-stats {
     gap: var(--tw-space-4);
   }
@@ -2183,7 +2181,4 @@ tfoot td {
     border-radius: var(--tw-radius-lg);
   }
 
-  .kit-chart text {
-    font-size: 17px;
-  }
 }

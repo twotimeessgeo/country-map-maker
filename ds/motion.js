@@ -26,7 +26,17 @@
               }
             }
             svg.classList.add("tw-chart-enter");
-            setTimeout(() => svg.classList.remove("tw-chart-enter"), motionTiming("--tw-dur-3").duration);
+            const finishChart = () => {
+              svg.classList.remove("tw-chart-enter");
+              for (const line of svg.querySelectorAll(".tw-chart-line")) {
+                line.style.strokeDasharray = "none";
+                line.style.strokeDashoffset = "0";
+              }
+            };
+            svg.addEventListener("animationend", (event) => {
+              if (event.target.classList?.contains("tw-chart-line")) finishChart();
+            }, { once: true });
+            setTimeout(finishChart, motionTiming("--tw-dur-3").duration + 50);
           }
           revealObserver.unobserve(element);
         }

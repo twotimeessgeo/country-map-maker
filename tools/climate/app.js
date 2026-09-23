@@ -42,7 +42,6 @@ const REGION_SORT_VALUES = new Set([
   "warmestMonthDesc",
   "coldestMonthAsc",
 ]);
-const COMPARISON_MONTHS = [0, 6];
 const RANDOM_CLIMATE_SELECTION_SIZE = 4;
 const COMPARISON_LINE_STYLES = [
   { dasharray: "", marker: "circle" },
@@ -105,7 +104,7 @@ const EXAM_COMPARISON_TEMPLATES = [
       "2025-suneung-q13-opt-02",
     ],
     categoryKey: "monthlyPrecipitation",
-    title: "월강수량",
+    title: "월 강수량",
     label: (context) => `${context.monthLabel} 강수량`,
     pattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 강수량이 많다.`,
     reversePattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 강수량이 적다.`,
@@ -149,20 +148,20 @@ const EXAM_COMPARISON_TEMPLATES = [
   {
     sourceIds: ["2021-09-q04-opt-04"],
     categoryKey: "annualPrecipitation",
-    title: "연강수량 비교",
-    label: "연강수량",
-    pattern: "한 지역은 다른 지역보다 연강수량이 많다.",
-    reversePattern: "한 지역은 다른 지역보다 연강수량이 적다.",
+    title: "연 강수량 비교",
+    label: "연 강수량",
+    pattern: "한 지역은 다른 지역보다 연 강수량이 많다.",
+    reversePattern: "한 지역은 다른 지역보다 연 강수량이 적다.",
     unit: "mm",
     minDifference: 150,
     getValue: (region) => region.annualPrecipitationMm,
-    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연강수량이 많다.`,
-    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 연강수량이 적다.`,
-    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연강수량이 적다.`,
+    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연 강수량이 많다.`,
+    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 연 강수량이 적다.`,
+    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연 강수량이 적다.`,
     renderSuperlativePositive: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 연강수량이 가장 많은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 연 강수량이 가장 많은 곳은 ${region.name}이다.`,
     renderSuperlativeReverse: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 연강수량이 가장 적은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 연 강수량이 가장 적은 곳은 ${region.name}이다.`,
   },
   {
     sourceIds: [
@@ -171,8 +170,8 @@ const EXAM_COMPARISON_TEMPLATES = [
       "2022-suneung-q19-opt-03",
     ],
     categoryKey: "janJulPrecipitationRange",
-    title: "1월과 7월 월강수량 차이",
-    label: "1월과 7월 월강수량 차이",
+    title: "1월과 7월 월 강수량 차이",
+    label: "1월과 7월 월 강수량 차이",
     pattern: "한 지역은 다른 지역보다 1월과 7월의 강수량 차이가 크다.",
     reversePattern: "한 지역은 다른 지역보다 1월과 7월의 강수량 차이가 작다.",
     unit: "mm",
@@ -192,23 +191,23 @@ const EXAM_COMPARISON_TEMPLATES = [
   {
     sourceIds: ["2021-09-q07-opt-04"],
     categoryKey: "monthlyPrecipitationRange",
-    title: "월강수량 최대·최소 차",
-    label: "월강수량 최대·최소 차",
-    pattern: "한 지역은 다른 지역보다 월강수량 최대·최소 차가 크다.",
-    reversePattern: "한 지역은 다른 지역보다 월강수량 최대·최소 차가 작다.",
+    title: "월 강수량 최대·최소 차",
+    label: "월 강수량 최대·최소 차",
+    pattern: "한 지역은 다른 지역보다 월 강수량 최대·최소 차가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 월 강수량 최대·최소 차가 작다.",
     unit: "mm",
     minDifference: 30,
     getValue: getMonthlyPrecipitationRange,
     renderPositive: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 월강수량 최대·최소 차가 크다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 월 강수량 최대·최소 차가 크다.`,
     renderReverse: (higher, lower) =>
-      `${withTopicParticle(lower.name)} ${higher.name}보다 월강수량 최대·최소 차가 작다.`,
+      `${withTopicParticle(lower.name)} ${higher.name}보다 월 강수량 최대·최소 차가 작다.`,
     renderFalse: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 월강수량 최대·최소 차가 작다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 월 강수량 최대·최소 차가 작다.`,
     renderSuperlativePositive: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 월강수량 최대·최소 차가 가장 큰 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 월 강수량 최대·최소 차가 가장 큰 곳은 ${region.name}이다.`,
     renderSuperlativeReverse: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 월강수량 최대·최소 차가 가장 작은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 월 강수량 최대·최소 차가 가장 작은 곳은 ${region.name}이다.`,
   },
   {
     sourceIds: ["2022-09-q13-opt-02", "2024-09-q06-opt-01"],
@@ -1421,7 +1420,7 @@ function downloadSelectedRegionsCsv() {
 
   const headers = [
     "지역 ID", "지역", "영문명", "대륙", "국가", "반구", "기후", "월", "월 번호",
-    "평균 기온(°C)", "강수량(mm)", "연평균 기온(°C)", "연강수량(mm)", "위도", "경도",
+    "평균 기온(°C)", "강수량(mm)", "연평균 기온(°C)", "연 강수량(mm)", "위도", "경도",
     "관측 지점", "평년 기간", "출처", "원자료 URL",
   ];
   const rows = selectedRegions.flatMap((region) =>
@@ -1694,6 +1693,10 @@ function getVisibleRegions() {
   });
 }
 
+function countryDisplayName(region) {
+  return region.countryKo || region.countryNameKo || window.CLIMATE_COUNTRY_NAMES_KO?.[region.country] || region.country || "";
+}
+
 function getSelectedRegions() {
   return [...state.selectedIds].map((id) => state.regions.find((region) => region.id === id)).filter(Boolean);
 }
@@ -1898,7 +1901,7 @@ function renderRegionOptions(regions) {
           <div class="region-option-top">
             <div class="region-option-title">
               <strong>${escapeHtml(region.name)}</strong>
-              ${renderMetaList([region.country, region.continent, getHemisphere(region)])}
+              ${renderMetaList([countryDisplayName(region), region.continent, getHemisphere(region)])}
             </div>
             <input
               type="checkbox"
@@ -1942,7 +1945,7 @@ function renderSelectedRegions(selectedRegions) {
             <div class="region-card-title">
               <h3>${escapeHtml(region.name)}</h3>
               <p class="region-card-sub">${renderMetaList([
-                region.country,
+                countryDisplayName(region),
                 region.climateCode,
                 region.source?.type === "open-meteo-live" ? "Open-Meteo" : "",
                 region.classificationReview?.status === "review-required"
@@ -1952,7 +1955,7 @@ function renderSelectedRegions(selectedRegions) {
             </div>
             <dl class="region-card-stats">
               <div><dt>연평균 기온</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
-              <div><dt>연강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
+              <div><dt>연 강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
             </dl>
             ${
               region.source?.type === "open-meteo-live"
@@ -2462,13 +2465,6 @@ function renderComparison(selectedRegions) {
         name: region.name,
         temps: region.monthlyTemperatureC,
         precs: region.monthlyPrecipitationMm,
-      })),
-      periods: COMPARISON_MONTHS.map((monthIndex) => ({
-        label: state.dataset.months[monthIndex],
-        pick: (region) => ({
-          temperature: region.temps[monthIndex],
-          precipitation: region.precs[monthIndex],
-        }),
       })),
       csv: (key, headers, rows, filename) => registerClimateCsvExport(`world-${key}`, headers, rows, filename),
     }) + renderExamClimateSourcePanel(selectedRegions)
@@ -3117,7 +3113,7 @@ function buildFeatureChoiceEvidence(statement, region, isTrue) {
       ? { label: "연평균 기온", value: formatTemp(region.annualMeanTemperatureC) }
       : null,
     Number.isFinite(region.annualPrecipitationMm)
-      ? { label: "연강수량", value: formatMm(region.annualPrecipitationMm) }
+      ? { label: "연 강수량", value: formatMm(region.annualPrecipitationMm) }
       : null,
     Number.isFinite(region.elevationM) ? { label: "해발", value: formatMeters(region.elevationM) } : null,
   ].filter(Boolean);

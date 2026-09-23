@@ -208,8 +208,8 @@ function downloadSelectedRegionsCsv() {
 
   const headers = [
     "지역 ID", "지점 번호", "지역", "지점명", "국가", "권역", "월", "월 번호",
-    "월평균 기온(°C)", "월강수량(mm)", "영하 일수", "열대야 일수",
-    "연평균 기온(°C)", "연강수량(mm)", "위도", "경도", "해발(m)", "평년 기간", "출처",
+    "월평균 기온(°C)", "월 강수량(mm)", "영하 일수", "열대야 일수",
+    "연평균 기온(°C)", "연 강수량(mm)", "위도", "경도", "해발(m)", "평년 기간", "출처",
   ];
   const rows = selectedRegions.flatMap((region) =>
     region.months.map((month, monthIndex) => [
@@ -1045,7 +1045,7 @@ function renderRegionCard(region, sharedChartScale) {
   const annualRange = getAnnualTemperatureRange(region);
   const csvKey = registerClimateCsvExport(
     `korea-region-${region.id}-raw`,
-    ["월", "월평균 기온(°C)", "월강수량(mm)", "영하 일수", "열대야 일수"],
+    ["월", "월평균 기온(°C)", "월 강수량(mm)", "영하 일수", "열대야 일수"],
     [
       ...monthlyRows.map((row) => [
         row.label,
@@ -1074,7 +1074,7 @@ function renderRegionCard(region, sharedChartScale) {
         </div>
         <dl class="region-card-stats">
           <div><dt>연평균 기온</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
-          <div><dt>연강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
+          <div><dt>연 강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
           <div><dt>연교차</dt><dd>${formatTemp(annualRange)}</dd></div>
         </dl>
       </header>
@@ -1098,7 +1098,7 @@ function renderRegionCard(region, sharedChartScale) {
               <tr>
                 <th>월</th>
                 <th>월평균 기온</th>
-                <th>월강수량</th>
+                <th>월 강수량</th>
                 <th title="일 최저기온 0°C 미만">영하 일수</th>
                 <th title="일 최저기온 25°C 이상">열대야 일수</th>
               </tr>
@@ -1146,10 +1146,6 @@ function renderComparison(regions) {
       temps: region.monthlyTemperatureC,
       precs: region.monthlyPrecipitationMm,
       source: region,
-    })),
-    periods: state.dataset.comparisonPeriods.map((period) => ({
-      label: period.label,
-      pick: (item) => getPeriodMetrics(item.source, period),
     })),
     extras: [{ title: "연교차", unit: "°C", kind: "bar", value: (item) => getAnnualTemperatureRange(item.source) }],
     csv: (key, headers, rows, filename) => registerClimateCsvExport(`korea-${key}`, headers, rows, filename),
@@ -1331,18 +1327,6 @@ function renderMapCandidateOption(region) {
       <span class="map-candidate-option-state">${isSelected ? "선택 중" : "선택"}</span>
     </button>
   `;
-}
-
-function getPeriodMetrics(region, period) {
-  const monthIndexes = period.monthIndexes;
-  return {
-    id: period.id,
-    label: period.label,
-    temperature: average(monthIndexes.map((index) => region.monthlyTemperatureC[index])),
-    precipitation: round(sum(monthIndexes.map((index) => region.monthlyPrecipitationMm[index]))),
-    coldDays: round(sum(monthIndexes.map((index) => region.monthlyColdDaysBelowZero[index]))),
-    hotDays: round(sum(monthIndexes.map((index) => region.monthlyHotDaysAboveTwentyFiveMin[index]))),
-  };
 }
 
 function getAnnualTemperatureRange(region) {
