@@ -217,6 +217,13 @@
     }
   }
   function start() {
+    const subnav = document.querySelector(".tw-subnav");
+    if (subnav) {
+      const syncSubnavHeight = () => document.documentElement.style.setProperty("--tw-subnav-h", `${Math.ceil(subnav.getBoundingClientRect().height)}px`);
+      syncSubnavHeight();
+      if ("ResizeObserver" in window) new ResizeObserver(syncSubnavHeight).observe(subnav);
+      else window.addEventListener("resize", syncSubnavHeight);
+    }
     let firstVisit = false;
     try {
       firstVisit = !sessionStorage.getItem("tw-motion-hero-seen");
