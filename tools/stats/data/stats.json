@@ -22,7 +22,7 @@
           "tables": [
             {
               "id": "korea-population-compare",
-              "title": "인구 비교",
+              "title": "시도별 인구",
               "comparison": true,
               "views": [
                 {
@@ -42,12 +42,12 @@
                     },
                     {
                       "label": "성비",
-                      "unit": "여성 100명당 남성",
+                      "unit": "",
                       "year": "2024년 12월"
                     },
                     {
                       "label": "20~39세 성비",
-                      "unit": "여성 100명당 남성",
+                      "unit": "",
                       "year": "2024년 12월"
                     }
                   ],
@@ -239,7 +239,7 @@
                     },
                     {
                       "label": "노령화지수",
-                      "unit": "지수"
+                      "unit": ""
                     }
                   ],
                   "rows": [
@@ -786,7 +786,7 @@
                     },
                     {
                       "label": "노령화지수",
-                      "unit": "지수"
+                      "unit": ""
                     }
                   ],
                   "rows": [
@@ -4209,7 +4209,7 @@
                       "year": "2025년"
                     },
                     {
-                      "label": "경지율*",
+                      "label": "경지율",
                       "unit": "%",
                       "year": "2025년"
                     }
@@ -4348,7 +4348,8 @@
                     }
                   ],
                   "year": "2025년",
-                  "internalNote": "* 2025년 경지면적을 2024년 12월 말 지적 면적으로 나눈 참고값"
+                  "internalNote": "* 2025년 경지면적을 2024년 12월 말 지적 면적으로 나눈 참고값",
+                  "note": "경지 2025년·면적 2024년"
                 }
               ]
             },
@@ -5472,7 +5473,7 @@
                     {
                       "name": "한국전력공사",
                       "year": "2025",
-                      "url": "https://home.kepco.co.kr/kepco/KO/ntcob/ntcobView.do"
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL4801E&conn_path=ZF"
                     }
                   ]
                 },
@@ -6072,7 +6073,8 @@
                       "url": "https://new.kpx.or.kr/boardDownload.es?bid=0085&list_no=75637&seq=1"
                     }
                   ],
-                  "internalNote": "4개 에너지원 합계 대비"
+                  "internalNote": "4개 에너지원 합계 대비",
+                  "note": "4개 에너지원 합계 대비"
                 }
               ]
             },
@@ -7335,7 +7337,7 @@
               "tables": [
                 {
                   "id": "korea-capital-compare",
-                  "title": "수도권 비교",
+                  "title": "주요 지표",
                   "comparison": true,
                   "views": [
                     {
@@ -7385,7 +7387,7 @@
                       "sources": [
                         {
                           "name": "국가데이터처",
-                          "year": "2024",
+                          "year": "2026",
                           "url": "https://kosis.kr/visual/eRegionIndex/index.do"
                         }
                       ],
@@ -7677,7 +7679,7 @@
               "tables": [
                 {
                   "id": "korea-north-compare",
-                  "title": "남북한 비교",
+                  "title": "남북한 경지와 식량",
                   "comparison": true,
                   "views": [
                     {
@@ -8060,7 +8062,8 @@
                     }
                   ],
                   "year": "2020년",
-                  "internalNote": "국가 합산"
+                  "internalNote": "국가 합산",
+                  "note": "수록 국가 합산"
                 },
                 {
                   "id": "아프리카",
@@ -8192,7 +8195,8 @@
                     }
                   ],
                   "year": "2020년",
-                  "internalNote": "국가 합산"
+                  "internalNote": "국가 합산",
+                  "note": "수록 국가 합산"
                 }
               ]
             },
@@ -8328,7 +8332,8 @@
                     }
                   ],
                   "year": "2020년",
-                  "internalNote": "* 국가별 신자 수 합산; 수록 국가 범위"
+                  "internalNote": "* 국가별 신자 수 합산; 수록 국가 범위",
+                  "note": "수록 국가 합산"
                 }
               ]
             },
@@ -9576,7 +9581,8 @@
                     }
                   ],
                   "year": "2025년",
-                  "internalNote": "UN WPP 2024 중위 추계, 5세별 인구 원수 합산"
+                  "internalNote": "UN WPP 2024 중위 추계, 5세별 인구 원수 합산",
+                  "note": "UN 중위 추계"
                 }
               ]
             },
@@ -9829,7 +9835,8 @@
                       "url": "https://population.un.org/wpp/"
                     }
                   ],
-                  "internalNote": "UN WPP 2024 중위 추계, 해당 연도 순이동률"
+                  "internalNote": "UN WPP 2024 중위 추계, 해당 연도 순이동률",
+                  "note": "UN 중위 추계"
                 }
               ]
             },
@@ -10901,7 +10908,8 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "국가 합산"
+                  "internalNote": "국가 합산",
+                  "note": "수록 국가 합산"
                 },
                 {
                   "id": "가축",
@@ -11072,7 +11080,8 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "국가 합산"
+                  "internalNote": "국가 합산",
+                  "note": "수록 국가 합산"
                 }
               ]
             },
@@ -12668,7 +12677,8 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "국가 합산"
+                  "internalNote": "국가 합산",
+                  "note": "수록 국가 합산"
                 },
                 {
                   "id": "발전",
@@ -12904,7 +12914,8 @@
                     }
                   ],
                   "year": "2025년",
-                  "internalNote": "국가 합산; 신재생은 수력 제외"
+                  "internalNote": "국가 합산; 신재생은 수력 제외",
+                  "note": "수록 국가 합산·수력 제외"
                 },
                 {
                   "id": "원자력",
@@ -13050,7 +13061,8 @@
                     }
                   ],
                   "year": "2025년",
-                  "internalNote": "국가 합산"
+                  "internalNote": "국가 합산",
+                  "note": "수록 국가 합산"
                 }
               ]
             },
@@ -13642,7 +13654,7 @@
             },
             {
               "id": "world-renewable-generation-rank",
-              "title": "재생 발전 비율 상위 국가",
+              "title": "재생에너지 발전 비율 상위 국가",
               "views": [
                 {
                   "id": "wind",
@@ -14099,7 +14111,7 @@
                           "unit": "십억 달러"
                         },
                         {
-                          "label": "1인당 GDP*",
+                          "label": "1인당 GDP",
                           "unit": "달러"
                         }
                       ],
@@ -14499,7 +14511,7 @@
                           "unit": "십억 달러"
                         },
                         {
-                          "label": "1인당 GDP*",
+                          "label": "1인당 GDP",
                           "unit": "달러"
                         }
                       ],
@@ -14689,7 +14701,7 @@
                       "sources": [
                         {
                           "name": "World Bank",
-                          "year": "2021",
+                          "year": "2025",
                           "url": "https://api.worldbank.org/v2/country/all/indicator/NV.AGR.TOTL.ZS?format=json&per_page=20000&mrv=5"
                         }
                       ]
@@ -15626,7 +15638,7 @@
                       ],
                       "sources": [
                         {
-                          "name": "국가데이터처",
+                          "name": "U.S. Census Bureau",
                           "year": "2023",
                           "url": "https://data.census.gov/table/AIESBASICTIMESERIES.AIES31BASIC02"
                         }
@@ -15794,7 +15806,7 @@
                       ],
                       "sources": [
                         {
-                          "name": "국가데이터처",
+                          "name": "WTO",
                           "year": "2021",
                           "url": "https://www.wto.org/english/res_e/statis_e/daily_update_e/trade_profiles/ET_e.pdf"
                         }

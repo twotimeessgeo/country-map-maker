@@ -50,7 +50,7 @@ const titles = {
   "w-3-03":"종교별 신자 수 상위 국가","w-3-23":"생산량과 재배 면적","w-3-24":"단위 면적 생산량과 수출 비중",
   "w-3-25":"용도별 소비","w-3-26":"대륙별 생산 비율","w-3-27":"대륙별 수출입","w-3-28":"수출입 상위 국가",
   "w-3-40":"재생에너지 발전 비율 상위 국가",
-  "w-3-34":"세계 1차 에너지 공급","w-3-35":"1차 에너지 공급 상위 국가","w-3-37":"화석연료 생산과 소비","w-3-40":"재생 발전 비율 상위 국가",
+  "w-3-34":"세계 1차 에너지 공급","w-3-35":"1차 에너지 공급 상위 국가","w-3-37":"화석연료 생산과 소비",
   "w-3-08":"연령 구조","w-3-12":"이주자 목적지","w-3-15":"국가별 순이동률","w-3-17":"이주자 출신국",
   "k-7-06":"경기 주요 시군 토지 이용","k-7-07":"경기 주요 시군 경지","w-5-02":"수출 구성",
   "w-6-01":"미국 주별 제조업 출하액","w-7-03":"수출 상품군",
@@ -164,12 +164,14 @@ function unitFor(label,overall) {
 const sourceLinks = {
   "행정안전부":"https://jumin.mois.go.kr/",
   "국토교통부":"https://stat.molit.go.kr/",
-  "한국전력공사":"https://home.kepco.co.kr/kepco/KO/ntcob/ntcobView.do",
+  "한국전력공사":"https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL4801E&conn_path=ZF",
   "UN":"https://population.un.org/wpp/",
 };
-function sourceItems(id,table,year,columns) {
+function sourceItems(id,table,year,columns,rows) {
   const name=sourceName(id,table);
-  const years=[year,...columns.map(column=>column.year)].map(value=>String(value||"").match(/\d{4}/)?.[0]).filter(Boolean);
+  const basisIndex=columns.findIndex(column=>column.label==="기준");
+  const times=[year,...columns.map(column=>column.year),...(basisIndex<0?[]:rows.map(row=>row.values[basisIndex]))];
+  const years=times.flatMap(value=>[...String(value||"").matchAll(/(?:19|20)\d{2}/g)].map(match=>match[0]));
   const latest=years.length?String(Math.max(...years.map(Number))):String(table.year||"").match(/\d{4}/)?.[0]||"2024";
   const item=(label,sourceYear,url)=>({name:label,year:sourceYear,url:url||sourceLinks[label]||table.source?.url||""});
   if(id==="k-6-02") return [item("행정안전부","2024"),item("국토교통부","2024")];
@@ -177,7 +179,8 @@ function sourceItems(id,table,year,columns) {
   if(id==="k-5-09") return [item("국가데이터처","2025"),item("국토교통부","2024")];
   if(id==="k-5-04") return [item("한국전력거래소","2024")];
   if(["w-4-01","w-5-01"].includes(id)) return [item("World Bank",latest),item("UN",latest)];
-  const label=name.includes("Pew")?"Pew Research Center":name.includes("Ember")?"Ember":name.includes("Energy Institute")?"Energy Institute":
+  const label=name.includes("U.S. Census")?"U.S. Census Bureau":name.includes("WTO")?"WTO":
+    name.includes("Pew")?"Pew Research Center":name.includes("Ember")?"Ember":name.includes("Energy Institute")?"Energy Institute":
     name.includes("FAOSTAT")?"FAOSTAT":name.includes("World Bank")?"World Bank":name.includes("UN")?"UN":
     name.includes("국토교통부")?"국토교통부":name.includes("농림축산식품부")?"농림축산식품부":
     name.includes("에너지경제연구원")?"에너지경제연구원":name.includes("한국에너지공단")?"한국에너지공단":
@@ -186,12 +189,17 @@ function sourceItems(id,table,year,columns) {
 }
 function publicNote(note) {
   if(!note) return null;
+  if(note.includes("경지면적을 2024년")) return "경지 2025년·면적 2024년";
+  if(note.includes("수력 제외")) return "수록 국가 합산·수력 제외";
+  if(note.includes("국가 합산")||note.includes("국가별 신자 수")) return "수록 국가 합산";
   if(note.includes("2011년 12월 = 100")) return "2011년 = 100";
   if(note.includes("종사자 10명 이상")) return "종사자 10명 이상 사업체";
   if(note.includes("잠정")) return "잠정";
   if(note.includes("이주자 재고량") || note.includes("이동 유량이 아닌")) return "국제 이주자 재고량";
   if(note.includes("순수출입과 동일하지")) return "수급 차이, 순수출입 아님";
   if(note.includes("UN WPP 인구로 나눈")) return "UN 인구로 계산한 참고값";
+  if(note.includes("중위 추계")) return "UN 중위 추계";
+  if(note.includes("4개 에너지원 합계 대비")) return "4개 에너지원 합계 대비";
   return null;
 }
 function normalizedRows(rows,oldColumns) {
@@ -214,9 +222,10 @@ function normalizedRows(rows,oldColumns) {
 function viewFrom(subject,id,table,label,viewId,variant) {
   const raw=variant||table;
   const oldCols=raw.columns||table.columns;
-  const columns=oldCols.map(c=>({label:/^\d{4}(?:\.|$)/.test(c.label)?formatYear(c.label):c.label,unit:c.unit||unitFor(c.label,raw.unit||table.unit),...(c.year?{year:formatYear(c.year)}:{})}));
+  const columns=oldCols.map(c=>({label:/^\d{4}(?:\.|$)/.test(c.label)?formatYear(c.label):c.label.replace(/\*$/, ""),
+    unit:/성비|노령화지수/.test(c.label)?"":c.unit||unitFor(c.label,raw.unit||table.unit),...(c.year?{year:formatYear(c.year)}:{})}));
   const out={id:viewId,label,rowLabel:raw.rowLabel||table.rowLabel,columns,rows:normalizedRows(raw.rows||table.rows,oldCols),
-    sources:sourceItems(id,table,raw.year||table.year,columns)};
+    sources:sourceItems(id,table,raw.year||table.year,columns,raw.rows||table.rows)};
   const year=formatYear(raw.year||table.year);
   const columnYears=[...new Set(columns.map(c=>c.year).filter(Boolean))];
   if(year && !columnYears.length) out.year=year;
@@ -259,7 +268,7 @@ function combine(subject,topic,entries) {
       delete scale.year;
     }
     const views=[scale,get("k-6-03","연령"),get("k-x-03","출생과 사망"),get("k-6-06","이동")].filter(Boolean);
-    const comparison=compare("korea-population-compare","인구 비교",views);if(comparison)out.push(comparison);
+    const comparison=compare("korea-population-compare","시도별 인구",views);if(comparison)out.push(comparison);
   }
   if(subject==="korea"&&topic==="multicultural") {
     const scale=get("k-6-08","규모"),types=map.get("k-x-04");map.delete("k-x-04");
@@ -308,8 +317,8 @@ function combine(subject,topic,entries) {
   }
   if(subject==="korea"&&topic==="region") {
     if([...map.keys()].some((key)=>/^k-7-0[1-4]$/.test(key)))
-      add("korea-north-compare","남북한 비교",[["k-7-01","경지"],["k-7-02","식량"]]);
-    else add("korea-capital-compare","수도권 비교",[["k-7-05","주요 지표"],["k-7-06","토지 이용"],["k-7-07","경지"]]);
+      add("korea-north-compare","남북한 경지와 식량",[["k-7-01","경지"],["k-7-02","식량"]]);
+    else add("korea-capital-compare","주요 지표",[["k-7-05","주요 지표"],["k-7-06","토지 이용"],["k-7-07","경지"]]);
   }
   out.push(...map.values());
   return out;

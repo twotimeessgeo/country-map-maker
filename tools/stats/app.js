@@ -12,7 +12,7 @@
     for (const id of ["statsToolbar","statsSearch","statsSearchResults","topicList","statsContent","statsToast","statsStickyOverlay"]) el[id] = document.getElementById(id);
     bind();
     try {
-      const response = await fetch("./data/stats.json");
+      const response = await fetch("./data/stats.json?v=6",{cache:"no-store"});
       if (!response.ok) throw new Error("HTTP " + response.status);
       data = await response.json();
       render();
@@ -325,7 +325,7 @@
           '</span><span class="stats-sort-unit">'+escapeHtml(column.unit||"")+'</span></button></th>';
       }).join("");
     const meta='<div class="tw-meta-list stats-table-meta">'+(view.sources||[]).map(source=>
-      '<span><a href="'+escapeHtml(source.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(source.name)+'</a>, '+escapeHtml(source.year)+'</span>').join("")+'</div>';
+      '<span><a href="'+escapeHtml(source.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(source.name)+'</a>, '+escapeHtml(source.year)+'</span>').join(" ")+'</div>';
     const note=view.note?'<p class="stats-note">'+escapeHtml(view.note)+'</p>':"";
     return '<section class="stats-table-section" id="'+escapeHtml(table.id)+'"><div class="stats-table-top"><h2 class="stats-table-title"><a href="#'+
       escapeHtml(table.id)+'">'+escapeHtml(table.title)+'</a></h2><div class="stats-actions">'+actions+'</div></div>'+
