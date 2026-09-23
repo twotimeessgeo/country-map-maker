@@ -29,6 +29,8 @@ const requiredOutputs = [
   "tools/climate/data/korea-climate-data.json",
   "tools/climate/data/exam-climate-statements.js",
   "tools/cut/index.html",
+  "tools/stats/index.html",
+  "tools/stats/data/textbook-stats.json",
   "tools/cut/data/ebsi_geo_data.json",
   "tools/cut/data/question-image-manifest.json",
   "tools/cut/question-images",
@@ -51,10 +53,13 @@ const forbiddenOutputs = [
   "data/world-atlas.js",
   "data/world-atlas-variants.js",
   "data/world-lakes.js",
-  "tools/stats",
   "tools/choices",
 ];
-const unpublishedToolRoots = ["tools/stats", "tools/choices"];
+const unpublishedToolRoots = ["tools/choices"];
+const publicStatsFiles = new Set([
+  "tools/stats", "tools/stats/index.html", "tools/stats/app.js", "tools/stats/styles.css",
+  "tools/stats/data", "tools/stats/data/textbook-stats.json",
+]);
 const publicDataFiles = new Set([
   "data/graph-catalog.js",
   "data/graph-catalog.json",
@@ -107,6 +112,7 @@ function shouldPublish(sourcePath) {
   if (!relativePath) return true;
   if (path.basename(sourcePath) === ".DS_Store") return false;
   if (relativePath.startsWith("data/") && !publicDataFiles.has(relativePath)) return false;
+  if (relativePath.startsWith("tools/stats") && !publicStatsFiles.has(relativePath)) return false;
   if (unpublishedToolRoots.some((root) => relativePath === root || relativePath.startsWith(`${root}/`))) {
     return false;
   }
