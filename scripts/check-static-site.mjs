@@ -87,6 +87,20 @@ if (notesImages[0]?.includes('loading="eager"') !== true || notesImages.slice(1)
 if (!notesListHtml.includes('2027-09-world/index.html') || !notesArticleHtml.includes('id="ending"') || /<figcaption>\d{6}<\/figcaption>/.test(notesArticleHtml)) {
   errors.push("Notes 목록, 맺음 또는 캡션 표기를 확인해 주세요.");
 }
+const notesOgPath = path.join(rootDir, "notes", "2027-09-world", "og.png");
+if (!notesArticleHtml.includes('property="og:title"') || !notesArticleHtml.includes('property="og:description"')) {
+  errors.push("Notes 공유 제목 또는 설명이 없습니다.");
+}
+if (notesArticleHtml.includes('property="og:image"')) {
+  if (!fs.existsSync(notesOgPath)) errors.push("Notes 공유 이미지 파일이 없습니다.");
+  else {
+    const png = fs.readFileSync(notesOgPath);
+    if (png.toString("hex", 0, 8) !== "89504e470d0a1a0a" || png.readUInt32BE(16) !== 1200 || png.readUInt32BE(20) !== 630) {
+      errors.push("Notes 공유 이미지는 1200×630 PNG여야 합니다.");
+    }
+  }
+}
+if ((notesListHtml.match(/<rect /g) || []).length < 20) errors.push("Notes 목록의 20문항 축소 그래프가 없습니다.");
 if (!isSourceCheck && fs.existsSync(path.join(rootDir, "notes", "posts"))) {
   errors.push("Notes 원천 마크다운이 정적 빌드에 포함되었습니다.");
 }
