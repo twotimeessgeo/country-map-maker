@@ -14,6 +14,9 @@
   const FONT = "TWK Lausanne, Pretendard Variable, Pretendard, sans-serif";
   const DASHES = ["", "6 4", "2 3", "10 4 2 4", "1 3", "12 4 4 4"];
   const MARKERS = ["circle", "square-o", "triangle", "diamond-o", "circle-o", "square"];
+  const charts = new Map();
+  let nextChartId = 0;
+  let resizeTimer;
 
   const esc = (value) =>
     String(value ?? "")
@@ -31,6 +34,13 @@
     const body = abs.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     if (rounded < 0) return `−${body}`;
     return signed && rounded > 0 ? `+${body}` : body;
+  }
+
+  function axisNum(value, signed = false) {
+    if (!Number.isFinite(value)) return "–";
+    const body = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: Number.isInteger(value) ? 0 : 1 })
+      .format(value).replace(/^-/, "−");
+    return signed && value > 0 ? `+${body}` : body;
   }
 
   function niceStep(raw) {
@@ -80,23 +90,25 @@
       .join("")}</div>`;
   }
 
-  function frame(width, height, body, label) {
-    return `<svg class="svg-chart kit-chart" viewBox="0 0 ${width} ${height}" role="img" font-size="12" font-family="${FONT}" aria-label="${esc(label)}">${body}</svg>`;
+  function frame(width, height, body, label, id) {
+    return `<svg class="svg-chart kit-chart" data-kit-chart="${id}" data-chart-width="${width}" viewBox="0 0 ${width} ${height}" role="img" font-size="11" font-family="${FONT}" aria-label="${esc(label)}">${body}</svg>`;
   }
 
   function yAxis(s, m, width, plotH, unit, signed) {
     const y = (value) => m.top + plotH - ((value - s.lo) / (s.hi - s.lo)) * plotH;
-    let out = `<text x="${m.left - 10}" y="${m.top - 14}" text-anchor="end" fill="${INK_3}">${esc(unit)}</text>`;
+    let out = `<text class="chart-axis-unit" x="${m.left - 10}" y="${m.top - 14}" text-anchor="end" fill="${INK_3}">${esc(unit)}</text>`;
     s.ticks.forEach((tick) => {
       out += `<line x1="${m.left}" y1="${y(tick)}" x2="${width - m.right}" y2="${y(tick)}" stroke="${tick === 0 ? BASE : GRID}" />`;
-      out += `<text x="${m.left - 10}" y="${y(tick) + 4}" text-anchor="end" fill="${INK_2}">${num(tick, signed)}</text>`;
+      out += `<text class="tw-axis-tick" x="${m.left - 10}" y="${y(tick) + 4}" text-anchor="end" fill="${INK_2}">${axisNum(tick, signed)}</text>`;
     });
     return { out, y };
   }
 
   /* 12-month multi-series line chart */
-  function lineChart({ series, unit, signed, label }) {
-    const width = 600;
+  function lineChart({ series, unit, signed, label }, requestedWidth = 600, chartId = null) {
+    const id = chartId ?? String(++nextChartId);
+    charts.set(id, { type: "line", options: { series, unit, signed, label } });
+    const width = Math.max(240, Math.round(requestedWidth));
     const height = 300;
     const m = { top: 32, right: 16, bottom: 30, left: 52 };
     const plotW = width - m.left - m.right;
@@ -117,13 +129,16 @@
         .join("");
       body += "</g>";
     });
-    return `<div class="kit-line-chart ${series.length >= 7 ? "is-many-series" : ""}">${frame(width, height, body, label)}${legend(series.map((item) => item.name))}</div>`;
+    return `<div class="kit-line-chart ${series.length >= 7 ? "is-many-series" : ""}">${frame(width, height, body, label, id)}${legend(series.map((item) => item.name))}</div>`;
   }
 
   /* One value per region: dots (temperature) or bars (precipitation) */
-  function categoryChart({ categories, values, kind, unit, signed, label }) {
-    if (categories.length >= 7) return horizontalCategoryChart({ categories, values, kind, unit, signed, label });
-    const width = 340;
+  function categoryChart({ categories, values, kind, unit, signed, label }, requestedWidth = 600, chartId = null) {
+    const id = chartId ?? String(++nextChartId);
+    const options = { categories, values, kind, unit, signed, label };
+    charts.set(id, { type: "category", options });
+    const width = Math.max(240, Math.round(requestedWidth));
+    if (width < 480 || categories.length >= 5) return `<div class="kit-category-chart">${horizontalCategoryChart(options, width, id)}</div>`;
     const height = 230;
     const m = { top: 30, right: 6, bottom: 30, left: 40 };
     const plotW = width - m.left - m.right;
@@ -151,20 +166,19 @@
         body += `<g ${tip}><circle class="tw-chart-dot tw-value-shape" cx="${cx}" cy="${axis.y(value)}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" /></g>`;
       }
     });
-    return frame(width, height, body, label);
+    return `<div class="kit-category-chart">${frame(width, height, body, label, id)}</div>`;
   }
 
-  function horizontalCategoryChart({ categories, values, kind, unit, signed, label }) {
-    const width = 600;
+  function horizontalCategoryChart({ categories, values, kind, unit, signed, label }, width, id) {
     const height = Math.max(250, categories.length * 32 + 48);
-    const m = { top: 30, right: 34, bottom: 30, left: Math.min(260, Math.max(130, Math.max(...categories.map((name) => name.length)) * 12 + 18)) };
+    const m = { top: 30, right: 34, bottom: 30, left: Math.min(width * 0.48, Math.max(90, Math.max(...categories.map((name) => name.length)) * 12 + 18)) };
     const plotW = width - m.left - m.right;
     const s = scale(values, { includeZero: kind !== "dot" || signed });
     const x = (value) => m.left + (value - s.lo) / (s.hi - s.lo) * plotW;
-    let body = `<text x="${width - m.right}" y="16" text-anchor="end" fill="${INK_3}">${esc(unit)}</text>`;
+    let body = `<text class="chart-axis-unit" x="${width - m.right}" y="16" text-anchor="end" fill="${INK_3}">${esc(unit)}</text>`;
     for (const tick of s.ticks) {
       body += `<line x1="${x(tick)}" y1="${m.top}" x2="${x(tick)}" y2="${height - m.bottom}" stroke="${tick === 0 ? BASE : GRID}" />`;
-      body += `<text x="${x(tick)}" y="${height - 8}" text-anchor="middle" fill="${INK_2}">${num(tick, signed)}</text>`;
+      body += `<text class="tw-axis-tick" x="${x(tick)}" y="${height - 8}" text-anchor="middle" fill="${INK_2}">${axisNum(tick, signed)}</text>`;
     }
     categories.forEach((name, i) => {
       const cy = m.top + 16 + i * 32;
@@ -180,7 +194,7 @@
         body += `<g ${tip}><circle class="tw-chart-dot tw-value-shape" cx="${x(value)}" cy="${cy}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" /></g>`;
       }
     });
-    return `<div class="kit-horizontal-scroll">${frame(width, height, body, label)}</div>`;
+    return frame(width, height, body, label, id);
   }
 
   function table(headers, rows) {
@@ -204,7 +218,6 @@
    * input = {
    *   mode: "value" | "deviation", baselineId: "mean" | regionId,
    *   regions: [{ id, name, temps[12], precs[12] }],
-   *   periods: [{ label, pick: (region) => ({ temperature, precipitation }) }],
    *   extras: [{ title, unit, kind, value: (region) => number }],   // value-only charts (e.g. 연교차)
    *   csv: (key, headers, rows, filename) => csvKey
    * }
@@ -214,11 +227,8 @@
     const deviation = mode === "deviation";
     const baseline = regions.find((region) => region.id === input.baselineId) ?? null;
     const shown = deviation && baseline ? regions.filter((region) => region.id !== baseline.id) : regions;
-    const reference = (pick) => (baseline ? pick(baseline) : mean(regions.map(pick)));
-    const adjust = (pick) => (region) => (deviation ? round1(pick(region) - reference(pick)) : pick(region));
     const cumulative = (region) => region.precs.reduce((acc, value, i) => (acc.push((acc[i - 1] ?? 0) + value), acc), []);
     const suffix = deviation ? " 편차" : "";
-    const names = shown.map((region) => region.name);
 
     const controls = `
       <div class="comparison-controls">
@@ -235,27 +245,6 @@
             : ""
         }
       </div>`;
-
-    const periodCards = input.periods
-      .map((period) => {
-        const t = adjust((region) => period.pick(region).temperature);
-        const p = adjust((region) => period.pick(region).precipitation);
-        const tv = shown.map(t);
-        const pv = shown.map(p);
-        const headers = ["지역", `월평균 기온${suffix}(°C)`, `월강수량${suffix}(mm)`];
-        const rows = shown.map((region, i) => [region.name, num(tv[i], deviation), num(pv[i], deviation)]);
-        const key = csv?.(`cmp-${period.label}-${mode}`, headers, shown.map((region, i) => [region.name, tv[i], pv[i]]), `${period.label}-${deviation ? "편차" : "값"}`);
-        return `
-          <article class="month-panel kit-period">
-            <h3>${esc(period.label)}</h3>
-            <div class="kit-pair">
-              <div><h4>기온${suffix}</h4>${categoryChart({ categories: names, values: tv, kind: "dot", unit: "°C", signed: deviation, label: `${period.label} 기온${suffix}` })}</div>
-              <div><h4>월강수량${suffix}</h4>${categoryChart({ categories: names, values: pv, kind: "bar", unit: "mm", signed: deviation, label: `${period.label} 월강수량${suffix}` })}</div>
-            </div>
-            ${dataBlock(key, headers, rows)}
-          </article>`;
-      })
-      .join("");
 
     const monthHeaders = ["지역", ...Array.from({ length: 12 }, (_, i) => `${i + 1}월`)];
     const trend = (title, unit, pick) => {
@@ -288,13 +277,56 @@
 
     return `
       ${controls}
-      <div class="comparison-grid kit-periods">${periodCards}</div>
       <div class="charts-grid kit-trends">
         ${trend("월평균 기온", "°C", (region) => region.temps)}
         ${trend("누적 강수량", "mm", cumulative)}
         ${extras}
       </div>`;
   }
+
+  function resizeCharts() {
+    const live = new Set();
+    for (const svg of document.querySelectorAll("#comparisonContent svg[data-kit-chart]")) {
+      const id = svg.dataset.kitChart;
+      live.add(id);
+      const data = charts.get(id);
+      if (!data) continue;
+      const host = svg.closest(data.type === "line" ? ".kit-line-chart" : ".kit-category-chart");
+      const width = Math.round(host?.clientWidth || 0);
+      if (!width || width === Number(svg.dataset.chartWidth)) continue;
+      const template = document.createElement("template");
+      template.innerHTML = (data.type === "line"
+        ? lineChart(data.options, width, id)
+        : categoryChart(data.options, width, id)).trim();
+      if (data.type === "category") {
+        host.innerHTML = template.content.querySelector(".kit-category-chart").innerHTML;
+      } else {
+        const next = template.content.querySelector("svg");
+        svg.setAttribute("viewBox", next.getAttribute("viewBox"));
+        svg.innerHTML = next.innerHTML;
+        svg.dataset.chartWidth = String(width);
+        svg.classList.remove("tw-chart-enter");
+      }
+    }
+    for (const id of charts.keys()) if (!live.has(id)) charts.delete(id);
+  }
+
+  function scheduleResize(delay = 0) {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeCharts, delay);
+  }
+
+  function startResizeTracking() {
+    const root = document.getElementById("comparisonContent");
+    if (!root) return;
+    new MutationObserver(() => scheduleResize()).observe(root, { childList: true, subtree: true });
+    if ("ResizeObserver" in window) new ResizeObserver(() => scheduleResize(150)).observe(root);
+    else window.addEventListener("resize", () => scheduleResize(150));
+    scheduleResize();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startResizeTracking, { once: true });
+  else startResizeTracking();
 
   function applyLineHighlight(chart, index) {
     if (!chart) return;

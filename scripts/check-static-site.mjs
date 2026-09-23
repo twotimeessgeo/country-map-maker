@@ -14,6 +14,8 @@ const publicHtmlFiles = [
   path.join(rootDir, "tools", "climate", "korea.html"),
   path.join(rootDir, "tools", "cut", "index.html"),
   path.join(rootDir, "tools", "stats", "index.html"),
+  path.join(rootDir, "notes", "index.html"),
+  path.join(rootDir, "notes", "2027-09-world", "index.html"),
 ];
 const htmlFiles = isSourceCheck
   ? [
@@ -62,6 +64,69 @@ for (const htmlPath of htmlFiles) {
       );
     }
   }
+}
+
+const notesListHtml = fs.readFileSync(path.join(rootDir, "notes", "index.html"), "utf8");
+const notesArticleHtml = fs.readFileSync(path.join(rootDir, "notes", "2027-09-world", "index.html"), "utf8");
+const questionHeadings = [...notesArticleHtml.matchAll(/<section class="notes-section tw-reveal" id="q(\d+)"><h2 class="notes-question-number" aria-label="(\d+)번">(\d{2})<\/h2>/g)];
+if (questionHeadings.length !== 20 || questionHeadings.some((match, index) => Number(match[1]) !== index + 1 || Number(match[2]) !== index + 1 || match[3] !== String(index + 1).padStart(2, "0"))) {
+  errors.push("Notes 첫 글의 1~20번 문항 머리말이 누락되었거나 순서가 틀렸습니다.");
+}
+const notesToc = notesArticleHtml.match(/<aside class="notes-desktop-toc"><nav[^>]*>[\s\S]*?<\/nav><\/aside>/)?.[0] || "";
+const tocQuestions = [...notesToc.matchAll(/href="#q(\d+)"/g)].map((match) => Number(match[1]));
+if (tocQuestions.length !== 20 || tocQuestions.some((number, index) => number !== index + 1) || /href="#(?:intro|ending)"/.test(notesToc)) {
+  errors.push("Notes 목차는 1~20번 문항만 포함해야 합니다.");
+}
+if (!notesArticleHtml.includes('class="notes-overview-label">문항별 오답률</span>')
+  || !notesArticleHtml.includes('data-tooltip="9번 오답률 하위 5문항"')
+  || !/data-tooltip="16번 오답률 [\d.]+% 3점"/.test(notesArticleHtml)) {
+  errors.push("Notes 대표 그림의 라벨 또는 오답률 툴팁이 틀렸습니다.");
+}
+const removedNotesElements = [
+  [notesArticleHtml, /class="notes-summary"|class="notes-author"|class="notes-overview-stats"|property="og:description"|<h2>서두<\/h2>|<h2>맺음<\/h2>|35분|topic/, "기사"],
+  [notesListHtml, /class="notes-list-summary"|35분|topic/, "목록"],
+];
+for (const [html, pattern, page] of removedNotesElements) {
+  if (pattern.test(html)) errors.push(`Notes ${page}에 삭제한 요약·읽는 시간·큰 숫자·topic 요소가 남았습니다.`);
+}
+if (!notesListHtml.includes('class="notes-list-subject">세계지리</span>')) {
+  errors.push("Notes 목록에 과목 표시가 없습니다.");
+}
+if (isSourceCheck && /"topic"\s*:/.test(fs.readFileSync(path.join(rootDir, "notes", "posts", "2027-09-world.md"), "utf8"))) {
+  errors.push("Notes front matter에 topic 항목이 남았습니다.");
+}
+const notesImages = [...notesArticleHtml.matchAll(/<img src="images\/[^"\s]+\.webp"[^>]*>/g)].map((match) => match[0]);
+if (notesImages.length !== 61 || notesImages.some((image) => !/\bwidth="\d+" height="\d+"/.test(image))) {
+  errors.push(`Notes 첫 글의 그림 수 또는 크기 속성이 틀렸습니다: ${notesImages.length} / 61`);
+}
+const currentFigureCount = (notesArticleHtml.match(/class="notes-figure-pill is-current">이번 문항<\/span>/g) || []).length;
+if (currentFigureCount !== 20) errors.push(`Notes 이번 문항 그림 수 불일치: ${currentFigureCount} / 20`);
+const figureIds = new Set([...notesArticleHtml.matchAll(/<figure class="notes-figure" id="(fig-\d+)"/g)].map((match) => match[1]));
+for (const match of notesArticleHtml.matchAll(/class="notes-lineage-chip[^"]*"[^>]*href="#(fig-\d+)"/g)) {
+  if (!figureIds.has(match[1])) errors.push(`Notes 기출 계보 대상 그림이 없습니다: ${match[1]}`);
+}
+if (notesImages[0]?.includes('loading="eager"') !== true || notesImages.slice(1).some((image) => !image.includes('loading="lazy"'))) {
+  errors.push("Notes 첫 그림 eager 및 나머지 lazy 설정이 틀렸습니다.");
+}
+if (!notesListHtml.includes('2027-09-world/index.html') || !notesArticleHtml.includes('id="ending"') || /<figcaption>\d{6}<\/figcaption>/.test(notesArticleHtml)) {
+  errors.push("Notes 목록, 맺음 또는 캡션 표기를 확인해 주세요.");
+}
+const notesOgPath = path.join(rootDir, "notes", "2027-09-world", "og.png");
+if (!notesArticleHtml.includes('property="og:title"') || !notesArticleHtml.includes('property="og:image"')) {
+  errors.push("Notes 공유 제목 또는 이미지가 없습니다.");
+}
+if (notesArticleHtml.includes('property="og:image"')) {
+  if (!fs.existsSync(notesOgPath)) errors.push("Notes 공유 이미지 파일이 없습니다.");
+  else {
+    const png = fs.readFileSync(notesOgPath);
+    if (png.toString("hex", 0, 8) !== "89504e470d0a1a0a" || png.readUInt32BE(16) !== 1200 || png.readUInt32BE(20) !== 630) {
+      errors.push("Notes 공유 이미지는 1200×630 PNG여야 합니다.");
+    }
+  }
+}
+if ((notesListHtml.match(/<rect /g) || []).length < 20) errors.push("Notes 목록의 20문항 축소 그래프가 없습니다.");
+if (!isSourceCheck && fs.existsSync(path.join(rootDir, "notes", "posts"))) {
+  errors.push("Notes 원천 마크다운이 정적 빌드에 포함되었습니다.");
 }
 
 const publicSurfaceText = [

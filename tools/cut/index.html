@@ -7,11 +7,11 @@
     <meta name="theme-color" content="#ffffff" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="../../ds/fonts.css?v=32" />
-    <link rel="stylesheet" href="../../ds/tokens.css?v=39" />
-    <link rel="stylesheet" href="../../ds/base.css?v=38" />
-    <link rel="stylesheet" href="../../ds/components.css?v=43" />
-    <link rel="stylesheet" href="../../ds/patterns.css?v=32" />
-    <link rel="stylesheet" href="./cut.css?v=43" />
+    <link rel="stylesheet" href="../../ds/tokens.css?v=47" />
+    <link rel="stylesheet" href="../../ds/base.css?v=51" />
+    <link rel="stylesheet" href="../../ds/components.css?v=51" />
+    <link rel="stylesheet" href="../../ds/patterns.css?v=49" />
+    <link rel="stylesheet" href="./cut.css?v=55" />
   </head>
   <body>
     <header class="tw-nav is-static">
@@ -19,14 +19,18 @@
         <a class="tw-brand" href="../../index.html" aria-label="Promenade Geography home"><span lang="en">Promenade</span></a>
         <div class="tw-nav-links">
           <a class="tw-nav-link" lang="en" href="../climate/index.html">Climate Atlas</a>
+          <a class="tw-nav-link" lang="en" href="../stats/index.html">Statistics</a>
           <a class="tw-nav-link" lang="en" href="./index.html" aria-current="page">Archive</a>
+          <a class="tw-nav-link" lang="en" href="../../notes/index.html">Notes</a>
         </div>
         <span class="tw-nav-spacer"></span>
         <details class="tw-nav-menu">
           <summary aria-label="메뉴"><span class="tw-nav-menu-icon" aria-hidden="true"></span></summary>
           <div class="tw-nav-menu-panel">
             <a lang="en" href="../climate/index.html">Climate Atlas</a>
+            <a lang="en" href="../stats/index.html">Statistics</a>
             <a lang="en" href="./index.html" aria-current="page">Archive</a>
+            <a lang="en" href="../../notes/index.html">Notes</a>
           </div>
         </details>
       </nav>
@@ -40,41 +44,41 @@
           <button type="button" data-scope="evaluation" aria-pressed="true">평가원</button>
           <button type="button" data-scope="all" aria-pressed="false">전체</button>
         </nav>
-        <span class="cut-record-count" id="recordCount" lang="en" aria-live="polite"></span>
       </div>
     </header>
 
     <div class="tw-subnav cut-toolbar">
       <div class="tw-subnav-inner cut-toolbar-inner">
-        <div class="cut-filter-group"><span class="cut-filter-label">학년도</span><div id="yearChips" class="cut-chip-row" role="group" aria-label="학년도"></div></div>
-        <div class="cut-filter-group"><span class="cut-filter-label">시험</span><div id="examChips" class="cut-chip-row" role="group" aria-label="시험"></div></div>
+        <button id="cutPrevExam" class="tw-button is-ghost is-sm cut-exam-arrow" type="button" aria-label="이전 시험">‹</button>
+        <div class="cut-exam-menu">
+          <button id="cutCurrentExam" class="tw-button cut-current-exam" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cutExamPopover">시험 선택</button>
+          <div id="cutExamPopover" class="cut-exam-popover" role="dialog" aria-label="시험 목록" hidden></div>
+        </div>
+        <button id="cutNextExam" class="tw-button is-ghost is-sm cut-exam-arrow" type="button" aria-label="다음 시험">›</button>
+        <div id="yearChips" class="cut-chip-row" hidden></div>
+        <div id="examChips" class="cut-chip-row" hidden></div>
       </div>
     </div>
 
     <main class="tw-page cut-page">
-      <form id="cutLookupForm" class="tw-sr-only" aria-label="시험 선택">
+      <form id="cutLookupForm" hidden>
         <label>과목<select id="subjectSelect" name="subject"><option value="한국지리">한국지리</option><option value="세계지리">세계지리</option></select></label>
         <label>학년도<select id="yearSelect" name="year"></select></label>
         <label>시험<select id="examSelect" name="exam"></select></label>
+        <label>시험 목록<select id="cutExamPicker" name="examPicker"></select></label>
       </form>
       <p class="cut-status" id="lookupStatus" role="status">불러오는 중…</p>
 
-      <section class="tw-section cut-trend-panel" aria-labelledby="trendTitle">
-        <div class="tw-section-head"><h2 id="trendTitle">1등급 추이</h2></div>
-        <div id="cutTrendChart" class="tw-card cut-trend-card"></div>
-      </section>
-
       <section class="tw-section cut-result-panel" aria-labelledby="resultTitle">
-        <div class="tw-section-head cut-result-heading">
-          <div><p class="cut-result-subject" id="resultSubject">-</p><h2 id="resultTitle">등급컷</h2></div>
-        </div>
+        <p id="resultSubject" hidden></p><h2 id="resultTitle" class="tw-sr-only">등급컷</h2>
         <div class="tw-card cut-result-card">
-          <div class="tw-table-wrap cut-grade-wrap">
+          <div class="tw-table-wrap cut-grade-wrap" id="cutGradeWrap">
             <table class="tw-table cut-grade-table">
               <thead><tr><th scope="col">등급</th><th scope="col">원점수</th><th scope="col">표준점수</th><th scope="col">백분위</th></tr></thead>
               <tbody class="cut-grade-grid" id="gradeCutGrid" aria-live="polite"></tbody>
             </table>
           </div>
+          <p id="cutGradeUnpublished" class="cut-grade-unpublished" hidden>등급컷 미발표</p>
           <dl class="tw-meta-list cut-exam-meta" id="examMeta">
             <div><dt>평균</dt><dd id="meanValue">-</dd></div>
             <div><dt>표준편차</dt><dd id="sdValue">-</dd></div>
@@ -83,19 +87,58 @@
       </section>
 
       <section class="tw-section cut-question-panel" aria-labelledby="questionAnalysisTitle">
-        <div class="tw-section-head cut-question-heading"><h2 id="questionAnalysisTitle">문항 분석</h2><span id="questionAnalysisCount" class="tw-meta-list" aria-live="polite" hidden></span></div>
-        <div class="cut-question-grid" id="questionAnalysisGrid"></div>
+        <div class="tw-section-head cut-question-heading">
+          <h2 id="questionAnalysisTitle">문항 분석</h2>
+          <div class="cut-question-controls">
+            <a id="notesAnalysisLink" href="../../notes/2027-09-world/index.html" hidden>분석</a>
+            <div class="tw-segmented cut-question-sort" id="questionSort" role="group" aria-label="문항 정렬">
+              <button type="button" data-question-sort="number" aria-pressed="false">번호순</button>
+              <button type="button" data-question-sort="wrong" aria-pressed="true">오답률순 ↓</button>
+            </div>
+            <div class="tw-segmented cut-question-view" id="questionView" role="group" aria-label="문항 보기">
+              <button type="button" data-question-view="table" aria-pressed="true">표</button>
+              <button type="button" data-question-view="photo" aria-pressed="false">사진</button>
+            </div>
+          </div>
+          <span id="questionAnalysisCount" class="tw-meta-list" aria-live="polite" hidden></span>
+        </div>
+        <div class="tw-table-wrap cut-question-table-wrap" id="questionTableWrap">
+          <table class="tw-table cut-question-table">
+            <thead><tr><th scope="col">번호</th><th scope="col">배점</th><th scope="col">오답률</th><th scope="col" aria-label="1번 선택률">1</th><th scope="col" aria-label="2번 선택률">2</th><th scope="col" aria-label="3번 선택률">3</th><th scope="col" aria-label="4번 선택률">4</th><th scope="col" aria-label="5번 선택률">5</th></tr></thead>
+            <tbody id="questionAnalysisGrid" class="cut-question-grid"></tbody>
+          </table>
+        </div>
+        <div id="questionPhotoGrid" class="cut-photo-grid" hidden></div>
         <div id="questionUnpublished" class="cut-unpublished-items" hidden></div>
       </section>
 
+      <section class="tw-section cut-trend-panel" aria-labelledby="trendTitle">
+        <details id="trendDisclosure" class="tw-disclosure cut-disclosure" open>
+          <summary><h2 id="trendTitle">1등급 추이</h2></summary>
+          <div class="cut-disclosure-body">
+            <div id="trendRange" class="tw-segmented cut-trend-range" role="group" aria-label="추이 범위">
+              <button type="button" data-trend-range="recent" aria-pressed="true">최근 10회</button>
+              <button type="button" data-trend-range="all" aria-pressed="false">전체</button>
+            </div>
+            <div id="cutTrendChart" class="tw-card cut-trend-card"></div>
+          </div>
+        </details>
+      </section>
+
       <section class="tw-section cut-history-panel" aria-labelledby="historyTitle">
-        <div class="tw-section-head cut-history-heading"><h2 id="historyTitle">전체</h2><span id="historyCount" aria-live="polite">0회</span></div>
-        <div class="tw-table-wrap cut-table-wrap">
-          <table class="tw-table cut-history-table">
-            <thead><tr><th scope="col">시험</th><th scope="col">오답률</th></tr></thead>
-            <tbody id="historyTableBody"></tbody>
-          </table>
-        </div>
+        <details id="historyDisclosure" class="tw-disclosure cut-disclosure" open>
+          <summary><h2 id="historyTitle">오답률 분포</h2><span id="historyCount" hidden></span></summary>
+          <div class="cut-disclosure-body">
+            <div class="cut-history-legend"><span>진할수록 오답률 높음</span><span class="cut-history-hatch">하위 5문항</span></div>
+            <div class="tw-table-wrap cut-table-wrap">
+              <table class="tw-table cut-history-table">
+                <thead><tr><th scope="col">시험</th><th scope="col">1</th><th scope="col">2</th><th scope="col">3</th><th scope="col">4</th><th scope="col">5</th><th scope="col">6</th><th scope="col">7</th><th scope="col">8</th><th scope="col">9</th><th scope="col">10</th><th scope="col">11</th><th scope="col">12</th><th scope="col">13</th><th scope="col">14</th><th scope="col">15</th><th scope="col">16</th><th scope="col">17</th><th scope="col">18</th><th scope="col">19</th><th scope="col">20</th></tr></thead>
+                <tbody id="historyTableBody"></tbody>
+              </table>
+            </div>
+            <button id="historyMore" class="tw-button is-ghost is-sm cut-history-more" type="button" hidden>더 보기</button>
+          </div>
+        </details>
       </section>
     </main>
 
@@ -103,12 +146,13 @@
 
     <dialog id="cutLightbox" class="cut-lightbox" aria-label="문항 이미지">
       <div class="cut-lightbox-shell">
-        <div class="cut-lightbox-head"><strong id="cutLightboxTitle"></strong><button id="cutLightboxClose" class="tw-button is-ghost is-sm" type="button" aria-label="닫기">닫기</button></div>
+        <div class="cut-lightbox-head"><strong id="cutLightboxTitle"></strong><span id="cutLightboxPosition" class="cut-lightbox-position"></span><button id="cutLightboxClose" class="tw-button is-ghost is-sm" type="button" aria-label="닫기">닫기</button></div>
         <div class="cut-lightbox-body"><div class="cut-lightbox-image-wrap"><img id="cutLightboxImage" alt="" /><span id="cutLightboxEmpty" hidden>문항 이미지가 없습니다</span></div><div class="cut-lightbox-side"><span id="cutLightboxRate"></span><span id="cutLightboxPoints"></span></div></div>
         <div class="cut-lightbox-actions"><button id="cutLightboxPrev" class="tw-button" type="button" aria-label="이전 문항">←</button><button id="cutLightboxNext" class="tw-button" type="button" aria-label="다음 문항">→</button></div>
       </div>
     </dialog>
-    <script src="../../ds/motion.js?v=41"></script>
-    <script src="./cut.js?v=43"></script>
+    <script src="../../ds/motion.js?v=51"></script>
+    <script src="../../ds/tooltip.js?v=43"></script>
+    <script src="./cut.js?v=55"></script>
   </body>
 </html>

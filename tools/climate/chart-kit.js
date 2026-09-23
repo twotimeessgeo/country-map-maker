@@ -12,6 +12,9 @@
   const GRID = "rgba(0, 0, 0, 0.08)";
   const BASE = "rgba(0, 0, 0, 0.28)";
   const PRECIP_STEPS = [10, 20, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500, 600, 800, 1000];
+  const charts = new Map();
+  let nextChartId = 0;
+  let resizeTimer;
 
   function finite(values) {
     return values.filter((value) => Number.isFinite(value));
@@ -60,15 +63,22 @@
     return text.replace(/^-/, "−");
   }
 
+  function axisNum(value) {
+    return new Intl.NumberFormat("ko-KR", { maximumFractionDigits: Number.isInteger(value) ? 0 : 1 })
+      .format(value).replace(/^-/, "−");
+  }
+
   function barPath(x, y, w, h, r) {
     if (h <= 0) return "";
     const radius = Math.min(r, h, w / 2);
     return `M${x},${y + h}V${y + radius}Q${x},${y} ${x + radius},${y}H${x + w - radius}Q${x + w},${y} ${x + w},${y + radius}V${y + h}Z`;
   }
 
-  function render(region, scale) {
+  function render(region, scale, requestedWidth = 600, chartId = null) {
+    const id = chartId ?? String(++nextChartId);
+    charts.set(id, { region, scale });
     const s = scale ?? buildScale([region]);
-    const width = 600;
+    const width = Math.max(280, Math.round(requestedWidth));
     const height = 318;
     const m = { top: 44, right: 46, bottom: 30, left: 42 };
     const plotW = width - m.left - m.right;
@@ -89,8 +99,8 @@
       const t = s.temperatureMin + s.temperatureStep * i;
       const p = s.precipitationStep * i;
       grid += `<line x1="${m.left}" y1="${y}" x2="${width - m.right}" y2="${y}" stroke="${i === 0 ? BASE : GRID}" />`;
-      grid += `<text x="${m.left - 10}" y="${y + 4}" text-anchor="end" fill="${INK_2}">${num(t)}</text>`;
-      grid += `<text x="${width - m.right + 10}" y="${y + 4}" text-anchor="start" fill="${INK_3}">${num(p)}</text>`;
+      grid += `<text x="${m.left - 10}" y="${y + 4}" text-anchor="end" fill="${INK_2}">${axisNum(t)}</text>`;
+      grid += `<text x="${width - m.right + 10}" y="${y + 4}" text-anchor="start" fill="${INK_3}">${axisNum(p)}</text>`;
     }
     if (s.temperatureMin < 0 && s.temperatureMax > 0) {
       const y0 = yT(0);
@@ -105,7 +115,7 @@
       const t = temps[i];
       const p = precs[i];
       const month = months[i] ?? `${i + 1}월`;
-      const tip = `${month}  월평균 기온 ${Number.isFinite(t) ? num(t) + "°C" : "–"}  월강수량 ${Number.isFinite(p) ? num(p) + " mm" : "–"}`;
+      const tip = `${month}  월평균 기온 ${Number.isFinite(t) ? num(t) + "°C" : "–"}  월 강수량 ${Number.isFinite(p) ? num(p) + " mm" : "–"}`;
       if (Number.isFinite(p)) {
         const y = yP(p);
         bars += `<path class="tw-chart-bar" d="${barPath(cx(i) - barW / 2, y, barW, m.top + plotH - y, 3)}" fill="${BAR}" />`;
@@ -136,18 +146,55 @@
       </g>`;
 
     return `
-      <svg class="svg-chart climograph" viewBox="0 0 ${width} ${height}" role="img" font-size="11"
+      <svg class="svg-chart climograph" data-climate-chart="${id}" data-chart-width="${width}" viewBox="0 0 ${width} ${height}" role="img" font-size="11"
         font-family="TWK Lausanne, Pretendard Variable, Pretendard, sans-serif"
-        aria-label="${esc(region.name)} 월평균 기온과 월강수량">
+        aria-label="${esc(region.name)} 월평균 기온과 월 강수량">
         ${grid}
-        <text x="${m.left - 10}" y="18" text-anchor="end" fill="${INK_2}">°C</text>
-        <text x="${width - m.right + 10}" y="18" text-anchor="start" fill="${INK_3}">mm</text>
+        <text class="chart-axis-unit" x="${m.left - 10}" y="18" text-anchor="end" fill="${INK_2}">°C</text>
+        <text class="chart-axis-unit" x="${width - m.right + 10}" y="18" text-anchor="start" fill="${INK_3}">mm</text>
         ${legend}
         <g pointer-events="none">${bars}${line}${dots}</g>
         ${hits}
         ${labels}
       </svg>`;
   }
+
+  function resizeCharts() {
+    const live = new Set();
+    for (const svg of document.querySelectorAll("svg[data-climate-chart]")) {
+      const id = svg.dataset.climateChart;
+      live.add(id);
+      const width = Math.round(svg.getBoundingClientRect().width);
+      if (!width || width === Number(svg.dataset.chartWidth)) continue;
+      const data = charts.get(id);
+      if (!data) continue;
+      const template = document.createElement("template");
+      template.innerHTML = render(data.region, data.scale, width, id).trim();
+      const next = template.content.querySelector("svg");
+      svg.setAttribute("viewBox", next.getAttribute("viewBox"));
+      svg.innerHTML = next.innerHTML;
+      svg.dataset.chartWidth = String(width);
+      svg.classList.remove("tw-chart-enter");
+    }
+    for (const id of charts.keys()) if (!live.has(id)) charts.delete(id);
+  }
+
+  function scheduleResize(delay = 0) {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeCharts, delay);
+  }
+
+  function startResizeTracking() {
+    const root = document.getElementById("selectedRegionsContent");
+    if (!root) return;
+    new MutationObserver(() => scheduleResize()).observe(root, { childList: true, subtree: true });
+    if ("ResizeObserver" in window) new ResizeObserver(() => scheduleResize(150)).observe(root);
+    else window.addEventListener("resize", () => scheduleResize(150));
+    scheduleResize();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startResizeTracking, { once: true });
+  else startResizeTracking();
 
   window.ClimateChartKit = { buildScale, render };
 })();

@@ -43,15 +43,18 @@
 
 /* ───────── Local toolbar (sticky subnav) ───────── */
 
+:root { --tw-subnav-h: 60px; }
+
 .tw-subnav {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--tw-scrim);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
-  backdrop-filter: saturate(180%) blur(20px);
+  background: var(--tw-bg);
   box-shadow: 0 1px 0 var(--tw-hairline);
 }
+
+.tw-nav.is-static ~ .tw-subnav { top: 0; }
+html:has(.tw-nav.is-static) { scroll-padding-top: calc(var(--tw-subnav-h) + 16px); }
 
 .tw-subnav-inner {
   display: flex;
@@ -148,10 +151,10 @@
 
 .tw-sidebar {
   position: sticky;
-  top: 76px;
+  top: calc(var(--tw-subnav-h) + 16px);
   display: grid;
   gap: var(--tw-space-5);
-  max-height: calc(100vh - 92px);
+  max-height: calc(100vh - var(--tw-subnav-h) - 32px);
   overflow: auto;
   overscroll-behavior: contain;
   padding-right: 4px;
@@ -201,13 +204,13 @@
   overflow: hidden;
   border-radius: var(--tw-radius-lg);
   background: var(--tw-surface);
-  transition: background-color var(--tw-base) var(--tw-ease);
+  transition: background-color var(--tw-dur-2) var(--tw-ease-out);
 }
 
 .tw-index-media svg {
   width: 64%;
   height: auto;
-  transition: transform 480ms var(--tw-ease);
+  transition: transform var(--tw-dur-3) var(--tw-ease-out);
 }
 
 .tw-index-card:hover .tw-index-media {
