@@ -352,6 +352,10 @@
   background: #333333;
 }
 
+.selected-tray-chip { touch-action: none; user-select: none; }
+.selected-tray-chip.is-dragging { opacity: 0.4; }
+.selected-tray-chip.is-drop-target { box-shadow: var(--tw-focus); }
+
 .selected-tray-x {
   position: relative;
   width: 18px;
@@ -596,24 +600,6 @@
   border-radius: 999px;
 }
 
-.map-marker::after {
-  content: attr(data-label);
-  position: absolute;
-  left: calc(50% + var(--label-shift-x, 0px));
-  bottom: calc(100% + 10px);
-  padding: 6px 10px;
-  border-radius: var(--tw-radius-pill);
-  background: var(--tw-ink);
-  color: var(--tw-inverse);
-  font-size: 0.72rem;
-  font-weight: var(--tw-weight-medium);
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, 4px);
-  transition: opacity var(--tw-fast) var(--tw-ease), transform var(--tw-fast) var(--tw-ease);
-}
-
 .map-marker:hover,
 .map-marker:focus-visible,
 .map-marker.is-selected {
@@ -627,10 +613,13 @@
   height: 13px;
 }
 
-.map-marker:hover::after,
-.map-marker:focus-visible::after {
-  opacity: 1;
-  transform: translate(-50%, 0);
+.selected-tray-chip:focus-visible,
+.chip-button:focus-visible,
+.tw-segmented > :focus-visible,
+.map-marker:focus-visible,
+.region-option:focus-within:has(input:focus-visible) {
+  outline: none;
+  box-shadow: var(--tw-focus);
 }
 
 .map-leader-line {
@@ -1168,7 +1157,8 @@ tfoot td {
 .transpose-table th,
 .transpose-table td {
   min-width: 64px;
-  text-align: center;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .transpose-table thead th:first-child,
@@ -2105,13 +2095,6 @@ tfoot td {
     flex: 0 0 auto;
   }
 
-  .map-marker::after {
-    content: attr(data-mobile-label);
-    bottom: calc(100% + 7px);
-    padding: 3px 8px;
-    font-size: 0.66rem;
-  }
-
   .map-marker.is-selected::after {
     opacity: 1;
     transform: translate(-50%, 0);
@@ -2308,7 +2291,7 @@ tfoot td {
   min-width: 0;
   padding: 8px 4px;
   font-family: var(--tw-font-latin);
-  text-align: center;
+  text-align: right;
 }
 
 .region-card .transpose-table th:first-child {

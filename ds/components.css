@@ -1,5 +1,25 @@
 /* ───────── Navigation ───────── */
 
+.tw-tooltip {
+  position: fixed;
+  z-index: 1000;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 6px 12px;
+  border-radius: var(--tw-radius-pill);
+  background: var(--tw-ink);
+  color: var(--tw-inverse);
+  box-shadow: var(--tw-shadow-pop);
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  word-break: keep-all;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.tw-tooltip[hidden] { display: none; }
+
 .tw-nav {
   position: sticky;
   top: 0;

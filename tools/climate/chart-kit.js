@@ -106,12 +106,15 @@
       const p = precs[i];
       const month = months[i] ?? `${i + 1}월`;
       const tip = `${month}  월평균 기온 ${Number.isFinite(t) ? num(t) + "°C" : "–"}  월강수량 ${Number.isFinite(p) ? num(p) + " mm" : "–"}`;
-      hits += `<rect class="chart-hit" x="${m.left + stepX * i}" y="${m.top}" width="${stepX}" height="${plotH}" fill="transparent"><title>${esc(tip)}</title></rect>`;
       if (Number.isFinite(p)) {
         const y = yP(p);
         bars += `<path class="tw-chart-bar" d="${barPath(cx(i) - barW / 2, y, barW, m.top + plotH - y, 3)}" fill="${BAR}" />`;
+        hits += `<rect class="chart-hit" data-tooltip="${esc(tip)}" tabindex="0" aria-label="${esc(tip)}" x="${cx(i) - barW / 2}" y="${Math.min(y, m.top + plotH - 8)}" width="${barW}" height="${Math.max(m.top + plotH - y, 8)}" fill="transparent" />`;
       }
-      if (Number.isFinite(t)) points.push([cx(i), yT(t)]);
+      if (Number.isFinite(t)) {
+        points.push([cx(i), yT(t)]);
+        hits += `<circle class="chart-hit" data-tooltip="${esc(tip)}" tabindex="0" aria-label="${esc(tip)}" cx="${cx(i)}" cy="${yT(t)}" r="10" fill="transparent" />`;
+      }
       labels += `<text x="${cx(i)}" y="${height - 8}" text-anchor="middle" fill="${INK_3}">${i + 1}</text>`;
     }
 
@@ -140,8 +143,8 @@
         <text x="${m.left - 10}" y="18" text-anchor="end" fill="${INK_2}">°C</text>
         <text x="${width - m.right + 10}" y="18" text-anchor="start" fill="${INK_3}">mm</text>
         ${legend}
-        ${hits}
         <g pointer-events="none">${bars}${line}${dots}</g>
+        ${hits}
         ${labels}
       </svg>`;
   }

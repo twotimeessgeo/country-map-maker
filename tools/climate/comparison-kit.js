@@ -113,7 +113,7 @@
       const points = item.values.map((value, i) => [x(i), axis.y(value), value]).filter((point) => Number.isFinite(point[2]));
       body += `<g class="kit-line-series" data-series-index="${index}"><polyline class="tw-chart-line tw-value-shape" points="${points.map((p) => `${p[0]},${p[1]}`).join(" ")}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" stroke-linejoin="round" />`;
       body += points
-        .map((p, i) => `<g>${marker(style.marker, p[0], p[1])}<title>${esc(`${item.name}  ${i + 1}월  ${num(p[2], signed)}${unit === "mm" ? " mm" : unit}`)}</title></g>`)
+        .map((p, i) => `<g data-tooltip="${esc(`${item.name}  ${i + 1}월  ${num(p[2], signed)}${unit === "mm" ? " mm" : unit}`)}" tabindex="0">${marker(style.marker, p[0], p[1])}</g>`)
         .join("");
       body += "</g>";
     });
@@ -140,15 +140,15 @@
       const short = name.length > maxChars + 1 ? `${name.slice(0, maxChars)}…` : name;
       body += `<text x="${cx}" y="${height - 9}" text-anchor="middle" font-size="11" fill="${INK_2}">${esc(short)}</text>`;
       if (!Number.isFinite(value)) return;
-      const tip = `<title>${esc(`${name}  ${num(value, signed)}${unit === "mm" ? " mm" : unit}`)}</title>`;
+      const tip = `data-tooltip="${esc(`${name}  ${num(value, signed)}${unit === "mm" ? " mm" : unit}`)}" tabindex="0"`;
       if (kind === "bar") {
         const y0 = axis.y(0);
         const y1 = axis.y(value);
         const top = Math.min(y0, y1);
         const h = Math.max(Math.abs(y1 - y0), 0.5);
-        body += `<g><rect class="tw-chart-bar tw-value-shape" x="${cx - barW / 2}" y="${top}" width="${barW}" height="${h}" rx="3" fill="${BAR}" />${tip}</g>`;
+        body += `<g ${tip}><rect class="tw-chart-bar tw-value-shape" x="${cx - barW / 2}" y="${top}" width="${barW}" height="${h}" rx="3" fill="${BAR}" /></g>`;
       } else {
-        body += `<g><circle class="tw-chart-dot tw-value-shape" cx="${cx}" cy="${axis.y(value)}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" />${tip}</g>`;
+        body += `<g ${tip}><circle class="tw-chart-dot tw-value-shape" cx="${cx}" cy="${axis.y(value)}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" /></g>`;
       }
     });
     return frame(width, height, body, label);
@@ -171,13 +171,13 @@
       const value = values[i];
       body += `<text x="${m.left - 10}" y="${cy + 4}" text-anchor="end" font-size="11" fill="${INK_2}">${esc(name)}</text>`;
       if (!Number.isFinite(value)) return;
-      const tip = `<title>${esc(`${name}  ${num(value, signed)}${unit === "mm" ? " mm" : unit}`)}</title>`;
+      const tip = `data-tooltip="${esc(`${name}  ${num(value, signed)}${unit === "mm" ? " mm" : unit}`)}" tabindex="0"`;
       if (kind === "bar") {
         const x0 = x(0);
         const x1 = x(value);
-        body += `<g><rect class="tw-chart-bar tw-value-shape" x="${Math.min(x0, x1)}" y="${cy - 8}" width="${Math.max(Math.abs(x1 - x0), 0.5)}" height="16" rx="3" fill="${BAR}" />${tip}</g>`;
+        body += `<g ${tip}><rect class="tw-chart-bar tw-value-shape" x="${Math.min(x0, x1)}" y="${cy - 8}" width="${Math.max(Math.abs(x1 - x0), 0.5)}" height="16" rx="3" fill="${BAR}" /></g>`;
       } else {
-        body += `<g><circle class="tw-chart-dot tw-value-shape" cx="${x(value)}" cy="${cy}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" />${tip}</g>`;
+        body += `<g ${tip}><circle class="tw-chart-dot tw-value-shape" cx="${x(value)}" cy="${cy}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" /></g>`;
       }
     });
     return `<div class="kit-horizontal-scroll">${frame(width, height, body, label)}</div>`;

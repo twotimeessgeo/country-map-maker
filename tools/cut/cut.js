@@ -61,7 +61,7 @@ function isFiniteNumber(value) {
 function formatNumber(value, digits = 1) {
   if (!isFiniteNumber(value)) return "-";
   const number = Number(value);
-  return Number.isInteger(number) ? String(number) : number.toFixed(digits);
+  return (Number.isInteger(number) ? String(number) : number.toFixed(digits)).replace(/^-/, "−");
 }
 
 function monthLabel(month) {

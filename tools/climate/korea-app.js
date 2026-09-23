@@ -200,7 +200,7 @@ function downloadClimateCsvPayload(payload) {
 }
 
 function downloadSelectedRegionsCsv() {
-  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  const selectedRegions = getSelectedRegions();
   if (selectedRegions.length === 0) {
     setSelectionUtilityStatus("지도나 목록에서 지역을 선택해 주세요", "warning");
     return;
@@ -316,6 +316,70 @@ function setSelectionUtilityStatus(message, tone = "success") {
 let searchRenderTimer = 0;
 
 function bindEvents() {
+  let trayDrag = null;
+  let suppressTrayClick = false;
+  elements.selectedTray?.addEventListener("pointerdown", (event) => {
+    const chip = event.target.closest("[data-tray-remove-id]");
+    if (!chip || event.button !== 0) return;
+    trayDrag = { id: chip.dataset.trayRemoveId, x: event.clientX, y: event.clientY, active: false };
+  });
+  elements.selectedTray?.addEventListener("pointermove", (event) => {
+    if (!trayDrag) return;
+    if (!trayDrag.active && Math.hypot(event.clientX - trayDrag.x, event.clientY - trayDrag.y) < 8) return;
+    trayDrag.active = true;
+    elements.selectedTray.querySelector(`[data-tray-remove-id="${trayDrag.id}"]`)?.classList.add("is-dragging");
+    elements.selectedTray.querySelectorAll(".is-drop-target").forEach((item) => item.classList.remove("is-drop-target"));
+    document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-tray-remove-id]")?.classList.add("is-drop-target");
+  });
+  window.addEventListener("pointerup", (event) => {
+    if (!trayDrag) return;
+    const drag = trayDrag;
+    trayDrag = null;
+    elements.selectedTray?.querySelectorAll(".is-dragging, .is-drop-target").forEach((chip) => chip.classList.remove("is-dragging", "is-drop-target"));
+    if (!drag.active) return;
+    suppressTrayClick = true;
+    setTimeout(() => { suppressTrayClick = false; }, 0);
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-tray-remove-id]");
+    const ids = [...state.selectedIds];
+    const from = drag.id;
+    const to = target?.dataset.trayRemoveId;
+    if (!ids.includes(from) || !ids.includes(to) || from === to) return;
+    ids.splice(ids.indexOf(from), 1);
+    ids.splice(ids.indexOf(to), 0, from);
+    state.selectedIds = new Set(ids);
+    pushUrlStateOnNextRender();
+    renderSelection();
+  });
+  window.addEventListener("pointercancel", () => {
+    trayDrag = null;
+    elements.selectedTray?.querySelectorAll(".is-dragging, .is-drop-target").forEach((chip) => chip.classList.remove("is-dragging", "is-drop-target"));
+  });
+  elements.selectedTray?.addEventListener("click", (event) => {
+    if (!suppressTrayClick) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    suppressTrayClick = false;
+  }, true);
+  document.addEventListener("keydown", (event) => {
+    if ((event.key !== "/" && event.code !== "Slash") || event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName ?? "")) return;
+    event.preventDefault();
+    elements.searchInput?.focus();
+  });
+  elements.searchInput?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || !state.search && !state.query) return;
+    const results = sortDisplayedRegions(getVisibleRegions());
+    if (results.length !== 1) return;
+    event.preventDefault();
+    state.selectedIds.add(results[0].id);
+    pushUrlStateOnNextRender();
+    renderSelection();
+  });
+  for (const panel of [elements.selectedRegionsContent, elements.comparisonContent]) {
+    panel?.addEventListener("click", (event) => {
+      if (event.target.closest("[data-random-selection]")) elements.randomSpacedSelectionButton.click();
+    });
+  }
+
   elements.selectedRegionsContent?.addEventListener("click", handleClimateCsvDownload);
   elements.comparisonContent?.addEventListener("click", handleClimateCsvDownload);
 
@@ -501,9 +565,7 @@ function readUrlEnum(params, key, allowedValues, fallback) {
 function buildCurrentViewUrl() {
   const url = new URL(window.location.href);
   URL_STATE_KEYS.forEach((key) => url.searchParams.delete(key));
-  const selectedIds = state.regions
-    .filter((region) => state.selectedIds.has(region.id))
-    .map((region) => region.id);
+  const selectedIds = [...state.selectedIds];
 
   url.searchParams.set("regions", selectedIds.join(","));
   if (state.nation !== "전체") url.searchParams.set("nation", state.nation);
@@ -566,7 +628,7 @@ function renderSelectedTray(selectedRegions) {
           class="selected-tray-chip"
           data-tray-remove-id="${escapeHtml(region.id)}"
           aria-label="${escapeHtml(region.name)} 선택 해제"
-          title="선택 해제"
+          title="드래그로 순서 변경, 클릭하여 선택 해제"
         >
           <span>${escapeHtml(region.name)}</span>
           <span class="selected-tray-x" aria-hidden="true"></span>
@@ -689,7 +751,7 @@ function finishPartialRender() {
 function renderBrowse() {
   clearTimeout(searchRenderTimer);
   const visibleRegions = sortDisplayedRegions(getVisibleRegions());
-  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  const selectedRegions = getSelectedRegions();
   const mapRegions = getMapRegions(visibleRegions, selectedRegions);
   if (elements.mapSummary) {
     elements.mapSummary.textContent = state.mapScope === "selected"
@@ -720,7 +782,7 @@ function syncSelectionControls() {
 }
 
 function renderSelection() {
-  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  const selectedRegions = getSelectedRegions();
   normalizeComparisonBaseline(selectedRegions);
   const trayMotion = window.TwMotion?.snapshotTray(elements.selectedTray);
   const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
@@ -750,7 +812,7 @@ function renderSelection() {
 }
 
 function renderComparisonOnly() {
-  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  const selectedRegions = getSelectedRegions();
   normalizeComparisonBaseline(selectedRegions);
   const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
@@ -764,7 +826,7 @@ function render() {
   resetClimateCsvExports();
 
   const visibleRegions = sortDisplayedRegions(getVisibleRegions());
-  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  const selectedRegions = getSelectedRegions();
   normalizeComparisonBaseline(selectedRegions);
 
   if (elements.heroCount) {
@@ -815,23 +877,17 @@ function getVisibleRegions() {
     const matchesZone = state.zone === "전체" || region.zone === state.zone;
     const matchesSearch =
       !query ||
-      [
-        region.name,
-        region.officialName,
-        region.nation,
-        region.zone,
-        String(region.stationId),
-        ...(region.aliases ?? []),
-      ]
-        .filter(Boolean)
-        .some((value) => normalizeText(value).includes(query));
+      window.ClimateSearchKit.matches([
+        region.name, region.officialName, region.nation, region.zone,
+        String(region.stationId), ...(region.aliases ?? []),
+      ], query);
 
     return matchesNation && matchesZone && matchesSearch;
   });
 }
 
 function getSelectedRegions() {
-  return state.regions.filter((region) => state.selectedIds.has(region.id));
+  return [...state.selectedIds].map((id) => state.regions.find((region) => region.id === id)).filter(Boolean);
 }
 
 function sortDisplayedRegions(regions) {
@@ -959,7 +1015,7 @@ function renderRegionList(regions) {
 
 function renderSelectedRegions(regions) {
   if (!regions.length) {
-    return renderEmptyState("지도나 목록에서 지역을 선택해 주세요", "");
+    return renderEmptyState("지도나 목록에서 지역을 선택해 주세요", "", true);
   }
 
   const sharedChartScale = buildClimateChartScale(regions);
@@ -1070,7 +1126,7 @@ function renderRegionCard(region, sharedChartScale) {
 
 function renderComparison(regions) {
   if (regions.length < 2) {
-    return renderEmptyState("두 곳 이상 선택하면 비교할 수 있습니다", "");
+    return renderEmptyState("두 곳 이상 선택하면 비교할 수 있습니다", "", true);
   }
 
   return window.ComparisonKit.render({
@@ -1136,9 +1192,10 @@ function renderMap(visibleRegions, selectedRegions) {
           type="button"
           class="map-marker ${isSelected ? "is-selected" : ""}"
           data-map-region-id="${region.id}"
-          tabindex="-1"
+          tabindex="0"
           data-label="${escapeHtml(`${region.name} · ${region.nation}`)}"
           data-mobile-label="${escapeHtml(region.name)}"
+          data-tooltip="${escapeHtml(`${region.name} ${region.nation}`)}"
           style="left:${((x / width) * 100).toFixed(3)}%; top:${((y / height) * 100).toFixed(3)}%; --marker-color: #111111;"
           aria-label="${escapeHtml(region.name)} ${isSelected ? "선택 해제" : "선택"}"
           aria-pressed="${isSelected}"
@@ -2031,25 +2088,30 @@ function normalizeText(value) {
     .toLowerCase();
 }
 
-function renderEmptyState(title, description) {
+function renderEmptyState(title, description, withAction = false) {
   return `
     <div class="empty-state">
       <strong>${escapeHtml(title)}</strong>
       ${description ? `<p>${escapeHtml(description)}</p>` : ""}
+      ${withAction ? `<button type="button" class="tw-button is-ghost is-sm" data-random-selection>무작위 4곳</button>` : ""}
     </div>
   `;
 }
 
+function climateDisplayNumber(value) {
+  return climateNumberFormatter.format(round(value)).replace(/^-/, "−");
+}
+
 function formatTemp(value) {
-  return `${climateNumberFormatter.format(round(value))}°C`;
+  return `${climateDisplayNumber(value)}°C`;
 }
 
 function formatMm(value) {
-  return `${climateNumberFormatter.format(round(value))} mm`;
+  return `${climateDisplayNumber(value)} mm`;
 }
 
 function formatDays(value) {
-  return `${value.toFixed(1)}일`;
+  return `${value.toFixed(1).replace(/^-/, "−")}일`;
 }
 
 function formatMeters(value) {
@@ -2069,12 +2131,12 @@ function formatLongitude(value) {
 }
 
 function formatPlainNumber(value) {
-  return numberFormatter.format(round(value));
+  return numberFormatter.format(round(value)).replace(/^-/, "−");
 }
 
 function formatSignedPlain(value) {
   const rounded = round(value);
-  return `${rounded > 0 ? "+" : ""}${numberFormatter.format(rounded)}`;
+  return `${rounded > 0 ? "+" : ""}${numberFormatter.format(rounded).replace(/^-/, "−")}`;
 }
 
 function renderFootnoteLines(lines, className = "formula-note") {
