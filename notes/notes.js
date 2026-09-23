@@ -25,18 +25,47 @@
   }
 
   const sections = [...document.querySelectorAll(".notes-section[id]")];
-  const tocLinks = [...document.querySelectorAll('.notes-desktop-toc a, .notes-mobile-toc a')];
-  if (sections.length && "IntersectionObserver" in window) {
-    const active = new Set();
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) active.add(entry.target.id);
-        else active.delete(entry.target.id);
-      }
-      const current = sections.findLast((section) => section.getBoundingClientRect().top <= innerHeight * 0.35)?.id || sections[0].id;
-      for (const link of tocLinks) link.classList.toggle("is-active", link.getAttribute("href") === `#${current}`);
-    }, { rootMargin: "-10% 0px -65% 0px" });
-    for (const section of sections) observer.observe(section);
+  const desktopToc = document.querySelector(".notes-desktop-toc nav");
+  const desktopLinks = [...document.querySelectorAll(".notes-desktop-toc a")];
+  const mobileStrip = document.querySelector(".notes-mobile-strip");
+  const mobileLinks = [...document.querySelectorAll(".notes-mobile-strip a")];
+  let currentSection = "";
+  function updateToc() {
+    if (!sections.length) return;
+    const current = sections.findLast((section) => section.getBoundingClientRect().top <= innerHeight * .35)?.id || sections[0].id;
+    if (current === currentSection) return;
+    currentSection = current;
+    for (const link of [...desktopLinks, ...mobileLinks]) {
+      const selected = link.getAttribute("href") === `#${current}`;
+      link.classList.toggle("is-active", selected);
+      if (selected) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    }
+    const desktopCurrent = desktopLinks.find((link) => link.getAttribute("href") === `#${current}`);
+    const indicator = desktopToc?.querySelector(".notes-toc-indicator");
+    if (desktopCurrent && indicator) {
+      indicator.style.transform = `translateY(${desktopCurrent.offsetTop}px)`;
+      indicator.style.height = `${desktopCurrent.offsetHeight}px`;
+      desktopCurrent.scrollIntoView({ block: "nearest" });
+    }
+    const mobileCurrent = mobileLinks.find((link) => link.getAttribute("href") === `#${current}`);
+    if (mobileCurrent && mobileStrip && getComputedStyle(mobileStrip).display !== "none") {
+      mobileStrip.scrollTo({ left: mobileCurrent.offsetLeft - (mobileStrip.clientWidth - mobileCurrent.clientWidth) / 2, behavior: reducedMotion ? "instant" : "smooth" });
+    }
+  }
+  if (sections.length) {
+    if ("IntersectionObserver" in window) {
+      const observer = new IntersectionObserver(updateToc, { rootMargin: "-10% 0px -65% 0px" });
+      for (const section of sections) observer.observe(section);
+    }
+    let scheduled = false;
+    addEventListener("scroll", () => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => { scheduled = false; updateToc(); });
+    }, { passive: true });
+    addEventListener("resize", updateToc);
+    updateToc();
   }
 
   const dialog = document.querySelector("#notesLightbox");

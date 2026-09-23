@@ -94,21 +94,33 @@
   top: 32px;
   display: flex;
   flex-direction: column;
-  align-items: start;
-  gap: 8px;
+  align-items: stretch;
+  gap: 2px;
   max-height: calc(100vh - 64px);
   overflow-y: auto;
   scrollbar-width: thin;
 }
-.notes-desktop-toc a, .notes-mobile-toc a {
-  color: var(--tw-ink-2);
+.notes-desktop-toc a {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  min-height: 25px;
+  padding: 3px 5px 3px 10px;
+  color: var(--tw-ink-3);
+  font-size: 12px;
+  line-height: 1.3;
   text-decoration: none;
-  font-size: var(--tw-text-sm);
-  line-height: 1.45;
+  word-break: keep-all;
 }
-.notes-desktop-toc a.is-active, .notes-mobile-toc a.is-active { color: var(--tw-ink); font-weight: 600; }
-.notes-desktop-toc a:hover, .notes-mobile-toc a:hover { color: var(--tw-ink); }
-.notes-mobile-toc { display: none; text-align: left; }
+.notes-desktop-toc a:hover, .notes-desktop-toc a.is-active { color: var(--tw-ink); }
+.notes-desktop-toc a.is-active { font-weight: 600; }
+.notes-toc-number { font-family: var(--tw-font-latin); font-variant-numeric: tabular-nums; }
+.notes-toc-topic { min-width: 0; }
+.notes-toc-mini { width: 32px; height: 3px; background: var(--tw-surface-2); }
+.notes-toc-mini i { display: block; height: 3px; background: var(--tw-ink); }
+.notes-toc-indicator { position: absolute; top: 0; left: 0; width: 2px; height: 25px; background: var(--tw-ink); transform: translateY(0); transition: transform var(--tw-base) var(--tw-ease), height var(--tw-base) var(--tw-ease); pointer-events: none; }
+.notes-mobile-strip { display: none; }
 .notes-article { grid-column: 2; grid-row: 3; min-width: 0; font-size: 17px; line-height: 1.8; word-break: keep-all; }
 .notes-section { scroll-margin-top: 32px; }
 .notes-section + .notes-section { margin-top: 96px; }
@@ -165,8 +177,23 @@
 @media (max-width: 1199px) {
   .notes-layout { display: block; max-width: 760px; }
   .notes-desktop-toc { display: none; }
-  .notes-mobile-toc { display: block; margin-top: 44px; }
-  .notes-mobile-toc nav { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px 0 20px; }
+  .notes-mobile-strip {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    gap: 6px;
+    width: 100%;
+    overflow-x: auto;
+    padding: 10px var(--tw-gutter);
+    border-bottom: 1px solid var(--tw-hairline);
+    background: var(--tw-bg);
+    scrollbar-width: none;
+  }
+  .notes-mobile-strip::-webkit-scrollbar { display: none; }
+  .notes-mobile-strip a { flex: 0 0 auto; min-width: 36px; padding: 6px 8px; border-radius: var(--tw-radius-pill); color: var(--tw-ink-2); font-family: var(--tw-font-latin); font-size: 12px; text-align: center; text-decoration: none; }
+  .notes-mobile-strip a.is-active { background: var(--tw-ink); color: var(--tw-inverse); }
+  .notes-mobile-strip a:focus-visible { outline: none; box-shadow: var(--tw-focus); }
   .notes-article-head { max-width: 680px; margin: 0 auto; padding-bottom: 64px; }
   .notes-overview { margin-bottom: 72px; }
 }
@@ -187,7 +214,7 @@
   .notes-overview-stats span { font-size: 11px; }
   .notes-overview-bars { gap: 2px; }
   .notes-overview-number { font-size: 9px; }
-  .notes-mobile-toc nav { grid-template-columns: repeat(3, 1fr); }
+
   .notes-article { font-size: 17px; }
   .notes-article h2 { font-size: 26px; }
   .notes-section + .notes-section { margin-top: 80px; }
@@ -195,7 +222,7 @@
   .notes-image-button { padding: 16px; }
 }
 @media print {
-  .tw-nav, .notes-desktop-toc, .notes-mobile-toc, .notes-lightbox { display: none !important; }
+  .tw-nav, .notes-desktop-toc, .notes-mobile-strip, .notes-lightbox { display: none !important; }
   .notes-layout { display: block; max-width: 100%; padding: 0; }
   .notes-overview { break-inside: avoid; }
   .notes-article-head { padding: 0 0 28px; }
@@ -205,3 +232,5 @@
   .notes-image-button { padding: 8px; }
   .notes-section { break-before: auto; opacity: 1 !important; transform: none !important; }
 }
+
+@media (prefers-reduced-motion: reduce) { .notes-toc-indicator { transition: none; } }
