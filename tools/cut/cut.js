@@ -1,4 +1,4 @@
-const EBSI_URL = "./data/ebsi_geo_data.json";
+const EBSI_URL = "./data/ebsi_geo_data.json?v=44";
 const QUESTION_IMAGE_MANIFEST_URL = "./data/question-image-manifest.json";
 const SUPPORTED_SUBJECTS = ["한국지리", "세계지리"];
 const GRADE_KEYS = ["1", "2", "3"];
@@ -23,6 +23,7 @@ const elements = {
   standardDeviation: document.querySelector("#sdValue"),
   sourceLink: document.querySelector("#sourceLink"),
   questionCount: document.querySelector("#questionAnalysisCount"),
+  notesAnalysisLink: document.querySelector("#notesAnalysisLink"),
   questionGrid: document.querySelector("#questionAnalysisGrid"),
   unpublished: document.querySelector("#questionUnpublished"),
   trend: document.querySelector("#cutTrendChart"),
@@ -356,6 +357,7 @@ function createQuestionImage(record, question, imageData) {
 }
 
 function renderQuestionAnalysis(record) {
+  elements.notesAnalysisLink.hidden = !(record?.subject === "세계지리" && recordKey(record) === "2027-09");
   elements.questionGrid.replaceChildren();
   elements.unpublished.replaceChildren();
   elements.unpublished.hidden = true;

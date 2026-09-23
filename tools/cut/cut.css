@@ -39,6 +39,8 @@
 .cut-exam-meta dt { color: var(--tw-ink-2); font-size: var(--tw-text-xs); }
 .cut-exam-meta dd { margin: 0; font-family: var(--tw-font-latin); font-size: var(--tw-text-sm); font-weight: var(--tw-weight-latin); font-variant-numeric: tabular-nums; }
 .cut-history-heading > span, .cut-question-heading > span { color: var(--tw-ink-2); font-size: var(--tw-text-sm); }
+.cut-question-actions { display: flex; align-items: baseline; gap: var(--tw-space-5); }
+.cut-question-actions a { color: var(--tw-ink); font-size: var(--tw-text-sm); text-decoration: underline; text-underline-offset: 3px; }
 .cut-question-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: var(--tw-space-5); }
 .cut-question-grid.is-rate-only { grid-template-columns: repeat(4,minmax(0,1fr)); }
 .cut-question-card { min-width: 0; overflow: hidden; padding: var(--tw-space-3); border-radius: var(--tw-radius-lg); background: var(--tw-bg); box-shadow: inset 0 0 0 1px var(--tw-hairline); }
