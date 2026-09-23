@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
@@ -118,6 +119,46 @@ if (isSourceCheck) {
     "sourceAudit",
   ]) {
     if (statsUiText.includes(forbidden)) errors.push(`Data Library에 제거 대상 기능이 남아 있습니다: ${forbidden}`);
+  }
+  const textbookPath = path.join(rootDir, "tools", "stats", "data", "textbook-stats.json");
+  const textbook = JSON.parse(fs.readFileSync(textbookPath, "utf8"));
+  const seenIds = new Set();
+  for (const [subject, value] of Object.entries(textbook.subjects || {})) {
+    let count = 0;
+    for (const unit of value.units || []) {
+      for (const chapter of unit.chapters || []) {
+        for (const table of chapter.tables || []) {
+          count += 1;
+          if (!table.id || seenIds.has(table.id)) errors.push("Statistics 표 ID가 없거나 중복되었습니다: " + table.id);
+          seenIds.add(table.id);
+          if (!table.year || !table.source?.name || !table.columns?.length || !table.rows?.length) {
+            errors.push("Statistics 표 메타나 행이 비었습니다: " + table.id);
+          }
+          if (subject === "world" && unit.id !== "II" && table.rows.filter((row) => row.group === "country").length > 8) {
+            errors.push("Statistics 세계 표 주요 국가가 8개를 넘습니다: " + table.id);
+          }
+          for (const rows of [table.rows, ...(table.variants || []).map((variant) => variant.rows)]) {
+            if (!rows?.length) errors.push("Statistics 전환 표 행이 비었습니다: " + table.id);
+            for (const row of rows || []) {
+              if (!row.label || row.values?.length !== table.columns.length || row.values.some((cell) =>
+                cell === undefined || cell === null || typeof cell === "number" && !Number.isFinite(cell) ||
+                typeof cell === "string" && /^(?:NaN|undefined|null)$/i.test(cell))) {
+                errors.push("Statistics 행 값이 올바르지 않습니다: " + table.id + " / " + row.label);
+              }
+            }
+          }
+        }
+      }
+    }
+    if (count !== textbook.meta?.tableCount?.[subject]) errors.push("Statistics 표 수가 메타와 다릅니다: " + subject);
+  }
+  if (JSON.stringify(textbook).includes("stats-ref/") || JSON.stringify(textbook).includes("Documents/New project")) {
+    errors.push("Statistics 공개 JSON에 로컬 참조 경로가 남았습니다.");
+  }
+  try {
+    execFileSync(process.execPath, [path.join(projectRoot, "scripts", "build-textbook-stats.mjs"), "--check"], { cwd: projectRoot, stdio: "pipe" });
+  } catch (error) {
+    errors.push("Statistics 생성본이 원천/정의와 다릅니다: " + String(error.stderr || error.message).trim());
   }
 }
 

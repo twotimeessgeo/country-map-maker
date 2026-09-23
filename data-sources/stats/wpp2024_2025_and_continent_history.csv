@@ -1,0 +1,274 @@
+iso3,location,location_type,year,population_thousands,birth_rate_per_1000,death_rate_per_1000,growth_percent,net_migration_thousands,net_migration_rate_per_1000
+,Africa,Geographic region,1950,227776.419,47.76,26.896,2.052,-79.639,-0.35
+,Africa,Geographic region,1970,365551.873,46.915,20.117,2.653,-98.836,-0.27
+,Africa,Geographic region,1990,643775.03,41.922,14.538,2.729,-63.574,-0.099
+,Africa,Geographic region,2010,1072216.495,37.013,10.029,2.605,-998.429,-0.931
+,Africa,Geographic region,2020,1380821.17,32.136,8.352,2.396,248.32,0.18
+,Africa,Geographic region,2025,1549867.579,30.377,7.551,2.258,-377.785,-0.244
+BDI,Burundi,Country/Area,2025,14390.002,32.573,6.624,2.354,-34.727,-2.413
+COM,Comoros,Country/Area,2025,882.848,27.779,7.031,1.835,-2.127,-2.409
+DJI,Djibouti,Country/Area,2025,1184.076,20.675,7.507,1.268,-0.581,-0.49
+ERI,Eritrea,Country/Area,2025,3607.003,28.632,5.941,2.084,-6.698,-1.857
+ETH,Ethiopia,Country/Area,2025,135472.051,30.831,5.8,2.521,24.054,0.178
+KEN,Kenya,Country/Area,2025,57532.492,26.782,7.149,1.916,-27.33,-0.475
+MDG,Madagascar,Country/Area,2025,32740.678,31.255,7.415,2.377,-2.227,-0.068
+MWI,Malawi,Country/Area,2025,22216.12,30.848,5.237,2.536,-5.628,-0.253
+MUS,Mauritius,Country/Area,2025,1268.28,8.994,9.238,-0.243,-2.784,-2.195
+MYT,Mayotte,Country/Area,2025,337.011,33.701,2.659,3.117,0.044,0.131
+MOZ,Mozambique,Country/Area,2025,35631.653,36.608,6.826,2.794,-65.573,-1.84
+REU,Réunion,Country/Area,2025,882.406,13.024,5.782,0.431,-2.585,-2.929
+RWA,Rwanda,Country/Area,2025,14569.34,27.737,5.853,2.232,6.282,0.431
+SYC,Seychelles,Country/Area,2025,132.779,13.343,8.103,1.73,1.59,11.973
+SOM,Somalia,Country/Area,2025,19654.739,41.833,9.655,3.28,12.077,0.614
+SSD,South Sudan,Country/Area,2025,12188.788,29.348,9.861,1.999,6.145,0.504
+UGA,Uganda,Country/Area,2025,51384.894,33.756,4.708,2.673,-119.059,-2.317
+TZA,United Republic of Tanzania,Country/Area,2025,70545.865,34.294,5.656,2.846,-12.73,-0.18
+ZMB,Zambia,Country/Area,2025,21913.874,32.351,5.132,2.752,6.562,0.299
+ZWE,Zimbabwe,Country/Area,2025,16950.795,29.54,7.392,1.893,-54.555,-3.218
+AGO,Angola,Country/Area,2025,39040.039,36.624,6.759,2.978,-3.524,-0.09
+CMR,Cameroon,Country/Area,2025,29879.337,32.821,6.911,2.54,-15.379,-0.515
+CAF,Central African Republic,Country/Area,2025,5513.282,45.361,9.268,3.343,-14.693,-2.665
+TCD,Chad,Country/Area,2025,21003.705,43.198,11.066,2.627,-123.104,-5.861
+COG,Congo,Country/Area,2025,6484.437,30.155,6.207,2.349,-2.999,-0.463
+COD,Democratic Republic of the Congo,Country/Area,2025,112832.473,40.411,8.333,3.184,-27.309,-0.242
+GNQ,Equatorial Guinea,Country/Area,2025,1938.431,29.586,7.804,2.375,3.812,1.967
+GAB,Gabon,Country/Area,2025,2593.13,26.646,6.182,2.089,1.116,0.43
+STP,Sao Tome and Principe,Country/Area,2025,240.254,27.837,5.489,1.97,-0.65,-2.707
+DZA,Algeria,Country/Area,2025,47435.312,18.034,4.645,1.281,-27.531,-0.58
+EGY,Egypt,Country/Area,2025,118365.994,20.699,5.55,1.466,-57.305,-0.484
+LBY,Libya,Country/Area,2025,7458.554,16.112,5.619,1.047,-0.172,-0.023
+MAR,Morocco,Country/Area,2025,38430.77,16.108,5.813,0.883,-56.254,-1.464
+SDN,Sudan,Country/Area,2025,51662.148,32.063,6.238,3.147,291.469,5.642
+TUN,Tunisia,Country/Area,2025,12348.573,12.998,6.215,0.561,-14.523,-1.176
+ESH,Western Sahara,Country/Area,2025,600.904,15.031,6.514,1.689,5.03,8.37
+BWA,Botswana,Country/Area,2025,2562.122,23.881,5.747,1.592,-5.665,-2.211
+SWZ,Eswatini,Country/Area,2025,1256.174,23.251,7.757,1.089,-5.775,-4.597
+LSO,Lesotho,Country/Area,2025,2363.325,23.456,10.314,1.094,-5.192,-2.197
+NAM,Namibia,Country/Area,2025,3092.816,25.442,6.183,1.986,1.866,0.603
+ZAF,South Africa,Country/Area,2025,64747.319,18.159,9.274,1.115,146.37,2.261
+BEN,Benin,Country/Area,2025,14814.46,33.046,8.633,2.389,-7.847,-0.53
+BFA,Burkina Faso,Country/Area,2025,24074.58,30.808,7.838,2.184,-27.13,-1.127
+CPV,Cabo Verde,Country/Area,2025,527.326,12.069,5.149,0.45,-1.284,-2.434
+CIV,Côte d'Ivoire,Country/Area,2025,32711.547,31.107,7.555,2.39,11.305,0.346
+GMB,Gambia,Country/Area,2025,2822.093,29.253,6.211,2.199,-2.984,-1.058
+GHA,Ghana,Country/Area,2025,35064.272,25.607,6.987,1.813,-17.079,-0.487
+GIN,Guinea,Country/Area,2025,15099.727,32.752,8.932,2.274,-16.282,-1.078
+GNB,Guinea-Bissau,Country/Area,2025,2249.515,29.103,6.977,2.152,-1.373,-0.611
+LBR,Liberia,Country/Area,2025,5731.206,30.267,7.97,2.058,-9.87,-1.722
+MLI,Mali,Country/Area,2025,25198.821,39.17,8.376,2.889,-48.019,-1.906
+MRT,Mauritania,Country/Area,2025,5315.065,33.659,5.317,2.739,-5.044,-0.949
+NER,Niger,Country/Area,2025,27917.831,40.769,8.581,3.191,-7.704,-0.276
+NGA,Nigeria,Country/Area,2025,237527.782,32.167,11.558,2.055,-15.258,-0.064
+SHN,Saint Helena,Country/Area,2025,5.197,7.182,17.134,-0.751,0.001,0.192
+SEN,Senegal,Country/Area,2025,18931.966,28.931,5.437,2.283,-12.636,-0.667
+SLE,Sierra Leone,Country/Area,2025,8819.794,29.512,8.126,2.01,-11.309,-1.282
+TGO,Togo,Country/Area,2025,9721.608,30.453,7.61,2.13,-15.01,-1.544
+,Asia,Geographic region,1950,1368075.415,41.711,22.83,1.921,444.437,0.325
+,Asia,Geographic region,1970,2137559.039,37.992,13.534,2.448,53.359,0.025
+,Asia,Geographic region,1990,3209882.612,28.043,8.452,1.907,-1662.242,-0.518
+,Asia,Geographic region,2010,4239822.673,18.773,6.775,1.17,-1253.476,-0.296
+,Asia,Geographic region,2020,4688113.371,14.728,7.221,0.713,-1766.619,-0.377
+,Asia,Geographic region,2025,4835320.06,13.477,7.185,0.58,-2389.647,-0.494
+KAZ,Kazakhstan,Country/Area,2025,20843.754,18.952,6.743,1.179,-8.834,-0.424
+KGZ,Kyrgyzstan,Country/Area,2025,7295.034,20.491,6.042,1.47,1.815,0.249
+TJK,Tajikistan,Country/Area,2025,10786.734,24.522,4.612,1.791,-21.606,-2.003
+TKM,Turkmenistan,Country/Area,2025,7618.848,20.034,5.88,1.59,13.268,1.742
+UZB,Uzbekistan,Country/Area,2025,37053.428,24.592,6.042,1.836,-6.987,-0.189
+CHN,China,Country/Area,2025,1416096.094,6.15,8.274,-0.231,-268.126,-0.189
+HKG,"China, Hong Kong SAR",Country/Area,2025,7396.076,5.268,7.864,-0.018,17.863,2.415
+MAC,"China, Macao SAR",Country/Area,2025,722.007,6.275,4.851,0.097,-0.328,-0.455
+TWN,"China, Taiwan Province of China",Country/Area,2025,23112.793,5.422,8.916,-0.44,-20.947,-0.906
+PRK,Dem. People's Republic of Korea,Country/Area,2025,26571.036,12.603,9.962,0.254,-2.787,-0.105
+JPN,Japan,Country/Area,2025,123103.479,6.078,12.604,-0.538,140.579,1.142
+MNG,Mongolia,Country/Area,2025,3517.1,17.466,5.953,1.154,0.079,0.023
+KOR,Republic of Korea,Country/Area,2025,51667.029,4.759,7.194,-0.116,65.731,1.272
+AFG,Afghanistan,Country/Area,2025,43844.112,34.391,5.608,2.709,-74.404,-1.697
+BGD,Bangladesh,Country/Area,2025,175686.9,19.587,5.122,1.218,-402.1,-2.289
+BTN,Bhutan,Country/Area,2025,796.682,12.346,6.036,0.687,0.455,0.572
+IND,India,Country/Area,2025,1463865.525,15.762,6.638,0.879,-495.753,-0.339
+IRN,Iran (Islamic Republic of),Country/Area,2025,92417.681,12.175,4.848,0.859,116.786,1.264
+MDV,Maldives,Country/Area,2025,529.676,10.2,2.41,0.348,-2.283,-4.311
+NPL,Nepal,Country/Area,2025,29618.118,18.625,6.99,-0.068,-364.699,-12.313
+PAK,Pakistan,Country/Area,2025,255219.554,27.073,6.428,1.58,-1235.336,-4.84
+LKA,Sri Lanka,Country/Area,2025,23229.47,13.711,7.155,0.523,-30.724,-1.323
+BRN,Brunei Darussalam,Country/Area,2025,466.33,12.999,5.446,0.753,0,0
+KHM,Cambodia,Country/Area,2025,17847.982,19.869,6.511,1.159,-31.469,-1.763
+IDN,Indonesia,Country/Area,2025,285721.236,15.543,7.711,0.769,-39.509,-0.138
+LAO,Lao People's Democratic Republic,Country/Area,2025,7873.046,20.497,6.169,1.298,-10.645,-1.352
+MYS,Malaysia,Country/Area,2025,35977.838,12.223,5.361,1.149,166.615,4.631
+MMR,Myanmar,Country/Area,2025,54850.648,16.195,9.239,0.623,-39.661,-0.723
+PHL,Philippines,Country/Area,2025,116786.962,15.804,6.465,0.806,-149.315,-1.279
+SGP,Singapore,Country/Area,2025,5870.75,8.49,5.087,0.628,16.892,2.877
+THA,Thailand,Country/Area,2025,71619.863,7.992,9.129,-0.075,27.509,0.384
+TLS,Timor-Leste,Country/Area,2025,1418.517,21.602,7.16,1.264,-2.55,-1.797
+VNM,Viet Nam,Country/Area,2025,101598.527,13.075,6.726,0.588,-48.171,-0.474
+ARM,Armenia,Country/Area,2025,2952.365,11.833,9.372,-0.737,-29.013,-9.827
+AZE,Azerbaijan,Country/Area,2025,10397.713,11.55,6.745,0.564,8.731,0.84
+BHR,Bahrain,Country/Area,2025,1643.332,11.926,2.221,2.074,18.128,11.031
+CYP,Cyprus,Country/Area,2025,1370.754,10.179,7.039,0.879,7.749,5.653
+GEO,Georgia,Country/Area,2025,3806.671,11.057,11.829,-0.044,1.283,0.337
+IRQ,Iraq,Country/Area,2025,47020.774,25.256,4.194,2.104,-1.064,-0.023
+ISR,Israel,Country/Area,2025,9517.18,18.008,5.564,1.365,11.466,1.205
+JOR,Jordan,Country/Area,2025,11520.684,20.142,3.214,-0.94,-303.267,-26.324
+KWT,Kuwait,Country/Area,2025,5026.078,9.7,1.814,1.64,42.775,8.511
+LBN,Lebanon,Country/Area,2025,5849.42,15.82,6.109,0.796,-10.23,-1.749
+OMN,Oman,Country/Area,2025,5494.691,16.403,1.881,3.522,113.734,20.699
+QAT,Qatar,Country/Area,2025,3115.888,9.607,1.037,2.022,36.288,11.646
+SAU,Saudi Arabia,Country/Area,2025,34566.328,16.342,2.329,1.748,119.738,3.464
+PSE,State of Palestine,Country/Area,2025,5589.623,25.921,4.189,1.759,-23.156,-4.143
+SYR,Syrian Arab Republic,Country/Area,2025,25620.427,23.475,4.842,3.51,421.693,16.459
+TUR,Türkiye,Country/Area,2025,87685.426,12.012,6.57,0.25,-258.205,-2.945
+ARE,United Arab Emirates,Country/Area,2025,11346,10.052,0.964,2.307,158.634,13.981
+YEM,Yemen,Country/Area,2025,41773.878,33.546,4.679,2.848,-16.291,-0.39
+,Europe,Geographic region,1950,548867.473,22.169,11.772,0.941,-539.881,-0.984
+,Europe,Geographic region,1970,656998.548,16.081,9.99,0.494,-757.514,-1.153
+,Europe,Geographic region,1990,724139.404,12.896,10.633,0.362,981.962,1.356
+,Europe,Geographic region,2010,738145.318,11.158,11.061,0.161,1119.29,1.516
+,Europe,Geographic region,2020,749524.044,9.269,12.286,-0.107,1459.606,1.947
+,Europe,Geographic region,2025,744398.832,8.339,11.368,-0.104,1478.09,1.986
+BLR,Belarus,Country/Area,2025,8997.603,6.928,13.236,-0.664,-3.02,-0.336
+BGR,Bulgaria,Country/Area,2025,6714.56,8.992,15.283,-0.673,-2.961,-0.441
+CZE,Czechia,Country/Area,2025,10609.24,8.193,10.989,-1.337,-112.188,-10.575
+HUN,Hungary,Country/Area,2025,9632.287,8.752,13.34,-0.628,-16.331,-1.695
+POL,Poland,Country/Area,2025,38140.91,7.797,10.961,-1.184,-330.82,-8.674
+MDA,Republic of Moldova,Country/Area,2025,2996.106,10.35,14.031,-1.362,-29.766,-9.935
+ROU,Romania,Country/Area,2025,18908.65,9.439,13.581,-0.568,-29.041,-1.536
+RUS,Russian Federation,Country/Area,2025,143997.393,8.624,12.957,-0.608,-251.822,-1.749
+SVK,Slovakia,Country/Area,2025,5474.881,9.065,10.296,-0.696,-31.377,-5.731
+UKR,Ukraine,Country/Area,2025,38980.376,5.649,13.345,3.598,1702.358,43.672
+DNK,Denmark,Country/Area,2025,6002.507,9.867,9.688,0.386,22.103,3.682
+EST,Estonia,Country/Area,2025,1344.232,7.89,12.297,-1.433,-13.35,-9.932
+FRO,Faroe Islands,Country/Area,2025,56.002,12.775,9.771,0.998,0.386,6.896
+FIN,Finland,Country/Area,2025,5623.33,7.811,10.79,0.027,18.246,3.245
+GGY,Guernsey,Country/Area,2025,64.476,8.146,9.513,0.265,0.254,3.944
+ISL,Iceland,Country/Area,2025,398.266,10.965,6.649,1.112,2.709,6.802
+IRL,Ireland,Country/Area,2025,5308.039,9.912,7.003,0.958,35.417,6.672
+IMN,Isle of Man,Country/Area,2025,84.118,8.174,10.802,-0.07,0.166,1.978
+JEY,Jersey,Country/Area,2025,103.988,8.161,10.965,0.122,0.421,4.05
+LVA,Latvia,Country/Area,2025,1853.559,7.394,14.76,-1.132,-7.33,-3.954
+LTU,Lithuania,Country/Area,2025,2830.144,7.808,14.135,-1.503,-24.618,-8.698
+NOR,Norway,Country/Area,2025,5623.071,9.422,7.775,0.695,29.798,5.299
+SWE,Sweden,Country/Area,2025,10656.633,9.102,9.07,0.445,47.079,4.418
+GBR,United Kingdom,Country/Area,2025,69551.332,9.778,9.691,0.569,389.911,5.606
+ALB,Albania,Country/Area,2025,2771.508,9.898,8.634,-0.748,-24.23,-8.742
+AND,Andorra,Country/Area,2025,82.904,6.854,6.223,1.08,0.843,10.173
+BIH,Bosnia and Herzegovina,Country/Area,2025,3140.096,7.725,13.609,-0.811,-6.994,-2.227
+HRV,Croatia,Country/Area,2025,3848.16,8.054,13.989,-0.684,-3.481,-0.905
+GIB,Gibraltar,Country/Area,2025,40.126,12.248,6.644,1.929,0.549,13.685
+GRC,Greece,Country/Area,2025,9938.844,6.857,12.609,-0.408,16.636,1.674
+VAT,Holy See,Country/Area,2025,0.501,4.303,25.075,0.598,0.013,26.708
+ITA,Italy,Country/Area,2025,59146.26,6.467,11.271,-0.353,75.448,1.276
+XKX,Kosovo (under UNSC res. 1244),Country/Area,2025,1674.125,11.683,6.116,-0.542,-18.38,-10.979
+MLT,Malta,Country/Area,2025,545.405,7.758,7.742,0.948,5.161,9.462
+MNE,Montenegro,Country/Area,2025,632.729,11.014,11.507,-1.515,-9.279,-14.665
+MKD,North Macedonia,Country/Area,2025,1813.791,8.994,11.079,-0.52,-5.645,-3.112
+PRT,Portugal,Country/Area,2025,10411.834,8.227,11.366,-0.156,16.472,1.582
+SMR,San Marino,Country/Area,2025,33.572,5.789,8.472,0.104,0.122,3.622
+SRB,Serbia,Country/Area,2025,6689.039,8.692,14.228,-0.749,-13.086,-1.956
+SVN,Slovenia,Country/Area,2025,2117.072,8.129,10.449,-0.104,2.711,1.281
+ESP,Spain,Country/Area,2025,47889.958,6.892,9.548,-0.064,96.63,2.018
+AUT,Austria,Country/Area,2025,9113.574,8.271,10.23,-0.072,11.254,1.235
+BEL,Belgium,Country/Area,2025,11758.603,8.606,9.837,0.149,31.989,2.721
+FRA,France,Country/Area,2025,66650.804,9.52,9.399,0.15,91.737,1.376
+DEU,Germany,Country/Area,2025,84075.075,8.421,12.389,-0.794,-334.072,-3.973
+LIE,Liechtenstein,Country/Area,2025,40.128,9.241,7.944,0.618,0.194,4.845
+LUX,Luxembourg,Country/Area,2025,680.454,10.211,7.361,1.054,5.237,7.696
+MCO,Monaco,Country/Area,2025,38.341,9.622,19.418,-0.751,0.1,2.621
+NLD,Netherlands,Country/Area,2025,18346.819,9.495,9.218,0.598,104.681,5.706
+CHE,Switzerland,Country/Area,2025,8967.408,9.124,8.48,0.48,37.253,4.154
+,Latin America and the Caribbean,Geographic region,1950,167782.158,43.538,17.377,2.569,-79.941,-0.476
+,Latin America and the Caribbean,Geographic region,1970,285740.932,36.639,10.569,2.439,-481.67,-1.686
+,Latin America and the Caribbean,Geographic region,1990,441884.656,27.155,6.882,1.875,-672.564,-1.522
+,Latin America and the Caribbean,Geographic region,2010,588907.843,18.338,6.167,1.066,-888.119,-1.508
+,Latin America and the Caribbean,Geographic region,2020,646729.384,14.938,7.679,0.632,-608.019,-0.94
+,Latin America and the Caribbean,Geographic region,2025,667888.552,13.815,6.728,0.648,-406.036,-0.608
+AIA,Anguilla,Country/Area,2025,14.728,9.233,6.848,0.733,0.07,4.777
+ATG,Antigua and Barbuda,Country/Area,2025,94.208,11.577,7.128,0.455,0.012,0.124
+ABW,Aruba,Country/Area,2025,108.147,9.458,9.997,0.047,0.111,1.029
+BHS,Bahamas,Country/Area,2025,403.033,10.67,8.88,0.413,0.935,2.319
+BRB,Barbados,Country/Area,2025,282.623,11.044,10.294,0.046,-0.087,-0.307
+BES,"Bonaire, Sint Eustatius and Saba",Country/Area,2025,31.338,9.402,8.565,1.988,0.6,19.13
+VGB,British Virgin Islands,Country/Area,2025,39.732,8.131,6.157,0.589,0.153,3.856
+CYM,Cayman Islands,Country/Area,2025,75.844,11.225,4.935,1.805,0.888,11.715
+CUB,Cuba,Country/Area,2025,10937.204,8.549,10.496,-0.398,-22.244,-2.034
+CUW,Curaçao,Country/Area,2025,185.487,7.538,10.226,-0.017,0.47,2.532
+DMA,Dominica,Country/Area,2025,65.872,10.828,12.517,-0.563,-0.242,-3.673
+DOM,Dominican Republic,Country/Area,2025,11520.487,17.275,6.336,0.787,-35.306,-3.065
+GRD,Grenada,Country/Area,2025,117.304,11.245,8.965,0.074,-0.185,-1.577
+GLP,Guadeloupe,Country/Area,2025,373.791,10.611,9.903,-0.356,-1.587,-4.246
+HTI,Haiti,Country/Area,2025,11906.096,21.622,7.813,1.112,-32.052,-2.692
+JAM,Jamaica,Country/Area,2025,2837.077,11.222,8.348,-0.102,-11.053,-3.896
+MTQ,Martinique,Country/Area,2025,340.439,9.974,10.686,-0.807,-2.491,-7.317
+MSR,Montserrat,Country/Area,2025,4.359,8.55,13.649,-0.619,-0.009,-2.158
+PRI,Puerto Rico,Country/Area,2025,3235.289,5.9,10.739,-0.314,5.495,1.698
+BLM,Saint Barthélemy,Country/Area,2025,11.414,5.18,6.534,1.323,0.158,13.854
+KNA,Saint Kitts and Nevis,Country/Area,2025,46.922,11.461,10.014,0.164,0.018,0.374
+LCA,Saint Lucia,Country/Area,2025,180.149,11.018,8.815,0.205,-0.023,-0.129
+MAF,Saint Martin (French part),Country/Area,2025,24.94,13.425,10.02,-4.375,-1.17,-46.93
+VCT,Saint Vincent and the Grenadines,Country/Area,2025,99.924,11.8,11.572,-0.684,-0.714,-7.147
+SXM,Sint Maarten (Dutch part),Country/Area,2025,43.923,8.996,8.49,1.266,0.53,12.059
+TTO,Trinidad and Tobago,Country/Area,2025,1511.155,10.281,8.953,0.178,0.691,0.457
+TCA,Turks and Caicos Islands,Country/Area,2025,46.855,10.325,7.407,0.664,0.177,3.772
+VIR,United States Virgin Islands,Country/Area,2025,84.138,10.979,15.454,-0.876,-0.357,-4.248
+BLZ,Belize,Country/Area,2025,422.924,17.777,5.018,1.361,0.36,0.85
+CRI,Costa Rica,Country/Area,2025,5152.95,9.825,5.67,0.435,1,0.194
+SLV,El Salvador,Country/Area,2025,6365.503,15.376,7.499,0.412,-23.934,-3.76
+GTM,Guatemala,Country/Area,2025,18687.881,20.34,4.893,1.502,-7.959,-0.426
+HND,Honduras,Country/Area,2025,11005.85,21.315,4.557,1.633,-4.778,-0.434
+MEX,Mexico,Country/Area,2025,131946.9,15.185,6.283,0.808,-108.037,-0.819
+NIC,Nicaragua,Country/Area,2025,7007.502,18.809,4.687,1.293,-8.371,-1.195
+PAN,Panama,Country/Area,2025,4571.189,15.666,4.968,1.204,6.151,1.346
+ARG,Argentina,Country/Area,2025,45851.378,11.081,7.791,0.335,2.859,0.062
+BOL,Bolivia (Plurinational State of),Country/Area,2025,12581.842,20.783,7.172,1.336,-3.179,-0.253
+BRA,Brazil,Country/Area,2025,212812.405,11.882,7.199,0.366,-217.283,-1.021
+CHL,Chile,Country/Area,2025,19859.921,8.579,6.67,0.451,51.712,2.604
+COL,Colombia,Country/Area,2025,53425.635,12.967,5.554,0.983,129.139,2.417
+ECU,Ecuador,Country/Area,2025,18289.896,14.635,5.263,0.843,-17.219,-0.941
+FLK,Falkland Islands (Malvinas),Country/Area,2025,3.469,10.401,7.965,-0.115,-0.017,-4.894
+GUF,French Guiana,Country/Area,2025,313.666,24.21,4.854,1.646,-0.909,-2.899
+GUY,Guyana,Country/Area,2025,835.986,19.499,7.552,0.585,-5.092,-6.091
+PRY,Paraguay,Country/Area,2025,7013.078,19.362,5.745,1.185,-12.423,-1.771
+PER,Peru,Country/Area,2025,34576.665,15.493,5.666,1.017,11.931,0.345
+SUR,Suriname,Country/Area,2025,639.85,16.967,6.91,0.854,-0.967,-1.511
+URY,Uruguay,Country/Area,2025,3384.688,9.748,9.949,-0.06,-1.338,-0.395
+VEN,Venezuela (Bolivarian Republic of),Country/Area,2025,28516.896,15.294,7.792,0.398,-100.467,-3.523
+,Northern America,Geographic region,1950,168009.338,24.161,9.546,1.529,112.538,0.67
+,Northern America,Geographic region,1970,229339.586,18.542,9.222,1.39,1050.272,4.58
+,Northern America,Geographic region,1990,281282.372,16.273,8.434,1.234,1265.532,4.499
+,Northern America,Geographic region,2010,345386.052,12.619,7.955,0.993,1819.567,5.268
+,Northern America,Geographic region,2020,377734.349,10.604,9.788,0.237,586.319,1.552
+,Northern America,Geographic region,2025,387528.403,10.389,8.82,0.559,1556.592,4.017
+BMU,Bermuda,Country/Area,2025,64.554,7.821,9.166,-0.144,-0.002,-0.033
+CAN,Canada,Country/Area,2025,40126.723,8.999,8.139,0.899,326.204,8.129
+GRL,Greenland,Country/Area,2025,55.745,13.232,10.33,-0.185,-0.265,-4.752
+SPM,Saint Pierre and Miquelon,Country/Area,2025,5.574,5.163,14.362,-1.023,-0.008,-1.481
+USA,United States of America,Country/Area,2025,347275.808,10.55,8.898,0.52,1230.663,3.544
+,Oceania,Geographic region,1950,12582.044,27.737,11.645,2.743,142.486,11.325
+,Oceania,Geographic region,1970,19493.814,25.078,9.33,2.777,234.389,12.024
+,Oceania,Geographic region,1990,26839.036,20.251,7.202,1.867,150.887,5.622
+,Oceania,Geographic region,2010,37253.766,18.211,6.642,1.697,201.167,5.4
+,Oceania,Geographic region,2020,44078.974,15.522,6.53,1.082,80.393,1.824
+,Oceania,Geographic region,2025,46609.644,14.889,6.819,1.108,140.121,3.006
+AUS,Australia,Country/Area,2025,26974.026,11.282,6.796,0.957,137.109,5.083
+NZL,New Zealand,Country/Area,2025,5251.899,11.137,7.472,0.698,17.403,3.314
+FJI,Fiji,Country/Area,2025,933.154,17.624,9.534,0.457,-3.288,-3.523
+NCL,New Caledonia,Country/Area,2025,295.333,13.776,6.313,0.896,0.44,1.49
+PNG,Papua New Guinea,Country/Area,2025,10762.817,23.876,6.591,1.726,-0.284,-0.026
+SLB,Solomon Islands,Country/Area,2025,838.646,26.423,5.04,2.334,1.631,1.944
+VUT,Vanuatu,Country/Area,2025,335.169,27.208,4.964,2.207,-0.052,-0.157
+GUM,Guam,Country/Area,2025,168.999,17.03,7.015,0.709,-0.493,-2.915
+KIR,Kiribati,Country/Area,2025,136.488,24.799,7.071,1.435,-0.462,-3.386
+MHL,Marshall Islands,Country/Area,2025,36.282,19.707,7.306,-3.484,-1.698,-46.814
+FSM,Micronesia (Fed. States of),Country/Area,2025,113.683,22.137,7.789,0.449,-1.125,-9.895
+NRU,Nauru,Country/Area,2025,12.025,24.025,7.629,0.624,-0.122,-10.158
+MNP,Northern Mariana Islands,Country/Area,2025,43.541,11.44,5.249,-1.592,-0.963,-22.118
+PLW,Palau,Country/Area,2025,17.663,10.553,11.966,-0.243,-0.016,-0.895
+ASM,American Samoa,Country/Area,2025,46.028,14.737,7.5,-1.566,-1.051,-22.844
+COK,Cook Islands,Country/Area,2025,13.263,10.941,10.024,-3.438,-0.46,-34.647
+PYF,French Polynesia,Country/Area,2025,282.465,10.479,3.977,0.225,-1.199,-4.246
+NIU,Niue,Country/Area,2025,1.82,14.45,14.831,-0.165,0.003,1.43
+WSM,Samoa,Country/Area,2025,219.306,24.625,6.181,0.556,-2.815,-12.838
+TKL,Tokelau,Country/Area,2025,2.608,20.469,5.569,3.681,0.053,20.332
+TON,Tonga,Country/Area,2025,103.742,22.795,6.472,-0.443,-2.15,-20.721
+TUV,Tuvalu,Country/Area,2025,9.492,21.204,9.357,-1.517,-0.255,-26.893
+WLF,Wallis and Futuna Islands,Country/Area,2025,11.194,8.551,8.262,-0.733,-0.083,-7.4

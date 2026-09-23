@@ -1,286 +1,288 @@
 (() => {
   "use strict";
 
-  const index = window.STATISTICS_DATA_INDEX;
-  const countryTopicLabels = {
-    demography: "인구·도시",
-    agriculture: "식량·농업",
-    economy: "산업·교역",
-    energy: "자원·에너지",
-    religion: "종교·문화",
-    region: "지역 판별",
-  };
-  const countryPageSize = window.matchMedia("(max-width: 700px)").matches ? 8 : 24;
-  const state = {
-    countrySearch: "",
-    countryTier: "core",
-    countryTopic: "all",
-    countryVisibleCount: countryPageSize,
-    scope: "all",
-    category: "all",
-    search: "",
-    visibleCount: 60,
-  };
-
-  const dom = {};
+  const elements = {};
+  const tableState = new Map();
+  let data = null;
+  let query = "";
+  let toastTimer = null;
 
   document.addEventListener("DOMContentLoaded", init);
 
-  function init() {
-    collectDom();
-    if (!index?.metrics?.length) {
-      dom.metricTableBody.innerHTML = `<tr><td colspan="5">통계 색인을 불러오지 못함.</td></tr>`;
-      return;
+  async function init() {
+    for (const id of ["statsSearch", "resultCount", "unitList", "unitSelect", "statsContent", "statsToast"]) {
+      elements[id] = document.getElementById(id);
     }
     bindEvents();
-    renderCoverage();
-    renderWorkflows();
-    renderCountryTopicOptions();
-    renderCountries();
-    renderCategoryOptions();
-    renderMetrics();
-  }
-
-  function collectDom() {
-    for (const id of [
-      "metricCoverage", "worldCoverage", "koreaCoverage", "workflowGrid", "scopeFilter",
-      "metricSearch", "categoryFilter", "metricResultCount", "metricTableBody", "loadMoreMetrics",
-      "countrySearch", "countryTierFilter", "countryTopicFilter", "countryResultCount", "countryGrid", "loadMoreCountries",
-    ]) {
-      dom[id] = document.getElementById(id);
+    try {
+      const response = await fetch("./data/textbook-stats.json");
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      data = await response.json();
+      render();
+    } catch (error) {
+      elements.statsContent.innerHTML = '<p class="stats-empty">통계표를 불러오지 못했습니다</p>';
+      console.error("Statistics data load failed", error);
     }
   }
 
   function bindEvents() {
-    dom.countryTierFilter.addEventListener("click", (event) => {
-      const button = event.target.closest("button[data-tier]");
-      if (!button || button.dataset.tier === state.countryTier) return;
-      state.countryTier = button.dataset.tier;
-      state.countryVisibleCount = countryPageSize;
-      dom.countryTierFilter.querySelectorAll("button[data-tier]").forEach((candidate) => {
-        const active = candidate.dataset.tier === state.countryTier;
-        candidate.classList.toggle("is-active", active);
-        candidate.setAttribute("aria-pressed", String(active));
-      });
-      renderCountries();
+    document.querySelector(".stats-subject").addEventListener("click", (event) => {
+      const link = event.target.closest("[data-subject]");
+      if (!link) return;
+      event.preventDefault();
+      updateUrl({ subject: link.dataset.subject, unit: null });
     });
-    dom.countryTopicFilter.addEventListener("change", () => {
-      state.countryTopic = dom.countryTopicFilter.value;
-      state.countryVisibleCount = countryPageSize;
-      renderCountries();
+    document.querySelector(".stats-set").addEventListener("click", (event) => {
+      const link = event.target.closest("[data-set]");
+      if (!link) return;
+      event.preventDefault();
+      updateUrl({ set: link.dataset.set === "textbook" ? "textbook" : null });
     });
-    dom.countrySearch.addEventListener("input", () => {
-      state.countrySearch = dom.countrySearch.value.trim();
-      state.countryVisibleCount = countryPageSize;
-      renderCountries();
+    elements.unitList.addEventListener("click", (event) => {
+      const link = event.target.closest("[data-unit]");
+      if (!link) return;
+      event.preventDefault();
+      updateUrl({ unit: link.dataset.unit });
     });
-    dom.loadMoreCountries.addEventListener("click", () => {
-      state.countryVisibleCount += countryPageSize;
-      renderCountries();
+    elements.unitSelect.addEventListener("change", () => updateUrl({ unit: elements.unitSelect.value }));
+    elements.statsSearch.addEventListener("input", () => {
+      query = normalize(elements.statsSearch.value);
+      render();
     });
-    dom.scopeFilter.addEventListener("click", (event) => {
-      const button = event.target.closest("button[data-scope]");
-      if (!button || button.dataset.scope === state.scope) return;
-      state.scope = button.dataset.scope;
-      state.visibleCount = 60;
-      dom.scopeFilter.querySelectorAll("button[data-scope]").forEach((candidate) => {
-        const active = candidate.dataset.scope === state.scope;
-        candidate.classList.toggle("is-active", active);
-        candidate.setAttribute("aria-pressed", String(active));
-      });
-      renderCategoryOptions();
-      renderMetrics();
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "/" || event.altKey || event.ctrlKey || event.metaKey) return;
+      const tag = document.activeElement?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || document.activeElement?.isContentEditable) return;
+      event.preventDefault();
+      elements.statsSearch.focus();
     });
-    dom.metricSearch.addEventListener("input", () => {
-      state.search = dom.metricSearch.value.trim();
-      state.visibleCount = 60;
-      renderMetrics();
+    elements.statsContent.addEventListener("click", async (event) => {
+      const sort = event.target.closest("[data-sort]");
+      if (sort) {
+        const id = sort.dataset.table;
+        const state = tableState.get(id) || { column: null, direction: null, variant: 0 };
+        const column = Number(sort.dataset.sort);
+        if (state.column !== column || state.direction === null) {
+          state.column = column;
+          state.direction = "desc";
+        } else if (state.direction === "desc") {
+          state.direction = "asc";
+        } else {
+          state.column = null;
+          state.direction = null;
+        }
+        tableState.set(id, state);
+        renderContent();
+        return;
+      }
+      const variant = event.target.closest("[data-variant]");
+      if (variant) {
+        const id = variant.dataset.table;
+        const state = tableState.get(id) || { column: null, direction: null, variant: 0 };
+        state.variant = Number(variant.dataset.variant);
+        state.column = null;
+        state.direction = null;
+        tableState.set(id, state);
+        renderContent();
+        return;
+      }
+      const copy = event.target.closest("[data-copy]");
+      if (copy) {
+        const found = findTable(copy.dataset.copy);
+        if (!found) return;
+        const state = tableState.get(found.id) || { column: null, direction: null, variant: 0 };
+        const rows = getSortedRows(found.variants?.[state.variant]?.rows || found.rows, state);
+        const lines = [
+          [found.rowLabel, ...found.columns.map((column) => column.label)].join("\t"),
+          ...rows.map((row) => [row.label, ...row.values].map((value) => String(value ?? "")).join("\t")),
+        ];
+        try {
+          await navigator.clipboard.writeText(lines.join("\n"));
+          showToast("복사했습니다.");
+        } catch (error) {
+          console.error("Statistics clipboard write failed", error);
+          showToast("복사하지 못했습니다");
+        }
+      }
     });
-    dom.categoryFilter.addEventListener("change", () => {
-      state.category = dom.categoryFilter.value;
-      state.visibleCount = 60;
-      renderMetrics();
-    });
-    dom.loadMoreMetrics.addEventListener("click", () => {
-      state.visibleCount += 60;
-      renderMetrics();
-    });
+    window.addEventListener("popstate", render);
   }
 
-  function renderCoverage() {
-    const coverage = index.coverage;
-    dom.metricCoverage.textContent = `${coverage.metricIndexEntries.toLocaleString("ko-KR")}개 지표`;
-    dom.worldCoverage.textContent = `출제국 ${coverage.examCountries.toLocaleString("ko-KR")}개 · 원자료 ${coverage.worldCountries.toLocaleString("ko-KR")}개`;
-    const koreaRegionCount = Object.values(coverage.koreaRegions || {}).reduce((sum, value) => sum + Number(value || 0), 0);
-    dom.koreaCoverage.textContent = `${koreaRegionCount.toLocaleString("ko-KR")}개 권역 · 기후 ${coverage.koreaClimateStations}곳`;
+  function readState() {
+    const params = new URLSearchParams(location.search);
+    const subject = params.get("subject") === "world" ? "world" : "korea";
+    const units = data?.subjects?.[subject]?.units || [];
+    const preferred = units.find((unit) => unit.chapters.some((chapter) => chapter.tables.length)) || units[0];
+    const unit = units.find((item) => item.id === params.get("unit")) || preferred;
+    return { subject, unit, set: params.get("set") === "textbook" ? "textbook" : "all" };
   }
-
-  function renderWorkflows() {
-    dom.workflowGrid.innerHTML = (index.workflows || []).map((workflow) => `
-      <a class="workflow-card" href="${escapeHtml(workflow.href)}">
-        <p class="workflow-card__eyebrow">${escapeHtml(workflow.eyebrow)}</p>
-        <h3 lang="en">${escapeHtml(workflow.label)}</h3>
-        <p>${escapeHtml(workflow.description)}</p>
-      </a>
-    `).join("");
-  }
-
-  function renderCountryTopicOptions() {
-    const topics = [...new Set((index.countries || []).flatMap((country) => country.topics || []))]
-      .sort((a, b) => Object.keys(countryTopicLabels).indexOf(a) - Object.keys(countryTopicLabels).indexOf(b));
-    dom.countryTopicFilter.innerHTML = [
-      `<option value="all">전체 주제</option>`,
-      ...topics.map((topic) => `<option value="${escapeHtml(topic)}">${escapeHtml(countryTopicLabels[topic] || topic)}</option>`),
-    ].join("");
-  }
-
-  function renderCountries() {
-    const query = normalizeSearch(state.countrySearch);
-    const countries = (index.countries || []).filter((country) => {
-      if (state.countryTier !== "all" && country.tier !== state.countryTier) return false;
-      if (state.countryTopic !== "all" && !country.topics.includes(state.countryTopic)) return false;
-      if (!query) return true;
-      const topicText = country.topics.map((topic) => countryTopicLabels[topic] || topic).join(" ");
-      return normalizeSearch([country.nameKo, ...(country.aliases || []), country.name, country.iso3, country.continent, topicText].join(" ")).includes(query);
-    });
-    const visible = countries.slice(0, state.countryVisibleCount);
-    dom.countryResultCount.textContent = `${visible.length.toLocaleString("ko-KR")} / ${countries.length.toLocaleString("ko-KR")}개 표시 · 핵심 ${index.coverage.examCoreCountries.toLocaleString("ko-KR")} · 보조 ${index.coverage.examSupportCountries.toLocaleString("ko-KR")}`;
-    dom.loadMoreCountries.hidden = visible.length >= countries.length;
-    dom.loadMoreCountries.textContent = `출제 국가 더 보기 · ${Math.min(countryPageSize, countries.length - visible.length)}개`;
-    dom.countryGrid.innerHTML = visible.length
-      ? visible.map(renderCountryCard).join("")
-      : `<p class="empty-state">조건에 맞는 출제 국가가 없음.</p>`;
-  }
-
-  function renderCountryCard(country) {
-    const categoryRows = country.categoryCoverage.map((group) => {
-      const statusClass = group.availableCount === 0
-        ? "is-missing"
-        : group.missingCount === 0 && group.partialCount === 0
-          ? "is-complete"
-          : "is-partial";
-      const partialText = group.partialCount ? ` · 부분 ${group.partialCount.toLocaleString("ko-KR")}` : "";
-      return `<li class="country-category ${statusClass}">
-        <span>${escapeHtml(group.category)}</span>
-        <strong>${group.availableCount.toLocaleString("ko-KR")} / ${group.totalCount.toLocaleString("ko-KR")}</strong>
-        <small>빈칸 ${group.missingCount.toLocaleString("ko-KR")}${partialText}</small>
-      </li>`;
-    }).join("");
-    const coverageLabel = `${country.nameKo} 전체 지표 수록률 ${country.coverageRate.toFixed(1)}%`;
-    const missingGroups = country.missingCategories.length
-      ? `완전 빈 지표군: ${country.missingCategories.join(", ")}`
-      : "모든 지표군에 수록 자료가 있음";
-    const tierLabel = country.tier === "core" ? "핵심" : "보조";
-    const topicTags = country.topics.map((topic) => `<li>${escapeHtml(countryTopicLabels[topic] || topic)}</li>`).join("");
-    return `<article class="country-card">
-      <header class="country-card__header">
-        <div>
-          <p>${escapeHtml(country.continent)} · <span lang="en">${escapeHtml(country.iso3)}</span> · <span class="country-tier country-tier--${escapeHtml(country.tier)}">${tierLabel}</span></p>
-          <h3>${escapeHtml(country.nameKo)}</h3>
-          <p class="country-card__english" lang="en">${escapeHtml(country.name)}</p>
-        </div>
-        <strong class="country-card__rate">${country.coverageRate.toFixed(1)}%</strong>
-      </header>
-      <ul class="country-topic-list" aria-label="수능 주제">${topicTags}</ul>
-      <div class="country-coverage-bar" role="img" aria-label="${escapeHtml(coverageLabel)}">
-        <span style="width: ${country.coverageRate.toFixed(1)}%"></span>
-      </div>
-      <p class="country-card__summary">
-        ${country.availableMetricCount.toLocaleString("ko-KR")}개 수록 · ${country.missingMetricCount.toLocaleString("ko-KR")}개 빈칸${country.partialMetricCount ? ` · 부분 ${country.partialMetricCount.toLocaleString("ko-KR")}` : ""}
-      </p>
-      <details class="country-card__details">
-        <summary>지표군별 가용성 보기</summary>
-        <ul>${categoryRows}</ul>
-        <p>${escapeHtml(missingGroups)}</p>
-      </details>
-      <a
-        class="country-handoff"
-        href="${escapeHtml(country.graphBuilderHref)}"
-        aria-label="${escapeHtml(`${country.nameKo} (${country.iso3})를 Graph Builder 후보로 가져가기`)}"
-      >Graph Builder로 가져가기 <span aria-hidden="true">→</span></a>
-    </article>`;
-  }
-
-  function renderCategoryOptions() {
-    const scoped = index.metrics.filter(matchesScope);
-    const categories = [...new Set(scoped.map((metric) => metric.category).filter(Boolean))]
-      .sort((a, b) => a.localeCompare(b, "ko"));
-    if (state.category !== "all" && !categories.includes(state.category)) state.category = "all";
-    dom.categoryFilter.innerHTML = [
-      `<option value="all">전체 분류 (${categories.length})</option>`,
-      ...categories.map((category) => {
-        const count = scoped.filter((metric) => metric.category === category).length;
-        return `<option value="${escapeHtml(category)}">${escapeHtml(category)} (${count})</option>`;
-      }),
-    ].join("");
-    dom.categoryFilter.value = state.category;
-  }
-
-  function renderMetrics() {
-    const query = normalizeSearch(state.search);
-    const filtered = index.metrics.filter((metric) => {
-      if (!matchesScope(metric)) return false;
-      if (state.category !== "all" && metric.category !== state.category) return false;
-      if (!query) return true;
-      return normalizeSearch([
-        metric.scopeLabel, metric.levelLabel, metric.category, metric.label, metric.unit,
-        metric.latestPeriod, metric.sourceName,
-      ].join(" ")).includes(query);
-    });
-    const visible = filtered.slice(0, state.visibleCount);
-    dom.metricResultCount.textContent = `${visible.length.toLocaleString("ko-KR")} / ${filtered.length.toLocaleString("ko-KR")}개 표시`;
-    dom.loadMoreMetrics.hidden = visible.length >= filtered.length;
-    dom.loadMoreMetrics.textContent = `더 보기 · ${Math.min(60, filtered.length - visible.length)}개`;
-    dom.metricTableBody.innerHTML = visible.length
-      ? visible.map(renderMetricRow).join("")
-      : `<tr><td colspan="5"><p class="empty-state">조건에 맞는 지표가 없음.</p></td></tr>`;
-  }
-
-  function renderMetricRow(metric) {
-    const source = renderMetricSource(metric);
-    const partialCoverage = Number(metric.partialCoverageCount || 0);
-    const coverageDetail = `${metric.coverageCount.toLocaleString("ko-KR")} / ${metric.totalCount.toLocaleString("ko-KR")}${partialCoverage ? ` · 부분 ${partialCoverage.toLocaleString("ko-KR")}` : ""}`;
-    return `<tr>
-      <td data-label="범위"><span class="metric-scope">${escapeHtml(metric.scopeLabel)}</span></td>
-      <td class="metric-name" data-label="지표"><strong>${escapeHtml(metric.label)}</strong><small>${escapeHtml(metric.category)} · ${escapeHtml(metric.unit || "단위 없음")}</small></td>
-      <td data-label="최신 수록 시점">${escapeHtml(metric.latestPeriod)}</td>
-      <td class="coverage-cell" data-label="수록률"><strong>${metric.coverageRate.toFixed(1)}%</strong><small>${coverageDetail}</small></td>
-      <td data-label="출처">${source}</td>
-    </tr>`;
-  }
-
-  function renderMetricSource(metric) {
-    if (metric.sourceLinks?.length) {
-      return `<span class="source-link-group">${metric.sourceLinks.map((source) => `
-        <a class="source-link" href="${escapeHtml(source.url)}" target="_blank" rel="noreferrer">${escapeHtml(shortenSource(source.label))}</a>
-      `).join("")}</span>`;
+  function updateUrl(changes) {
+    const url = new URL(location.href);
+    for (const [key, value] of Object.entries(changes)) {
+      if (value === null) url.searchParams.delete(key);
+      else url.searchParams.set(key, value);
     }
-    return metric.sourceUrl
-      ? `<a class="source-link" href="${escapeHtml(metric.sourceUrl)}" target="_blank" rel="noreferrer">${escapeHtml(shortenSource(metric.sourceName))}</a>`
-      : `<span class="source-link is-missing">${escapeHtml(shortenSource(metric.sourceName))}</span>`;
+    history.pushState(null, "", url);
+    render();
   }
-
-  function matchesScope(metric) {
-    if (state.scope === "all") return true;
-    if (state.scope === "climate") return metric.scope.startsWith("climate-");
-    return metric.scope === state.scope;
+  function render() {
+    if (!data) return;
+    const state = readState();
+    document.querySelectorAll(".stats-subject [data-subject]").forEach((link) => {
+      const active = link.dataset.subject === state.subject;
+      link.classList.toggle("is-active", active);
+      if (active) link.setAttribute("aria-current", "page");
+      else link.removeAttribute("aria-current");
+    });
+    document.querySelectorAll(".stats-set [data-set]").forEach((link) => {
+      const active = link.dataset.set === state.set;
+      link.classList.toggle("is-active", active);
+      link.setAttribute("aria-pressed", String(active));
+      const url = new URL(location.href);
+      if (link.dataset.set === "textbook") url.searchParams.set("set", "textbook");
+      else url.searchParams.delete("set");
+      link.href = url.search;
+    });
+    renderUnits(state);
+    renderContent(state);
   }
-
-  function shortenSource(value) {
-    const text = String(value || "출처 정보 확인 필요");
-    return text.length > 42 ? `${text.slice(0, 39)}…` : text;
+  function renderUnits(state) {
+    const units = data.subjects[state.subject].units;
+    elements.unitList.innerHTML = units.map((unit) => {
+      const count = unit.chapters.reduce((sum, chapter) =>
+        sum + chapter.tables.filter((table) => state.set === "all" || !table.extra).length, 0);
+      const selected = unit.id === state.unit.id;
+      return '<a class="stats-unit-link' + (selected ? ' is-active' : '') +
+        '" href="?subject=' + state.subject + '&unit=' + unit.id +
+        '" data-unit="' + unit.id + '"' + (selected ? ' aria-current="page"' : '') +
+        '><span>' + escapeHtml(unit.id + " " + unit.title) + '</span><span class="stats-unit-count">' +
+        (unit.climate ? "" : count) + '</span></a>';
+    }).join("");
+    elements.unitSelect.innerHTML = units.map((unit) =>
+      '<option value="' + unit.id + '"' + (unit.id === state.unit.id ? " selected" : "") + '>' +
+      escapeHtml(unit.id + " " + unit.title) + '</option>').join("");
   }
-
-  function normalizeSearch(value) {
-    return String(value || "").normalize("NFKC").toLocaleLowerCase("ko").replace(/\s+/g, " ").trim();
+  function renderContent(state = readState()) {
+    if (!data) return;
+    let count = 0;
+    if (state.unit.climate) {
+      const href = state.subject === "korea" ? "../climate/korea.html" : "../climate/index.html";
+      elements.statsContent.innerHTML = '<a class="stats-climate-link" href="' + href + '">Climate Atlas에서 보기</a>';
+      elements.resultCount.textContent = "";
+      return;
+    }
+    const chapters = state.unit.chapters.map((chapter) => {
+      const tables = chapter.tables.filter((table) => state.set === "all" || !table.extra)
+        .filter((table) => matchesTable(table));
+      count += tables.length;
+      if (!tables.length) return "";
+      return '<section class="stats-chapter"><h2 class="stats-chapter-heading"><span class="stats-chapter-no">' +
+        escapeHtml(chapter.no) + '</span>' + escapeHtml(chapter.title) + '</h2>' +
+        tables.map(renderTable).join("") + '</section>';
+    }).join("");
+    elements.statsContent.innerHTML = chapters || '<p class="stats-empty">검색 결과가 없습니다</p>';
+    elements.resultCount.textContent = count + "표";
+    if (location.hash) {
+      const target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      if (target) requestAnimationFrame(() => target.scrollIntoView({ block: "start" }));
+    }
   }
-
+  function matchesTable(table) {
+    if (!query) return true;
+    if (normalize(table.title).includes(query)) return true;
+    const rows = table.variants ? table.variants.flatMap((variant) => variant.rows) : table.rows;
+    return rows.some((item) => normalize(item.label).includes(query));
+  }
+  function renderTable(table) {
+    const state = tableState.get(table.id) || { column: null, direction: null, variant: 0 };
+    const variants = table.variants || null;
+    if (variants && state.variant >= variants.length) state.variant = 0;
+    const rows = getSortedRows(variants?.[state.variant]?.rows || table.rows, state);
+    const max = table.columns.map((_, index) =>
+      Math.max(...rows.map((item) => Number(item.values[index])).filter(Number.isFinite)));
+    const titleMatch = query && normalize(table.title).includes(query);
+    const variantMarkup = variants ? '<nav class="tw-segmented stats-variants" aria-label="' + escapeHtml(table.title) + ' 전환">' +
+      variants.map((variant, index) => '<button type="button" data-table="' + table.id +
+        '" data-variant="' + index + '" aria-pressed="' + (state.variant === index) +
+        '" class="' + (state.variant === index ? "is-active" : "") + '">' + escapeHtml(variant.label) + '</button>').join("") + '</nav>' : "";
+    return '<section class="stats-table-section" id="' + escapeHtml(table.id) + '">' +
+      '<div class="stats-table-top"><h3 class="stats-table-title"><a href="#' + escapeHtml(table.id) + '">' +
+      escapeHtml(table.title) + '</a>' + (table.extra ? '<span class="tw-badge stats-extra-badge">추가</span>' : "") +
+      '</h3><button class="tw-button is-ghost is-sm stats-copy" type="button" data-copy="' +
+      escapeHtml(table.id) + '">복사</button></div>' +
+      '<div class="tw-meta-list stats-table-meta"><span>' + escapeHtml(table.unit) +
+      '</span><span>' + escapeHtml(table.year) + '</span>' +
+      (table.source.url ? '<a href="' + escapeHtml(table.source.url) +
+        '" target="_blank" rel="noopener noreferrer">' + escapeHtml(table.source.name) + '</a>' :
+        '<span>' + escapeHtml(table.source.name) + '</span>') + '</div>' +
+      variantMarkup +
+      '<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table"><thead><tr>' +
+      [{ label: table.rowLabel }, ...table.columns].map((column, index) => {
+        const active = state.column === index;
+        const sort = active ? (state.direction === "desc" ? "descending" : "ascending") : "none";
+        return '<th scope="col" aria-sort="' + sort + '"><button class="stats-sort" type="button" data-table="' +
+          escapeHtml(table.id) + '" data-sort="' + index + '">' + escapeHtml(column.label) +
+          (active ? '<span class="stats-sort-symbol" aria-hidden="true">' + (state.direction === "desc" ? "↓" : "↑") + '</span>' : "") +
+          (column.year ? '<span class="stats-col-year">' + escapeHtml(column.year) + '</span>' : "") +
+          '</button></th>';
+      }).join("") + '</tr></thead><tbody>' + rows.map((item, rowIndex) => {
+        const matched = query && !titleMatch && normalize(item.label).includes(query);
+        const previousGroup = rowIndex ? rows[rowIndex - 1].group : null;
+        const classes = [matched ? "is-match" : "", item.group === "continent" ? "is-continent" : "",
+          item.group === "country" && previousGroup === "continent" ? "is-country-start" : ""].filter(Boolean).join(" ");
+        return '<tr class="' + classes + '"><th scope="row">' + escapeHtml(item.label) + '</th>' +
+          item.values.map((value, index) => {
+            const numeric = typeof value === "number" && Number.isFinite(value);
+            return '<td class="' + (numeric ? "is-number " : "") + (numeric && value === max[index] ? "is-max" : "") +
+              '">' + escapeHtml(formatValue(value)) + '</td>';
+          }).join("") + '</tr>';
+      }).join("") + '</tbody></table></div>' +
+      (table.note ? '<p class="stats-note">' + escapeHtml(table.note) + '</p>' : "") + '</section>';
+  }
+  function getSortedRows(rows, state) {
+    if (state.column === null || !state.direction) return [...rows];
+    const index = state.column;
+    const compareRows = (a, b) => {
+      const left = index === 0 ? a.label : a.values[index - 1];
+      const right = index === 0 ? b.label : b.values[index - 1];
+      const compare = typeof left === "number" && typeof right === "number"
+        ? left - right : String(left).localeCompare(String(right), "ko");
+      return state.direction === "desc" ? -compare : compare;
+    };
+    if (!rows.some((item) => item.group === "continent")) return [...rows].sort(compareRows);
+    const continents = rows.filter((item) => item.group === "continent");
+    const countryGroups = new Map();
+    for (const item of rows.filter((entry) => entry.group === "country")) {
+      if (!countryGroups.has(item.continent)) countryGroups.set(item.continent, []);
+      countryGroups.get(item.continent).push(item);
+    }
+    return [...continents, ...continents.flatMap((item) => (countryGroups.get(item.label) || []).sort(compareRows))];
+  }
+  function findTable(id) {
+    for (const subject of Object.values(data.subjects)) {
+      for (const unit of subject.units) {
+        for (const chapter of unit.chapters) {
+          const found = chapter.tables.find((table) => table.id === id);
+          if (found) return found;
+        }
+      }
+    }
+    return null;
+  }
+  function normalize(value) { return String(value || "").trim().toLocaleLowerCase("ko"); }
+  function formatValue(value) {
+    if (typeof value !== "number") return String(value ?? "");
+    const digits = Number.isInteger(value) ? 0 : String(value).split(".")[1]?.length || 0;
+    return new Intl.NumberFormat("ko-KR", { maximumFractionDigits: Math.min(digits, 2) }).format(value).replace(/-/g, "−");
+  }
   function escapeHtml(value) {
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+    return String(value ?? "").replace(/[&<>"']/g, (character) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+  }
+  function showToast(message) {
+    elements.statsToast.textContent = message;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { elements.statsToast.textContent = ""; }, 2400);
   }
 })();
+
