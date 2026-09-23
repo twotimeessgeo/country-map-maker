@@ -26,6 +26,11 @@ const local = Object.fromEntries([
   "kosis_age_sex_202412", "kosis_manufacturing_2024", "keei_regional_energy_2024",
   "knrec_regional_renewable_2024", "ei_energy_2024", "kosis_cultivated_area_2025",
   "faostat_production_2024", "faostat_trade_2024", "kosis_employment_2025", "kostat_farm_households_2024",
+  "kosis_crop_area_2025", "molit_province_area_2024",
+  "wpp2024_continent_age_2025", "wpp2024_country_migration_rate_history", "un_migrant_stock_2020",
+  "molit_gyeonggi_land_use_2024", "wits_export_groups_2023",
+  "aies_state_manufacturing_2023",
+  "mafra_north_south_2023_2024",
 ].map((name) => [name, JSON.parse(fs.readFileSync(path.join(root, "data-sources/stats", name + ".json"), "utf8"))]));
 const regionSets = {
   monsoon: majorCountryRows.monsoon,
@@ -68,6 +73,9 @@ const industryCodeByProvince = Object.fromEntries(provinceOrder.map((name,index)
 const industryByProvince = (name) => local.kosis_manufacturing_2024[industryCodeByProvince[name]];
 const employmentFullNames = ["서울특별시","부산광역시","대구광역시","인천광역시","광주광역시","대전광역시","울산광역시","세종특별자치시","경기도","강원특별자치도","충청북도","충청남도","전북특별자치도","전라남도","경상북도","경상남도","제주특별자치도"];
 const employmentByProvince = (name) => local.kosis_employment_2025[employmentFullNames[provinceOrder.indexOf(name)]];
+const cropFullName = (name) => ({강원:"강원도",전북:"전라북도",제주:"제주도"}[name]||employmentFullNames[provinceOrder.indexOf(name)]);
+const cropValue = (group,name) => local.kosis_crop_area_2025[group][group==="total_cultivated_area"?employmentFullNames[provinceOrder.indexOf(name)]:cropFullName(name)];
+const landAreaByProvince = (name) => local.molit_province_area_2024[employmentFullNames[provinceOrder.indexOf(name)]];
 const industryGroups = {
   수도권: ["서울", "인천", "경기"], 강원권: ["강원"], 충청권: ["대전", "세종", "충북", "충남"],
   호남권: ["광주", "전북", "전남"], 영남권: ["부산", "대구", "울산", "경북", "경남"], 제주권: ["제주"],
@@ -90,6 +98,7 @@ const faContinent = (dataset,continent,item,element) => {
 };
 const faSource = source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL");
 const farmSource = source("국가데이터처 농림어업조사","https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3");
+const migrantStockSource = source("UN International Migrant Stock 2020","https://www.un.org/development/desa/pd/sites/www.un.org.development.desa.pd/files/undesa_pd_2020_ims_stock_by_sex_destination_and_origin.xlsx");
 const religionKeys = [["christians","크리스트교"],["muslims","이슬람교"],["hindus","힌두교"],["buddhists","불교"],["jews","유대교"],["noReligion","무종교"],["other","기타"]];
 const religionByContinent = (continent) => {
   const values = Object.fromEntries(religionKeys.map(([key])=>[key,0]));
@@ -351,6 +360,103 @@ function make(target) {
       .sort((a,b)=>b.value-a.value).slice(0,5).map((item,index)=>row(String(index+1)+"위",[{name:englishToKorean.get(item.name)||item.name,value:item.value}]))}));
     return table(target,"%","2024",eiSource,["순위",{label:"국가 · 총발전량 대비 비율",unit:"%"}],variants[0].rows,{variants,note:"Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"});
   }
+  if (kind === "kosis-paddy-field") {
+    const metric=km.provinces['paddy-field-area'];
+    const rows=provinceOrder.map((name)=>{
+      const code=Object.entries(kr.provinces).find(([,region])=>region.shortLabel===name)?.[0];
+      const paddy=metric.latestByRegion[code]?.value,total=local.kosis_cultivated_area_2025[name];
+      return row(name,[round(paddy,1),round(total-paddy,1),round(paddy/total*100,1),round((total-paddy)/total*100,1)]);
+    });
+    return table(target,"ha, %","2025",source("국가데이터처 경지면적조사",sourceFromMetric(metric).url),["시도",{label:"논",unit:"ha"},{label:"밭",unit:"ha"},{label:"논 비율",unit:"%"},{label:"밭 비율",unit:"%"}],rows,{note:"밭 면적은 전체 경지에서 논 면적을 뺀 값"});
+  }
+  if (kind === "kosis-crop-area") {
+    const rows=provinceOrder.map((name)=>{
+      const total=cropValue("total_cultivated_area",name),facility=cropValue("facility",name);
+      return row(name,[total,facility,round(facility/total*100,1)]);
+    });
+    return table(target,"ha, %","2025",source("국가데이터처 농업면적조사","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0040"),["시도",{label:"작물재배면적",unit:"ha"},{label:"시설 작물 면적",unit:"ha"},{label:"시설 비율",unit:"%"}],rows,{note:"시설 면적은 KOSIS DT_1ET0017 선택 세부항목 합산; 시설 내 중복 재배 여부에 유의"});
+  }
+  if (kind === "kosis-crop-share-national" || kind === "kosis-crop-share-region") {
+    const cropGroups=[["rice","벼"],["vegetables","채소"],["fruit","노지 과수"]];
+    const totals=cropGroups.map(([key])=>local.kosis_crop_area_2025[key]['계']);
+    const rows=provinceOrder.map((name)=>{
+      const denominator=kind==="kosis-crop-share-region"?cropValue("total_cultivated_area",name):null;
+      const values=cropGroups.map(([key],index)=>round(cropValue(key,name)/(denominator||totals[index])*100,1));
+      return row(name,values);
+    });
+    return table(target,"%","2025",source("국가데이터처 농업면적조사","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0012"),["시도",...cropGroups.map(([,label])=>({label,unit:"%"}))],rows,{note:kind==="kosis-crop-share-region"?"지역 작물재배면적 대비 선택 작물 비중; 다른 작물이 있어 합계는 100%가 아님":"작물별 전국 재배면적 대비 시도 비중; 채소는 DT_1ET0013, 과수는 DT_1ET0014"});
+  }
+  if (kind === "kosis-population-density") {
+    const rows=provinceOrder.map((name)=>{
+      const area=landAreaByProvince(name),population=ageByProvince(name).total;
+      return row(name,[round(area,1),population,round(population/area,1)]);
+    });
+    return table(target,"㎢, 명, 명/㎢","2024.12",source("국토교통부 지적통계, 행정안전부 주민등록인구통계","https://stat.molit.go.kr/portal/cate/statMetaView.do?hRsId=24"),["시도",{label:"면적",unit:"㎢"},{label:"인구",unit:"명"},{label:"인구 밀도",unit:"명/㎢"}],rows,{note:"2024년 12월 말 지적 면적과 주민등록인구로 계산"});
+  }
+  if (kind === "wpp-continent-age") {
+    const values=local.wpp2024_continent_age_2025;
+    const rows=continentOrder.map((continent)=>{
+      const a=values[wppLocations[continent]],total=a.youth+a.working+a.elderly;
+      return row(continentLabels[continent],[round(a.youth/total*100,1),round(a.working/total*100,1),round(a.elderly/total*100,1)]);
+    });
+    return table(target,"%","2025",wppSource,["대륙",{label:"0~14세",unit:"%"},{label:"15~64세",unit:"%"},{label:"65세 이상",unit:"%"}],rows,{note:"UN WPP 2024 중위 추계, 5세별 인구 원수 합산"});
+  }
+  if (kind === "un-migrant-destinations") {
+    const values=local.un_migrant_stock_2020.destination_regions,total=Object.values(values).reduce((sum,value)=>sum+value.migrants,0);
+    const keys={Africa:"903",Asia:"935",Europe:"908","North America":"905","South America":"904",Oceania:"909"};
+    const rows=continentOrder.map((continent)=>row(continentLabels[continent],[round(values[keys[continent]].migrants/1e6,1),round(values[keys[continent]].migrants/total*100,1)]));
+    return table(target,"백만 명, %","2020",migrantStockSource,["목적지",{label:"국제 이주자",unit:"백만 명"},{label:"세계 비율",unit:"%"}],rows,{note:"이주자 이동 유량이 아닌 해당 지역 거주 이주자 재고량"});
+  }
+  if (kind === "wpp-country-migration-rate") {
+    const years=["1990","2000","2010","2020","2025"];
+    const isos=[...new Set([...majorCountryRows.migration,...majorCountryRows.population])];
+    const rows=worldRows(isos,(country)=>local.wpp2024_country_migration_rate_history[country.iso3])
+      .filter(({value})=>years.every((year)=>f(value[year])))
+      .map(({country,value})=>row(cName(country),years.map((year)=>round(value[year],1))));
+    return table(target,"‰","2025",wppSource,["국가",...years.map((year)=>({label:year,year,unit:"‰"}))],rows,{note:"UN WPP 2024 중위 추계, 해당 연도 순이동률"});
+  }
+  if (kind === "un-migrant-origins") {
+    const translations={India:"인도",Indonesia:"인도네시아",Pakistan:"파키스탄",Bangladesh:"방글라데시",Egypt:"이집트",Poland:"폴란드",Turkey:"튀르키예","Russian Federation":"러시아",Kazakhstan:"카자흐스탄","Syrian Arab Republic":"시리아",China:"중국",Philippines:"필리핀","United Kingdom":"영국","United States of America":"미국",Mexico:"멕시코","El Salvador":"엘살바도르","New Zealand":"뉴질랜드"};
+    const variants=Object.entries(local.un_migrant_stock_2020.origin_rank).map(([destination,origins])=>({id:destination,label:destination,rows:origins.map((origin,index)=>row(String(index+1)+"위",[{name:translations[origin.country]||origin.country,value:round(origin.people/1e6,1)}]))}));
+    return table(target,"백만 명","2020",migrantStockSource,["순위",{label:"출신국 · 이주자",unit:"백만 명"}],variants[0].rows,{variants,note:"국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외"});
+  }
+  if (kind === "gyeonggi-land-use" || kind === "gyeonggi-farmland") {
+    const sourceValue=source("국토교통부 지적통계","https://stat.molit.go.kr/portal/cate/statMetaView.do?hRsId=24");
+    const rows=Object.entries(local.molit_gyeonggi_land_use_2024).map(([name,a])=>{
+      if(kind==="gyeonggi-farmland") return row(name,[round(a.dry_field_km2+a.paddy_km2,1),round(a.dry_field_km2/(a.dry_field_km2+a.paddy_km2)*100,1),round(a.paddy_km2/(a.dry_field_km2+a.paddy_km2)*100,1)]);
+      return row(name,["dry_field_km2","paddy_km2","forest_km2","building_km2","road_km2","river_km2","other_km2"].map((field)=>round(a[field]/a.total_km2*100,1)));
+    });
+    return kind==="gyeonggi-farmland"?table(target,"㎢, %","2024.12",sourceValue,["경기 시군",{label:"전·답",unit:"㎢"},{label:"밭 비율",unit:"%"},{label:"논 비율",unit:"%"}],rows,{note:"경기도 주요 10개 시군, 지목상 전·답의 합계"})
+      :table(target,"%","2024.12",sourceValue,["경기 시군",...[["밭","dry_field_km2"],["논","paddy_km2"],["임야","forest_km2"],["대지","building_km2"],["도로","road_km2"],["하천","river_km2"],["기타","other_km2"]].map(([label])=>({label,unit:"%"}))],rows,{note:"경기도 주요 10개 시군, 전체 지적 면적 대비 지목별 비율"});
+  }
+  if (kind === "wits-export-groups") {
+    const names=["튀르키예","카자흐스탄"];
+    const fields=[["Fuels","연료"],["Metals","금속"],["Mach and Elec","기계·전자"],["Transportation","수송기계"],["Textiles and Clothing","섬유·의류"]];
+    const rows=names.map((name)=>{
+      const a=local.wits_export_groups_2023[name],shares=fields.map(([key])=>a.groups[key]);
+      return row(name,[a.exports_million_usd,...shares,round(100-shares.reduce((sum,value)=>sum+value,0),1)]);
+    });
+    return table(target,"백만 달러, %","2023",source("World Bank WITS","https://wits.worldbank.org/CountryProfile/en/Country/TUR/Year/2023/Summarytext"),["국가",{label:"수출 총액",unit:"백만 달러"},...fields.map(([,label])=>({label,unit:"%"})),{label:"기타",unit:"%"}],rows,{note:"WITS에 저장된 튀르키예·카자흐스탄 2023년 상품군 구성; 다른 지역 주요국은 원천 미확보"});
+  }
+  if (kind === "aies-state-manufacturing") {
+    const records=Object.values(local.aies_state_manufacturing_2023).sort((a,b)=>b.total_thousand_usd-a.total_thousand_usd);
+    const rows=records.map((record)=>row(record.name,[round(record.total_thousand_usd/1e6,1),...record.industries.map((industry)=>({name:industry.name,value:round(industry.shipments_thousand_usd/1e6,1)}))]));
+    return table(target,"십억 달러","2023",source("U.S. Census Bureau Annual Integrated Economic Survey","https://data.census.gov/table/AIESBASICTIMESERIES.AIES31BASIC02"),["주",{label:"제조업 총출하액",unit:"십억 달러"},{label:"1위 업종",unit:"십억 달러"},{label:"2위 업종",unit:"십억 달러"},{label:"3위 업종",unit:"십억 달러"}],rows,{note:"50개 주, 2017 NAICS 3자리 업종; 비공개 출하액은 순위에서 제외"});
+  }
+  if (kind === "wto-africa-exports") {
+    const records=readCsv("wto_africa_export_groups_2021.csv");
+    const rows=records.map((record)=>row(record.label,["agriculture","fuels_mining","manufactures","other"].map((field)=>Number(record[field]))));
+    return table(target,"%","2021",source("WTO Trade Profiles 2023","https://www.wto.org/english/res_e/statis_e/daily_update_e/trade_profiles/ET_e.pdf"),["국가",{label:"농산물",unit:"%"},{label:"연료·광물",unit:"%"},{label:"제조품",unit:"%"},{label:"기타",unit:"%"}],rows,{note:"WTO 2023 프로필의 2021년 상품 수출 구성; DR콩고·에티오피아·남아공·보츠와나"});
+  }
+  if (kind === "mafra-north-land" || kind === "mafra-north-crops") {
+    const sourceValue=source("농림축산식품부 농림축산식품 주요통계","https://kass.mafra.go.kr/newkass/cmm/fms/FileDown.do?atchFileId=FILE_000000000022023&fileSn=0");
+    if(kind==="mafra-north-land") {
+      const rows=Object.entries(local.mafra_north_south_2023_2024.land_2023).map(([name,value])=>row(name,[value.cultivated_thousand_ha,value.paddy_thousand_ha,value.dry_field_thousand_ha,value.food_crop_thousand_ha]));
+      return table(target,"천 ha","2023",sourceValue,["지역",{label:"경지",unit:"천 ha"},{label:"논",unit:"천 ha"},{label:"밭",unit:"천 ha"},{label:"식량작물 재배",unit:"천 ha"}],rows,{note:"PDF 574~575쪽, 북한통계 원표 재수록; 북한 경지 구성의 최신 공표 연도"});
+    }
+    const rows=Object.entries(local.mafra_north_south_2023_2024.crop_production_2024).map(([name,value])=>row(name,[value.total_thousand_t,value.rice_thousand_t,value.maize_thousand_t]));
+    return table(target,"천 t","2024",sourceValue,["지역",{label:"식량작물 합계",unit:"천 t"},{label:"쌀",unit:"천 t"},{label:"옥수수",unit:"천 t"}],rows,{note:"PDF 576~577쪽, 북한통계 원표 재수록; 쌀은 정곡 기준"});
+  }
   if (kind === "religion-continent") {
     const rows=continentOrder.map((continent)=>{
       const {total,values}=religionByContinent(continent);
@@ -480,8 +586,9 @@ function make(target) {
       [row("한국",fields.map((field)=>round(a[field]/a.Total*100,1)))],{note:"총발전량 625.4 TWh 기준"});
   }
   if (kind === "kosis-land-area") {
-    return table(target,"ha","2025",source("국가데이터처 경지면적조사","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1EB001"),
-      ["시도",{label:"경지 면적",unit:"ha"}],provinceOrder.map((name)=>row(name,[local.kosis_cultivated_area_2025[name]])));
+    return table(target,"ha, %","2025",source("국가데이터처 경지면적조사, 국토교통부 지적통계","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1EB001"),
+      ["시도",{label:"경지 면적",unit:"ha",year:"2025"},{label:"경지율*",unit:"%",year:"2025"}],provinceOrder.map((name)=>row(name,[local.kosis_cultivated_area_2025[name],round(local.kosis_cultivated_area_2025[name]/(landAreaByProvince(name)*100)*100,1)])),
+      {note:"* 2025년 경지면적을 2024년 12월 말 지적 면적으로 나눈 참고값"});
   }
   if (kind === "ei-world-mix") {
     const a=local.ei_energy_2024.supply_ej['Total World'];
@@ -932,22 +1039,46 @@ for (const [subject, definition] of Object.entries(inventory)) {
 }
 const result = compose(rawTables, gaps);
 const json = JSON.stringify(result, null, 2) + "\n";
-const gapAttempts = {
-  "k-5-04": "data_downloads/kpx 발전량 CSV는 네 전원만 포함; 전체 전원 표 추가 확인 필요",
-  "k-x-01": "data/korea-stats.js의 시군 취업자 통근 비율에는 광역시가 없음; KOSIS DT_1PA2021은 통근통학 혼합",
-  "w-x-03": "data/country-stats.js 미국 값은 2021년; World Bank API NV.AGR.TOTL.ZS 최신 2021년",
+const gapEvidence = {
+  "k-x-01": ["시군 취업자 지표에는 광역시가 없고 2020년 원표는 통근·통학 인구를 합쳐 취업자만의 통근 비율을 계산할 수 없음", "data/korea-stats.js; data_downloads/kosis/raw/DT_1PA2021/101_DT_1PA2021_F_2020.csv"],
+  "k-5-01": ["에너지 생산 시트의 석탄은 toe이며 광물별 물리 생산량이 아님; 광업·제조업조사는 출하액(백만원)만 수록", "data_downloads/keei/2025_지역에너지통계연보_2024자료.xlsx Ⅰ-2; data_downloads/kosis/raw/DT_1FS1101/101_DT_1FS1101_Y_2024.csv"],
+  "k-5-15": ["작물 셀 원천에는 2025년 시도별 재배면적(ha)만 있고 수확 생산량(t) 열이 없음; 농식품 PDF의 생산량은 전국 합계", "data_downloads/kosis/browser_extract/crop_area_2025_20260920/source_cells.json; data_downloads/mafra/2025_agriculture_food_main_statistics.pdf"],
+  "k-5-16": ["작물 셀 원천의 행은 전국·17개 시도만 포함; 시군별 여러 작물 면적은 없음", "data_downloads/kosis/browser_extract/crop_area_2025_20260920/source_cells.json; data/korea-stats.js cities.paddy-field-area"],
+  "k-5-23": ["사업체 원표는 산업분류별 사업체수·종사자수이며 백화점·편의점 등 소매 업태별 판매액 열이 없음", "data_downloads/kosis/raw/DT_1K52F01/101_DT_1K52F01_Y_2024.csv"],
+  "k-5-26": ["지역 연보의 영업자동차 수송은 단양군 범위; 전국 교통수단별 여객 수송량 분모와 같은 연도 원표가 없음", "data_downloads/danyang/yearbook/extracted/11. 교통_관광.xlsx; data/korea-stats.js"],
+  "k-5-27": ["지역 연보의 운수 자료는 단양군 범위; 전국 철도·도로·해운·항공 화물량을 같은 단위로 집계한 원표가 없음", "data_downloads/danyang/yearbook/extracted/11. 교통_관광.xlsx; data/korea-stats.js"],
+  "k-7-03": ["남북한 통계 PDF의 확인한 농업표 574~577쪽에는 1차 에너지원별 북한 공급량이 없음; KEEI 시트는 남한만 포함", "data_downloads/mafra/2025_agriculture_food_main_statistics.pdf; data_downloads/keei/2025_지역에너지통계연보_2024자료.xlsx Ⅰ-3"],
+  "k-7-04": ["KEEI Ⅴ-1은 남한 지역별 발전량만 수록하고 북한 발전량·설비용량은 없음", "data_downloads/keei/2025_지역에너지통계연보_2024자료.xlsx Ⅴ-1; data_downloads/kpx/korea_generation_by_energy_source_2014_2024.csv"],
+  "w-3-36": ["EI 2024 공급 시트는 북아메리카·CIS·중동·아시아태평양 같은 자체 권역만 제공해 여섯 대륙의 세계 총량 비중으로 직접 변환할 수 없음", "data_downloads/energy_institute/EI_Statistical_Review_2025_ALL_data.xlsx TES by fuel"],
+  "w-3-41": ["EI 공급 시트는 재생 전체와 수력만 분리하며 태양광·풍력·바이오 공급량은 없음; KNREC 원표는 한국 지역만 수록", "data_downloads/energy_institute/EI_Statistical_Review_2025_ALL_data.xlsx TES by fuel; data_downloads/knrec/2024_신재생에너지보급통계_통계표1_연도별지역별현황.xlsx"],
+  "w-4-03": ["저장된 WITS 2023 상품군 원본은 튀르키예·카자흐스탄·UAE·튀니지뿐이며 몬순 주요국의 같은 분류 수출 구성이 없음", "data_downloads/wits/export_summarytext_2023/TUR_2023_summarytext.txt; data_downloads/wits/export_summarytext_2023/processed_export_groups_2023.csv"],
+  "w-4-05": ["확인한 EI 시트는 석유·가스·석탄, FAOSTAT 추출은 식량작물·가축으로 한정되어 해당 지역의 기타 광물·자원 항목을 같은 정의로 채울 수 없음", "data_downloads/energy_institute/EI_Statistical_Review_2025_ALL_data.xlsx; data_downloads/faostat/raw/Production_Crops_Livestock_E_All_Data_Normalized_20251231.zip"],
+  "w-7-01": ["로컬 4개국 값의 조사 연도가 2003·2010·2011로 다르고 인종·민족 범주도 일치하지 않아 비교용 최신 통일 표를 만들 수 없음", "data_downloads/cia_world_factbook/ethnic_composition_jm_co_br_uy.json"],
+  "w-7-02": ["WITS 총수출액·상품군 원본은 건조 지역 4개국만 있으며 중·남부 아메리카 국가 행이 없음", "data_downloads/wits/export_summarytext_2023/processed_export_groups_2023.csv; data_downloads/wits/export_summarytext_2023/TUR_2023_summarytext.txt"],
+  "w-7-04": ["WTO 추출값은 아프리카 4개국, WITS 원본은 건조 지역 4개국이므로 중·남부 아메리카 상품군 행이 없음", "data_downloads/wto/trade_profiles_2023/africa_export_commodity_groups_2021.csv; data_downloads/wits/export_summarytext_2023/processed_export_groups_2023.csv"],
 };
+for (const gap of gaps) {
+  if (!gapEvidence[gap.target.id]) throw new Error("GAPS 직접 확인 근거 누락: " + gap.target.id);
+}
 const gapLine = ({ subject, target, reason }) => [
   slugFor(subject, target.id), subject === "korea" ? "한국 " + topicFor(subject, target.id) : "세계 " + topicFor(subject, target.id),
-  target.title, reason,
-  gapAttempts[target.id] || "data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그",
+  target.title, gapEvidence[target.id]?.[0] || reason,
+  gapEvidence[target.id]?.[1] || "해당 원천 경로 미기록",
 ].map((value) => String(value).replaceAll("|", "\\|")).join(" | ").replace(/^/, "| ").replace(/$/, " |");
 const gapMarkdown = [
   "# Statistics 미수록 표", "",
-  "값이나 정의를 확인하지 못한 표입니다. 확인한 원천과 누락 사유를 기록합니다.", "",
+  "값이나 정의를 확인하지 못한 표입니다. `data_downloads/`는 `~/Documents/New project 8/data_downloads/`를 가리킵니다. 각 행에 직접 확인한 파일과 누락된 열·범위를 기록했습니다.", "",
   "| ID | 주제 | 표 | 필요한 원천 또는 사유 | 확인한 경로 |",
   "| --- | --- | --- | --- | --- |",
   ...gaps.map(gapLine), "",
+  "## 부분 수록 범위", "",
+  "- 작물 단위 면적 생산량: 쌀 수출 비율은 FAOSTAT의 도정미 환산 교역량과 벼 생산량 정의가 달라 빈값으로 둠.",
+  "- 화석연료 생산과 소비: 생산−소비는 수급 차이이며 실제 순수출입은 아님.",
+  "- 경지율: 2025년 경지면적을 2024년 12월 말 지적 면적으로 나눈 참고값임.",
+  "- 전·겸업 농가: 공식 PDF는 특·광역시를 하나로 묶어 17개 시도 개별 비율을 제공하지 않음.",
+  "- 건조 지역 수출 구성: 저장된 WITS 원본 중 비교 대상인 튀르키예·카자흐스탄만 수록함.",
+  "- 아프리카 수출 구성: WTO 2023 프로필의 상품군 기준 연도는 2021년이고 수록 국가는 4개임.",
+  "",
 ].join("\n");
 if (check) {
   for (const [filename, expected] of [[output, json], [gapsOutput, gapMarkdown]]) {

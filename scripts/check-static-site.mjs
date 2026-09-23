@@ -127,6 +127,9 @@ if (isSourceCheck) {
     if (!view?.rows?.length || !view.columns?.length || !view.source?.name || !view.source?.url) {
       errors.push("Statistics 표 내용·출처가 비었습니다: " + tableId); return;
     }
+    if (["KOSIS","행정안전부","국가데이터처","국토교통부","UN DESA","World Bank"].includes(view.source.name)) {
+      errors.push("Statistics 출처에 기관과 통계명을 함께 적어야 합니다: " + tableId);
+    }
     const checkTime = (time) => !time || /^\d{4}년(?: \d{1,2}(?:~\d{1,2})?월(?: \d{1,2}일)?| 하반기)?$/.test(time);
     if (!checkTime(view.year)) errors.push("Statistics 기준 시점 표기 오류: " + tableId + " / " + view.year);
     for (const column of view.columns) {
@@ -157,12 +160,20 @@ if (isSourceCheck) {
     }
     if (count !== stats.meta?.tableCount?.[subject]) errors.push("Statistics 표 수가 메타와 다릅니다: " + subject);
   }
+  if (stats.meta?.gapCount > 20) errors.push("Statistics 미수록 표가 20건을 초과합니다.");
+  if (isSourceCheck) {
+    const gapsText = fs.readFileSync(path.join(rootDir,"tools","stats","GAPS.md"),"utf8");
+    const gapRows = gapsText.split(/\r?\n/).filter((line) => /^\| (?:korea|world)-/.test(line));
+    if (gapRows.length !== stats.meta?.gapCount || gapRows.some((line) => line.includes("data_downloads 카탈로그") || line.includes("원천 경로 미기록"))) {
+      errors.push("Statistics GAPS 건수 또는 직접 확인 경로가 올바르지 않습니다.");
+    }
+  }
   const publicStatsText = [
     fs.readFileSync(path.join(rootDir,"tools","stats","index.html"),"utf8"),
     fs.readFileSync(path.join(rootDir,"tools","stats","app.js"),"utf8"),
     fs.readFileSync(statsPath,"utf8"),
   ].join("\n");
-  for (const forbidden of ["textbook", "교재", "수능특강", "textbook-stats.json"]) {
+  for (const forbidden of ["textbook", "교재", "수능특강", "textbook-stats.json", "기독교"]) {
     if (publicStatsText.includes(forbidden)) errors.push("Statistics 공개 파일에 이전 분류 표현이 남았습니다: " + forbidden);
   }
   if (publicStatsText.includes("stats-ref/") || publicStatsText.includes("Documents/New project")) errors.push("Statistics 공개 파일에 로컬 참조 경로가 남았습니다.");

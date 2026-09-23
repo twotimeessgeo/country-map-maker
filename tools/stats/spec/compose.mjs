@@ -19,6 +19,11 @@ const slugNames = {
   "w-3-27":"crop-trade-continents","w-3-28":"crop-trade-rank","w-3-33":"livestock-continents",
   "k-5-08":"farm-types","k-5-12":"small-farms","k-5-21":"manufacturing-sectors-province","k-5-22":"manufacturing-sectors-region","k-5-24":"employment-structure",
   "w-3-37":"fossil-energy-balance","w-3-40":"renewable-generation-rank","w-4-01":"monsoon-gdp","w-5-01":"dry-gdp","w-5-04":"dry-fossil-production",
+  "k-5-10":"paddy-field-share","k-5-11":"crop-area","k-5-13":"crop-share-national","k-5-14":"crop-share-region","k-6-02":"population-density",
+  "w-3-08":"age-structure-continents","w-3-12":"migrant-destinations","w-3-15":"migration-rate-countries","w-3-17":"migrant-origins",
+  "k-7-06":"capital-land-use","k-7-07":"capital-farmland","w-5-02":"dry-exports",
+  "w-6-01":"us-state-manufacturing","w-7-03":"africa-export-groups",
+  "k-7-01":"north-south-land","k-7-02":"north-south-crops",
   "k-6-01":"population","k-6-03":"age-structure","k-6-06":"net-migration","k-6-07":"city-growth",
   "k-x-03":"births-deaths","k-6-08":"foreign-residents","k-6-09":"city-foreign-share","k-x-04":"foreign-types","k-7-05":"capital-share",
   "w-3-04":"religion-asia","w-3-05":"religion-africa","w-3-06":"population-history","w-3-07":"birth-death",
@@ -34,6 +39,7 @@ const titles = {
   "k-4-01":"인구 상위 도시","k-4-02":"인구 상위 도시","k-4-07":"상주인구와 주간인구","k-4-08":"상주인구와 주간인구",
   "k-x-02":"최종에너지와 전력","k-5-07":"농가 수","k-5-17":"제조업","k-5-25":"지역 내 총생산",
   "k-5-08":"전·겸업 농가","k-5-12":"0.5ha 미만 농가","k-5-21":"제조업 업종","k-5-22":"제조업 업종 구성","k-5-24":"취업 구조",
+  "k-5-10":"논과 밭","k-5-11":"작물 재배 면적","k-5-13":"작물별 전국 비중","k-5-14":"작물별 지역 내 비중","k-6-02":"인구 밀도",
   "k-6-01":"총인구","k-6-03":"연령 구조","k-6-06":"인구 순이동","k-6-07":"시군 인구 증가율",
   "k-x-03":"출생과 사망","k-6-08":"외국인주민","k-6-09":"시군 외국인주민 비율","k-x-04":"외국인주민 유형",
   "k-7-05":"수도권 주요 지표","w-3-04":"종교 구성","w-3-05":"종교 구성",
@@ -41,6 +47,10 @@ const titles = {
   "w-3-22":"도시화율","w-x-01":"도시화율","w-3-29":"생산 상위 국가",
   "w-3-32":"사육 두수 상위 국가","w-3-42":"발전원 구성","w-x-02":"발전원 구성",
   "w-3-34":"세계 1차 에너지 공급","w-3-35":"1차 에너지 공급 상위 국가","w-3-37":"화석연료 생산과 소비","w-3-40":"재생 발전 비율 상위 국가",
+  "w-3-08":"연령 구조","w-3-12":"이주자 목적지","w-3-15":"국가별 순이동률","w-3-17":"이주자 출신국",
+  "k-7-06":"경기 주요 시군 토지 이용","k-7-07":"경기 주요 시군 경지","w-5-02":"수출 구성",
+  "w-6-01":"미국 주별 제조업 출하액","w-7-03":"수출 상품군",
+  "k-7-01":"남북한 경지","k-7-02":"남북한 식량작물 생산",
   "w-4-01":"GDP와 1인당 GDP","w-5-01":"GDP와 1인당 GDP","w-5-04":"화석연료 생산",
   "w-4-02":"산업 구조","w-4-04":"작물 생산","w-5-03":"산업 구조","w-5-05":"작물 생산","w-x-04":"산업 구조",
 };
@@ -89,11 +99,14 @@ export function formatYear(value) {
 }
 function sourceName(id,table) {
   const original=table.source?.name||"";
-  if(["k-4-01","k-4-02","k-6-01"].includes(id)) return "행정안전부 주민등록인구통계";
+  if(["k-4-01","k-4-02","k-4-03","k-4-04","k-4-05","k-4-06","k-6-01"].includes(id)) return "행정안전부 주민등록인구통계";
   if(["k-4-07","k-4-08"].includes(id)) return "국가데이터처 인구총조사";
   if(id==="k-5-07") return "국가데이터처 농림어업조사";
   if(id==="k-5-17") return "국가데이터처 광업·제조업조사";
   if(["k-5-08","k-5-12"].includes(id)) return "국가데이터처 농림어업조사";
+  if(["k-5-10"].includes(id)) return "국가데이터처 경지면적조사";
+  if(["k-5-11","k-5-13","k-5-14"].includes(id)) return "국가데이터처 농업면적조사";
+  if(id==="k-6-02") return "국토교통부 지적통계, 행정안전부 주민등록인구통계";
   if(id==="k-5-24") return "국가데이터처 경제활동인구조사";
   if(["k-5-18","k-5-19","k-5-20","k-5-21","k-5-22"].includes(id)) return "국가데이터처 광업·제조업조사";
   if(["k-5-02","k-5-03"].includes(id)) return "에너지경제연구원 지역에너지통계연보";
@@ -106,8 +119,14 @@ function sourceName(id,table) {
   if(id==="k-x-03") return "국가데이터처 인구동향조사";
   if(id==="k-6-07") return "행정안전부 주민등록인구통계";
   if(id==="k-7-05") return "국가데이터처 e-지방지표";
+  if(["k-7-06","k-7-07"].includes(id)) return "국토교통부 지적통계";
+  if(["k-7-01","k-7-02"].includes(id)) return "농림축산식품부 농림축산식품 주요통계";
+  if(id==="w-5-02") return "World Bank WITS";
+  if(id==="w-6-01") return "U.S. Census Bureau Annual Integrated Economic Survey";
+  if(id==="w-7-03") return "WTO Trade Profiles 2023";
   if(["k-6-08","k-6-09","k-x-04"].includes(id)) return "행정안전부 지방자치단체 외국인주민 현황";
   if(original.includes("Pew")) return "Pew Research Center (Our World in Data)";
+  if(["w-3-12","w-3-17"].includes(id)) return "UN International Migrant Stock 2020";
   if(["w-4-01","w-5-01"].includes(id)) return "World Bank WDI, UN 세계인구전망 2024";
   if(original.includes("UN") && ["w-3-18","w-3-19","w-3-20","w-3-21","w-3-22","w-x-01"].includes(id)) return "UN 세계도시화전망";
   if(original.includes("UN")) return "UN 세계인구전망 2024";
@@ -219,7 +238,9 @@ function combine(subject,topic,entries) {
     add("world-"+region+"-compare","지역 비교",pairs);
   }
   if(subject==="korea"&&topic==="region") {
-    add("korea-region-compare","지역 비교",[["k-7-05","수도권"],["k-7-01","북한"]]);
+    if([...map.keys()].some((key)=>/^k-7-0[1-4]$/.test(key)))
+      add("korea-north-compare","남북한 비교",[["k-7-01","경지"],["k-7-02","식량"]]);
+    else add("korea-capital-compare","수도권 비교",[["k-7-05","주요 지표"],["k-7-06","토지 이용"],["k-7-07","경지"]]);
   }
   out.push(...map.values());
   return out;

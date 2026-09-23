@@ -148,3 +148,24 @@ with employment_path.open(encoding='utf-8-sig') as handle:
             employment[region][field] = numeric(record['2025'])
 assert len(employment) == 17 and all(len(value) == 4 for value in employment.values())
 write('kosis_employment_2025.json', dict(employment))
+
+crop_path = source / 'kosis/browser_extract/crop_area_2025_20260920/source_cells.json'
+crop_cells = json.loads(crop_path.read_text())
+crop_data = {}
+for key in ('rice', 'vegetables', 'facility', 'fruit'):
+    source_rows = crop_cells[key]['rows']
+    crop_data[key] = {fields[0]: sum(int(value.replace(',', '')) for value in fields[1:]) for fields in source_rows}
+utilization_path = source / 'kosis/browser_extract/DT_1ET0040/DT_1ET0040_total_land_utilization_rate_2025_20260904.json'
+utilization = json.loads(utilization_path.read_text())
+crop_data['total_cultivated_area'] = {record['region']: record['cultivatedAreaHa'] for record in utilization['rows']}
+assert all(len(crop_data[key]) == 18 for key in crop_data)
+write('kosis_crop_area_2025.json', crop_data)
+
+land_book = openpyxl.load_workbook(source / 'kosis/korea_land_farm_2024/raw/molit_cadastral_yearbook_2024_12/99_summary_2024_12.xlsx', read_only=True, data_only=True)
+land_sheet = land_book['(11)전국시군구별면적순위현황']
+land_area = defaultdict(float)
+for fields in land_sheet.iter_rows(min_row=6, values_only=True):
+    if isinstance(fields[0], int) and isinstance(fields[1], str) and numeric(fields[3]) is not None:
+        land_area[fields[1].split()[0]] += float(fields[3]) / 1000000
+assert len(land_area) == 17 and 100000 < sum(land_area.values()) < 101000
+write('molit_province_area_2024.json', dict(land_area))

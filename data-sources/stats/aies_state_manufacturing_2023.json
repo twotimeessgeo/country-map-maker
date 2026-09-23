@@ -1,0 +1,1052 @@
+{
+  "01": {
+    "name": "Alabama",
+    "total_thousand_usd": 173750546,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 65806740
+      },
+      {
+        "naics": "331",
+        "name": "Primary metal manufacturing",
+        "shipments_thousand_usd": 23869145
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 16943854
+      }
+    ]
+  },
+  "02": {
+    "name": "Alaska",
+    "total_thousand_usd": 6140886,
+    "industries": [
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 2844911
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 2655876
+      },
+      {
+        "naics": "332",
+        "name": "Fabricated metal product manufacturing",
+        "shipments_thousand_usd": 117105
+      }
+    ]
+  },
+  "04": {
+    "name": "Arizona",
+    "total_thousand_usd": 76344534,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 18452689
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 10692311
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 9594763
+      }
+    ]
+  },
+  "05": {
+    "name": "Arkansas",
+    "total_thousand_usd": 78369535,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 23033164
+      },
+      {
+        "naics": "331",
+        "name": "Primary metal manufacturing",
+        "shipments_thousand_usd": 9232454
+      },
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 6162890
+      }
+    ]
+  },
+  "06": {
+    "name": "California",
+    "total_thousand_usd": 649521663,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 96420884
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 90397454
+      },
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 88585375
+      }
+    ]
+  },
+  "08": {
+    "name": "Colorado",
+    "total_thousand_usd": 58977524,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 14795592
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 6642254
+      },
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 5203591
+      }
+    ]
+  },
+  "09": {
+    "name": "Connecticut",
+    "total_thousand_usd": 68929056,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 28003945
+      },
+      {
+        "naics": "332",
+        "name": "Fabricated metal product manufacturing",
+        "shipments_thousand_usd": 8122986
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 5453145
+      }
+    ]
+  },
+  "10": {
+    "name": "Delaware",
+    "total_thousand_usd": 39593295,
+    "industries": [
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 21825360
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 5436574
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 1044241
+      }
+    ]
+  },
+  "12": {
+    "name": "Florida",
+    "total_thousand_usd": 148032637,
+    "industries": [
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 20298111
+      },
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 17568800
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 16745152
+      }
+    ]
+  },
+  "13": {
+    "name": "Georgia",
+    "total_thousand_usd": 220379711,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 44105337
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 40968476
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 18879802
+      }
+    ]
+  },
+  "15": {
+    "name": "Hawaii",
+    "total_thousand_usd": 8313129,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 996016
+      },
+      {
+        "naics": "327",
+        "name": "Nonmetallic mineral product manufacturing",
+        "shipments_thousand_usd": 482830
+      },
+      {
+        "naics": "312",
+        "name": "Beverage and tobacco product manufacturing",
+        "shipments_thousand_usd": 228915
+      }
+    ]
+  },
+  "16": {
+    "name": "Idaho",
+    "total_thousand_usd": 31388090,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 16097845
+      },
+      {
+        "naics": "321",
+        "name": "Wood product manufacturing",
+        "shipments_thousand_usd": 2552226
+      },
+      {
+        "naics": "332",
+        "name": "Fabricated metal product manufacturing",
+        "shipments_thousand_usd": 2178976
+      }
+    ]
+  },
+  "17": {
+    "name": "Illinois",
+    "total_thousand_usd": 322229817,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 60507326
+      },
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 45386635
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 42892820
+      }
+    ]
+  },
+  "18": {
+    "name": "Indiana",
+    "total_thousand_usd": 323264901,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 106326128
+      },
+      {
+        "naics": "331",
+        "name": "Primary metal manufacturing",
+        "shipments_thousand_usd": 37230981
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 34097783
+      }
+    ]
+  },
+  "19": {
+    "name": "Iowa",
+    "total_thousand_usd": 154708457,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 52607334
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 30115552
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 27507441
+      }
+    ]
+  },
+  "20": {
+    "name": "Kansas",
+    "total_thousand_usd": 111599194,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 35981822
+      },
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 19850971
+      },
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 17133470
+      }
+    ]
+  },
+  "21": {
+    "name": "Kentucky",
+    "total_thousand_usd": 166732860,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 60525530
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 17505798
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 13830836
+      }
+    ]
+  },
+  "22": {
+    "name": "Louisiana",
+    "total_thousand_usd": 237845395,
+    "industries": [
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 132361912
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 66490976
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 9398484
+      }
+    ]
+  },
+  "23": {
+    "name": "Maine",
+    "total_thousand_usd": 19103809,
+    "industries": [
+      {
+        "naics": "322",
+        "name": "Paper manufacturing",
+        "shipments_thousand_usd": 3402017
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 2772860
+      },
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 2565082
+      }
+    ]
+  },
+  "24": {
+    "name": "Maryland",
+    "total_thousand_usd": 55967870,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 12191144
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 11838878
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 8006028
+      }
+    ]
+  },
+  "25": {
+    "name": "Massachusetts",
+    "total_thousand_usd": 99359406,
+    "industries": [
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 20023547
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 17882302
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 11343021
+      }
+    ]
+  },
+  "26": {
+    "name": "Michigan",
+    "total_thousand_usd": 309577528,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 138220108
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 26601431
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 23634197
+      }
+    ]
+  },
+  "27": {
+    "name": "Minnesota",
+    "total_thousand_usd": 160563060,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 36471230
+      },
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 16918769
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 16384380
+      }
+    ]
+  },
+  "28": {
+    "name": "Mississippi",
+    "total_thousand_usd": 89544138,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 21481148
+      },
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 19482528
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 9287278
+      }
+    ]
+  },
+  "29": {
+    "name": "Missouri",
+    "total_thousand_usd": 145651220,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 38287684
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 29554009
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 16120058
+      }
+    ]
+  },
+  "30": {
+    "name": "Montana",
+    "total_thousand_usd": 17030332,
+    "industries": [
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 9650962
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 1287888
+      },
+      {
+        "naics": "331",
+        "name": "Primary metal manufacturing",
+        "shipments_thousand_usd": 1143069
+      }
+    ]
+  },
+  "31": {
+    "name": "Nebraska",
+    "total_thousand_usd": 73421885,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 38277145
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 11192240
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 4760654
+      }
+    ]
+  },
+  "32": {
+    "name": "Nevada",
+    "total_thousand_usd": 36493401,
+    "industries": [
+      {
+        "naics": "339",
+        "name": "Miscellaneous manufacturing",
+        "shipments_thousand_usd": 3650778
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 3429988
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 2739165
+      }
+    ]
+  },
+  "33": {
+    "name": "New Hampshire",
+    "total_thousand_usd": 25681141,
+    "industries": [
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 5044799
+      },
+      {
+        "naics": "332",
+        "name": "Fabricated metal product manufacturing",
+        "shipments_thousand_usd": 4035668
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 3090959
+      }
+    ]
+  },
+  "34": {
+    "name": "New Jersey",
+    "total_thousand_usd": 117939481,
+    "industries": [
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 30761381
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 17045675
+      },
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 16800659
+      }
+    ]
+  },
+  "35": {
+    "name": "New Mexico",
+    "total_thousand_usd": 15322979,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 4185298
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 1899241
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 928845
+      }
+    ]
+  },
+  "36": {
+    "name": "New York",
+    "total_thousand_usd": 177741668,
+    "industries": [
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 32194526
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 26064724
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 19947678
+      }
+    ]
+  },
+  "37": {
+    "name": "North Carolina",
+    "total_thousand_usd": 232795448,
+    "industries": [
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 35114456
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 31027518
+      },
+      {
+        "naics": "312",
+        "name": "Beverage and tobacco product manufacturing",
+        "shipments_thousand_usd": 30626000
+      }
+    ]
+  },
+  "38": {
+    "name": "North Dakota",
+    "total_thousand_usd": 23654442,
+    "industries": [
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 6725857
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 6089632
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 3307710
+      }
+    ]
+  },
+  "39": {
+    "name": "Ohio",
+    "total_thousand_usd": 378249141,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 82523304
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 42179752
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 39089648
+      }
+    ]
+  },
+  "40": {
+    "name": "Oklahoma",
+    "total_thousand_usd": 80784952,
+    "industries": [
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 22397636
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 9791359
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 8827114
+      }
+    ]
+  },
+  "41": {
+    "name": "Oregon",
+    "total_thousand_usd": 77648019,
+    "industries": [
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 19326130
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 13776518
+      },
+      {
+        "naics": "321",
+        "name": "Wood product manufacturing",
+        "shipments_thousand_usd": 9427134
+      }
+    ]
+  },
+  "42": {
+    "name": "Pennsylvania",
+    "total_thousand_usd": 259913041,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 41624472
+      },
+      {
+        "naics": "331",
+        "name": "Primary metal manufacturing",
+        "shipments_thousand_usd": 26099104
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 25724659
+      }
+    ]
+  },
+  "44": {
+    "name": "Rhode Island",
+    "total_thousand_usd": 13086179,
+    "industries": [
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 2292999
+      },
+      {
+        "naics": "332",
+        "name": "Fabricated metal product manufacturing",
+        "shipments_thousand_usd": 1942939
+      },
+      {
+        "naics": "331",
+        "name": "Primary metal manufacturing",
+        "shipments_thousand_usd": 1430967
+      }
+    ]
+  },
+  "45": {
+    "name": "South Carolina",
+    "total_thousand_usd": 150901356,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 50529546
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 17757129
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 12577827
+      }
+    ]
+  },
+  "46": {
+    "name": "South Dakota",
+    "total_thousand_usd": 21471759,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 7326845
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 3545763
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 2319777
+      }
+    ]
+  },
+  "47": {
+    "name": "Tennessee",
+    "total_thousand_usd": 200602057,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 59285590
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 26194639
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 17319754
+      }
+    ]
+  },
+  "48": {
+    "name": "Texas",
+    "total_thousand_usd": 765630085,
+    "industries": [
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 230060026
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 153740166
+      },
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 84378788
+      }
+    ]
+  },
+  "49": {
+    "name": "Utah",
+    "total_thousand_usd": 72760139,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 13745949
+      },
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 8859459
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 8088310
+      }
+    ]
+  },
+  "50": {
+    "name": "Vermont",
+    "total_thousand_usd": 10058588,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 3115824
+      },
+      {
+        "naics": "334",
+        "name": "Computer and electronic product manufacturing",
+        "shipments_thousand_usd": 1250845
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 791512
+      }
+    ]
+  },
+  "51": {
+    "name": "Virginia",
+    "total_thousand_usd": 126169264,
+    "industries": [
+      {
+        "naics": "312",
+        "name": "Beverage and tobacco product manufacturing",
+        "shipments_thousand_usd": 26761344
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 17548042
+      },
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 16779087
+      }
+    ]
+  },
+  "53": {
+    "name": "Washington",
+    "total_thousand_usd": 141538708,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 44954348
+      },
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 24839307
+      },
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 17700734
+      }
+    ]
+  },
+  "54": {
+    "name": "West Virginia",
+    "total_thousand_usd": 31299101,
+    "industries": [
+      {
+        "naics": "336",
+        "name": "Transportation equipment manufacturing",
+        "shipments_thousand_usd": 6651249
+      },
+      {
+        "naics": "331",
+        "name": "Primary metal manufacturing",
+        "shipments_thousand_usd": 3099757
+      },
+      {
+        "naics": "332",
+        "name": "Fabricated metal product manufacturing",
+        "shipments_thousand_usd": 2092647
+      }
+    ]
+  },
+  "55": {
+    "name": "Wisconsin",
+    "total_thousand_usd": 220114734,
+    "industries": [
+      {
+        "naics": "311",
+        "name": "Food manufacturing",
+        "shipments_thousand_usd": 57971549
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 28526030
+      },
+      {
+        "naics": "332",
+        "name": "Fabricated metal product manufacturing",
+        "shipments_thousand_usd": 21568210
+      }
+    ]
+  },
+  "56": {
+    "name": "Wyoming",
+    "total_thousand_usd": 11772690,
+    "industries": [
+      {
+        "naics": "324",
+        "name": "Petroleum and coal products manufacturing",
+        "shipments_thousand_usd": 5571037
+      },
+      {
+        "naics": "325",
+        "name": "Chemical manufacturing",
+        "shipments_thousand_usd": 3903675
+      },
+      {
+        "naics": "333",
+        "name": "Machinery manufacturing",
+        "shipments_thousand_usd": 564360
+      }
+    ]
+  }
+}

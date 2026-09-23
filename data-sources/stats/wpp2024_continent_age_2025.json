@@ -1,0 +1,32 @@
+{
+  "Africa": {
+    "youth": 600966.992,
+    "working": 891575.6669999999,
+    "elderly": 57324.91999999999
+  },
+  "Asia": {
+    "youth": 1071544.9619999998,
+    "working": 3266509.5590000004,
+    "elderly": 497265.538
+  },
+  "Europe": {
+    "youth": 112166.00200000001,
+    "working": 476353.64700000006,
+    "elderly": 155879.18000000002
+  },
+  "Latin America and the Caribbean": {
+    "youth": 147850.76499999998,
+    "working": 452073.94,
+    "elderly": 67963.847
+  },
+  "Northern America": {
+    "youth": 65412.847,
+    "working": 250109.172,
+    "elderly": 72006.38599999998
+  },
+  "Oceania": {
+    "youth": 10370.71,
+    "working": 29798.398999999998,
+    "elderly": 6440.535000000002
+  }
+}

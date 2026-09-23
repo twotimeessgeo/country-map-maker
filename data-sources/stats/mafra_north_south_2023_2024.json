@@ -1,0 +1,28 @@
+{
+  "land_2023": {
+    "남한": {
+      "cultivated_thousand_ha": 1512,
+      "paddy_thousand_ha": 764,
+      "dry_field_thousand_ha": 748,
+      "food_crop_thousand_ha": 893
+    },
+    "북한": {
+      "cultivated_thousand_ha": 1933,
+      "paddy_thousand_ha": 525,
+      "dry_field_thousand_ha": 1408,
+      "food_crop_thousand_ha": 1893
+    }
+  },
+  "crop_production_2024": {
+    "남한": {
+      "total_thousand_t": 4190,
+      "rice_thousand_t": 3585,
+      "maize_thousand_t": 94
+    },
+    "북한": {
+      "total_thousand_t": 4780,
+      "rice_thousand_t": 2149,
+      "maize_thousand_t": 1610
+    }
+  }
+}

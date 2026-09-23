@@ -1,0 +1,140 @@
+{
+  "destination_regions": {
+    "903": {
+      "name": "AFRICA",
+      "migrants": 25389464
+    },
+    "935": {
+      "name": "ASIA",
+      "migrants": 85618502
+    },
+    "908": {
+      "name": "EUROPE",
+      "migrants": 86706068
+    },
+    "904": {
+      "name": "LATIN AMERICA AND THE CARIBBEAN",
+      "migrants": 14794623
+    },
+    "905": {
+      "name": "NORTHERN AMERICA",
+      "migrants": 58708795
+    },
+    "909": {
+      "name": "OCEANIA",
+      "migrants": 9380653
+    }
+  },
+  "origin_rank": {
+    "사우디아라비아": [
+      {
+        "country": "India",
+        "people": 2502337
+      },
+      {
+        "country": "Indonesia",
+        "people": 1709318
+      },
+      {
+        "country": "Pakistan",
+        "people": 1483737
+      },
+      {
+        "country": "Bangladesh",
+        "people": 1277624
+      },
+      {
+        "country": "Egypt",
+        "people": 962432
+      }
+    ],
+    "독일": [
+      {
+        "country": "Poland",
+        "people": 2141722
+      },
+      {
+        "country": "Turkey",
+        "people": 1837282
+      },
+      {
+        "country": "Russian Federation",
+        "people": 1198831
+      },
+      {
+        "country": "Kazakhstan",
+        "people": 1128201
+      },
+      {
+        "country": "Syrian Arab Republic",
+        "people": 707457
+      }
+    ],
+    "캐나다": [
+      {
+        "country": "India",
+        "people": 720083
+      },
+      {
+        "country": "China",
+        "people": 699190
+      },
+      {
+        "country": "Philippines",
+        "people": 633547
+      },
+      {
+        "country": "United Kingdom",
+        "people": 537504
+      },
+      {
+        "country": "United States of America",
+        "people": 273226
+      }
+    ],
+    "미국": [
+      {
+        "country": "Mexico",
+        "people": 10853105
+      },
+      {
+        "country": "India",
+        "people": 2723764
+      },
+      {
+        "country": "China",
+        "people": 2184110
+      },
+      {
+        "country": "Philippines",
+        "people": 2061178
+      },
+      {
+        "country": "El Salvador",
+        "people": 1410659
+      }
+    ],
+    "오스트레일리아": [
+      {
+        "country": "United Kingdom",
+        "people": 1285149
+      },
+      {
+        "country": "China",
+        "people": 653232
+      },
+      {
+        "country": "New Zealand",
+        "people": 611266
+      },
+      {
+        "country": "India",
+        "people": 579264
+      },
+      {
+        "country": "Philippines",
+        "people": 286303
+      }
+    ]
+  }
+}

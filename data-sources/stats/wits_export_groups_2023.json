@@ -1,0 +1,90 @@
+{
+  "튀르키예": {
+    "iso3": "TUR",
+    "exports_million_usd": 255627,
+    "groups": {
+      "Animal": 1.32,
+      "Vegetable": 6.13,
+      "Food Products": 4.69,
+      "Minerals": 2.06,
+      "Fuels": 6.41,
+      "Chemicals": 5.01,
+      "Plastic or Rubber": 5.67,
+      "Hides and Skins": 0.33,
+      "Wood": 2.21,
+      "Textiles and Clothing": 12.86,
+      "Footwear": 0.54,
+      "Stone and Glass": 7.28,
+      "Metals": 11.43,
+      "Mach and Elec": 15.93,
+      "Transportation": 13.43,
+      "Miscellaneous": 4.69
+    }
+  },
+  "카자흐스탄": {
+    "iso3": "KAZ",
+    "exports_million_usd": 78736,
+    "groups": {
+      "Animal": 0.43,
+      "Vegetable": 5.04,
+      "Food Products": 1.3,
+      "Minerals": 7.11,
+      "Fuels": 58.93,
+      "Chemicals": 6.6,
+      "Plastic or Rubber": 0.71,
+      "Hides and Skins": 0.02,
+      "Wood": 0.25,
+      "Textiles and Clothing": 0.39,
+      "Footwear": 0.03,
+      "Stone and Glass": 1.55,
+      "Metals": 12.25,
+      "Mach and Elec": 3.78,
+      "Transportation": 1.21,
+      "Miscellaneous": 0.41
+    }
+  },
+  "아랍에미리트": {
+    "iso3": "ARE",
+    "exports_million_usd": 570245,
+    "groups": {
+      "Animal": 0.32,
+      "Vegetable": 0.93,
+      "Food Products": 2.12,
+      "Minerals": 0.28,
+      "Fuels": 49.47,
+      "Chemicals": 2.34,
+      "Plastic or Rubber": 1.67,
+      "Hides and Skins": 0.11,
+      "Wood": 0.99,
+      "Textiles and Clothing": 1.08,
+      "Footwear": 0.32,
+      "Stone and Glass": 16.11,
+      "Metals": 3.95,
+      "Mach and Elec": 11.66,
+      "Transportation": 3.98,
+      "Miscellaneous": 4.68
+    }
+  },
+  "튀니지": {
+    "iso3": "TUN",
+    "exports_million_usd": 20040,
+    "groups": {
+      "Animal": 1.25,
+      "Vegetable": 9.26,
+      "Food Products": 2.43,
+      "Minerals": 1.42,
+      "Fuels": 6.21,
+      "Chemicals": 5.93,
+      "Plastic or Rubber": 3.95,
+      "Hides and Skins": 0.83,
+      "Wood": 1.68,
+      "Textiles and Clothing": 15.57,
+      "Footwear": 2.93,
+      "Stone and Glass": 1.07,
+      "Metals": 5.0,
+      "Mach and Elec": 30.71,
+      "Transportation": 4.47,
+      "Miscellaneous": 7.31
+    }
+  }
+}
