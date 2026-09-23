@@ -159,8 +159,7 @@ function validateClimateStatements(statements, appText) {
   }
   if (
     normalizedStatements.length > 0 &&
-    (!["기간 확정", "논리 반전", "참 명제 재작성"].every((label) => appText.includes(label)) ||
-      !appText.includes("원문 그대로가 아님"))
+    !["기간 확정", "논리 반전", "참 명제 재작성"].every((label) => appText.includes(label))
   ) {
     errors.push("정규화한 기출 기반 선지가 UI에서 유형별로 구분되지 않습니다.");
   }

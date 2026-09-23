@@ -531,10 +531,12 @@
   border-radius: 999px;
   background: var(--marker-color);
   cursor: pointer;
-  transform: translate(
-    calc(-50% + var(--marker-dx, 0px) + var(--marker-auto-dx, 0px)),
-    calc(-50% + var(--marker-dy, 0px) + var(--marker-auto-dy, 0px))
-  );
+  transform-origin: 0 0;
+  transform: scale(calc(1 / var(--map-k, 1)))
+    translate(
+      calc(-50% + var(--marker-dx, 0px) + var(--marker-auto-dx, 0px)),
+      calc(-50% + var(--marker-dy, 0px) + var(--marker-auto-dy, 0px))
+    );
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
   transition: width var(--tw-fast) var(--tw-ease), height var(--tw-fast) var(--tw-ease),
     box-shadow var(--tw-fast) var(--tw-ease);
@@ -900,13 +902,79 @@
   outline-offset: -1px;
 }
 
-.region-card-chart {
-  display: grid;
-  gap: var(--tw-space-2);
+.region-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--tw-space-3) var(--tw-space-6);
+}
+
+.region-card-title {
   min-width: 0;
-  padding: var(--tw-space-4);
-  border-radius: var(--tw-radius-lg);
-  background: var(--tw-surface);
+}
+
+.region-card-title h3 {
+  margin: 0;
+}
+
+.region-card-sub {
+  margin-top: 2px;
+  color: var(--tw-ink-3);
+  font-size: var(--tw-text-sm);
+}
+
+.region-card-stats {
+  display: flex;
+  gap: var(--tw-space-5);
+  margin: 0;
+}
+
+.region-card-stats div {
+  display: grid;
+  gap: 0;
+  text-align: right;
+}
+
+.region-card-stats dt {
+  color: var(--tw-ink-3);
+  font-size: var(--tw-text-xs);
+}
+
+.region-card-stats dd {
+  margin: 0;
+  font-family: var(--tw-font-latin);
+  font-size: var(--tw-text-lg);
+  font-weight: var(--tw-weight-latin);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.region-card-chart {
+  min-width: 0;
+  margin: 0 calc(var(--tw-space-2) * -1);
+}
+
+/* Climograph (chart-kit.js) */
+.svg-chart text {
+  font-family: var(--tw-font-latin);
+}
+
+.climograph .chart-hit {
+  transition: fill var(--tw-fast) var(--tw-ease);
+}
+
+.climograph .chart-hit:hover {
+  fill: rgba(0, 0, 0, 0.04);
+}
+
+/* Comparison charts: dashed grids → hairlines */
+.svg-chart line[stroke-dasharray="4 6"],
+.svg-chart line[stroke-dasharray="4 5"],
+.svg-chart line[stroke-dasharray="4 4"] {
+  stroke: rgba(0, 0, 0, 0.08);
+  stroke-dasharray: none;
 }
 
 .region-card-chart .chart-card {
@@ -1223,7 +1291,8 @@ tfoot td {
   padding: var(--tw-space-4);
   overflow: hidden;
   border-radius: var(--tw-radius-lg);
-  background: var(--tw-surface);
+  background: var(--tw-bg);
+  box-shadow: inset 0 0 0 1px var(--tw-hairline);
 }
 
 .chart-card.is-wide {
@@ -2015,5 +2084,86 @@ tfoot td {
 
   table {
     min-width: 460px;
+  }
+}
+
+/* ───────── Map zoom (map-zoom.js) ───────── */
+
+.world-map-svg path {
+  vector-effect: non-scaling-stroke;
+}
+
+.world-map-frame.is-zoomed {
+  cursor: grab;
+  touch-action: none;
+}
+
+.world-map-frame.is-panning {
+  cursor: grabbing;
+}
+
+.world-map-frame.is-panning .map-marker {
+  pointer-events: none;
+}
+
+/* When zoomed, markers sit on their true position: no spreading, no leader lines */
+.world-map-frame.is-zoomed .map-marker {
+  --marker-auto-dx: 0px !important;
+  --marker-auto-dy: 0px !important;
+}
+
+.world-map-frame.is-zoomed .world-map-leaders {
+  display: none;
+}
+
+.map-zoom-controls {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.map-zoom-controls button {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: var(--tw-radius-pill);
+  background: var(--tw-bg);
+  color: var(--tw-ink);
+  font-family: var(--tw-font-latin);
+  font-size: 1rem;
+  line-height: 1;
+  box-shadow: var(--tw-shadow-thumb);
+  cursor: pointer;
+}
+
+.map-zoom-controls button[data-zoom="reset"] {
+  font-family: var(--tw-font-sans);
+  font-size: var(--tw-text-2xs);
+  font-weight: var(--tw-weight-medium);
+}
+
+.map-zoom-controls button:hover {
+  background: var(--tw-surface);
+}
+
+.map-zoom-controls button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 760px) {
+  .climograph text {
+    font-size: 19px;
+  }
+
+  .region-card-stats {
+    gap: var(--tw-space-4);
   }
 }

@@ -36,8 +36,8 @@ const COMPARISON_PAIR_CONFIGS = [
 const RANDOM_SELECTION_SIZE = 4;
 const RANDOM_SELECTION_ATTEMPTS = 200;
 const RANDOM_SELECTION_MIN_DISTANCE_STEPS = [80, 60, 45, 30];
-const MAP_CANDIDATE_RADIUS_MIN = 30;
-const MAP_CANDIDATE_RADIUS_MAX = 40;
+const MAP_CANDIDATE_RADIUS_MIN = 7;
+const MAP_CANDIDATE_RADIUS_MAX = 9;
 const MAP_CANDIDATE_LIMIT = 12;
 const URL_STATE_KEYS = ["regions", "nation", "zone", "query", "sort", "map", "baseline"];
 const REGION_SORT_VALUES = new Set([
@@ -528,7 +528,7 @@ function restoreUrlStateFromHistory() {
 
 function renderSelectedTray(selectedRegions) {
   if (selectedRegions.length === 0) {
-    return `<span class="selected-tray-empty">지도나 목록에서 지역을 고르세요</span>`;
+    return `<span class="selected-tray-empty">선택한 지역 없음</span>`;
   }
 
   return selectedRegions
@@ -855,18 +855,7 @@ function renderSelectedRegions(regions) {
 }
 
 function buildClimateChartScale(regions) {
-  const temperatureValues = regions.flatMap((region) => region.monthlyTemperatureC);
-  const precipitationValues = regions.flatMap((region) => region.monthlyPrecipitationMm);
-  const precipitationStep = pickPrecipitationStep(Math.max(...precipitationValues));
-  const tempMinValue = Math.min(...temperatureValues);
-  const tempMaxValue = Math.max(...temperatureValues);
-  const temperatureStep = pickTemperatureStep(tempMaxValue - tempMinValue);
-
-  return {
-    precipitationMax: niceCeil(Math.max(...precipitationValues), precipitationStep),
-    temperatureMin: niceFloor(tempMinValue - temperatureStep, temperatureStep),
-    temperatureMax: niceCeil(tempMaxValue + temperatureStep, temperatureStep),
-  };
+  return window.ClimateChartKit.buildScale(regions);
 }
 
 function renderRegionCard(region, sharedChartScale) {
@@ -902,27 +891,19 @@ function renderRegionCard(region, sharedChartScale) {
 
   return `
     <article class="region-card">
-      <div class="region-card-top">
-        <div class="region-card-body">
-          <div class="region-card-header">
-            <div>
-              <h3>${escapeHtml(region.name)}</h3>
-            </div>
-            <div class="selection-summary is-muted">${escapeHtml(region.nation)} · ${escapeHtml(region.zone)}</div>
-          </div>
-          <div class="stats-row">
-            <span class="stat-pill">연평균 ${formatTemp(region.annualMeanTemperatureC)}</span>
-            <span class="stat-pill">연강수 ${formatMm(region.annualPrecipitationMm)}</span>
-            <span class="stat-pill">연교차 ${formatTemp(annualRange)}</span>
-          </div>
+      <header class="region-card-head">
+        <div class="region-card-title">
+          <h3>${escapeHtml(region.name)}</h3>
+          <p class="region-card-sub">${escapeHtml(region.nation)} · ${escapeHtml(region.zone)}</p>
         </div>
-        <div class="region-card-chart">
-          <div class="chart-card">
-            <h4>연중 기온·강수량</h4>
-            ${renderClimateChart(region, sharedChartScale)}
-            <p class="chart-caption">강수량 막대 · 기온 선</p>
-          </div>
-        </div>
+        <dl class="region-card-stats">
+          <div><dt>연평균</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
+          <div><dt>연강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
+          <div><dt>연교차</dt><dd>${formatTemp(annualRange)}</dd></div>
+        </dl>
+      </header>
+      <div class="region-card-chart">
+        ${renderClimateChart(region, sharedChartScale)}
       </div>
       <details class="climate-data-details">
         <summary>원 데이터</summary>
@@ -932,7 +913,7 @@ function renderRegionCard(region, sharedChartScale) {
             class="ghost-button climate-csv-download"
             data-climate-csv-download="${escapeHtml(csvKey)}"
           >
-            CSV 다운로드
+            CSV
           </button>
         </div>
         <div class="table-wrap region-card-table">
@@ -1437,87 +1418,7 @@ function getColdestMonthTemperature(region) {
 }
 
 function renderClimateChart(region, sharedChartScale = null) {
-  const width = 460;
-  const height = 300;
-  const margin = { top: 18, right: 50, bottom: 40, left: 48 };
-  const chartWidth = width - margin.left - margin.right;
-  const chartHeight = height - margin.top - margin.bottom;
-  const monthCount = region.months.length;
-  const chartScale = sharedChartScale ?? buildClimateChartScale([region]);
-  const precipitationMax = chartScale.precipitationMax;
-  const temperatureMin = chartScale.temperatureMin;
-  const temperatureMax = chartScale.temperatureMax;
-  const tickCount = 5;
-  const stepX = chartWidth / monthCount;
-  const barWidth = stepX * 0.54;
-
-  const horizontalTicks = new Array(tickCount).fill(null).map((_, tickIndex) => {
-    const ratio = tickIndex / (tickCount - 1);
-    const y = margin.top + chartHeight - ratio * chartHeight;
-    return {
-      y,
-      tempValue: round(temperatureMin + ratio * (temperatureMax - temperatureMin)),
-      precipValue: round(ratio * precipitationMax),
-    };
-  });
-
-  const points = region.monthlyTemperatureC
-    .map((value, index) => {
-      const x = margin.left + stepX * index + stepX / 2;
-      const y = scaleY(value, temperatureMin, temperatureMax, margin.top, margin.top + chartHeight);
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  return `
-    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(
-      region.name
-    )}의 월별 기온과 강수량 그래프">
-      <rect x="${margin.left}" y="${margin.top}" width="${chartWidth}" height="${chartHeight}" fill="#ffffff" stroke="#d7d7d7"></rect>
-      ${horizontalTicks
-        .map(
-          (tick) => `
-            <line x1="${margin.left}" y1="${tick.y}" x2="${width - margin.right}" y2="${tick.y}" stroke="#d0d0d0" stroke-dasharray="4 4"></line>
-            <text x="${margin.left - 10}" y="${tick.y + 4}" text-anchor="end" font-size="11" fill="#555555">${formatPlainNumber(
-              tick.tempValue
-            )}</text>
-            <text x="${width - margin.right + 10}" y="${tick.y + 4}" text-anchor="start" font-size="11" fill="#555555">${formatPlainNumber(
-              tick.precipValue
-            )}</text>
-          `
-        )
-        .join("")}
-      <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + chartHeight}" stroke="#111111"></line>
-      <line x1="${width - margin.right}" y1="${margin.top}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="#111111"></line>
-      <line x1="${margin.left}" y1="${margin.top + chartHeight}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="#111111"></line>
-      ${region.monthlyPrecipitationMm
-        .map((value, index) => {
-          const x = margin.left + stepX * index + (stepX - barWidth) / 2;
-          const y = scaleY(value, 0, precipitationMax, margin.top, margin.top + chartHeight);
-          const barHeight = margin.top + chartHeight - y;
-          return `<rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#bcbcbc" stroke="#555555"></rect>`;
-        })
-        .join("")}
-      <polyline fill="none" stroke="#111111" stroke-width="2.4" points="${points}"></polyline>
-      ${region.monthlyTemperatureC
-        .map((value, index) => {
-          const x = margin.left + stepX * index + stepX / 2;
-          const y = scaleY(value, temperatureMin, temperatureMax, margin.top, margin.top + chartHeight);
-          return `<circle cx="${x}" cy="${y}" r="4.2" fill="#111111"></circle>`;
-        })
-        .join("")}
-      ${region.months
-        .map((month, index) => {
-          const x = margin.left + stepX * index + stepX / 2;
-          return `<text x="${x}" y="${height - 12}" text-anchor="middle" font-size="11" fill="#555555">${escapeHtml(
-            month.replace("월", "")
-          )}</text>`;
-        })
-        .join("")}
-      <text x="${margin.left}" y="12" font-size="11" fill="#111111" font-weight="700">(°C)</text>
-      <text x="${width - margin.right}" y="12" text-anchor="end" font-size="11" fill="#555555" font-weight="700">(mm)</text>
-    </svg>
-  `;
+  return window.ClimateChartKit.render(region, sharedChartScale);
 }
 
 function renderPairedTemperatureDeviationChart(rows, leftPeriod, rightPeriod, baseline) {

@@ -214,64 +214,64 @@ const EXAM_COMPARISON_TEMPLATES = [
     sourceIds: ["2022-09-q13-opt-02", "2024-09-q06-opt-01"],
     categoryKey: "winterPrecipitationShare",
     title: "겨울 강수 집중률",
-    label: "겨울 3개월 강수 집중률",
-    pattern: "한 지역은 다른 지역보다 겨울 3개월 강수 집중률이 높다.",
-    reversePattern: "한 지역은 다른 지역보다 겨울 3개월 강수 집중률이 낮다.",
+    label: "겨울 강수 집중률",
+    pattern: "한 지역은 다른 지역보다 겨울 강수 집중률이 높다.",
+    reversePattern: "한 지역은 다른 지역보다 겨울 강수 집중률이 낮다.",
     unit: "%",
     minDifference: 5,
     getValue: (region) => getLocalSeasonPrecipitationShare(region, "winter"),
     renderPositive: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 겨울 3개월 강수 집중률이 높다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 겨울 강수 집중률이 높다.`,
     renderReverse: (higher, lower) =>
-      `${withTopicParticle(lower.name)} ${higher.name}보다 겨울 3개월 강수 집중률이 낮다.`,
+      `${withTopicParticle(lower.name)} ${higher.name}보다 겨울 강수 집중률이 낮다.`,
     renderFalse: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 겨울 3개월 강수 집중률이 낮다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 겨울 강수 집중률이 낮다.`,
     renderSuperlativePositive: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 겨울 3개월 강수 집중률이 가장 높은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 겨울 강수 집중률이 가장 높은 곳은 ${region.name}이다.`,
     renderSuperlativeReverse: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 겨울 3개월 강수 집중률이 가장 낮은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 겨울 강수 집중률이 가장 낮은 곳은 ${region.name}이다.`,
   },
   {
     sourceIds: ["2025-09-q19-opt-03"],
     categoryKey: "summerPrecipitation",
     title: "여름 강수량",
-    label: "여름 3개월 강수량",
-    pattern: "한 지역은 다른 지역보다 여름 3개월 강수량이 많다.",
-    reversePattern: "한 지역은 다른 지역보다 여름 3개월 강수량이 적다.",
+    label: "여름 강수량",
+    pattern: "한 지역은 다른 지역보다 여름 강수량이 많다.",
+    reversePattern: "한 지역은 다른 지역보다 여름 강수량이 적다.",
     unit: "mm",
     minDifference: 50,
     getValue: (region) => getLocalSeasonPrecipitation(region, "summer"),
     renderPositive: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 3개월 강수량이 많다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 강수량이 많다.`,
     renderReverse: (higher, lower) =>
-      `${withTopicParticle(lower.name)} ${higher.name}보다 여름 3개월 강수량이 적다.`,
+      `${withTopicParticle(lower.name)} ${higher.name}보다 여름 강수량이 적다.`,
     renderFalse: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 3개월 강수량이 적다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 강수량이 적다.`,
     renderSuperlativePositive: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 여름 3개월 강수량이 가장 많은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 여름 강수량이 가장 많은 곳은 ${region.name}이다.`,
     renderSuperlativeReverse: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 여름 3개월 강수량이 가장 적은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 여름 강수량이 가장 적은 곳은 ${region.name}이다.`,
   },
   {
     sourceIds: ["2024-suneung-q19-opt-03", "2025-06-q07-opt-04"],
     categoryKey: "summerPrecipitationShare",
     title: "여름 강수 집중률",
-    label: "여름 3개월 강수 집중률",
-    pattern: "한 지역은 다른 지역보다 여름 3개월 강수 집중률이 높다.",
-    reversePattern: "한 지역은 다른 지역보다 여름 3개월 강수 집중률이 낮다.",
+    label: "여름 강수 집중률",
+    pattern: "한 지역은 다른 지역보다 여름 강수 집중률이 높다.",
+    reversePattern: "한 지역은 다른 지역보다 여름 강수 집중률이 낮다.",
     unit: "%",
     minDifference: 5,
     getValue: (region) => getLocalSeasonPrecipitationShare(region, "summer"),
     renderPositive: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 3개월 강수 집중률이 높다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 강수 집중률이 높다.`,
     renderReverse: (higher, lower) =>
-      `${withTopicParticle(lower.name)} ${higher.name}보다 여름 3개월 강수 집중률이 낮다.`,
+      `${withTopicParticle(lower.name)} ${higher.name}보다 여름 강수 집중률이 낮다.`,
     renderFalse: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 3개월 강수 집중률이 낮다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 강수 집중률이 낮다.`,
     renderSuperlativePositive: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 여름 3개월 강수 집중률이 가장 높은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 여름 강수 집중률이 가장 높은 곳은 ${region.name}이다.`,
     renderSuperlativeReverse: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 여름 3개월 강수 집중률이 가장 낮은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 여름 강수 집중률이 가장 낮은 곳은 ${region.name}이다.`,
   },
   {
     sourceIds: ["2021-06-q03-opt-04"],
@@ -481,14 +481,14 @@ const EXAM_COMPARISON_TEMPLATES = [
 ];
 const MONTH_LABELS = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
 const COLORS = {
-  rain: "#5f5f5f",
-  rainLight: "rgba(95, 95, 95, 0.18)",
-  temperature: "#111111",
-  grid: "rgba(17, 17, 17, 0.22)",
-  gridSoft: "rgba(17, 17, 17, 0.1)",
-  ink: "#111111",
-  barNeutral: "#bcbcbc",
-  zero: "#111111",
+  rain: "#5d5d5d",
+  rainLight: "#d4d4d4",
+  temperature: "#0d0d0d",
+  grid: "rgba(0, 0, 0, 0.22)",
+  gridSoft: "rgba(0, 0, 0, 0.08)",
+  ink: "#0d0d0d",
+  barNeutral: "#c4c4c4",
+  zero: "#0d0d0d",
   white: "#ffffff",
 };
 const AFRICA_COUNTRY_CODES = new Set([
@@ -542,8 +542,8 @@ const MAP_MARKER_MIN_DISTANCE = 22;
 const MAP_MARKER_MAX_DISPLACEMENT = 26;
 const MAP_LAYOUT_ITERATIONS = 90;
 const MAP_LEADER_THRESHOLD = 7;
-const MAP_CANDIDATE_RADIUS_MIN = 30;
-const MAP_CANDIDATE_RADIUS_MAX = 42;
+const MAP_CANDIDATE_RADIUS_MIN = 7;
+const MAP_CANDIDATE_RADIUS_MAX = 9;
 const MAP_CANDIDATE_LIMIT = 12;
 const MAP_GRATICULE_LONGITUDES = [-120, -60, 0, 60, 120];
 const MAP_GRATICULE_LATITUDES = [-30, 0, 30, 60];
@@ -1307,7 +1307,7 @@ function pickRandomClimateSelection() {
 
 function renderSelectedTray(selectedRegions) {
   if (selectedRegions.length === 0) {
-    return `<span class="selected-tray-empty">지도나 목록에서 지역을 고르세요</span>`;
+    return `<span class="selected-tray-empty">선택한 지역 없음</span>`;
   }
 
   return selectedRegions
@@ -2039,50 +2039,37 @@ function renderSelectedRegions(selectedRegions) {
       );
 
       return `
-        <article class="region-card world-region-card" style="animation-delay: ${index * 50}ms">
-          <div class="region-card-top">
-            <div class="region-card-body">
-              <div>
-                <div class="region-card-header">
-                  <div>
-                    <h3>${escapeHtml(region.name)}</h3>
-                    <div class="region-meta">
-                      <span class="meta-pill">${escapeHtml(
-                        [region.country, region.climateCode].filter(Boolean).join(" · ")
-                      )}</span>
-                      ${
-                        region.classificationReview?.status === "review-required"
-                          ? `<span class="meta-pill classification-review-pill">분류 재검토 · 자료식 ${escapeHtml(
-                              region.classificationReview.appDerivedGroup
-                            )}</span>`
-                          : ""
-                      }
-                      <span class="meta-pill">${escapeHtml(formatSourceLabel(region))}</span>
-                    </div>
-                  </div>
-                  ${
-                    region.source?.type === "open-meteo-live"
-                      ? `<button
-                          type="button"
-                          class="ghost-button custom-region-delete-button"
-                          data-delete-custom-region-id="${escapeHtml(region.id)}"
-                          aria-label="${escapeHtml(`${region.name} 추가 지역 삭제`)}"
-                        >추가 지역 삭제</button>`
-                      : ""
-                  }
-                </div>
-                <div class="stat-grid">
-                  <span class="stat-pill">연평균 기온 ${formatTemp(region.annualMeanTemperatureC)}</span>
-                  <span class="stat-pill">연강수량 ${formatMm(region.annualPrecipitationMm)}</span>
-                </div>
-              </div>
+        <article class="region-card world-region-card">
+          <header class="region-card-head">
+            <div class="region-card-title">
+              <h3>${escapeHtml(region.name)}</h3>
+              <p class="region-card-sub">${escapeHtml(
+                [region.country, region.climateCode].filter(Boolean).join(" · ")
+              )}${
+                region.source?.type === "open-meteo-live" ? ` · Open-Meteo` : ""
+              }${
+                region.classificationReview?.status === "review-required"
+                  ? ` · 분류 재검토(${escapeHtml(region.classificationReview.appDerivedGroup)})`
+                  : ""
+              }</p>
             </div>
-            <div class="region-card-chart">
-              <div class="world-region-chart-frame">
-                ${renderClimateChart(region, sharedChartScale)}
-              </div>
-              <p class="chart-caption">강수량 막대 · 기온 선</p>
-            </div>
+            <dl class="region-card-stats">
+              <div><dt>연평균</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
+              <div><dt>연강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
+            </dl>
+            ${
+              region.source?.type === "open-meteo-live"
+                ? `<button
+                    type="button"
+                    class="ghost-button custom-region-delete-button"
+                    data-delete-custom-region-id="${escapeHtml(region.id)}"
+                    aria-label="${escapeHtml(`${region.name} 추가 지역 삭제`)}"
+                  >삭제</button>`
+                : ""
+            }
+          </header>
+          <div class="region-card-chart">
+            ${renderClimateChart(region, sharedChartScale)}
           </div>
           <details class="climate-data-details">
             <summary>원 데이터</summary>
@@ -2092,7 +2079,7 @@ function renderSelectedRegions(selectedRegions) {
                 class="ghost-button climate-csv-download"
                 data-climate-csv-download="${escapeHtml(csvKey)}"
               >
-                CSV 다운로드
+                CSV
               </button>
             </div>
             <div class="table-wrap region-card-table is-transposed">
@@ -2126,19 +2113,7 @@ function renderSelectedRegions(selectedRegions) {
 }
 
 function buildClimateChartScale(regions) {
-  const temperatureValues = regions.flatMap((region) => region.monthlyTemperatureC);
-  const precipitationValues = regions.flatMap((region) => region.monthlyPrecipitationMm);
-  const temperatureMinValue = Math.min(...temperatureValues);
-  const temperatureMaxValue = Math.max(...temperatureValues);
-  const precipitationMaxValue = Math.max(...precipitationValues);
-  const precipitationStep = pickPrecipitationStep(precipitationMaxValue);
-  const temperatureStep = pickTemperatureStep(temperatureMaxValue - temperatureMinValue);
-
-  return {
-    precipitationMax: niceCeil(precipitationMaxValue, precipitationStep),
-    temperatureMin: niceFloor(temperatureMinValue - temperatureStep, temperatureStep),
-    temperatureMax: niceCeil(temperatureMaxValue + temperatureStep, temperatureStep),
-  };
+  return window.ClimateChartKit.buildScale(regions);
 }
 
 function buildApiStatusSummary() {
@@ -2156,7 +2131,7 @@ function buildApiStatusText() {
     return state.apiMessage;
   }
 
-  return "JMA 미수록 지역은 Open-Meteo 1991-2020으로 보완합니다.";
+  return "";
 }
 
 function renderApiResults() {
@@ -2782,10 +2757,8 @@ function renderExamClimateSourcePanel(selectedRegions) {
     <details class="exam-source-panel">
       <summary class="exam-source-summary">
         <strong>기출 기반 선지</strong>
-        <span>수록 ${statements.length} · 자동 ${statementInventory.automated.length} · 참조 ${statementInventory.referenceOnly.length}</span>
       </summary>
       <div class="exam-source-content">
-        <p class="exam-source-note">‘기간 확정’은 원문 방향을 유지한 채 시기 기호를 풀거나 자동화 문장으로 정리한 항목, ‘논리 반전’은 거짓 선지의 긍부정·비교 방향을 뒤집은 항목, ‘참 명제 재작성’은 내용을 자동화용 참 명제로 다시 쓴 항목이며 모두 원문 그대로가 아님.</p>
         ${renderExamMultipleChoiceQuestion(multipleChoiceQuestion)}
         <div class="exam-source-grid">
           <section class="exam-source-block">
@@ -2816,8 +2789,7 @@ function renderExamClimateSourcePanel(selectedRegions) {
           </div>
         </details>
         <details class="exam-source-details">
-          <summary>참조 전용 선지 ${statementInventory.referenceOnly.length}개</summary>
-          <p class="exam-source-note">현재 데이터만으로 참·거짓을 고정할 수 없는 해류·바람·식생·생활 양식·강수일수 선지는 자동 5지선다에서 제외함.</p>
+          <summary>참조 전용 선지</summary>
           <div class="exam-statement-list compact">
             ${statementInventory.referenceOnly.map(renderExamReferenceStatementItem).join("")}
           </div>
@@ -3201,7 +3173,7 @@ function buildExamMultipleChoiceQuestion(selectedRegions, comparisonGroups, feat
   const answerIndex = choices.findIndex((choice) => choice.isTrue);
 
   return {
-    prompt: `다음 중 옳은 설명은? (월별 선지는 1월·7월 중 자동 조합, ${monthContext.dayNightLabel} 전환값 반영)`,
+    prompt: "다음 중 옳은 설명은?",
     choices,
     answerIndex,
     mapRegions: variableRegions.filter(hasCoordinates),
@@ -3672,7 +3644,7 @@ function renderExamMultipleChoiceQuestion(question) {
     return `
       <section class="exam-question-card">
         <div class="exam-question-head">
-          <h4>5지선다 자동 조합</h4>
+          <h4>5지선다</h4>
           <div class="exam-question-actions">
             <label class="exam-toggle-option">
               <input type="checkbox" data-exam-variable-toggle ${state.examUseVariableLabels ? "checked" : ""} />
@@ -3691,7 +3663,7 @@ function renderExamMultipleChoiceQuestion(question) {
     <section class="exam-question-card">
       <div class="exam-question-head">
         <div>
-          <h4>5지선다 자동 조합</h4>
+          <h4>5지선다</h4>
           <p>${escapeHtml(question.prompt)}</p>
         </div>
         <div class="exam-question-actions">
@@ -3900,19 +3872,14 @@ function renderExamGeneratedGroup(group) {
   const examplePreview = group.examples.slice(0, 4);
   const isReversed = state.examReversedCategoryKeys.has(group.id);
   const activePattern = isReversed ? group.reversePattern : group.pattern;
-  const directionLabel = isReversed ? "반대 방향" : "기본 방향";
   return `
     <article class="exam-generated-item">
       <div class="exam-category-heading">
         <p><span>${escapeHtml(group.title)}</span>${renderExamBadgeSet(group.badges)}</p>
-        <strong>${escapeHtml(activePattern)} · ${directionLabel}</strong>
+        <strong>${escapeHtml(activePattern)}</strong>
       </div>
       ${renderExamGroupTransformControls(group, isReversed)}
       <div class="exam-generated-meta">
-        <span>기출 선지 ${group.sources.length}개</span>
-        ${renderExamNormalizationBadges(group.sources)}
-        <span>${escapeHtml(group.sources.map(formatExamStatementSource).join(" · "))}</span>
-        <span>적용 가능 ${group.examples.length}개 조합</span>
         <span>최대 차이 ${escapeHtml(formatExamMetricValue(group.maxDifference, group.unit))}</span>
       </div>
       <div class="exam-example-list">
@@ -3974,8 +3941,6 @@ function renderExamFeatureItem(group) {
         <strong>${escapeHtml(normalizedText)}</strong>
       </div>
       <div class="exam-generated-meta">
-        <span>${escapeHtml(formatExamStatementSource(statement))}</span>
-        ${renderExamNormalizationBadges([statement])}
         ${tags.slice(0, 5).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
       </div>
       <div class="exam-region-pills">
@@ -3999,8 +3964,6 @@ function renderExamReferenceStatementItem(statement) {
       </div>
       <div class="exam-generated-meta">
         <span>${escapeHtml(statusLabel)}</span>
-        <span>${escapeHtml(formatExamStatementSource(statement))}</span>
-        ${renderExamNormalizationBadges([statement])}
         ${(statement.tags ?? []).slice(0, 5).map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
       </div>
     </article>
@@ -4017,11 +3980,6 @@ function renderExamComparisonCatalogItem(item) {
       <div class="exam-generated-meta">
         <span>${escapeHtml(item.metricLabel)}</span>
         <span>반대: ${escapeHtml(item.reversePattern)}</span>
-        <span>기출 선지 ${item.sources.length}개</span>
-        ${renderExamNormalizationBadges(item.sources)}
-      </div>
-      <div class="exam-generated-meta">
-        ${item.sources.map((source) => `<span>${escapeHtml(formatExamStatementSource(source))}</span>`).join("")}
       </div>
     </article>
   `;
@@ -4821,7 +4779,7 @@ function renderMonthlyTemperatureActualTrendChart(
               stroke-width="${tick === 0 ? 1.5 : 1}"
             />
             <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="${COLORS.ink}">
-              ${formatSignedPlain(tick)}
+              ${formatPlainNumber(tick)}
             </text>
           `;
         })
@@ -4926,7 +4884,7 @@ function renderCumulativePrecipitationActualTrendChart(
               stroke-width="${tick === 0 ? 1.5 : 1}"
             />
             <text x="${margin.left - 10}" y="${y + 4}" text-anchor="end" font-size="11" fill="${COLORS.ink}">
-              ${formatSignedPlain(tick)}
+              ${formatPlainNumber(tick)}
             </text>
           `;
         })
@@ -5355,115 +5313,7 @@ function renderTrendMarker(x, y, marker, strokeColor) {
 }
 
 function renderClimateChart(region, sharedChartScale = null) {
-  const width = 428;
-  const height = 272;
-  const margin = { top: 18, right: 44, bottom: 34, left: 40 };
-  const chartWidth = width - margin.left - margin.right;
-  const chartHeight = height - margin.top - margin.bottom;
-  const monthCount = region.months.length;
-  const chartScale = sharedChartScale ?? buildClimateChartScale([region]);
-  const precipitationMax = chartScale.precipitationMax;
-  const temperatureMin = chartScale.temperatureMin;
-  const temperatureMax = chartScale.temperatureMax;
-
-  const tickCount = 5;
-  const horizontalTicks = new Array(tickCount).fill(null).map((_, tickIndex) => {
-    const ratio = tickIndex / (tickCount - 1);
-    const y = margin.top + chartHeight - ratio * chartHeight;
-    const tempValue = round(temperatureMin + ratio * (temperatureMax - temperatureMin));
-    const precipValue = round(ratio * precipitationMax);
-    return { y, tempValue, precipValue };
-  });
-
-  const stepX = chartWidth / monthCount;
-  const barWidth = stepX * 0.56;
-  const points = region.monthlyTemperatureC
-    .map((value, index) => {
-      const x = margin.left + stepX * index + stepX / 2;
-      const y = scaleY(value, temperatureMin, temperatureMax, margin.top, margin.top + chartHeight);
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  const bars = region.monthlyPrecipitationMm
-    .map((value, index) => {
-      const x = margin.left + stepX * index + (stepX - barWidth) / 2;
-      const y = scaleY(value, 0, precipitationMax, margin.top, margin.top + chartHeight);
-      const barHeight = margin.top + chartHeight - y;
-      return `
-        <rect
-          x="${x}"
-          y="${y}"
-          width="${barWidth}"
-          height="${barHeight}"
-          fill="${COLORS.rainLight}"
-          stroke="${COLORS.rain}"
-          stroke-width="1.2"
-        />
-      `;
-    })
-    .join("");
-
-  const pointDots = region.monthlyTemperatureC
-    .map((value, index) => {
-      const x = margin.left + stepX * index + stepX / 2;
-      const y = scaleY(value, temperatureMin, temperatureMax, margin.top, margin.top + chartHeight);
-      return `<circle cx="${x}" cy="${y}" r="4.2" fill="${COLORS.temperature}" stroke="${COLORS.white}" stroke-width="1.8" />`;
-    })
-    .join("");
-
-  const monthLabels = region.months
-    .map((month, index) => {
-      const x = margin.left + stepX * index + stepX / 2;
-      return `<text x="${x}" y="${height - 12}" text-anchor="middle" font-size="11" fill="${COLORS.ink}">${escapeHtml(
-        month.replace("월", "")
-      )}</text>`;
-    })
-    .join("");
-
-  return `
-    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(
-      region.name
-    )}의 월별 기온과 강수량 그래프">
-      <rect
-        x="${margin.left}"
-        y="${margin.top}"
-        width="${chartWidth}"
-        height="${chartHeight}"
-        fill="${COLORS.white}"
-        stroke="${COLORS.gridSoft}"
-      />
-      ${horizontalTicks
-        .map(
-          (tick) => `
-            <line
-              x1="${margin.left}"
-              y1="${tick.y}"
-              x2="${width - margin.right}"
-              y2="${tick.y}"
-              stroke="${COLORS.gridSoft}"
-              stroke-dasharray="4 6"
-            />
-            <text x="${margin.left - 12}" y="${tick.y + 4}" text-anchor="end" font-size="11" fill="${COLORS.ink}">
-              ${formatPlainNumber(tick.tempValue)}
-            </text>
-            <text x="${width - margin.right + 10}" y="${tick.y + 4}" text-anchor="start" font-size="11" fill="${COLORS.ink}">
-              ${formatPlainNumber(tick.precipValue)}
-            </text>
-          `
-        )
-        .join("")}
-      <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
-      <line x1="${width - margin.right}" y1="${margin.top}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
-      <line x1="${margin.left}" y1="${margin.top + chartHeight}" x2="${width - margin.right}" y2="${margin.top + chartHeight}" stroke="${COLORS.grid}" />
-      ${bars}
-      <polyline fill="none" stroke="${COLORS.temperature}" stroke-width="3" points="${points}" />
-      ${pointDots}
-      ${monthLabels}
-      <text x="${margin.left}" y="12" font-size="11" fill="${COLORS.temperature}" font-weight="700">(°C)</text>
-      <text x="${width - margin.right}" y="12" text-anchor="end" font-size="11" fill="${COLORS.rain}" font-weight="700">(mm)</text>
-    </svg>
-  `;
+  return window.ClimateChartKit.render(region, sharedChartScale);
 }
 
 function renderDeviationTemperatureChart(rows) {
@@ -6378,7 +6228,9 @@ function pickPrecipitationStep(maxValue) {
   if (maxValue <= 120) return 20;
   if (maxValue <= 300) return 50;
   if (maxValue <= 700) return 100;
-  return 200;
+  if (maxValue <= 1500) return 250;
+  if (maxValue <= 3000) return 500;
+  return 1000;
 }
 
 function pickCumulativePrecipitationStep(maxValue) {

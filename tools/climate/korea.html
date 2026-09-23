@@ -13,18 +13,17 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="../../ds/fonts.css?v=30" />
-    <link rel="stylesheet" href="../../ds/tokens.css?v=30" />
-    <link rel="stylesheet" href="../../ds/base.css?v=30" />
-    <link rel="stylesheet" href="../../ds/components.css?v=30" />
-    <link rel="stylesheet" href="../../ds/patterns.css?v=30" />
-    <link rel="stylesheet" href="styles.css?v=30" />
+    <link rel="stylesheet" href="../../ds/fonts.css?v=31" />
+    <link rel="stylesheet" href="../../ds/tokens.css?v=31" />
+    <link rel="stylesheet" href="../../ds/base.css?v=31" />
+    <link rel="stylesheet" href="../../ds/components.css?v=31" />
+    <link rel="stylesheet" href="../../ds/patterns.css?v=31" />
+    <link rel="stylesheet" href="styles.css?v=31" />
   </head>
   <body data-app-mode="korea">
     <header class="tw-nav is-static">
       <nav class="tw-nav-inner" aria-label="Promenade Geography">
         <a class="tw-brand" href="../../index.html" aria-label="Promenade Geography home">
-          <span class="tw-brand-mark" aria-hidden="true"></span>
           <span lang="en">Promenade</span>
         </a>
         <div class="tw-nav-links">
@@ -45,12 +44,11 @@
     </header>
 
     <header class="tw-page tw-hero atlas-hero">
-      <p class="tw-meta-line">
+      <p class="tw-sr-only">
         <span id="heroCount">246개 지역</span>
         <span id="heroCaption" lang="en">KMA · 1991–2020</span>
       </p>
       <h1 class="tw-display" lang="en">Climate Atlas</h1>
-      <p class="tw-lede">남북한 관측 지점의 월별 기온과 강수량을 고르고, 같은 축의 기후 그래프로 나란히 비교합니다.</p>
       <nav class="tw-segmented app-switch" aria-label="지역 범위">
         <a class="app-switch-link" lang="en" href="./index.html">World</a>
         <a class="app-switch-link is-active" lang="en" href="./korea.html" aria-current="page">Korea</a>
@@ -81,7 +79,7 @@
           <aside class="tw-sidebar picker" aria-label="지역 찾기">
             <div class="picker-search">
               <label class="tw-field" for="searchInput">
-                <span class="tw-field-label">지역 검색</span>
+                <span class="tw-sr-only">지역 검색</span>
                 <span class="tw-search">
                   <input
                     class="tw-input"
@@ -93,7 +91,7 @@
                 </span>
               </label>
               <label class="tw-field" for="regionSortSelect">
-                <span class="tw-field-label">정렬</span>
+                <span class="tw-sr-only">정렬</span>
                 <select class="tw-select" id="regionSortSelect">
                   <option value="default">기본순</option>
                   <option value="name">가나다순</option>
@@ -106,14 +104,12 @@
             </div>
 
             <div class="picker-list">
-              <p class="picker-list-title">지역 목록</p>
               <div class="region-list" id="regionList"></div>
             </div>
           </aside>
 
           <div class="tw-canvas">
             <div class="selected-tray-wrap">
-              <p class="selected-tray-label">선택한 지역</p>
               <div class="selected-tray" id="selectedTray" aria-label="선택한 지역"></div>
             </div>
 
@@ -130,14 +126,10 @@
 
             <article class="world-stage map-card">
               <div class="map-card-head">
-                <h3>지도</h3>
                 <span class="map-summary" id="mapSummary" role="status" aria-live="polite" aria-atomic="true" hidden>지도 준비 중</span>
                 <div class="map-scope" id="mapScopeChips" role="group" aria-label="지도 표시 범위"></div>
               </div>
               <div id="worldMap"></div>
-              <p class="map-selection-help" id="mapSelectionHelp">
-                점을 누르면 선택됩니다. 점이 밀집된 곳은 가까운 후보를 펼쳐 보여줍니다.
-              </p>
               <div
                 class="map-candidate-picker"
                 id="mapCandidatePicker"
@@ -156,7 +148,6 @@
         <div class="tw-section-head">
           <div>
             <h2 id="chartsTitle">기후 그래프</h2>
-            <p>선택한 모든 지역을 같은 기온·강수량 축으로 그립니다.</p>
           </div>
         </div>
         <div id="selectedRegionsContent" class="selected-grid"></div>
@@ -166,7 +157,6 @@
         <div class="tw-section-head">
           <div>
             <h2 id="comparisonTitle">비교</h2>
-            <p>1월·8월, 겨울·여름 값과 월별 편차를 한 번에 봅니다.</p>
           </div>
         </div>
         <div id="comparisonContent"></div>
@@ -176,7 +166,6 @@
     <footer class="tw-footer">
       <div class="tw-footer-inner">
         <span class="tw-latin">Promenade Geography</span>
-        <span>기상청 KMA 평년값 1991–2020</span>
       </div>
     </footer>
 
@@ -185,6 +174,8 @@
     <script src="data/korea-climate-data.js?v=20260716"></script>
     <script src="data/korea-peninsula-geo.js"></script>
     <script src="data/vendor-d3.min.js"></script>
-    <script src="korea-app.js?v=30"></script>
+    <script src="chart-kit.js?v=31"></script>
+    <script src="map-zoom.js?v=31"></script>
+    <script src="korea-app.js?v=31"></script>
   </body>
 </html>
