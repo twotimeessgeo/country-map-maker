@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../../ds/base.css?v=47" />
     <link rel="stylesheet" href="../../ds/components.css?v=47" />
     <link rel="stylesheet" href="../../ds/patterns.css?v=49" />
-    <link rel="stylesheet" href="./cut.css?v=48" />
+    <link rel="stylesheet" href="./cut.css?v=51" />
   </head>
   <body>
     <header class="tw-nav is-static">
@@ -85,18 +85,25 @@
       <section class="tw-section cut-question-panel" aria-labelledby="questionAnalysisTitle">
         <div class="tw-section-head cut-question-heading">
           <h2 id="questionAnalysisTitle">문항 분석</h2>
-          <div class="tw-segmented cut-question-sort" id="questionSort" role="group" aria-label="문항 정렬">
-            <button type="button" data-question-sort="number" aria-pressed="false">번호순</button>
-            <button type="button" data-question-sort="wrong" aria-pressed="true">오답률순</button>
+          <div class="cut-question-controls">
+            <div class="tw-segmented cut-question-sort" id="questionSort" role="group" aria-label="문항 정렬">
+              <button type="button" data-question-sort="number" aria-pressed="false">번호순</button>
+              <button type="button" data-question-sort="wrong" aria-pressed="true">오답률순 ↓</button>
+            </div>
+            <div class="tw-segmented cut-question-view" id="questionView" role="group" aria-label="문항 보기">
+              <button type="button" data-question-view="table" aria-pressed="true">표</button>
+              <button type="button" data-question-view="photo" aria-pressed="false">사진</button>
+            </div>
           </div>
           <span id="questionAnalysisCount" class="tw-meta-list" aria-live="polite" hidden></span>
         </div>
-        <div class="tw-table-wrap cut-question-table-wrap">
+        <div class="tw-table-wrap cut-question-table-wrap" id="questionTableWrap">
           <table class="tw-table cut-question-table">
             <thead><tr><th scope="col">번호</th><th scope="col">배점</th><th scope="col">오답률</th><th scope="col" aria-label="1번 선택률">1</th><th scope="col" aria-label="2번 선택률">2</th><th scope="col" aria-label="3번 선택률">3</th><th scope="col" aria-label="4번 선택률">4</th><th scope="col" aria-label="5번 선택률">5</th></tr></thead>
             <tbody id="questionAnalysisGrid" class="cut-question-grid"></tbody>
           </table>
         </div>
+        <div id="questionPhotoGrid" class="cut-photo-grid" hidden></div>
         <div id="questionUnpublished" class="cut-unpublished-items" hidden></div>
       </section>
 
@@ -134,13 +141,13 @@
 
     <dialog id="cutLightbox" class="cut-lightbox" aria-label="문항 이미지">
       <div class="cut-lightbox-shell">
-        <div class="cut-lightbox-head"><strong id="cutLightboxTitle"></strong><button id="cutLightboxClose" class="tw-button is-ghost is-sm" type="button" aria-label="닫기">닫기</button></div>
+        <div class="cut-lightbox-head"><strong id="cutLightboxTitle"></strong><span id="cutLightboxPosition" class="cut-lightbox-position"></span><button id="cutLightboxClose" class="tw-button is-ghost is-sm" type="button" aria-label="닫기">닫기</button></div>
         <div class="cut-lightbox-body"><div class="cut-lightbox-image-wrap"><img id="cutLightboxImage" alt="" /><span id="cutLightboxEmpty" hidden>문항 이미지가 없습니다</span></div><div class="cut-lightbox-side"><span id="cutLightboxRate"></span><span id="cutLightboxPoints"></span></div></div>
         <div class="cut-lightbox-actions"><button id="cutLightboxPrev" class="tw-button" type="button" aria-label="이전 문항">←</button><button id="cutLightboxNext" class="tw-button" type="button" aria-label="다음 문항">→</button></div>
       </div>
     </dialog>
     <script src="../../ds/motion.js?v=50"></script>
     <script src="../../ds/tooltip.js?v=43"></script>
-    <script src="./cut.js?v=48"></script>
+    <script src="./cut.js?v=51"></script>
   </body>
 </html>

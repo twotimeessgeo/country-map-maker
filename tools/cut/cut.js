@@ -1,5 +1,5 @@
 const EBSI_URL = "./data/ebsi_geo_data.json";
-const QUESTION_IMAGE_MANIFEST_URL = "./data/question-image-manifest.json";
+const QUESTION_IMAGE_MANIFEST_URL = "./data/question-image-manifest.json?v=20260924";
 const SUPPORTED_SUBJECTS = ["한국지리", "세계지리"];
 const GRADE_KEYS = ["1", "2", "3"];
 const QUESTION_NUMBERS = Array.from({ length: 20 }, (_, index) => index + 1);
@@ -30,7 +30,10 @@ const elements = {
   sourceLink: document.querySelector("#sourceLink"),
   questionCount: document.querySelector("#questionAnalysisCount"),
   questionGrid: document.querySelector("#questionAnalysisGrid"),
+  questionTableWrap: document.querySelector("#questionTableWrap"),
+  questionPhotoGrid: document.querySelector("#questionPhotoGrid"),
   questionSort: document.querySelector("#questionSort"),
+  questionView: document.querySelector("#questionView"),
   unpublished: document.querySelector("#questionUnpublished"),
   trend: document.querySelector("#cutTrendChart"),
   trendRange: document.querySelector("#trendRange"),
@@ -42,6 +45,7 @@ const elements = {
   collectionDate: document.querySelector("#collectionDate"),
   lightbox: document.querySelector("#cutLightbox"),
   lightboxTitle: document.querySelector("#cutLightboxTitle"),
+  lightboxPosition: document.querySelector("#cutLightboxPosition"),
   lightboxImage: document.querySelector("#cutLightboxImage"),
   lightboxEmpty: document.querySelector("#cutLightboxEmpty"),
   lightboxRate: document.querySelector("#cutLightboxRate"),
@@ -56,7 +60,24 @@ let records = [];
 let questionImageByKey = new Map();
 let scope = "evaluation";
 let lightboxQuestion = 1;
-let questionSort = "wrong";
+function readQuestionPreference(key, fallback, allowed) {
+  try {
+    const value = localStorage.getItem(key);
+    return allowed.includes(value) ? value : fallback;
+  } catch { return fallback; }
+}
+
+function saveQuestionPreferences() {
+  try {
+    localStorage.setItem("cut-question-sort", questionSort);
+    localStorage.setItem("cut-question-direction", questionSortDirection);
+    localStorage.setItem("cut-question-view", questionView);
+  } catch { /* Archive remains usable without storage. */ }
+}
+
+let questionSort = readQuestionPreference("cut-question-sort", "wrong", ["number", "wrong"]);
+let questionSortDirection = readQuestionPreference("cut-question-direction", "desc", ["asc", "desc"]);
+let questionView = readQuestionPreference("cut-question-view", "table", ["table", "photo"]);
 let trendRange = "recent";
 let historyExpanded = false;
 
@@ -221,7 +242,7 @@ function renderExamNavigation(record) {
     for (const exam of entries) {
       const option = document.createElement("option");
       option.value = recordKey(exam);
-      option.textContent = monthLabel(exam.month);
+      option.textContent = recordTitle(exam);
       group.appendChild(option);
     }
     elements.examPicker.appendChild(group);
@@ -337,20 +358,79 @@ function questionChoiceRates(record, question) {
     : null;
 }
 
+function orderedQuestionNumbers(record) {
+  const byNumber = new Map((record?.items || []).map((item) => [Number(item.question), item]));
+  return [...QUESTION_NUMBERS].sort((left, right) => {
+    if (questionSort === "number") return left - right;
+    const leftRate = byNumber.get(left)?.national_rate;
+    const rightRate = byNumber.get(right)?.national_rate;
+    const leftKnown = isFiniteNumber(leftRate);
+    const rightKnown = isFiniteNumber(rightRate);
+    if (leftKnown !== rightKnown) return leftKnown ? -1 : 1;
+    if (!leftKnown) return left - right;
+    const difference = Number(rightRate) - Number(leftRate);
+    return (questionSortDirection === "desc" ? -difference : difference) || left - right;
+  });
+}
+
+function renderQuestionPhotos(record, order) {
+  elements.questionPhotoGrid.replaceChildren();
+  if (!record) return;
+  const byNumber = new Map((record.items || []).map((item) => [Number(item.question), item]));
+  const fragment = document.createDocumentFragment();
+  for (const question of order) {
+    const item = byNumber.get(question);
+    const image = questionImageByKey.get(questionImageKey(record.subject, record.exam_year, record.month, question));
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "cut-photo-card";
+    button.dataset.question = String(question);
+    const visual = image?.url ? document.createElement("img") : document.createElement("span");
+    if (image?.url) {
+      visual.src = image.url;
+      visual.alt = "";
+      visual.loading = "lazy";
+    } else {
+      visual.className = "cut-photo-missing";
+      visual.textContent = "사진 없음";
+    }
+    const caption = document.createElement("span");
+    caption.className = "cut-photo-caption tw-meta-list";
+    const rate = isFiniteNumber(item?.national_rate) ? formatPercent(100 - Number(item.national_rate)) : "미발표";
+    for (const text of [`${question}번`, `오답률 ${rate}`, isFiniteNumber(item?.points) ? `${formatNumber(item.points, 0)}점` : ""]) {
+      if (!text) continue;
+      const part = document.createElement("span");
+      part.textContent = text;
+      caption.appendChild(part);
+    }
+    button.setAttribute("aria-label", `${question}번, 오답률 ${rate}, 문항 크게 보기`);
+    button.append(visual, caption);
+    fragment.appendChild(button);
+  }
+  elements.questionPhotoGrid.appendChild(fragment);
+}
+
 function renderQuestionAnalysis(record) {
   elements.questionGrid.replaceChildren();
+  elements.questionPhotoGrid.replaceChildren();
   elements.unpublished.replaceChildren();
   elements.unpublished.hidden = true;
+  elements.questionTableWrap.hidden = questionView !== "table";
+  elements.questionPhotoGrid.hidden = questionView !== "photo";
   elements.questionSort.querySelectorAll("[data-question-sort]").forEach((button) => {
     button.setAttribute("aria-pressed", String(button.dataset.questionSort === questionSort));
+    if (button.dataset.questionSort === "wrong") button.textContent = `오답률순 ${questionSortDirection === "desc" ? "↓" : "↑"}`;
+  });
+  elements.questionView.querySelectorAll("[data-question-view]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.questionView === questionView));
   });
   if (!record) return;
 
-  const observed = (record.items || [])
+  const order = orderedQuestionNumbers(record);
+  const observedByNumber = new Map((record.items || [])
     .filter((item) => isFiniteNumber(item.national_rate) && item.source === "ebsi_wrong_top15")
-    .sort((left, right) => questionSort === "number"
-      ? Number(left.question) - Number(right.question)
-      : Number(left.national_rate) - Number(right.national_rate));
+    .map((item) => [Number(item.question), item]));
+  const observed = order.map((question) => observedByNumber.get(question)).filter(Boolean);
   const observedNumbers = new Set(observed.map((item) => Number(item.question)));
   const unpublished = QUESTION_NUMBERS.filter((question) => !observedNumbers.has(question));
   const fragment = document.createDocumentFragment();
@@ -388,8 +468,15 @@ function renderQuestionAnalysis(record) {
       const cell = document.createElement("td");
       cell.className = "cut-choice-cell";
       if (choice === answer) cell.classList.add("is-answer");
-      cell.textContent = choiceRates ? formatPercent(choiceRates[choice - 1]) : "–";
-      cell.setAttribute("aria-label", `${choice}번 ${cell.textContent}${choice === answer ? ", 정답" : ""}`);
+      const rateText = choiceRates ? formatPercent(choiceRates[choice - 1]) : "–";
+      if (choice === answer) {
+        const value = document.createElement("strong");
+        value.textContent = rateText;
+        const tag = document.createElement("small");
+        tag.textContent = "정답";
+        cell.append(value, tag);
+      } else cell.textContent = rateText;
+      cell.setAttribute("aria-label", `${choice}번 ${rateText}${choice === answer ? ", 정답" : ""}`);
       row.appendChild(cell);
     }
     fragment.appendChild(row);
@@ -404,8 +491,9 @@ function renderQuestionAnalysis(record) {
     fragment.appendChild(row);
   }
   elements.questionGrid.replaceChildren(fragment);
+  renderQuestionPhotos(record, order);
 
-  if (observed.length && unpublished.length) {
+  if (questionView === "table" && observed.length && unpublished.length) {
     const title = document.createElement("strong");
     title.textContent = unpublished.length === 5
       ? "오답률 하위 5문항"
@@ -686,11 +774,14 @@ function updateLightbox() {
   const record = selectedRecord();
   if (!record) return;
   const question = lightboxQuestion;
+  const order = orderedQuestionNumbers(record);
+  const position = order.indexOf(question);
   const item = (record.items || []).find((entry) => Number(entry.question) === question);
   const imageData = questionImageByKey.get(
     questionImageKey(record.subject, record.exam_year, record.month, question),
   );
   elements.lightboxTitle.textContent = recordTitle(record) + "  " + question + "번";
+  elements.lightboxPosition.textContent = `${position + 1} / ${order.length}`;
   elements.lightboxImage.hidden = !imageData?.url;
   elements.lightboxEmpty.hidden = Boolean(imageData?.url);
   elements.lightboxImage.src = imageData?.url || "";
@@ -700,8 +791,17 @@ function updateLightbox() {
   elements.lightboxRate.textContent = "오답률 " + (rate === null ? "-" : formatPercent(rate));
   elements.lightboxPoints.textContent = isFiniteNumber(item?.points)
     ? "배점 " + formatNumber(item.points, 0) + "점" : "";
-  elements.lightboxPrev.disabled = question <= 1;
-  elements.lightboxNext.disabled = question >= 20;
+  elements.lightboxPrev.disabled = position <= 0;
+  elements.lightboxNext.disabled = position >= order.length - 1;
+}
+
+function navigateLightbox(delta) {
+  const record = selectedRecord();
+  if (!record) return;
+  const order = orderedQuestionNumbers(record);
+  const next = Math.max(0, Math.min(order.length - 1, order.indexOf(lightboxQuestion) + delta));
+  lightboxQuestion = order[next];
+  updateLightbox();
 }
 
 function openLightbox(question) {
@@ -785,13 +885,30 @@ elements.scopeChips.addEventListener("click", (event) => {
 });
 elements.questionSort.addEventListener("click", (event) => {
   const button = event.target.closest("[data-question-sort]");
-  if (!button || questionSort === button.dataset.questionSort) return;
-  questionSort = button.dataset.questionSort;
+  if (!button) return;
+  if (button.dataset.questionSort === "wrong" && questionSort === "wrong") {
+    questionSortDirection = questionSortDirection === "desc" ? "asc" : "desc";
+  } else if (questionSort !== button.dataset.questionSort) {
+    questionSort = button.dataset.questionSort;
+    if (questionSort === "wrong") questionSortDirection = "desc";
+  } else return;
+  saveQuestionPreferences();
+  renderQuestionAnalysis(selectedRecord());
+});
+elements.questionView.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-question-view]");
+  if (!button || button.dataset.questionView === questionView) return;
+  questionView = button.dataset.questionView;
+  saveQuestionPreferences();
   renderQuestionAnalysis(selectedRecord());
 });
 elements.questionGrid.addEventListener("click", (event) => {
   const row = event.target.closest("[data-question]");
   if (row) openLightbox(row.dataset.question);
+});
+elements.questionPhotoGrid.addEventListener("click", (event) => {
+  const card = event.target.closest("[data-question]");
+  if (card) openLightbox(card.dataset.question);
 });
 elements.questionGrid.addEventListener("keydown", (event) => {
   if (!["Enter", " "].includes(event.key)) return;
@@ -823,22 +940,18 @@ elements.historyBody.addEventListener("keydown", (event) => {
 });
 elements.lightboxClose.addEventListener("click", () => elements.lightbox.close());
 elements.lightboxPrev.addEventListener("click", () => {
-  lightboxQuestion = Math.max(1, lightboxQuestion - 1);
-  updateLightbox();
+  navigateLightbox(-1);
 });
 elements.lightboxNext.addEventListener("click", () => {
-  lightboxQuestion = Math.min(20, lightboxQuestion + 1);
-  updateLightbox();
+  navigateLightbox(1);
 });
 elements.lightbox.addEventListener("keydown", (event) => {
   if (event.key === "ArrowLeft") {
     event.preventDefault();
-    lightboxQuestion = Math.max(1, lightboxQuestion - 1);
-    updateLightbox();
+    navigateLightbox(-1);
   } else if (event.key === "ArrowRight") {
     event.preventDefault();
-    lightboxQuestion = Math.min(20, lightboxQuestion + 1);
-    updateLightbox();
+    navigateLightbox(1);
   }
 });
 
