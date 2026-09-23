@@ -3,7 +3,6 @@ const QUESTION_IMAGE_MANIFEST_URL = "./data/question-image-manifest.json";
 const SUPPORTED_SUBJECTS = ["한국지리", "세계지리"];
 const GRADE_KEYS = ["1", "2", "3"];
 const QUESTION_NUMBERS = Array.from({ length: 20 }, (_, index) => index + 1);
-const CIRCLED_CHOICES = ["", "①", "②", "③", "④", "⑤"];
 
 const elements = {
   form: document.querySelector("#cutLookupForm"),
@@ -336,97 +335,6 @@ function questionChoiceRates(record, question) {
   return rates.every((value) => Number.isFinite(value) && value >= 0 && value <= 100)
     ? rates
     : null;
-}
-
-function createChoiceDistribution(rates, answer) {
-  const distribution = document.createElement("div");
-  distribution.className = "cut-choice-distribution";
-  distribution.setAttribute("role", "group");
-  distribution.setAttribute(
-    "aria-label",
-    answer === null
-      ? "선택지별 선택률"
-      : `선택지별 선택률, 정답 ${answer}번`,
-  );
-
-  const title = document.createElement("span");
-  title.className = "cut-choice-title";
-  title.setAttribute("aria-hidden", "true");
-  title.textContent = "선택률";
-
-  const list = document.createElement("ul");
-  list.className = "cut-choice-list";
-  list.setAttribute("role", "list");
-
-  rates.forEach((rate, index) => {
-    const choice = index + 1;
-    const isAnswer = choice === answer;
-    const item = document.createElement("li");
-    item.className = "cut-choice-item";
-    if (isAnswer) item.classList.add("is-answer");
-    item.setAttribute(
-      "aria-label",
-      `${choice}번 ${formatPercent(rate)}${isAnswer ? ", 정답" : ""}`,
-    );
-
-    const symbol = document.createElement("span");
-    symbol.className = "cut-choice-symbol";
-    symbol.setAttribute("aria-hidden", "true");
-    symbol.textContent = CIRCLED_CHOICES[choice];
-
-    const value = document.createElement("span");
-    value.className = "cut-choice-value";
-    value.setAttribute("aria-hidden", "true");
-    value.textContent = formatPercent(rate);
-
-    const bar = document.createElement("span");
-    bar.className = "cut-choice-bar";
-    bar.setAttribute("aria-hidden", "true");
-    bar.style.setProperty("--choice-rate", `${Math.max(0, Math.min(100, rate))}%`);
-
-    item.append(symbol, value, bar);
-    list.appendChild(item);
-  });
-
-  distribution.append(title, list);
-  return distribution;
-}
-
-function createEmptyQuestionImage() {
-  const empty = document.createElement("div");
-  empty.className = "cut-question-image-frame is-empty";
-  const label = document.createElement("span");
-  label.textContent = "문항 이미지가 없습니다";
-  empty.appendChild(label);
-  return empty;
-}
-
-function createQuestionImage(record, question, imageData) {
-  if (!imageData?.url) return null;
-
-  const link = document.createElement("a");
-  link.className = "cut-question-image-frame";
-  link.href = imageData.url;
-  link.dataset.question = String(question);
-  link.addEventListener("click", (event) => {
-    event.preventDefault();
-    openLightbox(question);
-  });
-  link.setAttribute(
-    "aria-label",
-    `${question}번 문항 크게 보기`,
-  );
-
-  const image = document.createElement("img");
-  image.src = imageData.url;
-  image.alt = `${recordTitle(record)} ${record.subject} ${question}번 문항`;
-  image.loading = "lazy";
-  image.decoding = "async";
-  image.addEventListener("error", () => {
-    link.replaceWith(createEmptyQuestionImage());
-  }, { once: true });
-  link.appendChild(image);
-  return link;
 }
 
 function renderQuestionAnalysis(record) {
