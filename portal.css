@@ -1,7 +1,10 @@
 /* Portal home — built on ds/ (Promenade Design System 3.0) */
 
 .portal-hero {
-  padding-top: clamp(56px, 11vw, 144px);
+  min-height: calc(100vh - var(--tw-nav-height));
+  min-height: calc(100svh - var(--tw-nav-height));
+  padding-block: 0;
+  align-content: center;
 }
 
 .portal-title {
@@ -12,7 +15,7 @@
   letter-spacing: -0.045em;
 }
 
-.portal-hero {
-  min-height: calc(100vh - var(--tw-nav-height) - 140px);
-  align-content: center;
+@media (max-width: 480px) {
+  .portal-hero .tw-hero-actions { flex-wrap: nowrap; gap: 6px; }
+  .portal-hero .tw-button { padding-inline: 12px; }
 }
