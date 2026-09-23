@@ -284,17 +284,15 @@
   font-weight: var(--tw-weight-strong);
 }
 
-.region-option-title span,
-.region-option-meta{
+.region-option-title .tw-meta-list {
+  flex-wrap: nowrap;
+  overflow: hidden;
+  white-space: nowrap;
   color: var(--tw-ink-2);
   font-size: var(--tw-text-xs);
   line-height: 1.5;
 }
-
-.region-option-meta {
-  color: var(--tw-ink-3);
-  font-variant-numeric: tabular-nums;
-}
+.region-option-title .tw-meta-list > span { overflow: hidden; text-overflow: ellipsis; }
 
 .region-option input {
   appearance: none;
@@ -394,6 +392,8 @@
   gap: var(--tw-space-3);
 }
 
+body[data-app-mode="korea"] .map-card { width: min(100%, 520px); justify-self: center; }
+
 .map-skip-link:focus-visible {
   position: relative;
   z-index: 6;
@@ -479,9 +479,9 @@
 }
 
 .world-map-frame.is-korea {
-  width: min(100%, 620px);
+  width: 100%;
   margin: 0 auto;
-  aspect-ratio: 760 / 1120;
+  aspect-ratio: 620 / 1120;
 }
 .world-map-frame.is-korea .map-marker { --marker-color: var(--tw-ink); }
 

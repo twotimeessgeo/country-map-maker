@@ -1,13 +1,13 @@
 const KOREA_MAP_VIEWBOX = {
-  width: 760,
+  width: 620,
   height: 1120,
 };
 
 const KOREA_MAP_PADDING = {
   top: 40,
-  right: 54,
+  right: 28,
   bottom: 52,
-  left: 54,
+  left: 28,
 };
 
 const COMPARISON_PAIR_CONFIGS = [
@@ -1005,7 +1005,7 @@ function renderRegionList(regions) {
           <div class="region-option-top">
             <div class="region-option-title">
               <strong>${escapeHtml(region.name)}</strong>
-              ${renderMetaList([region.officialName !== region.name ? region.officialName : "", region.nation])}
+              ${renderMetaList([region.nation, region.zone])}
             </div>
             <input
               type="checkbox"
@@ -1014,7 +1014,6 @@ function renderRegionList(regions) {
               aria-label="${escapeHtml(region.name)} 선택"
             />
           </div>
-          <div class="region-option-meta">${escapeHtml(region.zone)}</div>
         </label>
       `;
     })
