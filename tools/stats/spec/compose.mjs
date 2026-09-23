@@ -139,6 +139,7 @@ function sourceName(id,table) {
 function unitFor(label,overall) {
   if(/출생률|사망률|순이동률/.test(label)) return "‰";
   if(/비중|비율|증가율|도시화율/.test(label)) return "%";
+  if(/노령화지수|성비/.test(label)) return "";
   if(/지수/.test(label)) return "지수";
   if(/^\d{4}$/.test(label)) return overall||"";
   if(/순위|기준/.test(label)) return "";
@@ -155,6 +156,38 @@ function unitFor(label,overall) {
   if(/생산량/.test(label)) return overall?.includes("TWh")?"TWh":overall?.includes("천 명")?"천 명":"t";
   if(["%","‰","명","천 명","t","TWh"].includes(overall)) return overall;
   return "";
+}
+const sourceLinks = {
+  "행정안전부":"https://jumin.mois.go.kr/",
+  "국토교통부":"https://stat.molit.go.kr/",
+  "한국전력공사":"https://home.kepco.co.kr/kepco/KO/ntcob/ntcobView.do",
+  "UN":"https://population.un.org/wpp/",
+};
+function sourceItems(id,table,year,columns) {
+  const name=sourceName(id,table);
+  const years=[year,...columns.map(column=>column.year)].map(value=>String(value||"").match(/\d{4}/)?.[0]).filter(Boolean);
+  const latest=years.length?String(Math.max(...years.map(Number))):String(table.year||"").match(/\d{4}/)?.[0]||"2024";
+  const item=(label,sourceYear,url)=>({name:label,year:sourceYear,url:url||sourceLinks[label]||table.source?.url||""});
+  if(id==="k-6-02") return [item("행정안전부","2024"),item("국토교통부","2024")];
+  if(id==="k-x-02") return [item("에너지경제연구원","2024"),item("한국전력공사","2025")];
+  if(id==="k-5-09") return [item("국가데이터처","2025"),item("국토교통부","2024")];
+  if(["w-4-01","w-5-01"].includes(id)) return [item("World Bank",latest),item("UN",latest)];
+  const label=name.includes("Pew")?"Pew Research Center":name.includes("Ember")?"Ember":name.includes("Energy Institute")?"Energy Institute":
+    name.includes("FAOSTAT")?"FAOSTAT":name.includes("World Bank")?"World Bank":name.includes("UN")?"UN":
+    name.includes("국토교통부")?"국토교통부":name.includes("농림축산식품부")?"농림축산식품부":
+    name.includes("에너지경제연구원")?"에너지경제연구원":name.includes("한국에너지공단")?"한국에너지공단":
+    name.includes("한국전력공사")?"한국전력공사":name.includes("행정안전부")?"행정안전부":"국가데이터처";
+  return [item(label,latest)];
+}
+function publicNote(note) {
+  if(!note) return null;
+  if(note.includes("2011년 12월 = 100")) return "2011년 = 100";
+  if(note.includes("종사자 10명 이상")) return "종사자 10명 이상 사업체";
+  if(note.includes("잠정")) return "잠정";
+  if(note.includes("이주자 재고량") || note.includes("이동 유량이 아닌")) return "국제 이주자 재고량";
+  if(note.includes("순수출입과 동일하지")) return "수급 차이, 순수출입 아님";
+  if(note.includes("UN WPP 인구로 나눈")) return "UN 인구로 계산한 참고값";
+  return null;
 }
 function normalizedRows(rows,oldColumns) {
   return rows.map(r=>{
@@ -178,12 +211,12 @@ function viewFrom(subject,id,table,label,viewId,variant) {
   const oldCols=raw.columns||table.columns;
   const columns=oldCols.map(c=>({label:/^\d{4}(?:\.|$)/.test(c.label)?formatYear(c.label):c.label,unit:c.unit||unitFor(c.label,raw.unit||table.unit),...(c.year?{year:formatYear(c.year)}:{})}));
   const out={id:viewId,label,rowLabel:raw.rowLabel||table.rowLabel,columns,rows:normalizedRows(raw.rows||table.rows,oldCols),
-    source:{name:sourceName(id,table),url:table.source?.url||""}};
+    sources:sourceItems(id,table,raw.year||table.year,columns)};
   const year=formatYear(raw.year||table.year);
   const columnYears=[...new Set(columns.map(c=>c.year).filter(Boolean))];
   if(year && !columnYears.length) out.year=year;
   if(year && columnYears.length===1 && columnYears[0]===year) out.year=year;
-  const note=raw.note||table.note;if(note) out.note=note;
+  const note=raw.note||table.note;if(note) {out.internalNote=note;out.note=publicNote(note);if(!out.note)delete out.note;}
   return out;
 }
 function tableFrom(subject,entry) {
@@ -207,8 +240,8 @@ function combine(subject,topic,entries) {
       scale.columns=[{...scale.columns[0],year:scale.year},
         {...density.columns[2],year:density.year},...sex.columns.map((column)=>({...column,year:sex.year}))];
       scale.rows=scale.rows.map((record)=>({label:record.label,values:[...record.values,densityByName.get(record.label)?.values[2]??null,...(sexByName.get(record.label)?.values||[null,null])]}));
-      scale.source={name:"행정안전부 주민등록인구통계, 국토교통부 지적통계",url:scale.source.url};
-      scale.note=`인구는 ${scale.year}, 밀도와 성비는 ${density.year} 기준`;
+      scale.sources=[{name:"행정안전부",year:"2026",url:sourceLinks["행정안전부"]},{name:"국토교통부",year:"2024",url:sourceLinks["국토교통부"]}];
+      scale.internalNote=`인구는 ${scale.year}, 밀도와 성비는 ${density.year} 기준`;
       delete scale.year;
     }
     const views=[scale,get("k-6-03","연령"),get("k-x-03","출생과 사망"),get("k-6-06","이동")].filter(Boolean);

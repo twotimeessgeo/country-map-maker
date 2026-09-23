@@ -55,8 +55,8 @@
       if (button.dataset.scope) { state.scope = button.dataset.scope; renderContent(); return; }
       if (button.dataset.sort !== undefined) {
         const index = Number(button.dataset.sort);
-        if (!state.sort || state.sort.index !== index) state.sort = {index,direction:"desc"};
-        else if (state.sort.direction === "desc") state.sort.direction = "asc";
+        if (!state.sort || state.sort.index !== index) state.sort = {index,direction:"asc"};
+        else if (state.sort.direction === "asc") state.sort.direction = "desc";
         else state.sort = null;
         renderContent(); return;
       }
@@ -222,10 +222,28 @@
       '<button type="button" data-table="'+tableId+'" data-'+attribute+'="'+index+'" class="'+(active===index?"is-active":"")+
       '" aria-pressed="'+(active===index)+'">'+escapeHtml(item.label)+'</button>').join("")+'</nav>';
   }
+  const provinceOrder=["서울","부산","대구","인천","광주","대전","울산","세종","경기","강원","충북","충남","전북","전남","경북","경남","제주"];
+  const regionOrder=["수도권","강원권","충청권","호남권","영남권","제주권"];
+  const continentOrder=["아시아","유럽","아프리카","앵글로아메리카","라틴 아메리카","중·남부 아메리카","오세아니아"];
+  function originalCompare(a,b) {
+    const labels=[a.label,b.label];
+    for(const order of [provinceOrder,regionOrder,continentOrder]) {
+      if(labels.every(label=>order.includes(label)))return order.indexOf(a.label)-order.indexOf(b.label);
+    }
+    if(labels.every(label=>/^\d+위$/.test(label)))return Number.parseInt(a.label)-Number.parseInt(b.label);
+    if(labels.every(label=>/^\d{4}년?$/.test(label)))return Number.parseInt(a.label)-Number.parseInt(b.label);
+    return a.label.localeCompare(b.label,"ko");
+  }
   function groupRows(rows,state) {
     const groups={continent:rows.filter(r=>r.group==="continent"),country:rows.filter(r=>r.group==="country"),ordinary:rows.filter(r=>!r.group)};
     const sort=state.sort;
-    if(!sort)return groups;
+    if(!sort) {
+      groups.continent.sort(originalCompare);
+      groups.ordinary.sort(originalCompare);
+      const order=[...new Set(groups.country.map(row=>row.continent||""))].sort((a,b)=>originalCompare({label:a},{label:b}));
+      groups.country=order.flatMap(name=>groups.country.filter(row=>(row.continent||"")===name).sort(originalCompare));
+      return groups;
+    }
     const compare=(a,b)=>{
       const x=sort.index===0?a.label:a.values[sort.index-1];
       const y=sort.index===0?b.label:b.values[sort.index-1];
@@ -253,44 +271,40 @@
     const digits=["%","‰","지수"].includes(unit)?1:/^(명|개|가구|마리|t|천 명|만 t|MWh|천 toe)$/.test(unit)?0:1;
     return new Intl.NumberFormat("ko-KR",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(value).replaceAll("-","−");
   }
-  function cellHtml(value,column,max) {
+  function cellHtml(value,column) {
     if(value===null||value===undefined)return '<span class="stats-missing">–</span>';
     if(typeof value==="object"&&value.name) return '<span class="stats-rank-cell"><strong>'+escapeHtml(value.name)+'</strong><small>'+escapeHtml(formatNumber(value.value,column.unit))+'</small></span>';
     const display=escapeHtml(formatNumber(value,column.unit));
     if(typeof value!=="number")return display;
-    const bar=column.unit==="%"&&value>=0&&max>0?'<span class="stats-bar" style="--bar-width:'+Math.min(100,value/max*100).toFixed(1)+'%"></span>':"";
-    return '<span class="stats-value">'+bar+'<span class="stats-value-number">'+display+'</span></span>';
+    return '<span class="stats-value">'+display+'</span>';
   }
-  function rowMarkup(row,view,max) {
+  function rowMarkup(row,view) {
     const matched=highlight&&normalize(row.label).includes(highlight);
     const aggregate=row.group==="continent"||row.group==="national"||row.group==="region";
-    const marker=view.note?.includes("국가 합산")&&aggregate||view.note?.includes("시도 합산")?"*":"";
-    return '<tr class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+marker+'</th>'+
-      row.values.map((value,index)=>'<td>'+cellHtml(value,view.columns[index],max[index])+'</td>').join("")+'</tr>';
+    return '<tr class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+'</th>'+
+      row.values.map((value,index)=>'<td>'+cellHtml(value,view.columns[index])+'</td>').join("")+'</tr>';
   }
-  function tbodyMarkup(view,groups,max) {
+  function tbodyMarkup(view,groups) {
     const colspan=view.columns.length+1;
     const label=name=>'<tr class="is-group-label"><th colspan="'+colspan+'">'+name+'</th></tr>';
     const countryRows=(suppressSubgroup=false)=>{
       let last="";
       return groups.country.map(row=>{
         const heading=!suppressSubgroup&&row.continent&&row.continent!==last?'<tr class="is-subgroup"><th colspan="'+colspan+'">'+escapeHtml(row.continent)+'</th></tr>':"";
-        last=row.continent||last;return heading+rowMarkup(row,view,max);
+        last=row.continent||last;return heading+rowMarkup(row,view);
       }).join("");
     };
     if(groups.continent.length&&groups.country.length&&groups.continent.length===1)
-      return '<tbody class="stats-continent">'+groups.continent.map(row=>rowMarkup(row,view,max)).join("")+'</tbody>'+
+      return '<tbody class="stats-continent">'+groups.continent.map(row=>rowMarkup(row,view)).join("")+'</tbody>'+
         '<tbody class="stats-country">'+countryRows(true)+'</tbody>';
     if(groups.continent.length||groups.country.length)
-      return (groups.continent.length?'<tbody class="stats-continent">'+label("대륙")+groups.continent.map(row=>rowMarkup(row,view,max)).join("")+'</tbody>':"")+
+      return (groups.continent.length?'<tbody class="stats-continent">'+label("대륙")+groups.continent.map(row=>rowMarkup(row,view)).join("")+'</tbody>':"")+
         (groups.country.length?'<tbody class="stats-country">'+label("국가")+countryRows()+'</tbody>':"");
-    return '<tbody>'+groups.ordinary.map(row=>rowMarkup(row,view,max)).join("")+'</tbody>';
+    return '<tbody>'+groups.ordinary.map(row=>rowMarkup(row,view)).join("")+'</tbody>';
   }
   function renderTable(table) {
     const state=stateFor(table.id),base=table.views[Math.min(state.view,table.views.length-1)],view=activeView(table,state);
     const groups=visibleRows(view,state);
-    const rows=[...groups.continent,...groups.country,...groups.ordinary];
-    const max=view.columns.map((_,index)=>Math.max(0,...rows.map(row=>Number(row.values[index])).filter(Number.isFinite)));
     const hasBoth=groupRows(view.rows,{sort:null}).continent.length>1&&groupRows(view.rows,{sort:null}).country.length>0;
     const viewNav=table.views.length>1?segmented("stats-views",table.title+" 지표",table.views,state.view,"view",table.id):"";
     const subNav=base.subviews?.length>1?segmented("stats-subviews",table.title+" 단위",base.subviews,state.subview,"subview",table.id):"";
@@ -308,16 +322,15 @@
         return '<th scope="col" aria-sort="'+(active?(state.sort.direction==="desc"?"descending":"ascending"):"none")+
           '"><button type="button" class="stats-sort" data-table="'+table.id+'" data-sort="'+(index+1)+'"><span class="stats-sort-main">'+
           escapeHtml(column.label)+(active?'<span class="stats-sort-arrow">'+(state.sort.direction==="desc"?"↓":"↑")+'</span>':"")+
-          '</span><span class="stats-sort-unit">'+escapeHtml([column.unit,column.year].filter(Boolean).join("  "))+'</span></button></th>';
+          '</span><span class="stats-sort-unit">'+escapeHtml(column.unit||"")+'</span></button></th>';
       }).join("");
-    const meta='<div class="tw-meta-list stats-table-meta"><span>출처 <a href="'+escapeHtml(view.source.url||"#")+
-      '" target="_blank" rel="noopener noreferrer">'+escapeHtml(view.source.name)+'</a></span>'+
-      (view.year?'<span>기준 '+escapeHtml(view.year)+'</span>':"")+'</div>';
-    const note=view.note?'<p class="stats-note">'+(view.note.includes("국가 합산")?"* ":"")+escapeHtml(view.note.replace(/^국가 합산;\s*/,"국가 합산, "))+'</p>':"";
+    const meta='<div class="tw-meta-list stats-table-meta">'+(view.sources||[]).map(source=>
+      '<span><a href="'+escapeHtml(source.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(source.name)+'</a>, '+escapeHtml(source.year)+'</span>').join("")+'</div>';
+    const note=view.note?'<p class="stats-note">'+escapeHtml(view.note)+'</p>':"";
     return '<section class="stats-table-section" id="'+escapeHtml(table.id)+'"><div class="stats-table-top"><h2 class="stats-table-title"><a href="#'+
       escapeHtml(table.id)+'">'+escapeHtml(table.title)+'</a></h2><div class="stats-actions">'+actions+'</div></div>'+
       viewNav+subNav+scopeNav+'<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table"><thead><tr>'+
-      headers+'</tr></thead>'+tbodyMarkup(view,groups,max)+'</table></div>'+meta+note+'</section>';
+      headers+'</tr></thead>'+tbodyMarkup(view,groups)+'</table></div>'+meta+note+'</section>';
   }
   function exportMatrix(table,state) {
     const view=activeView(table,state),groups=visibleRows(view,state);

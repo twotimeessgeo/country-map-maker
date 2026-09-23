@@ -206,11 +206,19 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계, 국토교통부 지적통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20651E&conn_path=ZF"
-                  },
-                  "note": "인구는 2026년 6월, 밀도와 성비는 2024년 12월 기준"
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2026",
+                      "url": "https://jumin.mois.go.kr/"
+                    },
+                    {
+                      "name": "국토교통부",
+                      "year": "2024",
+                      "url": "https://stat.molit.go.kr/"
+                    }
+                  ],
+                  "internalNote": "인구는 2026년 6월, 밀도와 성비는 2024년 12월 기준"
                 },
                 {
                   "id": "연령",
@@ -389,12 +397,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1B04005N"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2024",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2024년 12월",
-                  "note": "5세 구간 주민등록인구 원수로 계산"
+                  "internalNote": "5세 구간 주민등록인구 원수로 계산"
                 },
                 {
                   "id": "출생과 사망",
@@ -573,12 +584,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 인구동향조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1B81A17&conn_path=ZF"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1B81A17&conn_path=ZF"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "출생·사망은 월별 합산"
+                  "internalNote": "출생·사망은 월별 합산"
                 },
                 {
                   "id": "이동",
@@ -739,10 +753,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1B26001_A021&conn_path=ZF"
-                  }
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2026",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ]
                 }
               ]
             },
@@ -828,12 +845,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1B04005N"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2024",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2024년 12월",
-                  "note": "시도별 5세 구간 주민등록인구 합산"
+                  "internalNote": "시도별 5세 구간 주민등록인구 합산"
                 }
               ]
             },
@@ -1003,10 +1023,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20621&conn_path=ZF"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2024",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2024년"
                 }
               ]
@@ -1242,10 +1265,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 인구총조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1PA2020&conn_path=I2"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2020",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1PA2020&conn_path=I2"
+                    }
+                  ],
                   "year": "2020년"
                 },
                 {
@@ -1324,10 +1350,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 인구총조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1PA2020&conn_path=I2"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2020",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1PA2020&conn_path=I2"
+                    }
+                  ],
                   "year": "2020년"
                 }
               ]
@@ -1506,10 +1535,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1B04006"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2025",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2025년 12월"
                 },
                 {
@@ -1641,10 +1673,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1B04006"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2025",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2025년 12월"
                 }
               ]
@@ -1801,12 +1836,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20651E&conn_path=ZF"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2026",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2026년 6월",
-                  "note": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의"
+                  "internalNote": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의",
+                  "note": "2011년 = 100"
                 },
                 {
                   "id": "영남",
@@ -1956,12 +1995,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20651E&conn_path=ZF"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2026",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2026년 6월",
-                  "note": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의"
+                  "internalNote": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의",
+                  "note": "2011년 = 100"
                 },
                 {
                   "id": "충청",
@@ -2111,12 +2154,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20651E&conn_path=ZF"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2026",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2026년 6월",
-                  "note": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의"
+                  "internalNote": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의",
+                  "note": "2011년 = 100"
                 },
                 {
                   "id": "호남·제주",
@@ -2266,12 +2313,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20651E&conn_path=ZF"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2026",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2026년 6월",
-                  "note": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의"
+                  "internalNote": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의",
+                  "note": "2011년 = 100"
                 }
               ]
             }
@@ -2442,12 +2493,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 광업·제조업조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "종사자 10명 이상 제조업 사업체"
+                  "internalNote": "종사자 10명 이상 제조업 사업체",
+                  "note": "종사자 10명 이상 사업체"
                 },
                 {
                   "id": "생산",
@@ -2584,10 +2639,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 지역소득",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1C91&conn_path=ZF"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1C91&conn_path=ZF"
+                    }
+                  ],
                   "year": "2024년"
                 },
                 {
@@ -2767,12 +2825,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 경제활동인구조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1DA7E33S_NEW"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2025",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1DA7E33S_NEW"
+                    }
+                  ],
                   "year": "2025년",
-                  "note": "서비스업 등은 사회간접자본 및 기타서비스업(D~U); 2025년 광주·전남 개별 행 사용"
+                  "internalNote": "서비스업 등은 사회간접자본 및 기타서비스업(D~U); 2025년 광주·전남 개별 행 사용"
                 }
               ]
             },
@@ -2848,12 +2909,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 광업·제조업조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "시도 합산, 종사자 10명 이상 제조업 사업체"
+                  "internalNote": "시도 합산, 종사자 10명 이상 제조업 사업체",
+                  "note": "종사자 10명 이상 사업체"
                 }
               ]
             },
@@ -3081,12 +3146,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 광업·제조업조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "종사자 10명 이상 제조업 사업체; 비공개 업종 제외"
+                  "internalNote": "종사자 10명 이상 제조업 사업체; 비공개 업종 제외",
+                  "note": "종사자 10명 이상 사업체"
                 }
               ]
             },
@@ -3355,12 +3424,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 광업·제조업조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "종사자 10명 이상 사업체; 비공개 X는 빈값"
+                  "internalNote": "종사자 10명 이상 사업체; 비공개 X는 빈값",
+                  "note": "종사자 10명 이상 사업체"
                 },
                 {
                   "id": "employees",
@@ -3623,12 +3696,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 광업·제조업조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "종사자 10명 이상 사업체; 비공개 X는 빈값"
+                  "internalNote": "종사자 10명 이상 사업체; 비공개 X는 빈값",
+                  "note": "종사자 10명 이상 사업체"
                 }
               ]
             },
@@ -3754,12 +3831,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 광업·제조업조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "시도 합산, 종사자 10명 이상 사업체; 비공개 X가 있는 권역은 빈값"
+                  "internalNote": "시도 합산, 종사자 10명 이상 사업체; 비공개 X가 있는 권역은 빈값",
+                  "note": "종사자 10명 이상 사업체"
                 }
               ]
             }
@@ -3840,10 +3921,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 농림어업조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1EA1045&conn_path=ZF"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1EA1045&conn_path=ZF"
+                    }
+                  ],
                   "year": "2024년"
                 },
                 {
@@ -3983,12 +4067,20 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 경지면적조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1EB001"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2025",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1EB001"
+                    },
+                    {
+                      "name": "국토교통부",
+                      "year": "2024",
+                      "url": "https://stat.molit.go.kr/"
+                    }
+                  ],
                   "year": "2025년",
-                  "note": "* 2025년 경지면적을 2024년 12월 말 지적 면적으로 나눈 참고값"
+                  "internalNote": "* 2025년 경지면적을 2024년 12월 말 지적 면적으로 나눈 참고값"
                 }
               ]
             },
@@ -4089,12 +4181,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 농림어업조사",
-                    "url": "https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3"
+                    }
+                  ],
                   "year": "2024년 12월 1일",
-                  "note": "특·광역시는 세종 포함 통합값; 도별 값은 2024년 농림어업조사 표 1-10"
+                  "internalNote": "특·광역시는 세종 포함 통합값; 도별 값은 2024년 농림어업조사 표 1-10"
                 }
               ]
             },
@@ -4279,12 +4374,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 경지면적조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1EB002&conn_path=ZF"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2025",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1EB002&conn_path=ZF"
+                    }
+                  ],
                   "year": "2025년",
-                  "note": "밭 면적은 전체 경지에서 논 면적을 뺀 값"
+                  "internalNote": "밭 면적은 전체 경지에서 논 면적을 뺀 값"
                 }
               ]
             },
@@ -4448,12 +4546,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 농업면적조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0040"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2025",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0040"
+                    }
+                  ],
                   "year": "2025년",
-                  "note": "시설 면적은 KOSIS DT_1ET0017 선택 세부항목 합산; 시설 내 중복 재배 여부에 유의"
+                  "internalNote": "시설 면적은 KOSIS DT_1ET0017 선택 세부항목 합산; 시설 내 중복 재배 여부에 유의"
                 }
               ]
             },
@@ -4596,12 +4697,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 농림어업조사",
-                    "url": "https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3"
+                    }
+                  ],
                   "year": "2024년 12월 1일",
-                  "note": "2024년 농림어업조사 46쪽 표 6; 시도 합계와 전국 추정치에 2가구 차이"
+                  "internalNote": "2024년 농림어업조사 46쪽 표 6; 시도 합계와 전국 추정치에 2가구 차이"
                 }
               ]
             },
@@ -4765,12 +4869,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 농업면적조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0012"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2025",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0012"
+                    }
+                  ],
                   "year": "2025년",
-                  "note": "작물별 전국 재배면적 대비 시도 비중; 채소는 DT_1ET0013, 과수는 DT_1ET0014"
+                  "internalNote": "작물별 전국 재배면적 대비 시도 비중; 채소는 DT_1ET0013, 과수는 DT_1ET0014"
                 }
               ]
             },
@@ -4934,12 +5041,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "국가데이터처 농업면적조사",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0012"
-                  },
+                  "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2025",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0012"
+                    }
+                  ],
                   "year": "2025년",
-                  "note": "지역 작물재배면적 대비 선택 작물 비중; 다른 작물이 있어 합계는 100%가 아님"
+                  "internalNote": "지역 작물재배면적 대비 선택 작물 비중; 다른 작물이 있어 합계는 100%가 아님"
                 }
               ]
             }
@@ -5091,10 +5201,18 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "에너지경제연구원 지역에너지통계연보, 한국전력공사 전력통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20391&conn_path=ZF"
-                  }
+                  "sources": [
+                    {
+                      "name": "에너지경제연구원",
+                      "year": "2024",
+                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20391&conn_path=ZF"
+                    },
+                    {
+                      "name": "한국전력공사",
+                      "year": "2025",
+                      "url": "https://home.kepco.co.kr/kepco/KO/ntcob/ntcobView.do"
+                    }
+                  ]
                 },
                 {
                   "id": "공급",
@@ -5336,12 +5454,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "에너지경제연구원 지역에너지통계연보",
-                    "url": "https://www.keei.re.kr/board.es?mid=a10306000000&bid=0015"
-                  },
+                  "sources": [
+                    {
+                      "name": "에너지경제연구원",
+                      "year": "2024",
+                      "url": "https://www.keei.re.kr/board.es?mid=a10306000000&bid=0015"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "2024년 잠정치; 지역 내 에너지원별 비중"
+                  "internalNote": "2024년 잠정치; 지역 내 에너지원별 비중",
+                  "note": "잠정"
                 },
                 {
                   "id": "생산",
@@ -5541,12 +5663,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "에너지경제연구원 지역에너지통계연보",
-                    "url": "https://www.keei.re.kr/board.es?mid=a10306000000&bid=0015"
-                  },
+                  "sources": [
+                    {
+                      "name": "에너지경제연구원",
+                      "year": "2024",
+                      "url": "https://www.keei.re.kr/board.es?mid=a10306000000&bid=0015"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "2024년 잠정치; 지역 내 에너지원별 비중"
+                  "internalNote": "2024년 잠정치; 지역 내 에너지원별 비중",
+                  "note": "잠정"
                 }
               ]
             },
@@ -5602,12 +5728,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "총발전량 625.4 TWh 기준"
+                  "internalNote": "총발전량 625.4 TWh 기준"
                 }
               ]
             },
@@ -5750,10 +5879,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "한국에너지공단 신재생에너지 보급통계",
-                    "url": "https://www.knrec.or.kr/biz/pds/statistic/list.do"
-                  },
+                  "sources": [
+                    {
+                      "name": "한국에너지공단",
+                      "year": "2024",
+                      "url": "https://www.knrec.or.kr/biz/pds/statistic/list.do"
+                    }
+                  ],
                   "year": "2024년"
                 }
               ]
@@ -5820,12 +5952,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "한국에너지공단 신재생에너지 보급통계",
-                    "url": "https://www.knrec.or.kr/biz/pds/statistic/list.do"
-                  },
+                  "sources": [
+                    {
+                      "name": "한국에너지공단",
+                      "year": "2024",
+                      "url": "https://www.knrec.or.kr/biz/pds/statistic/list.do"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "시도 합산"
+                  "internalNote": "시도 합산"
                 }
               ]
             }
@@ -5975,10 +6110,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 지방자치단체 외국인주민 현황",
-                    "url": "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000014&nttId=121226"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2024",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2024년 11월 1일"
                 },
                 {
@@ -6200,12 +6338,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 지방자치단체 외국인주민 현황",
-                    "url": "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000014&nttId=121226"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2024",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2024년 11월 1일",
-                  "note": "계는 한국 국적 미취득자",
+                  "internalNote": "계는 한국 국적 미취득자",
                   "subviews": [
                     {
                       "id": "count",
@@ -6426,12 +6567,15 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "행정안전부 지방자치단체 외국인주민 현황",
-                        "url": "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000014&nttId=121226"
-                      },
+                      "sources": [
+                        {
+                          "name": "행정안전부",
+                          "year": "2024",
+                          "url": "https://jumin.mois.go.kr/"
+                        }
+                      ],
                       "year": "2024년 11월 1일",
-                      "note": "계는 한국 국적 미취득자"
+                      "internalNote": "계는 한국 국적 미취득자"
                     },
                     {
                       "id": "share",
@@ -6652,12 +6796,15 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "행정안전부 지방자치단체 외국인주민 현황",
-                        "url": "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000014&nttId=121226"
-                      },
+                      "sources": [
+                        {
+                          "name": "행정안전부",
+                          "year": "2024",
+                          "url": "https://jumin.mois.go.kr/"
+                        }
+                      ],
                       "year": "2024년 11월 1일",
-                      "note": "계는 한국 국적 미취득자"
+                      "internalNote": "계는 한국 국적 미취득자"
                     }
                   ]
                 }
@@ -6829,10 +6976,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "행정안전부 지방자치단체 외국인주민 현황",
-                    "url": "https://www.mois.go.kr/frt/bbs/type001/commonSelectBoardArticle.do?bbsId=BBSMSTR_000000000014&nttId=121226"
-                  },
+                  "sources": [
+                    {
+                      "name": "행정안전부",
+                      "year": "2024",
+                      "url": "https://jumin.mois.go.kr/"
+                    }
+                  ],
                   "year": "2024년 11월 1일"
                 }
               ]
@@ -6896,11 +7046,14 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "국가데이터처 e-지방지표",
-                        "url": "https://kosis.kr/visual/eRegionIndex/index.do"
-                      },
-                      "note": "시도 합산"
+                      "sources": [
+                        {
+                          "name": "국가데이터처",
+                          "year": "2024",
+                          "url": "https://kosis.kr/visual/eRegionIndex/index.do"
+                        }
+                      ],
+                      "internalNote": "시도 합산"
                     },
                     {
                       "id": "토지 이용",
@@ -7058,12 +7211,15 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "국토교통부 지적통계",
-                        "url": "https://stat.molit.go.kr/portal/cate/statMetaView.do?hRsId=24"
-                      },
+                      "sources": [
+                        {
+                          "name": "국토교통부",
+                          "year": "2024",
+                          "url": "https://stat.molit.go.kr/"
+                        }
+                      ],
                       "year": "2024년 12월",
-                      "note": "경기도 주요 10개 시군, 전체 지적 면적 대비 지목별 비율"
+                      "internalNote": "경기도 주요 10개 시군, 전체 지적 면적 대비 지목별 비율"
                     },
                     {
                       "id": "경지",
@@ -7165,12 +7321,15 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "국토교통부 지적통계",
-                        "url": "https://stat.molit.go.kr/portal/cate/statMetaView.do?hRsId=24"
-                      },
+                      "sources": [
+                        {
+                          "name": "국토교통부",
+                          "year": "2024",
+                          "url": "https://stat.molit.go.kr/"
+                        }
+                      ],
                       "year": "2024년 12월",
-                      "note": "경기도 주요 10개 시군, 지목상 전·답의 합계"
+                      "internalNote": "경기도 주요 10개 시군, 지목상 전·답의 합계"
                     }
                   ]
                 }
@@ -7227,12 +7386,15 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "농림축산식품부 농림축산식품 주요통계",
-                        "url": "https://kass.mafra.go.kr/newkass/cmm/fms/FileDown.do?atchFileId=FILE_000000000022023&fileSn=0"
-                      },
+                      "sources": [
+                        {
+                          "name": "농림축산식품부",
+                          "year": "2023",
+                          "url": "https://kass.mafra.go.kr/newkass/cmm/fms/FileDown.do?atchFileId=FILE_000000000022023&fileSn=0"
+                        }
+                      ],
                       "year": "2023년",
-                      "note": "PDF 574~575쪽, 북한통계 원표 재수록; 북한 경지 구성의 최신 공표 연도"
+                      "internalNote": "PDF 574~575쪽, 북한통계 원표 재수록; 북한 경지 구성의 최신 공표 연도"
                     },
                     {
                       "id": "식량",
@@ -7270,12 +7432,15 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "농림축산식품부 농림축산식품 주요통계",
-                        "url": "https://kass.mafra.go.kr/newkass/cmm/fms/FileDown.do?atchFileId=FILE_000000000022023&fileSn=0"
-                      },
+                      "sources": [
+                        {
+                          "name": "농림축산식품부",
+                          "year": "2024",
+                          "url": "https://kass.mafra.go.kr/newkass/cmm/fms/FileDown.do?atchFileId=FILE_000000000022023&fileSn=0"
+                        }
+                      ],
                       "year": "2024년",
-                      "note": "PDF 576~577쪽, 북한통계 원표 재수록; 쌀은 정곡 기준"
+                      "internalNote": "PDF 576~577쪽, 북한통계 원표 재수록; 쌀은 정곡 기준"
                     }
                   ]
                 }
@@ -7419,12 +7584,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Pew Research Center (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Pew Research Center",
+                      "year": "2020",
+                      "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "* 종교별 신자 수를 국가 단위로 합산; 수록 국가 범위"
+                  "internalNote": "* 종교별 신자 수를 국가 단위로 합산; 수록 국가 범위"
                 },
                 {
                   "id": "아시아",
@@ -7548,12 +7716,15 @@
                       "continent": "아시아"
                     }
                   ],
-                  "source": {
-                    "name": "Pew Research Center (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Pew Research Center",
+                      "year": "2020",
+                      "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "국가 합산"
+                  "internalNote": "국가 합산"
                 },
                 {
                   "id": "아프리카",
@@ -7677,12 +7848,15 @@
                       "continent": "아프리카"
                     }
                   ],
-                  "source": {
-                    "name": "Pew Research Center (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Pew Research Center",
+                      "year": "2020",
+                      "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "국가 합산"
+                  "internalNote": "국가 합산"
                 }
               ]
             },
@@ -7810,12 +7984,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Pew Research Center (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Pew Research Center",
+                      "year": "2020",
+                      "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "* 국가별 신자 수 합산; 수록 국가 범위"
+                  "internalNote": "* 국가별 신자 수 합산; 수록 국가 범위"
                 }
               ]
             },
@@ -7880,12 +8057,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Pew Research Center (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Pew Research Center",
+                      "year": "2020",
+                      "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "Pew Research Center 수록 국가 중 상위 5개국"
+                  "internalNote": "Pew Research Center 수록 국가 중 상위 5개국"
                 },
                 {
                   "id": "muslims",
@@ -7944,12 +8124,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Pew Research Center (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Pew Research Center",
+                      "year": "2020",
+                      "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "Pew Research Center 수록 국가 중 상위 5개국"
+                  "internalNote": "Pew Research Center 수록 국가 중 상위 5개국"
                 },
                 {
                   "id": "hindus",
@@ -8008,12 +8191,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Pew Research Center (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Pew Research Center",
+                      "year": "2020",
+                      "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "Pew Research Center 수록 국가 중 상위 5개국"
+                  "internalNote": "Pew Research Center 수록 국가 중 상위 5개국"
                 },
                 {
                   "id": "buddhists",
@@ -8072,12 +8258,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Pew Research Center (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Pew Research Center",
+                      "year": "2020",
+                      "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "Pew Research Center 수록 국가 중 상위 5개국"
+                  "internalNote": "Pew Research Center 수록 국가 중 상위 5개국"
                 }
               ]
             }
@@ -8210,10 +8399,13 @@
                       "continent": "라틴 아메리카"
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2025년"
                 },
                 {
@@ -8352,10 +8544,13 @@
                       "continent": "오세아니아"
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2025년"
                 },
                 {
@@ -8476,10 +8671,13 @@
                       "continent": "오세아니아"
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2025년"
                 }
               ]
@@ -8592,10 +8790,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  }
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ]
                 }
               ]
             },
@@ -8661,10 +8862,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2025년"
                 }
               ]
@@ -8741,12 +8945,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2025년",
-                  "note": "UN WPP 2024 중위 추계, 5세별 인구 원수 합산"
+                  "internalNote": "UN WPP 2024 중위 추계, 5세별 인구 원수 합산"
                 }
               ]
             },
@@ -8802,10 +9009,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2025년"
                 }
               ]
@@ -8918,10 +9128,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  }
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ]
                 }
               ]
             },
@@ -9033,10 +9246,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  }
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ]
                 }
               ]
             },
@@ -9102,12 +9318,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN International Migrant Stock 2020",
-                    "url": "https://www.un.org/development/desa/pd/sites/www.un.org.development.desa.pd/files/undesa_pd_2020_ims_stock_by_sex_destination_and_origin.xlsx"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2020",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "이주자 이동 유량이 아닌 해당 지역 거주 이주자 재고량"
+                  "internalNote": "이주자 이동 유량이 아닌 해당 지역 거주 이주자 재고량",
+                  "note": "국제 이주자 재고량"
                 }
               ]
             },
@@ -9278,11 +9498,14 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계인구전망 2024",
-                    "url": "https://population.un.org/wpp/"
-                  },
-                  "note": "UN WPP 2024 중위 추계, 해당 연도 순이동률"
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
+                  "internalNote": "UN WPP 2024 중위 추계, 해당 연도 순이동률"
                 }
               ]
             },
@@ -9347,12 +9570,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN International Migrant Stock 2020",
-                    "url": "https://www.un.org/development/desa/pd/sites/www.un.org.development.desa.pd/files/undesa_pd_2020_ims_stock_by_sex_destination_and_origin.xlsx"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2020",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외"
+                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
+                  "note": "국제 이주자 재고량"
                 },
                 {
                   "id": "독일",
@@ -9411,12 +9638,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN International Migrant Stock 2020",
-                    "url": "https://www.un.org/development/desa/pd/sites/www.un.org.development.desa.pd/files/undesa_pd_2020_ims_stock_by_sex_destination_and_origin.xlsx"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2020",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외"
+                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
+                  "note": "국제 이주자 재고량"
                 },
                 {
                   "id": "캐나다",
@@ -9475,12 +9706,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN International Migrant Stock 2020",
-                    "url": "https://www.un.org/development/desa/pd/sites/www.un.org.development.desa.pd/files/undesa_pd_2020_ims_stock_by_sex_destination_and_origin.xlsx"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2020",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외"
+                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
+                  "note": "국제 이주자 재고량"
                 },
                 {
                   "id": "미국",
@@ -9539,12 +9774,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN International Migrant Stock 2020",
-                    "url": "https://www.un.org/development/desa/pd/sites/www.un.org.development.desa.pd/files/undesa_pd_2020_ims_stock_by_sex_destination_and_origin.xlsx"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2020",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외"
+                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
+                  "note": "국제 이주자 재고량"
                 },
                 {
                   "id": "오스트레일리아",
@@ -9603,12 +9842,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN International Migrant Stock 2020",
-                    "url": "https://www.un.org/development/desa/pd/sites/www.un.org.development.desa.pd/files/undesa_pd_2020_ims_stock_by_sex_destination_and_origin.xlsx"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2020",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2020년",
-                  "note": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외"
+                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
+                  "note": "국제 이주자 재고량"
                 }
               ]
             }
@@ -9741,10 +9984,13 @@
                       "continent": "오세아니아"
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계도시화전망",
-                    "url": "https://population.un.org/wup/downloads"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2025년"
                 },
                 {
@@ -9805,10 +10051,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계도시화전망",
-                    "url": "https://population.un.org/wup/downloads"
-                  },
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ],
                   "year": "2025년"
                 },
                 {
@@ -9915,10 +10164,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계도시화전망",
-                    "url": "https://population.un.org/wup/downloads"
-                  }
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ]
                 },
                 {
                   "id": "촌락 증가",
@@ -10024,10 +10276,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계도시화전망",
-                    "url": "https://population.un.org/wup/downloads"
-                  }
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ]
                 }
               ]
             },
@@ -10139,10 +10394,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "UN 세계도시화전망",
-                    "url": "https://population.un.org/wup/downloads"
-                  }
+                  "sources": [
+                    {
+                      "name": "UN",
+                      "year": "2025",
+                      "url": "https://population.un.org/wpp/"
+                    }
+                  ]
                 }
               ]
             }
@@ -10311,12 +10569,15 @@
                       "continent": "오세아니아"
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "국가 합산"
+                  "internalNote": "국가 합산"
                 },
                 {
                   "id": "가축",
@@ -10479,12 +10740,15 @@
                       "continent": "오세아니아"
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "국가 합산"
+                  "internalNote": "국가 합산"
                 }
               ]
             },
@@ -10529,10 +10793,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년"
                 }
               ]
@@ -10578,12 +10845,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "쌀 수출량은 FAOSTAT 도정미 환산량이므로 생산량과 정의가 달라 직접 비교 불가; 해당 값은 미표시"
+                  "internalNote": "쌀 수출량은 FAOSTAT 도정미 환산량이므로 생산량과 정의가 달라 직접 비교 불가; 해당 값은 미표시"
                 }
               ]
             },
@@ -10642,10 +10912,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/FoodBalanceSheets_E_All_Data_(Normalized).zip"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2023",
+                      "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/FoodBalanceSheets_E_All_Data_(Normalized).zip"
+                    }
+                  ],
                   "year": "2023년"
                 }
               ]
@@ -10722,12 +10995,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"
+                  "internalNote": "중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"
                 }
               ]
             },
@@ -10793,12 +11069,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/TCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/TCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
+                  "internalNote": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
                 },
                 {
                   "id": "rice",
@@ -10858,12 +11137,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/TCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/TCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
+                  "internalNote": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
                 },
                 {
                   "id": "maizecorn",
@@ -10923,12 +11205,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/TCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/TCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
+                  "internalNote": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
                 }
               ]
             },
@@ -10993,12 +11278,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/TCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/TCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
                 },
                 {
                   "id": "wheatimportquantity",
@@ -11057,12 +11345,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/TCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/TCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
                 },
                 {
                   "id": "riceexportquantity",
@@ -11121,12 +11412,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/TCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/TCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
                 },
                 {
                   "id": "riceimportquantity",
@@ -11185,12 +11479,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/TCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/TCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
                 },
                 {
                   "id": "maizecornexportquantity",
@@ -11249,12 +11546,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/TCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/TCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
                 },
                 {
                   "id": "maizecornimportquantity",
@@ -11313,12 +11613,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/TCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/TCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
                 }
               ]
             },
@@ -11383,10 +11686,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년"
                 },
                 {
@@ -11446,10 +11752,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년"
                 },
                 {
@@ -11509,10 +11818,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년"
                 }
               ]
@@ -11578,10 +11890,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년"
                 },
                 {
@@ -11641,10 +11956,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년"
                 },
                 {
@@ -11704,10 +12022,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년"
                 }
               ]
@@ -11784,12 +12105,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "FAOSTAT",
-                    "url": "https://www.fao.org/faostat/en/#data/QCL"
-                  },
+                  "sources": [
+                    {
+                      "name": "FAOSTAT",
+                      "year": "2024",
+                      "url": "https://www.fao.org/faostat/en/#data/QCL"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"
+                  "internalNote": "중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"
                 }
               ]
             }
@@ -12012,12 +12336,15 @@
                       "continent": "앵글로아메리카"
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계 (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/primary-sub-energy-source.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://ourworldindata.org/grapher/primary-sub-energy-source.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "국가 합산"
+                  "internalNote": "국가 합산"
                 },
                 {
                   "id": "발전",
@@ -12245,12 +12572,15 @@
                       "continent": "앵글로아메리카"
                     }
                   ],
-                  "source": {
-                    "name": "Ember (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/electricity-prod-source-stacked.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Ember",
+                      "year": "2025",
+                      "url": "https://ourworldindata.org/grapher/electricity-prod-source-stacked.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2025년",
-                  "note": "국가 합산; 신재생은 수력 제외"
+                  "internalNote": "국가 합산; 신재생은 수력 제외"
                 },
                 {
                   "id": "원자력",
@@ -12388,12 +12718,15 @@
                       "continent": "앵글로아메리카"
                     }
                   ],
-                  "source": {
-                    "name": "Ember (Our World in Data)",
-                    "url": "https://ourworldindata.org/grapher/electricity-prod-source-stacked.csv?v=1&csvType=full&useColumnShortNames=false"
-                  },
+                  "sources": [
+                    {
+                      "name": "Ember",
+                      "year": "2025",
+                      "url": "https://ourworldindata.org/grapher/electricity-prod-source-stacked.csv?v=1&csvType=full&useColumnShortNames=false"
+                    }
+                  ],
                   "year": "2025년",
-                  "note": "국가 합산"
+                  "internalNote": "국가 합산"
                 }
               ]
             },
@@ -12449,10 +12782,13 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년"
                 }
               ]
@@ -12533,12 +12869,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "Energy Institute가 개별 국가로 수록한 범위의 상위 10개국"
+                  "internalNote": "Energy Institute가 개별 국가로 수록한 범위의 상위 10개국"
                 }
               ]
             },
@@ -12678,12 +13017,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음"
+                  "internalNote": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음",
+                  "note": "수급 차이, 순수출입 아님"
                 },
                 {
                   "id": "gas",
@@ -12825,12 +13168,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음"
+                  "internalNote": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음",
+                  "note": "수급 차이, 순수출입 아님"
                 },
                 {
                   "id": "coal",
@@ -12956,12 +13303,16 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음"
+                  "internalNote": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음",
+                  "note": "수급 차이, 순수출입 아님"
                 }
               ]
             },
@@ -13026,12 +13377,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
+                  "internalNote": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
                 },
                 {
                   "id": "solar",
@@ -13090,12 +13444,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
+                  "internalNote": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
                 },
                 {
                   "id": "hydro",
@@ -13154,12 +13511,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
+                  "internalNote": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
                 },
                 {
                   "id": "otherrenewables",
@@ -13218,12 +13578,15 @@
                       ]
                     }
                   ],
-                  "source": {
-                    "name": "Energy Institute 세계에너지통계",
-                    "url": "https://www.energyinst.org/statistical-review"
-                  },
+                  "sources": [
+                    {
+                      "name": "Energy Institute",
+                      "year": "2024",
+                      "url": "https://www.energyinst.org/statistical-review"
+                    }
+                  ],
                   "year": "2024년",
-                  "note": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
+                  "internalNote": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
                 }
               ]
             }
@@ -13318,10 +13681,13 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "World Bank WDI",
-                        "url": "https://api.worldbank.org/v2/country/all/indicator/NV.AGR.TOTL.ZS?format=json&per_page=20000&mrv=5"
-                      },
+                      "sources": [
+                        {
+                          "name": "World Bank",
+                          "year": "2025",
+                          "url": "https://api.worldbank.org/v2/country/all/indicator/NV.AGR.TOTL.ZS?format=json&per_page=20000&mrv=5"
+                        }
+                      ],
                       "year": "2025년"
                     },
                     {
@@ -13384,10 +13750,13 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "FAOSTAT",
-                        "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
-                      },
+                      "sources": [
+                        {
+                          "name": "FAOSTAT",
+                          "year": "2024",
+                          "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
+                        }
+                      ],
                       "year": "2024년"
                     }
                   ]
@@ -13468,12 +13837,21 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "World Bank WDI, UN 세계인구전망 2024",
-                        "url": "https://data.worldbank.org/indicator/NY.GDP.MKTP.CD"
-                      },
+                      "sources": [
+                        {
+                          "name": "World Bank",
+                          "year": "2025",
+                          "url": "https://data.worldbank.org/indicator/NY.GDP.MKTP.CD"
+                        },
+                        {
+                          "name": "UN",
+                          "year": "2025",
+                          "url": "https://population.un.org/wpp/"
+                        }
+                      ],
                       "year": "2025년",
-                      "note": "* GDP를 같은 해 UN WPP 인구로 나눈 참고값; World Bank의 공식 1인당 GDP 지표와 다를 수 있음"
+                      "internalNote": "* GDP를 같은 해 UN WPP 인구로 나눈 참고값; World Bank의 공식 1인당 GDP 지표와 다를 수 있음",
+                      "note": "UN 인구로 계산한 참고값"
                     }
                   ]
                 }
@@ -13564,10 +13942,13 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "World Bank WDI",
-                        "url": "https://api.worldbank.org/v2/country/all/indicator/NV.AGR.TOTL.ZS?format=json&per_page=20000&mrv=5"
-                      },
+                      "sources": [
+                        {
+                          "name": "World Bank",
+                          "year": "2025",
+                          "url": "https://api.worldbank.org/v2/country/all/indicator/NV.AGR.TOTL.ZS?format=json&per_page=20000&mrv=5"
+                        }
+                      ],
                       "year": "2025년"
                     },
                     {
@@ -13630,12 +14011,15 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "World Bank WITS",
-                        "url": "https://wits.worldbank.org/CountryProfile/en/Country/TUR/Year/2023/Summarytext"
-                      },
+                      "sources": [
+                        {
+                          "name": "World Bank",
+                          "year": "2023",
+                          "url": "https://wits.worldbank.org/CountryProfile/en/Country/TUR/Year/2023/Summarytext"
+                        }
+                      ],
                       "year": "2023년",
-                      "note": "WITS에 저장된 튀르키예·카자흐스탄 2023년 상품군 구성; 다른 지역 주요국은 원천 미확보"
+                      "internalNote": "WITS에 저장된 튀르키예·카자흐스탄 2023년 상품군 구성; 다른 지역 주요국은 원천 미확보"
                     },
                     {
                       "id": "작물",
@@ -13713,10 +14097,13 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "FAOSTAT",
-                        "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
-                      },
+                      "sources": [
+                        {
+                          "name": "FAOSTAT",
+                          "year": "2024",
+                          "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/Production_Crops_Livestock_E_All_Data_(Normalized).zip"
+                        }
+                      ],
                       "year": "2024년"
                     },
                     {
@@ -13761,12 +14148,16 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "Energy Institute 세계에너지통계",
-                        "url": "https://www.energyinst.org/statistical-review"
-                      },
+                      "sources": [
+                        {
+                          "name": "Energy Institute",
+                          "year": "2024",
+                          "url": "https://www.energyinst.org/statistical-review"
+                        }
+                      ],
                       "year": "2024년",
-                      "note": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음"
+                      "internalNote": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음",
+                      "note": "수급 차이, 순수출입 아님"
                     }
                   ]
                 },
@@ -13846,12 +14237,21 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "World Bank WDI, UN 세계인구전망 2024",
-                        "url": "https://data.worldbank.org/indicator/NY.GDP.MKTP.CD"
-                      },
+                      "sources": [
+                        {
+                          "name": "World Bank",
+                          "year": "2025",
+                          "url": "https://data.worldbank.org/indicator/NY.GDP.MKTP.CD"
+                        },
+                        {
+                          "name": "UN",
+                          "year": "2025",
+                          "url": "https://population.un.org/wpp/"
+                        }
+                      ],
                       "year": "2025년",
-                      "note": "* GDP를 같은 해 UN WPP 인구로 나눈 참고값; World Bank의 공식 1인당 GDP 지표와 다를 수 있음"
+                      "internalNote": "* GDP를 같은 해 UN WPP 인구로 나눈 참고값; World Bank의 공식 1인당 GDP 지표와 다를 수 있음",
+                      "note": "UN 인구로 계산한 참고값"
                     }
                   ]
                 }
@@ -13962,10 +14362,13 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "World Bank WDI",
-                        "url": "https://api.worldbank.org/v2/country/all/indicator/NV.AGR.TOTL.ZS?format=json&per_page=20000&mrv=5"
-                      }
+                      "sources": [
+                        {
+                          "name": "World Bank",
+                          "year": "2021",
+                          "url": "https://api.worldbank.org/v2/country/all/indicator/NV.AGR.TOTL.ZS?format=json&per_page=20000&mrv=5"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -14897,12 +15300,15 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "U.S. Census Bureau Annual Integrated Economic Survey",
-                        "url": "https://data.census.gov/table/AIESBASICTIMESERIES.AIES31BASIC02"
-                      },
+                      "sources": [
+                        {
+                          "name": "국가데이터처",
+                          "year": "2023",
+                          "url": "https://data.census.gov/table/AIESBASICTIMESERIES.AIES31BASIC02"
+                        }
+                      ],
                       "year": "2023년",
-                      "note": "50개 주, 2017 NAICS 3자리 업종; 비공개 출하액은 순위에서 제외"
+                      "internalNote": "50개 주, 2017 NAICS 3자리 업종; 비공개 출하액은 순위에서 제외"
                     }
                   ]
                 }
@@ -14993,10 +15399,13 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "World Bank WDI",
-                        "url": "https://api.worldbank.org/v2/country/all/indicator/NV.AGR.TOTL.ZS?format=json&per_page=20000&mrv=5"
-                      },
+                      "sources": [
+                        {
+                          "name": "World Bank",
+                          "year": "2025",
+                          "url": "https://api.worldbank.org/v2/country/all/indicator/NV.AGR.TOTL.ZS?format=json&per_page=20000&mrv=5"
+                        }
+                      ],
                       "year": "2025년"
                     },
                     {
@@ -15059,12 +15468,15 @@
                           ]
                         }
                       ],
-                      "source": {
-                        "name": "WTO Trade Profiles 2023",
-                        "url": "https://www.wto.org/english/res_e/statis_e/daily_update_e/trade_profiles/ET_e.pdf"
-                      },
+                      "sources": [
+                        {
+                          "name": "국가데이터처",
+                          "year": "2021",
+                          "url": "https://www.wto.org/english/res_e/statis_e/daily_update_e/trade_profiles/ET_e.pdf"
+                        }
+                      ],
                       "year": "2021년",
-                      "note": "WTO 2023 프로필의 2021년 상품 수출 구성; DR콩고·에티오피아·남아공·보츠와나"
+                      "internalNote": "WTO 2023 프로필의 2021년 상품 수출 구성; DR콩고·에티오피아·남아공·보츠와나"
                     }
                   ]
                 }

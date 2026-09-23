@@ -124,12 +124,13 @@ if (isSourceCheck) {
   const stats = JSON.parse(fs.readFileSync(statsPath, "utf8"));
   const seenIds = new Set();
   const checkView = (view, tableId) => {
-    if (!view?.rows?.length || !view.columns?.length || !view.source?.name || !view.source?.url) {
+    if (!view?.rows?.length || !view.columns?.length || !view.sources?.length || view.sources.some(source=>
+      !source.name || !source.url || !/^\d{4}$/.test(source.year))) {
       errors.push("Statistics 표 내용·출처가 비었습니다: " + tableId); return;
     }
-    if (["KOSIS","행정안전부","국가데이터처","국토교통부","UN DESA","World Bank"].includes(view.source.name)) {
-      errors.push("Statistics 출처에 기관과 통계명을 함께 적어야 합니다: " + tableId);
-    }
+    const sourceNames=new Set(["행정안전부","국가데이터처","국토교통부","농림축산식품부","에너지경제연구원","한국에너지공단","한국전력공사","한국전력거래소","FAOSTAT","UN","World Bank","Energy Institute","Ember","Pew Research Center"]);
+    if(view.sources.some(source=>!sourceNames.has(source.name))) errors.push("Statistics 출처 기관명이 올바르지 않습니다: "+tableId);
+    if(view.note && (view.note.length>30 || view.note.includes(";"))) errors.push("Statistics 화면 주석이 깁니다: "+tableId);
     const checkTime = (time) => !time || /^\d{4}년(?: \d{1,2}(?:~\d{1,2})?월(?: \d{1,2}일)?| 하반기)?$/.test(time);
     if (!checkTime(view.year)) errors.push("Statistics 기준 시점 표기 오류: " + tableId + " / " + view.year);
     for (const column of view.columns) {
