@@ -316,6 +316,12 @@ function setSelectionUtilityStatus(message, tone = "success") {
 let searchRenderTimer = 0;
 
 function bindEvents() {
+  elements.selectionSummary?.addEventListener("click", () => {
+    document.querySelector("#selectedPanel")?.scrollIntoView({
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      block: "start",
+    });
+  });
   let trayDrag = null;
   let suppressTrayClick = false;
   elements.selectedTray?.addEventListener("pointerdown", (event) => {
@@ -494,8 +500,10 @@ function bindEvents() {
   elements.comparisonContent?.addEventListener("click", (event) => {
     const modeButton = event.target.closest("[data-comparison-mode]");
     if (!modeButton) return;
+    const oldTicks = window.TwMotion?.snapshotChartTicks(elements.comparisonContent);
     state.comparisonMode = modeButton.dataset.comparisonMode === "deviation" ? "deviation" : "value";
     renderComparisonOnly();
+    window.TwMotion?.animateChartTicks(elements.comparisonContent, oldTicks);
     restoreFocusByDataAttribute("data-comparison-mode", state.comparisonMode);
   });
 

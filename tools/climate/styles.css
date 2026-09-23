@@ -47,7 +47,14 @@
   font-weight: var(--tw-weight-medium);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+  border: 0;
+  background: var(--tw-bg);
+  cursor: pointer;
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out);
 }
+.atlas-count:hover { background: var(--tw-surface); }
+#selectedPanel { scroll-margin-top: 72px; }
+.tw-axis-tick-old { pointer-events: none; }
 
 .atlas-actions .tw-button {
   flex: 0 0 auto;
@@ -2202,6 +2209,18 @@ tfoot td {
 }
 
 .world-map-frame.is-zoomed .map-marker.is-selected::after {
+  content: attr(data-label);
+  position: absolute;
+  left: calc(50% + var(--label-shift-x, 0px));
+  bottom: calc(100% + 10px);
+  padding: 5px 9px;
+  border-radius: var(--tw-radius-pill);
+  background: var(--tw-bg);
+  color: var(--tw-ink);
+  box-shadow: var(--tw-shadow-pop);
+  font-size: var(--tw-text-xs);
+  white-space: nowrap;
+  pointer-events: none;
   opacity: 1;
   transform: translate(-50%, 0);
 }
@@ -2213,6 +2232,13 @@ tfoot td {
 .world-map-frame.is-zoomed .map-marker.label-below::after {
   top: calc(100% + 10px);
   bottom: auto;
+}
+
+@media (max-width: 760px) {
+  .world-map-frame.is-zoomed .map-marker.is-selected::after {
+    content: attr(data-mobile-label);
+    font-size: var(--tw-text-2xs);
+  }
 }
 
 .map-zoom-controls {

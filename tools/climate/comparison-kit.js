@@ -96,7 +96,7 @@
     let out = `<text x="${m.left - 10}" y="${m.top - 14}" text-anchor="end" fill="${INK_3}">${esc(unit)}</text>`;
     s.ticks.forEach((tick) => {
       out += `<line x1="${m.left}" y1="${y(tick)}" x2="${width - m.right}" y2="${y(tick)}" stroke="${tick === 0 ? BASE : GRID}" />`;
-      out += `<text x="${m.left - 10}" y="${y(tick) + 4}" text-anchor="end" fill="${INK_2}">${axisNum(tick, signed)}</text>`;
+      out += `<text class="tw-axis-tick" x="${m.left - 10}" y="${y(tick) + 4}" text-anchor="end" fill="${INK_2}">${axisNum(tick, signed)}</text>`;
     });
     return { out, y };
   }
@@ -171,7 +171,7 @@
     let body = `<text x="${width - m.right}" y="16" text-anchor="end" fill="${INK_3}">${esc(unit)}</text>`;
     for (const tick of s.ticks) {
       body += `<line x1="${x(tick)}" y1="${m.top}" x2="${x(tick)}" y2="${height - m.bottom}" stroke="${tick === 0 ? BASE : GRID}" />`;
-      body += `<text x="${x(tick)}" y="${height - 8}" text-anchor="middle" fill="${INK_2}">${axisNum(tick, signed)}</text>`;
+      body += `<text class="tw-axis-tick" x="${x(tick)}" y="${height - 8}" text-anchor="middle" fill="${INK_2}">${axisNum(tick, signed)}</text>`;
     }
     categories.forEach((name, i) => {
       const cy = m.top + 16 + i * 32;

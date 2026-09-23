@@ -179,7 +179,32 @@
     });
   }
 
-  window.TwMotion = { snapshotTray, animateTray, snapshotCharts, animateCharts };
+  function snapshotChartTicks(container) {
+    if (!container || reduced.matches) return null;
+    return [...container.querySelectorAll(".kit-chart")].map((svg) =>
+      [...svg.querySelectorAll(".tw-axis-tick:not(.tw-axis-tick-old)")].map((tick) => tick.cloneNode(true)));
+  }
+
+  function animateChartTicks(container, previous) {
+    if (!container || !previous || reduced.matches) return;
+    const css = getComputedStyle(document.documentElement);
+    const duration = parseFloat(css.getPropertyValue("--tw-dur-1")) || 120;
+    const easing = css.getPropertyValue("--tw-ease-out").trim() || "ease-out";
+    [...container.querySelectorAll(".kit-chart")].forEach((svg, index) => {
+      const oldTicks = previous[index] || [];
+      const newTicks = [...svg.querySelectorAll(".tw-axis-tick:not(.tw-axis-tick-old)")];
+      if (!oldTicks.length || !newTicks.length) return;
+      newTicks.forEach((tick) => tick.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing }));
+      oldTicks.forEach((tick) => {
+        tick.classList.add("tw-axis-tick-old");
+        svg.appendChild(tick);
+        const animation = tick.animate([{ opacity: 1 }, { opacity: 0 }], { duration, easing });
+        animation.finished.then(() => tick.remove(), () => tick.remove());
+      });
+    });
+  }
+
+  window.TwMotion = { snapshotTray, animateTray, snapshotCharts, animateCharts, snapshotChartTicks, animateChartTicks };
   function syncToolbarMenu() {
     const narrow = matchMedia("(max-width: 390px)").matches;
     for (const menu of document.querySelectorAll(".atlas-more")) {
