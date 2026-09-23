@@ -139,3 +139,62 @@
   color: var(--tw-ink-2);
   font-size: var(--tw-text-sm);
 }
+
+/* Archive audit — compact exam navigation and data tables. */
+.cut-page { view-transition-name: cut-content; }
+::view-transition-old(cut-content) { animation: var(--tw-dur-1) var(--tw-ease-out) both cut-fade-out; }
+::view-transition-new(cut-content) { animation: var(--tw-dur-1) var(--tw-ease-out) both cut-fade-in; }
+@keyframes cut-fade-out { to { opacity: 0; } }
+@keyframes cut-fade-in { from { opacity: 0; } }
+.cut-toolbar-inner { display: flex; justify-content: flex-start; min-height: 60px; gap: var(--tw-space-2); }
+.cut-exam-arrow { flex: 0 0 var(--tw-control-md); padding: 0; font-size: var(--tw-text-xl); }
+.cut-current-exam { min-width: 0; font-family: var(--tw-font-latin); font-size: var(--tw-text-md); white-space: nowrap; }
+.cut-exam-picker { width: min(240px, 35vw); margin-left: auto; }
+.cut-chip-row[hidden], .cut-grade-wrap[hidden], .cut-grade-unpublished[hidden], .cut-exam-meta[hidden] { display: none; }
+.cut-grade-unpublished { margin: 0; padding: var(--tw-space-6); color: var(--tw-ink-2); text-align: center; }
+.cut-question-heading { flex-wrap: wrap; }
+.cut-question-sort { margin-left: auto; }
+.cut-question-table { min-width: 760px; table-layout: fixed; }
+.cut-question-table th:first-child { width: 58px; }
+.cut-question-table th:nth-child(2) { width: 58px; }
+.cut-question-table th:nth-child(3) { width: 182px; }
+.cut-question-table th, .cut-question-table td { padding: var(--tw-space-3) var(--tw-space-2); font-variant-numeric: tabular-nums; text-align: right; }
+.cut-question-table th:first-child, .cut-question-table tbody th { text-align: left; }
+.cut-question-grid, .cut-question-grid.is-rate-only { display: table-row-group; }
+.cut-question-row { cursor: pointer; }
+.cut-question-row:hover > *, .cut-question-row:focus-visible > * { background: var(--tw-surface); transition: background-color var(--tw-dur-1) var(--tw-ease-out); }
+.cut-wrong-display { display: flex; align-items: center; justify-content: flex-end; gap: var(--tw-space-2); white-space: nowrap; }
+.cut-wrong-display .cut-question-rate-bar { flex: 1 1 72px; max-width: 90px; }
+.cut-choice-cell.is-answer { border-radius: var(--tw-radius-xs); background: var(--tw-ink); color: var(--tw-inverse); }
+.cut-disclosure { border-top: 0; }
+.cut-disclosure > summary { min-height: 44px; margin-bottom: var(--tw-space-4); color: var(--tw-ink); }
+.cut-disclosure > summary h2 { margin: 0; font-size: var(--tw-text-2xl); }
+.cut-disclosure > summary span { margin-left: auto; color: var(--tw-ink-2); font-size: var(--tw-text-sm); }
+.cut-disclosure > summary span + * { margin-left: 0; }
+.cut-disclosure-body { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: var(--tw-space-4); }
+.cut-trend-range { justify-self: end; }
+.cut-trend-card, .cut-trend-scroll { min-width: 0; max-width: 100%; }
+.cut-trend-svg { width: auto; max-width: none; min-width: 100%; }
+.cut-trend-point { cursor: help; }
+.cut-history-legend { display: flex; flex-wrap: wrap; gap: var(--tw-space-4); color: var(--tw-ink-2); font-size: var(--tw-text-xs); }
+.cut-history-hatch::before { display: inline-block; width: 16px; height: 10px; margin-right: var(--tw-space-2); background: repeating-linear-gradient(135deg, var(--tw-surface-2) 0 3px, var(--tw-ink-4) 3px 4px); content: ""; }
+.cut-history-table { min-width: 760px; table-layout: fixed; }
+.cut-history-table th:first-child { width: 130px; }
+.cut-history-table th, .cut-history-table td { padding: var(--tw-space-2) 2px; text-align: center; }
+.cut-history-table tbody th { text-align: left; }
+.cut-history-row { cursor: pointer; }
+.cut-history-row:hover > *, .cut-history-row:focus-visible > * { background: var(--tw-surface); transition: background-color var(--tw-dur-1) var(--tw-ease-out); }
+.cut-history-cell { display: block; width: 100%; height: 18px; cursor: help; }
+.cut-history-more { justify-self: center; }
+@media (max-width: 760px) {
+  .cut-toolbar-inner { display: flex; gap: 4px; padding: var(--tw-space-2) var(--tw-gutter); }
+  .cut-exam-arrow { flex-basis: 32px; }
+  .cut-current-exam { font-size: var(--tw-text-sm); }
+  .cut-exam-picker { width: min(132px, 35vw); padding-left: var(--tw-space-3); font-size: var(--tw-text-sm); }
+  .cut-question-grid, .cut-question-grid.is-rate-only { display: table-row-group; }
+  .cut-history-table th:first-child { width: 130px; }
+  .cut-history-cell { height: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(cut-content), ::view-transition-new(cut-content) { animation: none !important; }
+}

@@ -13,19 +13,31 @@ const elements = {
   yearChips: document.querySelector("#yearChips"),
   exam: document.querySelector("#examSelect"),
   examChips: document.querySelector("#examChips"),
+  examPicker: document.querySelector("#cutExamPicker"),
+  prevExam: document.querySelector("#cutPrevExam"),
+  nextExam: document.querySelector("#cutNextExam"),
+  currentExam: document.querySelector("#cutCurrentExam"),
   scopeChips: document.querySelector("#scopeChips"),
   recordCount: document.querySelector("#recordCount"),
   status: document.querySelector("#lookupStatus"),
   resultSubject: document.querySelector("#resultSubject"),
   resultTitle: document.querySelector("#resultTitle"),
   gradeGrid: document.querySelector("#gradeCutGrid"),
+  gradeWrap: document.querySelector("#cutGradeWrap"),
+  gradeUnpublished: document.querySelector("#cutGradeUnpublished"),
+  examMeta: document.querySelector("#examMeta"),
   mean: document.querySelector("#meanValue"),
   standardDeviation: document.querySelector("#sdValue"),
   sourceLink: document.querySelector("#sourceLink"),
   questionCount: document.querySelector("#questionAnalysisCount"),
   questionGrid: document.querySelector("#questionAnalysisGrid"),
+  questionSort: document.querySelector("#questionSort"),
   unpublished: document.querySelector("#questionUnpublished"),
   trend: document.querySelector("#cutTrendChart"),
+  trendRange: document.querySelector("#trendRange"),
+  trendDisclosure: document.querySelector("#trendDisclosure"),
+  historyDisclosure: document.querySelector("#historyDisclosure"),
+  historyMore: document.querySelector("#historyMore"),
   historyCount: document.querySelector("#historyCount"),
   historyBody: document.querySelector("#historyTableBody"),
   collectionDate: document.querySelector("#collectionDate"),
@@ -45,6 +57,9 @@ let records = [];
 let questionImageByKey = new Map();
 let scope = "evaluation";
 let lightboxQuestion = 1;
+let questionSort = "wrong";
+let trendRange = "recent";
+let historyExpanded = false;
 
 function isEvaluation(record) {
   return ["06", "09", "11"].includes(String(record.month).padStart(2, "0"));
@@ -180,6 +195,57 @@ function renderFilterChips() {
   });
 }
 
+function availableExams() {
+  const byKey = new Map();
+  scopeRecords().filter((record) => record.subject === elements.subject.value).forEach((record) => {
+    byKey.set(recordKey(record), record);
+  });
+  return [...byKey.values()].sort(sortRecords);
+}
+
+function renderExamNavigation(record) {
+  const exams = availableExams();
+  const activeIndex = record ? exams.findIndex((exam) => recordKey(exam) === recordKey(record)) : -1;
+  elements.currentExam.textContent = record ? recordTitle(record) : "시험 선택";
+  elements.prevExam.disabled = activeIndex < 0 || activeIndex >= exams.length - 1;
+  elements.nextExam.disabled = activeIndex <= 0;
+  elements.examPicker.replaceChildren();
+  const groups = new Map();
+  for (const exam of exams) {
+    const year = Number(exam.school_year);
+    if (!groups.has(year)) groups.set(year, []);
+    groups.get(year).push(exam);
+  }
+  for (const [year, entries] of groups) {
+    const group = document.createElement("optgroup");
+    group.label = `${year}학년도`;
+    for (const exam of entries) {
+      const option = document.createElement("option");
+      option.value = recordKey(exam);
+      option.textContent = monthLabel(exam.month);
+      group.appendChild(option);
+    }
+    elements.examPicker.appendChild(group);
+  }
+  if (record) elements.examPicker.value = recordKey(record);
+  elements.examPicker.disabled = !exams.length;
+}
+
+function selectExamByKey(key) {
+  const record = availableExams().find((exam) => recordKey(exam) === key);
+  if (!record) return;
+  populateYears(record.school_year);
+  populateExams(key);
+  renderSelection();
+}
+
+function shiftExam(direction) {
+  const exams = availableExams();
+  const index = exams.findIndex((exam) => recordKey(exam) === elements.exam.value);
+  const next = exams[index + direction];
+  if (next) selectExamByKey(recordKey(next));
+}
+
 function renderGradeCards(record) {
   const fragment = document.createDocumentFragment();
   const hasCuts = GRADE_KEYS.some((grade) => isFiniteNumber(record[`raw${grade}`]));
@@ -230,14 +296,22 @@ function renderResult(record) {
     elements.gradeGrid.replaceChildren();
     elements.mean.textContent = "-";
     elements.standardDeviation.textContent = "-";
+    elements.gradeWrap.hidden = true;
+    elements.gradeUnpublished.hidden = false;
+    elements.examMeta.hidden = true;
     return;
   }
 
+  const hasCuts = GRADE_KEYS.some((grade) => isFiniteNumber(record[`raw${grade}`]));
   elements.resultSubject.textContent = record.subject;
   elements.resultTitle.textContent = recordTitle(record);
+  elements.gradeWrap.hidden = !hasCuts;
+  elements.gradeUnpublished.hidden = hasCuts;
+  elements.examMeta.hidden = !hasCuts;
   elements.mean.textContent = isFiniteNumber(record.national_mean) ? formatNumber(record.national_mean) : "미발표";
   elements.standardDeviation.textContent = isFiniteNumber(record.national_sd) ? formatNumber(record.national_sd) : "미발표";
-  renderGradeCards(record);
+  if (hasCuts) renderGradeCards(record);
+  else elements.gradeGrid.replaceChildren();
 }
 
 function formatPercent(value) {
@@ -359,87 +433,68 @@ function renderQuestionAnalysis(record) {
   elements.questionGrid.replaceChildren();
   elements.unpublished.replaceChildren();
   elements.unpublished.hidden = true;
-  if (!record) {
-    elements.questionCount.textContent = "";
-    return;
-  }
+  elements.questionSort.querySelectorAll("[data-question-sort]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.questionSort === questionSort));
+  });
+  if (!record) return;
 
   const observed = (record.items || [])
     .filter((item) => isFiniteNumber(item.national_rate) && item.source === "ebsi_wrong_top15")
-    .sort((left, right) => Number(left.national_rate) - Number(right.national_rate));
+    .sort((left, right) => questionSort === "number"
+      ? Number(left.question) - Number(right.question)
+      : Number(left.national_rate) - Number(right.national_rate));
   const observedNumbers = new Set(observed.map((item) => Number(item.question)));
   const unpublished = QUESTION_NUMBERS.filter((question) => !observedNumbers.has(question));
   const fragment = document.createDocumentFragment();
-  let imageCount = 0;
 
   for (const item of observed) {
     const question = Number(item.question);
-    const correctRate = Number(item.national_rate);
-    const wrongRate = 100 - correctRate;
+    const wrongRate = 100 - Number(item.national_rate);
     const answer = correctChoice(record, question);
     const choiceRates = questionChoiceRates(record, question);
-    const imageData = questionImageByKey.get(
-      questionImageKey(record.subject, record.exam_year, record.month, question),
-    );
-    const card = document.createElement("article");
-    card.className = "cut-question-card";
-    card.setAttribute("aria-label", question + "번" +
-      (isFiniteNumber(item.points) ? " " + formatNumber(item.points, 0) + "점" : "") +
-      ", 오답률 " + formatPercent(wrongRate));
+    const row = document.createElement("tr");
+    row.className = "cut-question-row";
+    row.dataset.question = String(question);
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.setAttribute("aria-label", `${question}번, 오답률 ${formatPercent(wrongRate)}, 문항 크게 보기`);
 
-    if (imageData?.url) {
-      card.appendChild(createQuestionImage(record, question, imageData));
-      imageCount += 1;
-    } else {
-      card.classList.add("is-rate-only");
+    const number = document.createElement("th");
+    number.scope = "row";
+    number.textContent = String(question);
+    const points = document.createElement("td");
+    points.textContent = isFiniteNumber(item.points) ? `${formatNumber(item.points, 0)}점` : "";
+    const wrong = document.createElement("td");
+    const wrongDisplay = document.createElement("span");
+    wrongDisplay.className = "cut-wrong-display";
+    const bar = document.createElement("span");
+    bar.className = "cut-question-rate-bar";
+    bar.style.setProperty("--wrong-rate", `${Math.max(0, Math.min(100, wrongRate))}%`);
+    const value = document.createElement("span");
+    value.textContent = formatPercent(wrongRate);
+    wrongDisplay.append(bar, value);
+    wrong.appendChild(wrongDisplay);
+    row.append(number, points, wrong);
+
+    for (let choice = 1; choice <= 5; choice += 1) {
+      const cell = document.createElement("td");
+      cell.className = "cut-choice-cell";
+      if (choice === answer) cell.classList.add("is-answer");
+      cell.textContent = choiceRates ? formatPercent(choiceRates[choice - 1]) : "–";
+      cell.setAttribute("aria-label", `${choice}번 ${cell.textContent}${choice === answer ? ", 정답" : ""}`);
+      row.appendChild(cell);
     }
-
-    const body = document.createElement("div");
-    body.className = "cut-question-body";
-    const heading = document.createElement("div");
-    heading.className = "cut-question-card-heading";
-    const number = document.createElement("strong");
-    number.textContent = question + "번";
-    const points = document.createElement("span");
-    if (isFiniteNumber(item.points)) {
-      points.textContent = formatNumber(item.points, 0) + "점";
-      heading.append(number, points);
-    } else {
-      heading.append(number);
-    }
-
-    const rates = document.createElement("div");
-    rates.className = "cut-question-rates";
-    const wrong = document.createElement("strong");
-    wrong.textContent = "오답률 " + formatPercent(wrongRate);
-    const correct = document.createElement("span");
-    correct.textContent = "정답률 " + formatPercent(correctRate);
-    rates.append(wrong, correct);
-
-    const rateBar = document.createElement("span");
-    rateBar.className = "cut-question-rate-bar";
-    rateBar.setAttribute("aria-hidden", "true");
-    rateBar.style.setProperty("--wrong-rate", Math.max(0, Math.min(100, wrongRate)) + "%");
-    body.append(heading, rates, rateBar);
-
-    if (answer !== null) {
-      const answerLabel = document.createElement("span");
-      answerLabel.className = "cut-question-answer";
-      answerLabel.textContent = "정답 " + CIRCLED_CHOICES[answer];
-      body.appendChild(answerLabel);
-    }
-    if (choiceRates) body.appendChild(createChoiceDistribution(choiceRates, answer));
-    card.appendChild(body);
-    fragment.appendChild(card);
+    fragment.appendChild(row);
   }
 
   if (!observed.length) {
-    const empty = document.createElement("div");
-    empty.className = "tw-empty";
-    empty.textContent = "오답률이 발표되지 않았습니다";
-    fragment.appendChild(empty);
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 8;
+    cell.textContent = "오답률이 발표되지 않았습니다";
+    row.appendChild(cell);
+    fragment.appendChild(row);
   }
-  elements.questionGrid.classList.toggle("is-rate-only", imageCount === 0);
   elements.questionGrid.replaceChildren(fragment);
 
   if (observed.length && unpublished.length) {
@@ -457,30 +512,34 @@ function renderQuestionAnalysis(record) {
     elements.unpublished.append(title, list);
     elements.unpublished.hidden = false;
   }
-
   elements.questionCount.textContent = "";
 }
 
 function renderTrend(activeRecord) {
   elements.trend.replaceChildren();
   if (!activeRecord) return;
-  const centerYear = Number(activeRecord.school_year);
   const grouped = new Map();
   scopeRecords().filter(isEvaluation).forEach((record) => {
-    if (Number(record.school_year) < centerYear - 3 ||
-        Number(record.school_year) > centerYear + 1) return;
     const key = recordKey(record);
     if (!grouped.has(key)) grouped.set(key, { key, sample: record, bySubject: {} });
     grouped.get(key).bySubject[record.subject] = record;
   });
-  const exams = [...grouped.values()].sort((left, right) =>
-    Number(left.sample.school_year) - Number(right.sample.school_year) ||
-    Number(left.sample.month) - Number(right.sample.month));
+  const allExams = [...grouped.values()].sort((left, right) => sortRecords(left.sample, right.sample));
+  if (trendRange === "recent" && !allExams.slice(0, 10).some((exam) => exam.key === recordKey(activeRecord))) {
+    trendRange = "all";
+  }
+  elements.trendRange.querySelectorAll("[data-trend-range]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.trendRange === trendRange));
+  });
+  const exams = (trendRange === "recent" ? allExams.slice(0, 10) : allExams).reverse();
   if (!exams.length) return;
 
   const svgNS = "http://www.w3.org/2000/svg";
+  const width = Math.max(800, exams.length * 58);
+  const height = 280;
   const svg = document.createElementNS(svgNS, "svg");
-  svg.setAttribute("viewBox", "0 0 800 256");
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.setAttribute("width", String(width));
   svg.setAttribute("role", "img");
   svg.setAttribute("aria-label", "1등급 원점수 컷 추이");
   svg.classList.add("cut-trend-svg");
@@ -497,11 +556,11 @@ function renderTrend(activeRecord) {
   })).filter(Number.isFinite);
   const low = Math.max(0, Math.floor((Math.min(...values, 30) - 3) / 5) * 5);
   const high = Math.min(50, Math.ceil((Math.max(...values, 45) + 3) / 5) * 5);
-  const x0 = 52, x1 = 778, y0 = 32, y1 = 216;
+  const x0 = 56, x1 = width - 24, y0 = 30, y1 = 207;
   const x = (index) => x0 + (x1 - x0) * index / Math.max(exams.length - 1, 1);
   const y = (value) => y1 - (value - low) / Math.max(high - low, 1) * (y1 - y0);
 
-  add("text", {x: x0, y: 16, fill: "#5d5d5d", "font-size": 11}, "원점수");
+  add("text", {x: x0, y: 15, fill: "#5d5d5d", "font-size": 11}, "원점수");
   for (let tick = low; tick <= high; tick += 5) {
     const yy = y(tick);
     add("line", {x1: x0, y1: yy, x2: x1, y2: yy,
@@ -512,43 +571,46 @@ function renderTrend(activeRecord) {
   exams.forEach((exam, index) => {
     const xx = x(index);
     if (exam.key === recordKey(activeRecord)) {
-      add("line", {x1: xx, y1: y0, x2: xx, y2: y1, stroke: "rgba(0,0,0,.32)"});
-      if (!isFiniteNumber(activeRecord.raw1)) {
-        add("text", {x: xx - 4, y: y0 - 9, "text-anchor": "end",
-          fill: "#5d5d5d", "font-size": 11}, "미발표");
-      }
+      add("line", {x1: xx, y1: y0, x2: xx, y2: y1, stroke: "rgba(0,0,0,.32)", class: "cut-trend-current-line"});
     }
-    const label = String(exam.sample.school_year).slice(-2) + " " + monthLabel(exam.sample.month);
-    add("text", {x: xx, y: 245, "text-anchor": "middle",
-      fill: "#5d5d5d", "font-size": 10}, label);
+    add("text", {x: xx, y: 238, "text-anchor": "middle", fill: "#5d5d5d", "font-size": 10}, monthLabel(exam.sample.month));
+    if (index === 0 || exams[index - 1].sample.school_year !== exam.sample.school_year) {
+      add("text", {x: xx, y: 261, "text-anchor": "middle", fill: "#737373", "font-size": 10}, String(exam.sample.school_year));
+    }
   });
   SUPPORTED_SUBJECTS.forEach((subject, seriesIndex) => {
     const points = exams.map((exam, index) => ({
       x: x(index),
-      value: isFiniteNumber(exam.bySubject[subject]?.raw1)
-        ? Number(exam.bySubject[subject].raw1) : NaN,
+      value: isFiniteNumber(exam.bySubject[subject]?.raw1) ? Number(exam.bySubject[subject].raw1) : NaN,
+      record: exam.bySubject[subject],
       key: exam.key,
-    })).filter((point) => Number.isFinite(point.value));
-    if (points.length) {
+    }));
+    const published = points.filter((point) => Number.isFinite(point.value));
+    if (published.length) {
       add("polyline", {
-        points: points.map((point) => point.x + "," + y(point.value)).join(" "),
-        fill: "none",
-        stroke: seriesIndex ? "#5d5d5d" : "#0d0d0d",
-        "stroke-width": 1.8,
+        points: published.map((point) => `${point.x},${y(point.value)}`).join(" "),
+        fill: "none", stroke: seriesIndex ? "#5d5d5d" : "#0d0d0d", "stroke-width": 1.8,
         ...(seriesIndex ? {"stroke-dasharray": "6 4"} : {}),
       });
     }
     points.forEach((point) => {
       const selected = point.key === recordKey(activeRecord);
-      const marker = add(seriesIndex ? "rect" : "circle", seriesIndex
-        ? {x: point.x - (selected ? 5 : 3), y: y(point.value) - (selected ? 5 : 3),
+      const published = Number.isFinite(point.value);
+      const yy = published ? y(point.value) : y1 - seriesIndex * 9;
+      const marker = add(seriesIndex && published ? "rect" : "circle", seriesIndex && published
+        ? {x: point.x - (selected ? 5 : 3), y: yy - (selected ? 5 : 3),
           width: selected ? 10 : 6, height: selected ? 10 : 6,
           fill: selected ? "#0d0d0d" : "#ffffff", stroke: "#0d0d0d", "stroke-width": 1.5}
-        : {cx: point.x, cy: y(point.value), r: selected ? 5 : 3.5,
-          fill: selected ? "#0d0d0d" : "#ffffff", stroke: "#0d0d0d", "stroke-width": 1.5});
-      const title = document.createElementNS(svgNS, "title");
-      title.textContent = subject + " " + point.value + "점";
-      marker.appendChild(title);
+        : {cx: point.x, cy: yy, r: selected ? 5 : 3.5,
+          fill: published && selected ? "#0d0d0d" : "#ffffff", stroke: "#0d0d0d", "stroke-width": 1.5});
+      const score = published ? `원점수 ${formatNumber(point.value, 0)}점` : "원점수 미발표";
+      const standard = isFiniteNumber(point.record?.std1)
+        ? `표준점수 ${formatNumber(point.record.std1, 0)}점` : "표준점수 미발표";
+      const tip = `${subject} ${recordTitle(point.record || {school_year: exams.find((exam) => exam.key === point.key).sample.school_year, month: exams.find((exam) => exam.key === point.key).sample.month})} ${score} ${standard}`;
+      marker.dataset.tooltip = tip;
+      marker.setAttribute("aria-label", tip);
+      marker.setAttribute("tabindex", "0");
+      marker.classList.add("cut-trend-point");
     });
   });
   const scroll = document.createElement("div");
@@ -566,73 +628,61 @@ function renderTrend(activeRecord) {
   const selectedIndex = exams.findIndex((exam) => exam.key === recordKey(activeRecord));
   if (selectedIndex >= 0) {
     requestAnimationFrame(() => {
-      const target = x(selectedIndex) / 800 * svg.getBoundingClientRect().width
-        - scroll.clientWidth * 0.72;
-      scroll.scrollLeft = Math.max(0, target);
+      scroll.scrollLeft = Math.max(0, x(selectedIndex) - scroll.clientWidth * 0.72);
     });
   }
 }
 
 function renderHistory(activeRecord) {
-  const grouped = new Map();
-  scopeRecords().forEach((record) => {
-    const key = recordKey(record);
-    if (!grouped.has(key)) grouped.set(key, { key, sample: record, bySubject: {} });
-    grouped.get(key).bySubject[record.subject] = record;
-  });
-  const exams = [...grouped.values()].sort((left, right) => sortRecords(left.sample, right.sample));
+  const exams = scopeRecords()
+    .filter((record) => record.subject === elements.subject.value)
+    .sort(sortRecords);
+  const visible = historyExpanded ? exams : exams.slice(0, 12);
   const fragment = document.createDocumentFragment();
-  for (const exam of exams) {
+  for (const record of visible) {
     const row = document.createElement("tr");
-    if (activeRecord && exam.key === recordKey(activeRecord)) row.classList.add("is-selected");
-    const titleCell = document.createElement("td");
-    titleCell.className = "cut-history-exam";
-    titleCell.textContent = recordTitle(exam.sample);
-    const previewCell = document.createElement("td");
-    const lines = document.createElement("div");
-    lines.className = "cut-history-lines";
-    SUPPORTED_SUBJECTS.forEach((subject) => {
-      const record = exam.bySubject[subject];
-      if (!record) return;
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "cut-history-select";
-      button.dataset.recordKey = exam.key;
-      button.dataset.subject = subject;
-      button.setAttribute("aria-label", subject + " " + recordTitle(record) + " 보기");
-      if (activeRecord?.subject === subject && exam.key === recordKey(activeRecord))
-        button.setAttribute("aria-current", "true");
-      const label = document.createElement("span");
-      label.className = "cut-history-subject";
-      label.textContent = subject;
-      const strip = document.createElement("span");
-      strip.className = "cut-history-strip";
-      strip.setAttribute("aria-hidden", "true");
-      const observed = new Map((record.items || [])
-        .filter((item) => isFiniteNumber(item.national_rate))
-        .map((item) => [Number(item.question), 100 - Number(item.national_rate)]));
-      QUESTION_NUMBERS.forEach((question) => {
-        const cell = document.createElement("span");
-        cell.className = "cut-history-cell";
-        if (observed.has(question)) {
-          const shade = Math.round(15 + observed.get(question) * 0.8);
-          cell.style.setProperty("--shade", Math.min(95, Math.max(15, shade)) + "%");
-        } else if (observed.size) {
-          cell.classList.add("is-unpublished");
-        } else {
-          cell.classList.add("is-empty");
-        }
-        strip.appendChild(cell);
-      });
-      button.append(label, strip);
-      lines.appendChild(button);
+    row.className = "cut-history-row";
+    row.dataset.recordKey = recordKey(record);
+    row.dataset.subject = record.subject;
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.setAttribute("aria-label", `${recordTitle(record)} 선택`);
+    if (activeRecord && recordKey(record) === recordKey(activeRecord)) row.classList.add("is-selected");
+    const title = document.createElement("th");
+    title.scope = "row";
+    title.className = "cut-history-exam";
+    title.textContent = recordTitle(record);
+    row.appendChild(title);
+    const observed = new Map((record.items || [])
+      .filter((item) => isFiniteNumber(item.national_rate))
+      .map((item) => [Number(item.question), 100 - Number(item.national_rate)]));
+    QUESTION_NUMBERS.forEach((question) => {
+      const td = document.createElement("td");
+      const cell = document.createElement("span");
+      cell.className = "cut-history-cell";
+      if (observed.has(question)) {
+        const wrongRate = observed.get(question);
+        const shade = Math.round(15 + wrongRate * 0.8);
+        cell.style.setProperty("--shade", `${Math.min(95, Math.max(15, shade))}%`);
+        cell.dataset.tooltip = `${question}번 오답률 ${formatPercent(wrongRate)}`;
+      } else if (observed.size) {
+        cell.classList.add("is-unpublished");
+        cell.dataset.tooltip = `${question}번 미발표`;
+      } else {
+        cell.classList.add("is-empty");
+        cell.dataset.tooltip = `${question}번 미발표`;
+      }
+      cell.setAttribute("aria-label", cell.dataset.tooltip);
+      cell.tabIndex = 0;
+      td.appendChild(cell);
+      row.appendChild(td);
     });
-    previewCell.appendChild(lines);
-    row.append(titleCell, previewCell);
     fragment.appendChild(row);
   }
   elements.historyBody.replaceChildren(fragment);
-  elements.historyCount.textContent = exams.length + "회";
+  elements.historyCount.textContent = `${exams.length}회`;
+  elements.historyMore.hidden = exams.length <= 12;
+  elements.historyMore.textContent = historyExpanded ? "접기" : "더 보기";
 }
 
 function syncUrl(record) {
@@ -649,12 +699,21 @@ function syncUrl(record) {
 function renderSelection() {
   const record = selectedRecord();
   renderFilterChips();
+  renderExamNavigation(record);
   renderResult(record);
   renderTrend(record);
   renderQuestionAnalysis(record);
   renderHistory(record);
   elements.recordCount.textContent = new Set(scopeRecords().map(recordKey)).size + "회";
   syncUrl(record);
+}
+
+function transitionSelection(update) {
+  if (document.startViewTransition && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.startViewTransition(update);
+  } else {
+    update();
+  }
 }
 
 function selectHistoryRecord(key, subject) {
@@ -672,6 +731,8 @@ function setLoadingState(isLoading) {
   elements.form.querySelectorAll("select").forEach((select) => {
     select.disabled = isLoading;
   });
+  for (const control of [elements.examPicker, elements.prevExam, elements.nextExam]) control.disabled = isLoading;
+  if (!isLoading) renderExamNavigation(selectedRecord());
 }
 
 async function loadData() {
@@ -695,7 +756,22 @@ function initialSelectionFromUrl() {
     (params.get("year") && params.get("month")
       ? params.get("year") + "-" + String(params.get("month")).padStart(2, "0")
       : "");
-  return { exam };
+  const latestPublished = records.find((record) =>
+    record.subject === elements.subject.value && isEvaluation(record) && isFiniteNumber(record.raw1));
+  return { exam: exam || (latestPublished ? recordKey(latestPublished) : "") };
+}
+
+function readDisclosureState(key) {
+  try { return localStorage.getItem(key) !== "closed"; }
+  catch { return true; }
+}
+
+function bindDisclosureState(element, key) {
+  element.open = readDisclosureState(key);
+  element.addEventListener("toggle", () => {
+    try { localStorage.setItem(key, element.open ? "open" : "closed"); }
+    catch { /* Storage may be unavailable. */ }
+  });
 }
 
 function updateLightbox() {
@@ -751,6 +827,8 @@ async function initialize() {
     if (payload.fetched_at) {
       elements.collectionDate.textContent = String(payload.fetched_at).slice(0, 10).replaceAll("-", ".");
     }
+    bindDisclosureState(elements.trendDisclosure, "cut-trend-disclosure");
+    bindDisclosureState(elements.historyDisclosure, "cut-history-disclosure");
     renderSelection();
   } catch (error) {
     elements.recordCount.textContent = "";
@@ -767,26 +845,73 @@ async function initialize() {
 }
 
 elements.subject.addEventListener("change", () => {
-  populateYears();
-  populateExams();
-  renderSelection();
+  transitionSelection(() => {
+    populateYears();
+    populateExams();
+    renderSelection();
+  });
 });
 elements.year.addEventListener("change", () => {
   populateExams();
   renderSelection();
 });
 elements.exam.addEventListener("change", renderSelection);
+elements.examPicker.addEventListener("change", (event) => selectExamByKey(event.target.value));
+elements.prevExam.addEventListener("click", () => shiftExam(1));
+elements.nextExam.addEventListener("click", () => shiftExam(-1));
+document.addEventListener("keydown", (event) => {
+  if (elements.lightbox.open || !["ArrowLeft", "ArrowRight"].includes(event.key) ||
+    /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName ?? "")) return;
+  event.preventDefault();
+  shiftExam(event.key === "ArrowLeft" ? 1 : -1);
+});
 elements.scopeChips.addEventListener("click", (event) => {
   const button = event.target.closest("[data-scope]");
   if (!button || !records.length || button.dataset.scope === scope) return;
-  scope = button.dataset.scope;
-  populateYears(elements.year.value);
-  populateExams(elements.exam.value);
-  renderSelection();
+  transitionSelection(() => {
+    scope = button.dataset.scope;
+    populateYears(elements.year.value);
+    populateExams(elements.exam.value);
+    renderSelection();
+  });
+});
+elements.questionSort.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-question-sort]");
+  if (!button || questionSort === button.dataset.questionSort) return;
+  questionSort = button.dataset.questionSort;
+  renderQuestionAnalysis(selectedRecord());
+});
+elements.questionGrid.addEventListener("click", (event) => {
+  const row = event.target.closest("[data-question]");
+  if (row) openLightbox(row.dataset.question);
+});
+elements.questionGrid.addEventListener("keydown", (event) => {
+  if (!["Enter", " "].includes(event.key)) return;
+  const row = event.target.closest("[data-question]");
+  if (!row) return;
+  event.preventDefault();
+  openLightbox(row.dataset.question);
+});
+elements.trendRange.addEventListener("click", (event) => {
+  const button = event.target.closest("[data-trend-range]");
+  if (!button || trendRange === button.dataset.trendRange) return;
+  trendRange = button.dataset.trendRange;
+  renderTrend(selectedRecord());
+});
+elements.historyMore.addEventListener("click", () => {
+  historyExpanded = !historyExpanded;
+  renderHistory(selectedRecord());
 });
 elements.historyBody.addEventListener("click", (event) => {
-  const button = event.target.closest("[data-record-key]");
-  if (button) selectHistoryRecord(button.dataset.recordKey, button.dataset.subject);
+  const row = event.target.closest("[data-record-key]");
+  if (row) selectHistoryRecord(row.dataset.recordKey, row.dataset.subject);
+});
+elements.historyBody.addEventListener("keydown", (event) => {
+  if (!["Enter", " "].includes(event.key)) return;
+  const row = event.target.closest("[data-record-key]");
+  if (!row) return;
+  event.preventDefault();
+  selectHistoryRecord(row.dataset.recordKey, row.dataset.subject);
 });
 elements.lightboxClose.addEventListener("click", () => elements.lightbox.close());
 elements.lightboxPrev.addEventListener("click", () => {
