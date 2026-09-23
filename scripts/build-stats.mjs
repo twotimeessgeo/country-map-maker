@@ -22,6 +22,10 @@ const countries = allCountries.filter((country) => data.EXAM_COUNTRY_CATALOG[cou
 const names = data.EXAM_COUNTRY_CATALOG;
 const countrySources = data.COUNTRY_STATS_META.sources;
 const supplemental = JSON.parse(fs.readFileSync(path.join(root, "data/supplemental-stats.json"), "utf8"));
+const local = Object.fromEntries([
+  "kosis_age_sex_202412", "kosis_manufacturing_2024", "keei_regional_energy_2024",
+  "knrec_regional_renewable_2024", "ei_energy_2024", "kosis_cultivated_area_2025",
+].map((name) => [name, JSON.parse(fs.readFileSync(path.join(root, "data-sources/stats", name + ".json"), "utf8"))]));
 const regionSets = {
   monsoon: majorCountryRows.monsoon,
   dry: majorCountryRows.dry,
@@ -51,6 +55,27 @@ const table = (target, unit, year, sourceValue, columns, rows, extras = {}) =>
     rowLabel: typeof columns[0] === "string" ? columns[0] : columns[0].label,
     columns: columns.slice(1).map((label) => typeof label === "string" ? { label } : label), rows, ...extras });
 const row = (label, values) => ({ label, values });
+const provinceOrder = Object.values(kr.provinces).map((value) => value.shortLabel);
+const ageCode = { 강원: "51", 전북: "52" };
+const ageByProvince = (name) => {
+  const code = ageCode[name] || Object.entries(kr.provinces).find(([, value]) => value.shortLabel === name)?.[0];
+  return local.kosis_age_sex_202412[code];
+};
+const ageParts = (record) => [record.youth, record.working, record.elderly].map((value) => round(value / record.total * 100, 1));
+const industryAll = Object.values(local.kosis_manufacturing_2024);
+const industryCodeByProvince = Object.fromEntries(provinceOrder.map((name,index)=>[name,["11","21","22","23","24","25","26","29","31","32","33","34","35","36","37","38","39"][index]]));
+const industryByProvince = (name) => local.kosis_manufacturing_2024[industryCodeByProvince[name]];
+const industryGroups = {
+  수도권: ["서울", "인천", "경기"], 강원권: ["강원"], 충청권: ["대전", "세종", "충북", "충남"],
+  호남권: ["광주", "전북", "전남"], 영남권: ["부산", "대구", "울산", "경북", "경남"], 제주권: ["제주"],
+};
+const keeiSource = source("에너지경제연구원 지역에너지통계연보", "https://www.keei.re.kr/board.es?mid=a10306000000&bid=0015");
+const knrecSource = source("한국에너지공단 신재생에너지 보급통계", "https://www.knrec.or.kr/biz/pds/statistic/list.do");
+const eiSource = source("Energy Institute 세계에너지통계", "https://www.energyinst.org/statistical-review");
+const kosisIndustrySource = source("국가데이터처 광업·제조업조사", "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1FS1101");
+const kosisAgeSource = source("행정안전부 주민등록인구통계", "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1B04005N");
+const eiNames = { USA: "US", KOR: "South Korea", IRN: "Iran", RUS: "Russian Federation", TUR: "Turkey", TWN: "Taiwan", VEN: "Venezuela", VNM: "Vietnam" };
+const eiRecord = (country, key) => local.ei_energy_2024[key][eiNames[country.iso3] || country.atlasName];
 
 function provinceRows(metricKey) {
   const metric = km.provinces[metricKey];
@@ -219,6 +244,89 @@ function withContinentRows(built, kind) {
 function make(target) {
   const [kind, arg] = (target.kind || "").split(":");
   if (!kind) return null;
+  if (kind === "kosis-age" || kind === "kosis-sex") {
+    const rows = provinceOrder.map((name) => {
+      const a = ageByProvince(name);
+      const values = kind === "kosis-age"
+        ? [...ageParts(a), round(a.elderly / a.youth * 100, 1)]
+        : [round(a.male / a.female * 100, 1), round(a.young_male / a.young_female * 100, 1)];
+      return row(name, values);
+    });
+    return table(target, "%", "2024.12", kosisAgeSource,
+      kind === "kosis-age" ? ["시도", {label:"유소년",unit:"%"}, {label:"청장년",unit:"%"}, {label:"노년",unit:"%"}, {label:"노령화지수",unit:"지수"}]
+        : ["시도", {label:"성비",unit:"여성 100명당 남성"}, {label:"20~39세 성비",unit:"여성 100명당 남성"}], rows,
+      {note:"5세 구간 주민등록인구 원수로 계산"});
+  }
+  if (kind === "kosis-age-region") {
+    const rows = Object.entries(industryGroups).map(([label,names]) => {
+      const sums = {total:0,youth:0,working:0,elderly:0};
+      for(const name of names) for(const key of Object.keys(sums)) sums[key] += ageByProvince(name)[key];
+      return row(label,[...ageParts(sums),round(sums.elderly/sums.youth*100,1)]);
+    });
+    return table(target,"%","2024.12",kosisAgeSource,["권역",{label:"유소년",unit:"%"},{label:"청장년",unit:"%"},{label:"노년",unit:"%"},{label:"노령화지수",unit:"지수"}],rows,{note:"시도별 5세 구간 주민등록인구 합산"});
+  }
+  if (kind === "kosis-manufacturing" || kind === "kosis-manufacturing-shipments") {
+    const rows = provinceOrder.map((name)=>{
+      const value=industryByProvince(name).C;
+      return row(name,[value.establishments,value.employees,round(value.shipments_million_krw/1000,1)]);
+    });
+    return table(target,"개, 명, 십억 원","2024",kosisIndustrySource,["시도",{label:"사업체",unit:"개"},{label:"종사자",unit:"명"},{label:"출하액",unit:"십억 원"}],rows,{note:"종사자 10명 이상 제조업 사업체"});
+  }
+  if (kind === "kosis-manufacturing-region") {
+    const rows = Object.entries(industryGroups).map(([label,names])=>{
+      const values=names.map((name)=>industryByProvince(name).C);
+      return row(label,[values.reduce((s,v)=>s+v.establishments,0),values.reduce((s,v)=>s+v.employees,0),round(values.reduce((s,v)=>s+v.shipments_million_krw,0)/1000,1)]);
+    });
+    return table(target,"개, 명, 십억 원","2024",kosisIndustrySource,["권역",{label:"사업체",unit:"개"},{label:"종사자",unit:"명"},{label:"출하액",unit:"십억 원"}],rows,{note:"시도 합산, 종사자 10명 이상 제조업 사업체"});
+  }
+  if (kind === "kosis-manufacturing-sector") {
+    const national=local.kosis_manufacturing_2024['00'];
+    const rows=Object.entries(national).filter(([key,v])=>/^C\d\d$/.test(key)&&v.shipments_million_krw!==null)
+      .sort((a,b)=>b[1].shipments_million_krw-a[1].shipments_million_krw)
+      .map(([,v])=>row(v.sector,[v.establishments,v.employees,round(v.shipments_million_krw/1000,1)]));
+    return table(target,"개, 명, 십억 원","2024",kosisIndustrySource,["업종",{label:"사업체",unit:"개"},{label:"종사자",unit:"명"},{label:"출하액",unit:"십억 원"}],rows,{note:"종사자 10명 이상 제조업 사업체; 비공개 업종 제외"});
+  }
+  if (kind === "keei-supply" || kind === "keei-production") {
+    const key=kind==="keei-supply"?"supply":"production";
+    const fields=key==="supply"?["석탄","석유","천연가스","수력","원자력","신재생 및 기타1"]:["석탄","수력","원자력","신재생 및 기타1"];
+    const rows=provinceOrder.map((name)=>{const a=local.keei_regional_energy_2024[key][name];return row(name,[round(a.total,1),...fields.map((f)=>round(a[f]/a.total*100,1))]);});
+    return table(target,"천 toe, %","2024",keeiSource,["시도",{label:key==="supply"?"1차 에너지 공급":"1차 에너지 생산",unit:"천 toe"},...fields.map((f)=>({label:f.replace("1", ""),unit:"%"}))],rows,{note:"2024년 잠정치; 지역 내 에너지원별 비중"});
+  }
+  if (kind === "knrec-province" || kind === "knrec-region") {
+    const amounts=local.knrec_regional_renewable_2024.production_toe;
+    const rows=kind==="knrec-province"
+      ? provinceOrder.map((name)=>row(name,[round(amounts[name]/1000,1),round(amounts[name]/amounts['전국']*100,1)]))
+      : Object.entries(industryGroups).map(([label,names])=>row(label,[round(names.reduce((sum,name)=>sum+amounts[name],0)/1000,1),round(names.reduce((sum,name)=>sum+amounts[name],0)/amounts['전국']*100,1)]));
+    return table(target,"천 toe, %","2024",knrecSource,[kind==="knrec-province"?"시도":"권역",{label:"생산",unit:"천 toe"},{label:"전국 비중",unit:"%"}],rows,kind==="knrec-region"?{note:"시도 합산"}:{});
+  }
+  if (kind === "ei-korea-generation") {
+    const a=local.ei_energy_2024.generation_twh['South Korea'];
+    const fields=["Coal","Oil","Natural Gas","Nuclear energy","Hydro electric","Renewables","Other#"];
+    return table(target,"%","2024",eiSource,["국가",...fields.map((field)=>({label:({Coal:"석탄",Oil:"석유","Natural Gas":"천연가스","Nuclear energy":"원자력","Hydro electric":"수력",Renewables:"재생", "Other#":"기타"})[field],unit:"%"}))],
+      [row("한국",fields.map((field)=>round(a[field]/a.Total*100,1)))],{note:"총발전량 625.4 TWh 기준"});
+  }
+  if (kind === "kosis-land-area") {
+    return table(target,"ha","2025",source("국가데이터처 경지면적조사","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1EB001"),
+      ["시도",{label:"경지 면적",unit:"ha"}],provinceOrder.map((name)=>row(name,[local.kosis_cultivated_area_2025[name]])));
+  }
+  if (kind === "ei-world-mix") {
+    const a=local.ei_energy_2024.supply_ej['Total World'];
+    const fields=["Oil","Natural Gas","Coal","Nuclear energy","Hydro electric","Renewables"];
+    return table(target,"EJ, %","2024",eiSource,["범위",{label:"총공급",unit:"EJ"},...fields.map((field)=>({label:({Oil:"석유","Natural Gas":"천연가스",Coal:"석탄","Nuclear energy":"원자력","Hydro electric":"수력",Renewables:"재생"})[field],unit:"%"}))],
+      [row("세계",[round(a.Total,1),...fields.map((field)=>round(a[field]/a.Total*100,1))])]);
+  }
+  if (kind === "ei-world-rank") {
+    const englishToKorean = new Map(countries.map((country)=>[eiNames[country.iso3] || country.atlasName,cName(country)]));
+    const records=Object.entries(local.ei_energy_2024.supply_ej).filter(([name])=>!/^Total |^Other |^of which:|Non-OECD|European Union/.test(name)&&name.trim()!=="Non-OECD")
+      .sort((a,b)=>b[1].Total-a[1].Total).slice(0,10).map(([name,v])=>row(englishToKorean.get(name)||name,[round(v.Total,1)]));
+    return table(target,"EJ","2024",eiSource,["국가",{label:"1차 에너지 공급",unit:"EJ"}],records,{note:"Energy Institute가 개별 국가로 수록한 범위의 상위 10개국"});
+  }
+  if (kind === "ei-world-regions") {
+    const a=local.ei_energy_2024.supply_ej;
+    const regions=[["앵글로아메리카",["US","Canada"]],["중·남부 아메리카",["Mexico","Total S. & Cent. America"]],["유럽",["Total Europe"]],["아프리카",["Total Africa"]],["아시아",["Total CIS","Total Middle East","Total Asia Pacific"]],["오세아니아",["Australia","New Zealand"]]];
+    const rows=regions.map(([name,keys])=>row(name,[round(keys.reduce((sum,key)=>sum+a[key].Total,0),1)]));
+    return table(target,"EJ","2024",eiSource,["권역",{label:"1차 에너지 공급",unit:"EJ"}],rows,{note:"Energy Institute 집계 권역을 재구성한 참고값; 아시아에는 일부 CIS 지역과 중동, 아시아태평양 전체가 포함되어 오세아니아와 중복됨"});
+  }
   if (kind === "province-single") {
     const built = provinceSingle(target, arg);
     if (built && target.id === "k-5-07") built.rows = built.rows.filter((record) =>

@@ -9,6 +9,10 @@ const regionDefs = {
 const slugNames = {
   "k-4-01":"city-rank-province","k-4-02":"city-rank-region","k-4-07":"daytime-seoul","k-4-08":"daytime-busan",
   "k-x-02":"final-energy","k-5-07":"farm-households","k-5-17":"manufacturing","k-5-25":"grdp",
+  "k-5-02":"primary-supply","k-5-03":"primary-production","k-5-04":"generation-mix","k-5-05":"renewable-production",
+  "k-5-06":"renewable-production-region","k-5-09":"cultivated-area","k-5-18":"manufacturing-shipments",
+  "k-5-19":"manufacturing-region","k-5-20":"manufacturing-sectors","k-6-04":"age-structure-region","k-6-05":"sex-ratio",
+  "w-3-34":"global-primary-energy","w-3-35":"primary-energy-rank",
   "k-6-01":"population","k-6-03":"age-structure","k-6-06":"net-migration","k-6-07":"city-growth",
   "k-x-03":"births-deaths","k-6-08":"foreign-residents","k-6-09":"city-foreign-share","k-x-04":"foreign-types","k-7-05":"capital-share",
   "w-3-04":"religion-asia","w-3-05":"religion-africa","w-3-06":"population-history","w-3-07":"birth-death",
@@ -80,9 +84,14 @@ function sourceName(id,table) {
   if(["k-4-07","k-4-08"].includes(id)) return "국가데이터처 인구총조사";
   if(id==="k-5-07") return "국가데이터처 농림어업조사";
   if(id==="k-5-17") return "국가데이터처 광업·제조업조사";
+  if(["k-5-18","k-5-19","k-5-20","k-5-21","k-5-22"].includes(id)) return "국가데이터처 광업·제조업조사";
+  if(["k-5-02","k-5-03"].includes(id)) return "에너지경제연구원 지역에너지통계연보";
+  if(["k-5-05","k-5-06"].includes(id)) return "한국에너지공단 신재생에너지 보급통계";
+  if(id==="k-5-04"||["w-3-34","w-3-35","w-3-36"].includes(id)) return "Energy Institute 세계에너지통계";
+  if(id==="k-5-09") return "국가데이터처 경지면적조사";
   if(id==="k-5-25") return "국가데이터처 지역소득";
   if(id==="k-x-02") return "에너지경제연구원 지역에너지통계연보, 한국전력공사 전력통계";
-  if(["k-6-03","k-6-06"].includes(id)) return "행정안전부 주민등록인구통계";
+  if(["k-6-03","k-6-04","k-6-05","k-6-06"].includes(id)) return "행정안전부 주민등록인구통계";
   if(id==="k-x-03") return "국가데이터처 인구동향조사";
   if(id==="k-6-07") return "행정안전부 주민등록인구통계";
   if(id==="k-7-05") return "국가데이터처 e-지방지표";
@@ -166,6 +175,7 @@ function combine(subject,topic,entries) {
     const t=compare("korea-multicultural-compare","다문화 비교",views);if(t)out.push(t);
   }
   if(subject==="korea"&&topic==="industry") add("korea-industry-compare","산업 비교",[["k-5-17","제조업"],["k-5-25","생산"],["k-5-24","취업 구조"]]);
+  if(subject==="korea"&&topic==="industry") map.delete("k-5-18");
   if(subject==="korea"&&topic==="urban") {
     add("korea-daytime-compare","상주인구와 주간인구",[["k-4-07","서울"],["k-4-08","부산"]]);
     const ranks=[get("k-4-01","도별"),get("k-4-02","권역별")].filter(Boolean);
@@ -215,4 +225,3 @@ export function compose(rawTables,gaps) {
   return {meta:{schemaVersion:2,builtAt:"2026-09-24",sources:["data/korea-stats.js","data/country-stats.js","data-sources/stats"],tableCount,gapCount:gaps.length},subjects};
 }
 export {topics as topicDefinitions,regionDefs as regionDefinitions,regionFor};
-

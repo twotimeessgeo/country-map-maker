@@ -1,0 +1,3167 @@
+{
+  "00": {
+    "C": {
+      "region": "전국",
+      "sector": "제조업(10~34)",
+      "establishments": 73570.0,
+      "employees": 3037018.0,
+      "shipments_million_krw": 2086398396.0
+    },
+    "C10": {
+      "region": "전국",
+      "sector": "식료품 제조업",
+      "establishments": 6833.0,
+      "employees": 252568.0,
+      "shipments_million_krw": 124461961.0
+    },
+    "C11": {
+      "region": "전국",
+      "sector": "음료 제조업",
+      "establishments": 277.0,
+      "employees": 16116.0,
+      "shipments_million_krw": 14567659.0
+    },
+    "C12": {
+      "region": "전국",
+      "sector": "담배 제조업",
+      "establishments": 10.0,
+      "employees": 2809.0,
+      "shipments_million_krw": 4586297.0
+    },
+    "C13": {
+      "region": "전국",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 2513.0,
+      "employees": 64052.0,
+      "shipments_million_krw": 17860188.0
+    },
+    "C14": {
+      "region": "전국",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 1920.0,
+      "employees": 44478.0,
+      "shipments_million_krw": 17857035.0
+    },
+    "C15": {
+      "region": "전국",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 437.0,
+      "employees": 10698.0,
+      "shipments_million_krw": 3557582.0
+    },
+    "C16": {
+      "region": "전국",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 841.0,
+      "employees": 18290.0,
+      "shipments_million_krw": 6456531.0
+    },
+    "C17": {
+      "region": "전국",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 1985.0,
+      "employees": 61078.0,
+      "shipments_million_krw": 27238239.0
+    },
+    "C18": {
+      "region": "전국",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 1157.0,
+      "employees": 26212.0,
+      "shipments_million_krw": 5585961.0
+    },
+    "C19": {
+      "region": "전국",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 157.0,
+      "employees": 12866.0,
+      "shipments_million_krw": 179139378.0
+    },
+    "C20": {
+      "region": "전국",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 3496.0,
+      "employees": 157803.0,
+      "shipments_million_krw": 193552497.0
+    },
+    "C21": {
+      "region": "전국",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 733.0,
+      "employees": 65961.0,
+      "shipments_million_krw": 37887267.0
+    },
+    "C22": {
+      "region": "전국",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 6253.0,
+      "employees": 205430.0,
+      "shipments_million_krw": 80321540.0
+    },
+    "C23": {
+      "region": "전국",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 2867.0,
+      "employees": 85269.0,
+      "shipments_million_krw": 39989926.0
+    },
+    "C24": {
+      "region": "전국",
+      "sector": "1차 금속 제조업",
+      "establishments": 3202.0,
+      "employees": 148847.0,
+      "shipments_million_krw": 182072326.0
+    },
+    "C25": {
+      "region": "전국",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 9752.0,
+      "employees": 256127.0,
+      "shipments_million_krw": 94874470.0
+    },
+    "C26": {
+      "region": "전국",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 3436.0,
+      "employees": 347086.0,
+      "shipments_million_krw": 340388398.0
+    },
+    "C27": {
+      "region": "전국",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 2797.0,
+      "employees": 106492.0,
+      "shipments_million_krw": 33908772.0
+    },
+    "C28": {
+      "region": "전국",
+      "sector": "전기장비 제조업",
+      "establishments": 4896.0,
+      "employees": 212899.0,
+      "shipments_million_krw": 141896801.0
+    },
+    "C29": {
+      "region": "전국",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 10275.0,
+      "employees": 342262.0,
+      "shipments_million_krw": 149127244.0
+    },
+    "C30": {
+      "region": "전국",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 4899.0,
+      "employees": 343170.0,
+      "shipments_million_krw": 294139305.0
+    },
+    "C31": {
+      "region": "전국",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 1736.0,
+      "employees": 166704.0,
+      "shipments_million_krw": 72243481.0
+    },
+    "C32": {
+      "region": "전국",
+      "sector": "가구 제조업",
+      "establishments": 1340.0,
+      "employees": 28346.0,
+      "shipments_million_krw": 9259307.0
+    },
+    "C33": {
+      "region": "전국",
+      "sector": "기타 제품 제조업",
+      "establishments": 1072.0,
+      "employees": 25950.0,
+      "shipments_million_krw": 7311127.0
+    },
+    "C34": {
+      "region": "전국",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 686.0,
+      "employees": 35505.0,
+      "shipments_million_krw": 8115104.0
+    }
+  },
+  "11": {
+    "C": {
+      "region": "서울특별시",
+      "sector": "제조업(10~34)",
+      "establishments": 3817.0,
+      "employees": 92509.0,
+      "shipments_million_krw": 36145356.0
+    },
+    "C10": {
+      "region": "서울특별시",
+      "sector": "식료품 제조업",
+      "establishments": 168.0,
+      "employees": 4177.0,
+      "shipments_million_krw": 1751060.0
+    },
+    "C11": {
+      "region": "서울특별시",
+      "sector": "음료 제조업",
+      "establishments": 6.0,
+      "employees": 179.0,
+      "shipments_million_krw": 89374.0
+    },
+    "C12": {
+      "region": "서울특별시",
+      "sector": "담배 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C13": {
+      "region": "서울특별시",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 177.0,
+      "employees": 3282.0,
+      "shipments_million_krw": 1190050.0
+    },
+    "C14": {
+      "region": "서울특별시",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 1164.0,
+      "employees": 27563.0,
+      "shipments_million_krw": 13903134.0
+    },
+    "C15": {
+      "region": "서울특별시",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 114.0,
+      "employees": 2393.0,
+      "shipments_million_krw": 1019445.0
+    },
+    "C16": {
+      "region": "서울특별시",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 4.0,
+      "employees": 55.0,
+      "shipments_million_krw": 10049.0
+    },
+    "C17": {
+      "region": "서울특별시",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 102.0,
+      "employees": 2143.0,
+      "shipments_million_krw": 453653.0
+    },
+    "C18": {
+      "region": "서울특별시",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 332.0,
+      "employees": 7055.0,
+      "shipments_million_krw": 1644176.0
+    },
+    "C19": {
+      "region": "서울특별시",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C20": {
+      "region": "서울특별시",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 120.0,
+      "employees": 4790.0,
+      "shipments_million_krw": 3242858.0
+    },
+    "C21": {
+      "region": "서울특별시",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 43.0,
+      "employees": 1400.0,
+      "shipments_million_krw": 321095.0
+    },
+    "C22": {
+      "region": "서울특별시",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 65.0,
+      "employees": 1160.0,
+      "shipments_million_krw": 309718.0
+    },
+    "C23": {
+      "region": "서울특별시",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 16.0,
+      "employees": 546.0,
+      "shipments_million_krw": 261231.0
+    },
+    "C24": {
+      "region": "서울특별시",
+      "sector": "1차 금속 제조업",
+      "establishments": 15.0,
+      "employees": 209.0,
+      "shipments_million_krw": 89338.0
+    },
+    "C25": {
+      "region": "서울특별시",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 86.0,
+      "employees": 1706.0,
+      "shipments_million_krw": 532039.0
+    },
+    "C26": {
+      "region": "서울특별시",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 329.0,
+      "employees": 9209.0,
+      "shipments_million_krw": 3411987.0
+    },
+    "C27": {
+      "region": "서울특별시",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 335.0,
+      "employees": 9164.0,
+      "shipments_million_krw": 2132912.0
+    },
+    "C28": {
+      "region": "서울특별시",
+      "sector": "전기장비 제조업",
+      "establishments": 232.0,
+      "employees": 5750.0,
+      "shipments_million_krw": 1934589.0
+    },
+    "C29": {
+      "region": "서울특별시",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 218.0,
+      "employees": 5735.0,
+      "shipments_million_krw": 1609890.0
+    },
+    "C30": {
+      "region": "서울특별시",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 11.0,
+      "employees": 191.0,
+      "shipments_million_krw": 33140.0
+    },
+    "C31": {
+      "region": "서울특별시",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 10.0,
+      "employees": 243.0,
+      "shipments_million_krw": 83833.0
+    },
+    "C32": {
+      "region": "서울특별시",
+      "sector": "가구 제조업",
+      "establishments": 16.0,
+      "employees": 276.0,
+      "shipments_million_krw": 81012.0
+    },
+    "C33": {
+      "region": "서울특별시",
+      "sector": "기타 제품 제조업",
+      "establishments": 240.0,
+      "employees": 4960.0,
+      "shipments_million_krw": 1981257.0
+    },
+    "C34": {
+      "region": "서울특별시",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 11.0,
+      "employees": 268.0,
+      "shipments_million_krw": 27369.0
+    }
+  },
+  "21": {
+    "C": {
+      "region": "부산광역시",
+      "sector": "제조업(10~34)",
+      "establishments": 4160.0,
+      "employees": 130759.0,
+      "shipments_million_krw": 54098961.0
+    },
+    "C10": {
+      "region": "부산광역시",
+      "sector": "식료품 제조업",
+      "establishments": 369.0,
+      "employees": 11471.0,
+      "shipments_million_krw": 4485034.0
+    },
+    "C11": {
+      "region": "부산광역시",
+      "sector": "음료 제조업",
+      "establishments": 11.0,
+      "employees": 292.0,
+      "shipments_million_krw": 256009.0
+    },
+    "C13": {
+      "region": "부산광역시",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 184.0,
+      "employees": 5084.0,
+      "shipments_million_krw": 1277346.0
+    },
+    "C14": {
+      "region": "부산광역시",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 209.0,
+      "employees": 4945.0,
+      "shipments_million_krw": 965271.0
+    },
+    "C15": {
+      "region": "부산광역시",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 121.0,
+      "employees": 3081.0,
+      "shipments_million_krw": 800940.0
+    },
+    "C16": {
+      "region": "부산광역시",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 36.0,
+      "employees": 705.0,
+      "shipments_million_krw": 289362.0
+    },
+    "C17": {
+      "region": "부산광역시",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 61.0,
+      "employees": 1268.0,
+      "shipments_million_krw": 339745.0
+    },
+    "C18": {
+      "region": "부산광역시",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 42.0,
+      "employees": 671.0,
+      "shipments_million_krw": 90379.0
+    },
+    "C19": {
+      "region": "부산광역시",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 6.0,
+      "employees": 205.0,
+      "shipments_million_krw": 531541.0
+    },
+    "C20": {
+      "region": "부산광역시",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 72.0,
+      "employees": 3042.0,
+      "shipments_million_krw": 1813151.0
+    },
+    "C21": {
+      "region": "부산광역시",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 19.0,
+      "employees": 1011.0,
+      "shipments_million_krw": 278267.0
+    },
+    "C22": {
+      "region": "부산광역시",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 279.0,
+      "employees": 8398.0,
+      "shipments_million_krw": 2839676.0
+    },
+    "C23": {
+      "region": "부산광역시",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 70.0,
+      "employees": 1427.0,
+      "shipments_million_krw": 771485.0
+    },
+    "C24": {
+      "region": "부산광역시",
+      "sector": "1차 금속 제조업",
+      "establishments": 310.0,
+      "employees": 11013.0,
+      "shipments_million_krw": 8843936.0
+    },
+    "C25": {
+      "region": "부산광역시",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 612.0,
+      "employees": 14667.0,
+      "shipments_million_krw": 4756511.0
+    },
+    "C26": {
+      "region": "부산광역시",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 59.0,
+      "employees": 7238.0,
+      "shipments_million_krw": 1924664.0
+    },
+    "C27": {
+      "region": "부산광역시",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 116.0,
+      "employees": 4996.0,
+      "shipments_million_krw": 1637879.0
+    },
+    "C28": {
+      "region": "부산광역시",
+      "sector": "전기장비 제조업",
+      "establishments": 293.0,
+      "employees": 9410.0,
+      "shipments_million_krw": 4586848.0
+    },
+    "C29": {
+      "region": "부산광역시",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 710.0,
+      "employees": 20844.0,
+      "shipments_million_krw": 7561400.0
+    },
+    "C30": {
+      "region": "부산광역시",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 250.0,
+      "employees": 10245.0,
+      "shipments_million_krw": 6525342.0
+    },
+    "C31": {
+      "region": "부산광역시",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 106.0,
+      "employees": 6261.0,
+      "shipments_million_krw": 2558532.0
+    },
+    "C32": {
+      "region": "부산광역시",
+      "sector": "가구 제조업",
+      "establishments": 34.0,
+      "employees": 699.0,
+      "shipments_million_krw": 131895.0
+    },
+    "C33": {
+      "region": "부산광역시",
+      "sector": "기타 제품 제조업",
+      "establishments": 52.0,
+      "employees": 996.0,
+      "shipments_million_krw": 132661.0
+    },
+    "C34": {
+      "region": "부산광역시",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 139.0,
+      "employees": 2790.0,
+      "shipments_million_krw": 701087.0
+    }
+  },
+  "22": {
+    "C": {
+      "region": "대구광역시",
+      "sector": "제조업(10~34)",
+      "establishments": 3160.0,
+      "employees": 100330.0,
+      "shipments_million_krw": 38820123.0
+    },
+    "C10": {
+      "region": "대구광역시",
+      "sector": "식료품 제조업",
+      "establishments": 176.0,
+      "employees": 5920.0,
+      "shipments_million_krw": 2217704.0
+    },
+    "C11": {
+      "region": "대구광역시",
+      "sector": "음료 제조업",
+      "establishments": 4.0,
+      "employees": 292.0,
+      "shipments_million_krw": 139197.0
+    },
+    "C13": {
+      "region": "대구광역시",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 454.0,
+      "employees": 11268.0,
+      "shipments_million_krw": 2597205.0
+    },
+    "C14": {
+      "region": "대구광역시",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 82.0,
+      "employees": 1628.0,
+      "shipments_million_krw": 253695.0
+    },
+    "C15": {
+      "region": "대구광역시",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C16": {
+      "region": "대구광역시",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 16.0,
+      "employees": 302.0,
+      "shipments_million_krw": 79049.0
+    },
+    "C17": {
+      "region": "대구광역시",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 85.0,
+      "employees": 2977.0,
+      "shipments_million_krw": 1389582.0
+    },
+    "C18": {
+      "region": "대구광역시",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 46.0,
+      "employees": 1063.0,
+      "shipments_million_krw": 210154.0
+    },
+    "C19": {
+      "region": "대구광역시",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C20": {
+      "region": "대구광역시",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 41.0,
+      "employees": 1079.0,
+      "shipments_million_krw": 531952.0
+    },
+    "C21": {
+      "region": "대구광역시",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 16.0,
+      "employees": 666.0,
+      "shipments_million_krw": 243872.0
+    },
+    "C22": {
+      "region": "대구광역시",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 247.0,
+      "employees": 8468.0,
+      "shipments_million_krw": 2714069.0
+    },
+    "C23": {
+      "region": "대구광역시",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 44.0,
+      "employees": 1154.0,
+      "shipments_million_krw": 626731.0
+    },
+    "C24": {
+      "region": "대구광역시",
+      "sector": "1차 금속 제조업",
+      "establishments": 91.0,
+      "employees": 2925.0,
+      "shipments_million_krw": 2196111.0
+    },
+    "C25": {
+      "region": "대구광역시",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 682.0,
+      "employees": 16808.0,
+      "shipments_million_krw": 4814599.0
+    },
+    "C26": {
+      "region": "대구광역시",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 59.0,
+      "employees": 3783.0,
+      "shipments_million_krw": 1395401.0
+    },
+    "C27": {
+      "region": "대구광역시",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 147.0,
+      "employees": 4267.0,
+      "shipments_million_krw": 1290976.0
+    },
+    "C28": {
+      "region": "대구광역시",
+      "sector": "전기장비 제조업",
+      "establishments": 127.0,
+      "employees": 5921.0,
+      "shipments_million_krw": 3730891.0
+    },
+    "C29": {
+      "region": "대구광역시",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 492.0,
+      "employees": 14602.0,
+      "shipments_million_krw": 5919917.0
+    },
+    "C30": {
+      "region": "대구광역시",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 290.0,
+      "employees": 15599.0,
+      "shipments_million_krw": 8055494.0
+    },
+    "C31": {
+      "region": "대구광역시",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 9.0,
+      "employees": 244.0,
+      "shipments_million_krw": 47406.0
+    },
+    "C32": {
+      "region": "대구광역시",
+      "sector": "가구 제조업",
+      "establishments": 15.0,
+      "employees": 393.0,
+      "shipments_million_krw": 121252.0
+    },
+    "C33": {
+      "region": "대구광역시",
+      "sector": "기타 제품 제조업",
+      "establishments": 24.0,
+      "employees": 695.0,
+      "shipments_million_krw": 141018.0
+    },
+    "C34": {
+      "region": "대구광역시",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 10.0,
+      "employees": 209.0,
+      "shipments_million_krw": 76489.0
+    }
+  },
+  "23": {
+    "C": {
+      "region": "인천광역시",
+      "sector": "제조업(10~34)",
+      "establishments": 4674.0,
+      "employees": 176050.0,
+      "shipments_million_krw": 99313136.0
+    },
+    "C10": {
+      "region": "인천광역시",
+      "sector": "식료품 제조업",
+      "establishments": 304.0,
+      "employees": 11181.0,
+      "shipments_million_krw": 8306647.0
+    },
+    "C11": {
+      "region": "인천광역시",
+      "sector": "음료 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C13": {
+      "region": "인천광역시",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 45.0,
+      "employees": 1003.0,
+      "shipments_million_krw": 226366.0
+    },
+    "C14": {
+      "region": "인천광역시",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 62.0,
+      "employees": 1666.0,
+      "shipments_million_krw": 608765.0
+    },
+    "C15": {
+      "region": "인천광역시",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 10.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C16": {
+      "region": "인천광역시",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 137.0,
+      "employees": 4753.0,
+      "shipments_million_krw": 1716207.0
+    },
+    "C17": {
+      "region": "인천광역시",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 76.0,
+      "employees": 1975.0,
+      "shipments_million_krw": 516328.0
+    },
+    "C18": {
+      "region": "인천광역시",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 42.0,
+      "employees": 1062.0,
+      "shipments_million_krw": 211484.0
+    },
+    "C19": {
+      "region": "인천광역시",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 9.0,
+      "employees": 760.0,
+      "shipments_million_krw": 11373484.0
+    },
+    "C20": {
+      "region": "인천광역시",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 245.0,
+      "employees": 9158.0,
+      "shipments_million_krw": 3857299.0
+    },
+    "C21": {
+      "region": "인천광역시",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 30.0,
+      "employees": 10064.0,
+      "shipments_million_krw": 7798847.0
+    },
+    "C22": {
+      "region": "인천광역시",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 363.0,
+      "employees": 12761.0,
+      "shipments_million_krw": 3920611.0
+    },
+    "C23": {
+      "region": "인천광역시",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 97.0,
+      "employees": 2716.0,
+      "shipments_million_krw": 1311752.0
+    },
+    "C24": {
+      "region": "인천광역시",
+      "sector": "1차 금속 제조업",
+      "establishments": 223.0,
+      "employees": 8713.0,
+      "shipments_million_krw": 8989174.0
+    },
+    "C25": {
+      "region": "인천광역시",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 770.0,
+      "employees": 17670.0,
+      "shipments_million_krw": 4291807.0
+    },
+    "C26": {
+      "region": "인천광역시",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 389.0,
+      "employees": 23376.0,
+      "shipments_million_krw": 13340348.0
+    },
+    "C27": {
+      "region": "인천광역시",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 176.0,
+      "employees": 5340.0,
+      "shipments_million_krw": 1526121.0
+    },
+    "C28": {
+      "region": "인천광역시",
+      "sector": "전기장비 제조업",
+      "establishments": 382.0,
+      "employees": 13305.0,
+      "shipments_million_krw": 5230289.0
+    },
+    "C29": {
+      "region": "인천광역시",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 897.0,
+      "employees": 29138.0,
+      "shipments_million_krw": 12466101.0
+    },
+    "C30": {
+      "region": "인천광역시",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 198.0,
+      "employees": 15049.0,
+      "shipments_million_krw": 11979162.0
+    },
+    "C31": {
+      "region": "인천광역시",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 20.0,
+      "employees": 495.0,
+      "shipments_million_krw": 123001.0
+    },
+    "C32": {
+      "region": "인천광역시",
+      "sector": "가구 제조업",
+      "establishments": 107.0,
+      "employees": 2941.0,
+      "shipments_million_krw": 951523.0
+    },
+    "C33": {
+      "region": "인천광역시",
+      "sector": "기타 제품 제조업",
+      "establishments": 80.0,
+      "employees": 2001.0,
+      "shipments_million_krw": 418703.0
+    },
+    "C34": {
+      "region": "인천광역시",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 11.0,
+      "employees": 772.0,
+      "shipments_million_krw": 101957.0
+    }
+  },
+  "24": {
+    "C": {
+      "region": "광주광역시",
+      "sector": "제조업(10~34)",
+      "establishments": 1300.0,
+      "employees": 61179.0,
+      "shipments_million_krw": 48796434.0
+    },
+    "C10": {
+      "region": "광주광역시",
+      "sector": "식료품 제조업",
+      "establishments": 102.0,
+      "employees": 3042.0,
+      "shipments_million_krw": 1273214.0
+    },
+    "C11": {
+      "region": "광주광역시",
+      "sector": "음료 제조업",
+      "establishments": 6.0,
+      "employees": 504.0,
+      "shipments_million_krw": 740952.0
+    },
+    "C12": {
+      "region": "광주광역시",
+      "sector": "담배 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C13": {
+      "region": "광주광역시",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 15.0,
+      "employees": 858.0,
+      "shipments_million_krw": 334209.0
+    },
+    "C14": {
+      "region": "광주광역시",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 10.0,
+      "employees": 196.0,
+      "shipments_million_krw": 13979.0
+    },
+    "C15": {
+      "region": "광주광역시",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C16": {
+      "region": "광주광역시",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 10.0,
+      "employees": 187.0,
+      "shipments_million_krw": 39379.0
+    },
+    "C17": {
+      "region": "광주광역시",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 17.0,
+      "employees": 590.0,
+      "shipments_million_krw": 219142.0
+    },
+    "C18": {
+      "region": "광주광역시",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 14.0,
+      "employees": 274.0,
+      "shipments_million_krw": 55162.0
+    },
+    "C20": {
+      "region": "광주광역시",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 21.0,
+      "employees": 468.0,
+      "shipments_million_krw": 148446.0
+    },
+    "C21": {
+      "region": "광주광역시",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 3.0,
+      "employees": 96.0,
+      "shipments_million_krw": 19786.0
+    },
+    "C22": {
+      "region": "광주광역시",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 136.0,
+      "employees": 7208.0,
+      "shipments_million_krw": 3665409.0
+    },
+    "C23": {
+      "region": "광주광역시",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 29.0,
+      "employees": 569.0,
+      "shipments_million_krw": 281570.0
+    },
+    "C24": {
+      "region": "광주광역시",
+      "sector": "1차 금속 제조업",
+      "establishments": 69.0,
+      "employees": 1454.0,
+      "shipments_million_krw": 1123886.0
+    },
+    "C25": {
+      "region": "광주광역시",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 172.0,
+      "employees": 4356.0,
+      "shipments_million_krw": 1970108.0
+    },
+    "C26": {
+      "region": "광주광역시",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 64.0,
+      "employees": 6837.0,
+      "shipments_million_krw": 3509542.0
+    },
+    "C27": {
+      "region": "광주광역시",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 48.0,
+      "employees": 1847.0,
+      "shipments_million_krw": 287362.0
+    },
+    "C28": {
+      "region": "광주광역시",
+      "sector": "전기장비 제조업",
+      "establishments": 143.0,
+      "employees": 8285.0,
+      "shipments_million_krw": 8172170.0
+    },
+    "C29": {
+      "region": "광주광역시",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 227.0,
+      "employees": 7208.0,
+      "shipments_million_krw": 2809358.0
+    },
+    "C30": {
+      "region": "광주광역시",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 188.0,
+      "employees": 16367.0,
+      "shipments_million_krw": 23724751.0
+    },
+    "C31": {
+      "region": "광주광역시",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C32": {
+      "region": "광주광역시",
+      "sector": "가구 제조업",
+      "establishments": 13.0,
+      "employees": 230.0,
+      "shipments_million_krw": 47527.0
+    },
+    "C33": {
+      "region": "광주광역시",
+      "sector": "기타 제품 제조업",
+      "establishments": 6.0,
+      "employees": 158.0,
+      "shipments_million_krw": 18033.0
+    },
+    "C34": {
+      "region": "광주광역시",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 3.0,
+      "employees": 44.0,
+      "shipments_million_krw": 8090.0
+    }
+  },
+  "25": {
+    "C": {
+      "region": "대전광역시",
+      "sector": "제조업(10~34)",
+      "establishments": 1025.0,
+      "employees": 44518.0,
+      "shipments_million_krw": 22431701.0
+    },
+    "C10": {
+      "region": "대전광역시",
+      "sector": "식료품 제조업",
+      "establishments": 116.0,
+      "employees": 3757.0,
+      "shipments_million_krw": 2006892.0
+    },
+    "C11": {
+      "region": "대전광역시",
+      "sector": "음료 제조업",
+      "establishments": 3.0,
+      "employees": 356.0,
+      "shipments_million_krw": 432746.0
+    },
+    "C12": {
+      "region": "대전광역시",
+      "sector": "담배 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C13": {
+      "region": "대전광역시",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 32.0,
+      "employees": 862.0,
+      "shipments_million_krw": 145215.0
+    },
+    "C14": {
+      "region": "대전광역시",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 24.0,
+      "employees": 580.0,
+      "shipments_million_krw": 82169.0
+    },
+    "C15": {
+      "region": "대전광역시",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 4.0,
+      "employees": 78.0,
+      "shipments_million_krw": 17618.0
+    },
+    "C16": {
+      "region": "대전광역시",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 6.0,
+      "employees": 101.0,
+      "shipments_million_krw": 30454.0
+    },
+    "C17": {
+      "region": "대전광역시",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 19.0,
+      "employees": 1773.0,
+      "shipments_million_krw": 1440434.0
+    },
+    "C18": {
+      "region": "대전광역시",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 13.0,
+      "employees": 220.0,
+      "shipments_million_krw": 30224.0
+    },
+    "C19": {
+      "region": "대전광역시",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C20": {
+      "region": "대전광역시",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 71.0,
+      "employees": 3495.0,
+      "shipments_million_krw": 2104934.0
+    },
+    "C21": {
+      "region": "대전광역시",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 31.0,
+      "employees": 2078.0,
+      "shipments_million_krw": 570640.0
+    },
+    "C22": {
+      "region": "대전광역시",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 42.0,
+      "employees": 3020.0,
+      "shipments_million_krw": 1380192.0
+    },
+    "C23": {
+      "region": "대전광역시",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 26.0,
+      "employees": 610.0,
+      "shipments_million_krw": 311736.0
+    },
+    "C24": {
+      "region": "대전광역시",
+      "sector": "1차 금속 제조업",
+      "establishments": 20.0,
+      "employees": 487.0,
+      "shipments_million_krw": 247277.0
+    },
+    "C25": {
+      "region": "대전광역시",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 68.0,
+      "employees": 2817.0,
+      "shipments_million_krw": 1739906.0
+    },
+    "C26": {
+      "region": "대전광역시",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 114.0,
+      "employees": 5567.0,
+      "shipments_million_krw": 3484603.0
+    },
+    "C27": {
+      "region": "대전광역시",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 131.0,
+      "employees": 5269.0,
+      "shipments_million_krw": 1235982.0
+    },
+    "C28": {
+      "region": "대전광역시",
+      "sector": "전기장비 제조업",
+      "establishments": 71.0,
+      "employees": 2047.0,
+      "shipments_million_krw": 1086931.0
+    },
+    "C29": {
+      "region": "대전광역시",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 142.0,
+      "employees": 6390.0,
+      "shipments_million_krw": 3287304.0
+    },
+    "C30": {
+      "region": "대전광역시",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 35.0,
+      "employees": 2042.0,
+      "shipments_million_krw": 672439.0
+    },
+    "C31": {
+      "region": "대전광역시",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 19.0,
+      "employees": 996.0,
+      "shipments_million_krw": 242089.0
+    },
+    "C32": {
+      "region": "대전광역시",
+      "sector": "가구 제조업",
+      "establishments": 8.0,
+      "employees": 175.0,
+      "shipments_million_krw": 48890.0
+    },
+    "C33": {
+      "region": "대전광역시",
+      "sector": "기타 제품 제조업",
+      "establishments": 21.0,
+      "employees": 718.0,
+      "shipments_million_krw": 115736.0
+    },
+    "C34": {
+      "region": "대전광역시",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 6.0,
+      "employees": 126.0,
+      "shipments_million_krw": 21009.0
+    }
+  },
+  "26": {
+    "C": {
+      "region": "울산광역시",
+      "sector": "제조업(10~34)",
+      "establishments": 1855.0,
+      "employees": 165268.0,
+      "shipments_million_krw": 278359128.0
+    },
+    "C10": {
+      "region": "울산광역시",
+      "sector": "식료품 제조업",
+      "establishments": 52.0,
+      "employees": 1789.0,
+      "shipments_million_krw": 1316177.0
+    },
+    "C11": {
+      "region": "울산광역시",
+      "sector": "음료 제조업",
+      "establishments": 4.0,
+      "employees": 92.0,
+      "shipments_million_krw": 72523.0
+    },
+    "C13": {
+      "region": "울산광역시",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 66.0,
+      "employees": 3535.0,
+      "shipments_million_krw": 1014997.0
+    },
+    "C14": {
+      "region": "울산광역시",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 10.0,
+      "employees": 196.0,
+      "shipments_million_krw": 14274.0
+    },
+    "C15": {
+      "region": "울산광역시",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C16": {
+      "region": "울산광역시",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 21.0,
+      "employees": 454.0,
+      "shipments_million_krw": 163645.0
+    },
+    "C17": {
+      "region": "울산광역시",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 21.0,
+      "employees": 1565.0,
+      "shipments_million_krw": 1472617.0
+    },
+    "C18": {
+      "region": "울산광역시",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C19": {
+      "region": "울산광역시",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 29.0,
+      "employees": 5409.0,
+      "shipments_million_krw": 83202221.0
+    },
+    "C20": {
+      "region": "울산광역시",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 176.0,
+      "employees": 16035.0,
+      "shipments_million_krw": 45382255.0
+    },
+    "C21": {
+      "region": "울산광역시",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 5.0,
+      "employees": 360.0,
+      "shipments_million_krw": 35013.0
+    },
+    "C22": {
+      "region": "울산광역시",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 87.0,
+      "employees": 5200.0,
+      "shipments_million_krw": 3856531.0
+    },
+    "C23": {
+      "region": "울산광역시",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 42.0,
+      "employees": 1320.0,
+      "shipments_million_krw": 929017.0
+    },
+    "C24": {
+      "region": "울산광역시",
+      "sector": "1차 금속 제조업",
+      "establishments": 82.0,
+      "employees": 7595.0,
+      "shipments_million_krw": 26035368.0
+    },
+    "C25": {
+      "region": "울산광역시",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 202.0,
+      "employees": 6094.0,
+      "shipments_million_krw": 1876088.0
+    },
+    "C26": {
+      "region": "울산광역시",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 4.0,
+      "employees": 382.0,
+      "shipments_million_krw": 148041.0
+    },
+    "C27": {
+      "region": "울산광역시",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 37.0,
+      "employees": 826.0,
+      "shipments_million_krw": 313235.0
+    },
+    "C28": {
+      "region": "울산광역시",
+      "sector": "전기장비 제조업",
+      "establishments": 107.0,
+      "employees": 9573.0,
+      "shipments_million_krw": 15932300.0
+    },
+    "C29": {
+      "region": "울산광역시",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 225.0,
+      "employees": 10185.0,
+      "shipments_million_krw": 7755448.0
+    },
+    "C30": {
+      "region": "울산광역시",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 322.0,
+      "employees": 54956.0,
+      "shipments_million_krw": 71250858.0
+    },
+    "C31": {
+      "region": "울산광역시",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 327.0,
+      "employees": 38570.0,
+      "shipments_million_krw": 17383107.0
+    },
+    "C32": {
+      "region": "울산광역시",
+      "sector": "가구 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C33": {
+      "region": "울산광역시",
+      "sector": "기타 제품 제조업",
+      "establishments": 8.0,
+      "employees": 129.0,
+      "shipments_million_krw": 12138.0
+    },
+    "C34": {
+      "region": "울산광역시",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 24.0,
+      "employees": 883.0,
+      "shipments_million_krw": 133357.0
+    }
+  },
+  "29": {
+    "C": {
+      "region": "세종특별자치시",
+      "sector": "제조업(10~34)",
+      "establishments": 347.0,
+      "employees": 20423.0,
+      "shipments_million_krw": 11373459.0
+    },
+    "C10": {
+      "region": "세종특별자치시",
+      "sector": "식료품 제조업",
+      "establishments": 48.0,
+      "employees": 2446.0,
+      "shipments_million_krw": 1311662.0
+    },
+    "C11": {
+      "region": "세종특별자치시",
+      "sector": "음료 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C13": {
+      "region": "세종특별자치시",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C15": {
+      "region": "세종특별자치시",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C16": {
+      "region": "세종특별자치시",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 3.0,
+      "employees": 47.0,
+      "shipments_million_krw": 8758.0
+    },
+    "C17": {
+      "region": "세종특별자치시",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 16.0,
+      "employees": 792.0,
+      "shipments_million_krw": 777834.0
+    },
+    "C18": {
+      "region": "세종특별자치시",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 14.0,
+      "employees": 427.0,
+      "shipments_million_krw": 51195.0
+    },
+    "C20": {
+      "region": "세종특별자치시",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 43.0,
+      "employees": 2429.0,
+      "shipments_million_krw": 1785337.0
+    },
+    "C21": {
+      "region": "세종특별자치시",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 13.0,
+      "employees": 1822.0,
+      "shipments_million_krw": 948712.0
+    },
+    "C22": {
+      "region": "세종특별자치시",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 39.0,
+      "employees": 1871.0,
+      "shipments_million_krw": 835994.0
+    },
+    "C23": {
+      "region": "세종특별자치시",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 26.0,
+      "employees": 1892.0,
+      "shipments_million_krw": 961029.0
+    },
+    "C24": {
+      "region": "세종특별자치시",
+      "sector": "1차 금속 제조업",
+      "establishments": 18.0,
+      "employees": 486.0,
+      "shipments_million_krw": 237494.0
+    },
+    "C25": {
+      "region": "세종특별자치시",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 19.0,
+      "employees": 333.0,
+      "shipments_million_krw": 101113.0
+    },
+    "C26": {
+      "region": "세종특별자치시",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 17.0,
+      "employees": 2909.0,
+      "shipments_million_krw": 1619012.0
+    },
+    "C27": {
+      "region": "세종특별자치시",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 17.0,
+      "employees": 1087.0,
+      "shipments_million_krw": 872137.0
+    },
+    "C28": {
+      "region": "세종특별자치시",
+      "sector": "전기장비 제조업",
+      "establishments": 28.0,
+      "employees": 1472.0,
+      "shipments_million_krw": 873853.0
+    },
+    "C29": {
+      "region": "세종특별자치시",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 15.0,
+      "employees": 542.0,
+      "shipments_million_krw": 152381.0
+    },
+    "C30": {
+      "region": "세종특별자치시",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 19.0,
+      "employees": 1415.0,
+      "shipments_million_krw": 712005.0
+    },
+    "C31": {
+      "region": "세종특별자치시",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C32": {
+      "region": "세종특별자치시",
+      "sector": "가구 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C33": {
+      "region": "세종특별자치시",
+      "sector": "기타 제품 제조업",
+      "establishments": 5.0,
+      "employees": 127.0,
+      "shipments_million_krw": 27947.0
+    },
+    "C34": {
+      "region": "세종특별자치시",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    }
+  },
+  "31": {
+    "C": {
+      "region": "경기도",
+      "sector": "제조업(10~34)",
+      "establishments": 26214.0,
+      "employees": 958048.0,
+      "shipments_million_krw": 557169595.0
+    },
+    "C10": {
+      "region": "경기도",
+      "sector": "식료품 제조업",
+      "establishments": 1911.0,
+      "employees": 70914.0,
+      "shipments_million_krw": 32561242.0
+    },
+    "C11": {
+      "region": "경기도",
+      "sector": "음료 제조업",
+      "establishments": 56.0,
+      "employees": 3124.0,
+      "shipments_million_krw": 4075801.0
+    },
+    "C12": {
+      "region": "경기도",
+      "sector": "담배 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C13": {
+      "region": "경기도",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 835.0,
+      "employees": 19026.0,
+      "shipments_million_krw": 4575634.0
+    },
+    "C14": {
+      "region": "경기도",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 256.0,
+      "employees": 5021.0,
+      "shipments_million_krw": 1520977.0
+    },
+    "C15": {
+      "region": "경기도",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 144.0,
+      "employees": 3688.0,
+      "shipments_million_krw": 1288604.0
+    },
+    "C16": {
+      "region": "경기도",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 276.0,
+      "employees": 5243.0,
+      "shipments_million_krw": 1689290.0
+    },
+    "C17": {
+      "region": "경기도",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 987.0,
+      "employees": 26902.0,
+      "shipments_million_krw": 10043047.0
+    },
+    "C18": {
+      "region": "경기도",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 564.0,
+      "employees": 13264.0,
+      "shipments_million_krw": 2883205.0
+    },
+    "C19": {
+      "region": "경기도",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 20.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C20": {
+      "region": "경기도",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 1158.0,
+      "employees": 40582.0,
+      "shipments_million_krw": 24884140.0
+    },
+    "C21": {
+      "region": "경기도",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 309.0,
+      "employees": 24283.0,
+      "shipments_million_krw": 13281918.0
+    },
+    "C22": {
+      "region": "경기도",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 2835.0,
+      "employees": 72826.0,
+      "shipments_million_krw": 24016165.0
+    },
+    "C23": {
+      "region": "경기도",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 761.0,
+      "employees": 22316.0,
+      "shipments_million_krw": 9964152.0
+    },
+    "C24": {
+      "region": "경기도",
+      "sector": "1차 금속 제조업",
+      "establishments": 956.0,
+      "employees": 25889.0,
+      "shipments_million_krw": 19086716.0
+    },
+    "C25": {
+      "region": "경기도",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 3598.0,
+      "employees": 80964.0,
+      "shipments_million_krw": 24864252.0
+    },
+    "C26": {
+      "region": "경기도",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 1690.0,
+      "employees": 183501.0,
+      "shipments_million_krw": 210233743.0
+    },
+    "C27": {
+      "region": "경기도",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 1239.0,
+      "employees": 50667.0,
+      "shipments_million_krw": 15585650.0
+    },
+    "C28": {
+      "region": "경기도",
+      "sector": "전기장비 제조업",
+      "establishments": 2056.0,
+      "employees": 63860.0,
+      "shipments_million_krw": 25913374.0
+    },
+    "C29": {
+      "region": "경기도",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 3947.0,
+      "employees": 123756.0,
+      "shipments_million_krw": 46247266.0
+    },
+    "C30": {
+      "region": "경기도",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 930.0,
+      "employees": 75019.0,
+      "shipments_million_krw": 69232347.0
+    },
+    "C31": {
+      "region": "경기도",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 77.0,
+      "employees": 2787.0,
+      "shipments_million_krw": 837622.0
+    },
+    "C32": {
+      "region": "경기도",
+      "sector": "가구 제조업",
+      "establishments": 944.0,
+      "employees": 19189.0,
+      "shipments_million_krw": 6326747.0
+    },
+    "C33": {
+      "region": "경기도",
+      "sector": "기타 제품 제조업",
+      "establishments": 466.0,
+      "employees": 10287.0,
+      "shipments_million_krw": 2881848.0
+    },
+    "C34": {
+      "region": "경기도",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 198.0,
+      "employees": 14353.0,
+      "shipments_million_krw": 4467392.0
+    }
+  },
+  "32": {
+    "C": {
+      "region": "강원특별자치도",
+      "sector": "제조업(10~34)",
+      "establishments": 1118.0,
+      "employees": 40681.0,
+      "shipments_million_krw": 17607230.0
+    },
+    "C10": {
+      "region": "강원특별자치도",
+      "sector": "식료품 제조업",
+      "establishments": 368.0,
+      "employees": 12782.0,
+      "shipments_million_krw": 4377807.0
+    },
+    "C11": {
+      "region": "강원특별자치도",
+      "sector": "음료 제조업",
+      "establishments": 26.0,
+      "employees": 1901.0,
+      "shipments_million_krw": 1480037.0
+    },
+    "C13": {
+      "region": "강원특별자치도",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 10.0,
+      "employees": 176.0,
+      "shipments_million_krw": 46159.0
+    },
+    "C14": {
+      "region": "강원특별자치도",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 9.0,
+      "employees": 272.0,
+      "shipments_million_krw": 51849.0
+    },
+    "C15": {
+      "region": "강원특별자치도",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C16": {
+      "region": "강원특별자치도",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 13.0,
+      "employees": 186.0,
+      "shipments_million_krw": 52614.0
+    },
+    "C17": {
+      "region": "강원특별자치도",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 19.0,
+      "employees": 629.0,
+      "shipments_million_krw": 102173.0
+    },
+    "C18": {
+      "region": "강원특별자치도",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 4.0,
+      "employees": 68.0,
+      "shipments_million_krw": 9666.0
+    },
+    "C19": {
+      "region": "강원특별자치도",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 4.0,
+      "employees": 67.0,
+      "shipments_million_krw": 43655.0
+    },
+    "C20": {
+      "region": "강원특별자치도",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 58.0,
+      "employees": 1939.0,
+      "shipments_million_krw": 661403.0
+    },
+    "C21": {
+      "region": "강원특별자치도",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 32.0,
+      "employees": 3160.0,
+      "shipments_million_krw": 1407645.0
+    },
+    "C22": {
+      "region": "강원특별자치도",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 53.0,
+      "employees": 1575.0,
+      "shipments_million_krw": 433745.0
+    },
+    "C23": {
+      "region": "강원특별자치도",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 167.0,
+      "employees": 4987.0,
+      "shipments_million_krw": 3433600.0
+    },
+    "C24": {
+      "region": "강원특별자치도",
+      "sector": "1차 금속 제조업",
+      "establishments": 19.0,
+      "employees": 557.0,
+      "shipments_million_krw": 311526.0
+    },
+    "C25": {
+      "region": "강원특별자치도",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 68.0,
+      "employees": 1511.0,
+      "shipments_million_krw": 523192.0
+    },
+    "C26": {
+      "region": "강원특별자치도",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 16.0,
+      "employees": 334.0,
+      "shipments_million_krw": 92388.0
+    },
+    "C27": {
+      "region": "강원특별자치도",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 61.0,
+      "employees": 2924.0,
+      "shipments_million_krw": 1136500.0
+    },
+    "C28": {
+      "region": "강원특별자치도",
+      "sector": "전기장비 제조업",
+      "establishments": 45.0,
+      "employees": 1386.0,
+      "shipments_million_krw": 917520.0
+    },
+    "C29": {
+      "region": "강원특별자치도",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 70.0,
+      "employees": 2043.0,
+      "shipments_million_krw": 711775.0
+    },
+    "C30": {
+      "region": "강원특별자치도",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 32.0,
+      "employees": 2847.0,
+      "shipments_million_krw": 1632357.0
+    },
+    "C31": {
+      "region": "강원특별자치도",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C32": {
+      "region": "강원특별자치도",
+      "sector": "가구 제조업",
+      "establishments": 8.0,
+      "employees": 104.0,
+      "shipments_million_krw": 17817.0
+    },
+    "C33": {
+      "region": "강원특별자치도",
+      "sector": "기타 제품 제조업",
+      "establishments": 16.0,
+      "employees": 561.0,
+      "shipments_million_krw": 68182.0
+    },
+    "C34": {
+      "region": "강원특별자치도",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 16.0,
+      "employees": 612.0,
+      "shipments_million_krw": 88501.0
+    }
+  },
+  "33": {
+    "C": {
+      "region": "충청북도",
+      "sector": "제조업(10~34)",
+      "establishments": 3790.0,
+      "employees": 193555.0,
+      "shipments_million_krw": 123831470.0
+    },
+    "C10": {
+      "region": "충청북도",
+      "sector": "식료품 제조업",
+      "establishments": 620.0,
+      "employees": 31511.0,
+      "shipments_million_krw": 15580063.0
+    },
+    "C11": {
+      "region": "충청북도",
+      "sector": "음료 제조업",
+      "establishments": 33.0,
+      "employees": 2667.0,
+      "shipments_million_krw": 2476569.0
+    },
+    "C13": {
+      "region": "충청북도",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 66.0,
+      "employees": 1824.0,
+      "shipments_million_krw": 620163.0
+    },
+    "C14": {
+      "region": "충청북도",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 6.0,
+      "employees": 159.0,
+      "shipments_million_krw": 11393.0
+    },
+    "C15": {
+      "region": "충청북도",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 9.0,
+      "employees": 285.0,
+      "shipments_million_krw": 120553.0
+    },
+    "C16": {
+      "region": "충청북도",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 42.0,
+      "employees": 769.0,
+      "shipments_million_krw": 320085.0
+    },
+    "C17": {
+      "region": "충청북도",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 127.0,
+      "employees": 4794.0,
+      "shipments_million_krw": 2488375.0
+    },
+    "C18": {
+      "region": "충청북도",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 19.0,
+      "employees": 403.0,
+      "shipments_million_krw": 51624.0
+    },
+    "C19": {
+      "region": "충청북도",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 6.0,
+      "employees": 118.0,
+      "shipments_million_krw": 84304.0
+    },
+    "C20": {
+      "region": "충청북도",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 340.0,
+      "employees": 14219.0,
+      "shipments_million_krw": 9225634.0
+    },
+    "C21": {
+      "region": "충청북도",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 112.0,
+      "employees": 11592.0,
+      "shipments_million_krw": 7809421.0
+    },
+    "C22": {
+      "region": "충청북도",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 418.0,
+      "employees": 14417.0,
+      "shipments_million_krw": 5931351.0
+    },
+    "C23": {
+      "region": "충청북도",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 299.0,
+      "employees": 9641.0,
+      "shipments_million_krw": 4497163.0
+    },
+    "C24": {
+      "region": "충청북도",
+      "sector": "1차 금속 제조업",
+      "establishments": 144.0,
+      "employees": 4482.0,
+      "shipments_million_krw": 3698640.0
+    },
+    "C25": {
+      "region": "충청북도",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 475.0,
+      "employees": 13525.0,
+      "shipments_million_krw": 5363744.0
+    },
+    "C26": {
+      "region": "충청북도",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 122.0,
+      "employees": 23461.0,
+      "shipments_million_krw": 20074805.0
+    },
+    "C27": {
+      "region": "충청북도",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 72.0,
+      "employees": 3697.0,
+      "shipments_million_krw": 946595.0
+    },
+    "C28": {
+      "region": "충청북도",
+      "sector": "전기장비 제조업",
+      "establishments": 246.0,
+      "employees": 23864.0,
+      "shipments_million_krw": 24120661.0
+    },
+    "C29": {
+      "region": "충청북도",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 296.0,
+      "employees": 12641.0,
+      "shipments_million_krw": 6650767.0
+    },
+    "C30": {
+      "region": "충청북도",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 220.0,
+      "employees": 14751.0,
+      "shipments_million_krw": 11936291.0
+    },
+    "C31": {
+      "region": "충청북도",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 12.0,
+      "employees": 711.0,
+      "shipments_million_krw": 534581.0
+    },
+    "C32": {
+      "region": "충청북도",
+      "sector": "가구 제조업",
+      "establishments": 42.0,
+      "employees": 1443.0,
+      "shipments_million_krw": 585226.0
+    },
+    "C33": {
+      "region": "충청북도",
+      "sector": "기타 제품 제조업",
+      "establishments": 29.0,
+      "employees": 1351.0,
+      "shipments_million_krw": 437084.0
+    },
+    "C34": {
+      "region": "충청북도",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 35.0,
+      "employees": 1230.0,
+      "shipments_million_krw": 266378.0
+    }
+  },
+  "34": {
+    "C": {
+      "region": "충청남도",
+      "sector": "제조업(10~34)",
+      "establishments": 4823.0,
+      "employees": 267118.0,
+      "shipments_million_krw": 252623225.0
+    },
+    "C10": {
+      "region": "충청남도",
+      "sector": "식료품 제조업",
+      "establishments": 645.0,
+      "employees": 25495.0,
+      "shipments_million_krw": 15234913.0
+    },
+    "C11": {
+      "region": "충청남도",
+      "sector": "음료 제조업",
+      "establishments": 20.0,
+      "employees": 1257.0,
+      "shipments_million_krw": 963291.0
+    },
+    "C13": {
+      "region": "충청남도",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 73.0,
+      "employees": 2090.0,
+      "shipments_million_krw": 755639.0
+    },
+    "C14": {
+      "region": "충청남도",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 14.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C15": {
+      "region": "충청남도",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C16": {
+      "region": "충청남도",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 51.0,
+      "employees": 1113.0,
+      "shipments_million_krw": 382565.0
+    },
+    "C17": {
+      "region": "충청남도",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 121.0,
+      "employees": 4597.0,
+      "shipments_million_krw": 2425722.0
+    },
+    "C18": {
+      "region": "충청남도",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 17.0,
+      "employees": 667.0,
+      "shipments_million_krw": 140790.0
+    },
+    "C19": {
+      "region": "충청남도",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 17.0,
+      "employees": 2478.0,
+      "shipments_million_krw": 37337092.0
+    },
+    "C20": {
+      "region": "충청남도",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 345.0,
+      "employees": 20409.0,
+      "shipments_million_krw": 33585983.0
+    },
+    "C21": {
+      "region": "충청남도",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 60.0,
+      "employees": 4720.0,
+      "shipments_million_krw": 3127657.0
+    },
+    "C22": {
+      "region": "충청남도",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 438.0,
+      "employees": 20220.0,
+      "shipments_million_krw": 10543162.0
+    },
+    "C23": {
+      "region": "충청남도",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 288.0,
+      "employees": 10995.0,
+      "shipments_million_krw": 5480731.0
+    },
+    "C24": {
+      "region": "충청남도",
+      "sector": "1차 금속 제조업",
+      "establishments": 257.0,
+      "employees": 21181.0,
+      "shipments_million_krw": 26275571.0
+    },
+    "C25": {
+      "region": "충청남도",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 514.0,
+      "employees": 16049.0,
+      "shipments_million_krw": 6515456.0
+    },
+    "C26": {
+      "region": "충청남도",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 147.0,
+      "employees": 31785.0,
+      "shipments_million_krw": 40928173.0
+    },
+    "C27": {
+      "region": "충청남도",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 139.0,
+      "employees": 7530.0,
+      "shipments_million_krw": 4143440.0
+    },
+    "C28": {
+      "region": "충청남도",
+      "sector": "전기장비 제조업",
+      "establishments": 257.0,
+      "employees": 16716.0,
+      "shipments_million_krw": 11799559.0
+    },
+    "C29": {
+      "region": "충청남도",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 665.0,
+      "employees": 29993.0,
+      "shipments_million_krw": 17096617.0
+    },
+    "C30": {
+      "region": "충청남도",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 646.0,
+      "employees": 45369.0,
+      "shipments_million_krw": 34650206.0
+    },
+    "C31": {
+      "region": "충청남도",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 17.0,
+      "employees": 701.0,
+      "shipments_million_krw": 419252.0
+    },
+    "C32": {
+      "region": "충청남도",
+      "sector": "가구 제조업",
+      "establishments": 29.0,
+      "employees": 604.0,
+      "shipments_million_krw": 151725.0
+    },
+    "C33": {
+      "region": "충청남도",
+      "sector": "기타 제품 제조업",
+      "establishments": 20.0,
+      "employees": 399.0,
+      "shipments_million_krw": 66128.0
+    },
+    "C34": {
+      "region": "충청남도",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 41.0,
+      "employees": 2303.0,
+      "shipments_million_krw": 532093.0
+    }
+  },
+  "35": {
+    "C": {
+      "region": "전라북도",
+      "sector": "제조업(10~34)",
+      "establishments": 1905.0,
+      "employees": 88714.0,
+      "shipments_million_krw": 49357749.0
+    },
+    "C10": {
+      "region": "전라북도",
+      "sector": "식료품 제조업",
+      "establishments": 406.0,
+      "employees": 20001.0,
+      "shipments_million_krw": 11455359.0
+    },
+    "C11": {
+      "region": "전라북도",
+      "sector": "음료 제조업",
+      "establishments": 25.0,
+      "employees": 1094.0,
+      "shipments_million_krw": 926323.0
+    },
+    "C13": {
+      "region": "전라북도",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 43.0,
+      "employees": 1461.0,
+      "shipments_million_krw": 276186.0
+    },
+    "C14": {
+      "region": "전라북도",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 42.0,
+      "employees": 881.0,
+      "shipments_million_krw": 182266.0
+    },
+    "C15": {
+      "region": "전라북도",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C16": {
+      "region": "전라북도",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 36.0,
+      "employees": 1013.0,
+      "shipments_million_krw": 580493.0
+    },
+    "C17": {
+      "region": "전라북도",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 53.0,
+      "employees": 2593.0,
+      "shipments_million_krw": 1392885.0
+    },
+    "C18": {
+      "region": "전라북도",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 6.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C19": {
+      "region": "전라북도",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 6.0,
+      "employees": 85.0,
+      "shipments_million_krw": 42939.0
+    },
+    "C20": {
+      "region": "전라북도",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 143.0,
+      "employees": 8004.0,
+      "shipments_million_krw": 7475400.0
+    },
+    "C21": {
+      "region": "전라북도",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 22.0,
+      "employees": 1729.0,
+      "shipments_million_krw": 842807.0
+    },
+    "C22": {
+      "region": "전라북도",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 96.0,
+      "employees": 3133.0,
+      "shipments_million_krw": 1228774.0
+    },
+    "C23": {
+      "region": "전라북도",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 147.0,
+      "employees": 4589.0,
+      "shipments_million_krw": 1878327.0
+    },
+    "C24": {
+      "region": "전라북도",
+      "sector": "1차 금속 제조업",
+      "establishments": 83.0,
+      "employees": 6387.0,
+      "shipments_million_krw": 5475488.0
+    },
+    "C25": {
+      "region": "전라북도",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 186.0,
+      "employees": 5031.0,
+      "shipments_million_krw": 1657202.0
+    },
+    "C26": {
+      "region": "전라북도",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 31.0,
+      "employees": 2218.0,
+      "shipments_million_krw": 800213.0
+    },
+    "C27": {
+      "region": "전라북도",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 22.0,
+      "employees": 704.0,
+      "shipments_million_krw": 172149.0
+    },
+    "C28": {
+      "region": "전라북도",
+      "sector": "전기장비 제조업",
+      "establishments": 89.0,
+      "employees": 3265.0,
+      "shipments_million_krw": 1747425.0
+    },
+    "C29": {
+      "region": "전라북도",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 150.0,
+      "employees": 5637.0,
+      "shipments_million_krw": 3415733.0
+    },
+    "C30": {
+      "region": "전라북도",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 244.0,
+      "employees": 17647.0,
+      "shipments_million_krw": 8952679.0
+    },
+    "C31": {
+      "region": "전라북도",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 27.0,
+      "employees": 1753.0,
+      "shipments_million_krw": 499066.0
+    },
+    "C32": {
+      "region": "전라북도",
+      "sector": "가구 제조업",
+      "establishments": 14.0,
+      "employees": 271.0,
+      "shipments_million_krw": 62930.0
+    },
+    "C33": {
+      "region": "전라북도",
+      "sector": "기타 제품 제조업",
+      "establishments": 24.0,
+      "employees": 825.0,
+      "shipments_million_krw": 248672.0
+    },
+    "C34": {
+      "region": "전라북도",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 9.0,
+      "employees": 299.0,
+      "shipments_million_krw": 36331.0
+    }
+  },
+  "36": {
+    "C": {
+      "region": "전라남도",
+      "sector": "제조업(10~34)",
+      "establishments": 2109.0,
+      "employees": 107545.0,
+      "shipments_million_krw": 149714036.0
+    },
+    "C10": {
+      "region": "전라남도",
+      "sector": "식료품 제조업",
+      "establishments": 496.0,
+      "employees": 12878.0,
+      "shipments_million_krw": 5980944.0
+    },
+    "C11": {
+      "region": "전라남도",
+      "sector": "음료 제조업",
+      "establishments": 10.0,
+      "employees": 369.0,
+      "shipments_million_krw": 171395.0
+    },
+    "C13": {
+      "region": "전라남도",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 27.0,
+      "employees": 650.0,
+      "shipments_million_krw": 135427.0
+    },
+    "C14": {
+      "region": "전라남도",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 6.0,
+      "employees": 215.0,
+      "shipments_million_krw": 38607.0
+    },
+    "C16": {
+      "region": "전라남도",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 25.0,
+      "employees": 433.0,
+      "shipments_million_krw": 144243.0
+    },
+    "C17": {
+      "region": "전라남도",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 26.0,
+      "employees": 847.0,
+      "shipments_million_krw": 300706.0
+    },
+    "C18": {
+      "region": "전라남도",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 3.0,
+      "employees": 66.0,
+      "shipments_million_krw": 6613.0
+    },
+    "C19": {
+      "region": "전라남도",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 11.0,
+      "employees": 2199.0,
+      "shipments_million_krw": 44997213.0
+    },
+    "C20": {
+      "region": "전라남도",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 162.0,
+      "employees": 14965.0,
+      "shipments_million_krw": 47017296.0
+    },
+    "C21": {
+      "region": "전라남도",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 9.0,
+      "employees": 758.0,
+      "shipments_million_krw": 264218.0
+    },
+    "C22": {
+      "region": "전라남도",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 111.0,
+      "employees": 4749.0,
+      "shipments_million_krw": 2263722.0
+    },
+    "C23": {
+      "region": "전라남도",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 200.0,
+      "employees": 4858.0,
+      "shipments_million_krw": 2577631.0
+    },
+    "C24": {
+      "region": "전라남도",
+      "sector": "1차 금속 제조업",
+      "establishments": 93.0,
+      "employees": 13214.0,
+      "shipments_million_krw": 27578671.0
+    },
+    "C25": {
+      "region": "전라남도",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 244.0,
+      "employees": 8073.0,
+      "shipments_million_krw": 2726092.0
+    },
+    "C26": {
+      "region": "전라남도",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 14.0,
+      "employees": 579.0,
+      "shipments_million_krw": 143163.0
+    },
+    "C27": {
+      "region": "전라남도",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 34.0,
+      "employees": 722.0,
+      "shipments_million_krw": 147120.0
+    },
+    "C28": {
+      "region": "전라남도",
+      "sector": "전기장비 제조업",
+      "establishments": 108.0,
+      "employees": 3560.0,
+      "shipments_million_krw": 2829087.0
+    },
+    "C29": {
+      "region": "전라남도",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 124.0,
+      "employees": 3667.0,
+      "shipments_million_krw": 829675.0
+    },
+    "C30": {
+      "region": "전라남도",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 27.0,
+      "employees": 671.0,
+      "shipments_million_krw": 192929.0
+    },
+    "C31": {
+      "region": "전라남도",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 283.0,
+      "employees": 28718.0,
+      "shipments_million_krw": 10577114.0
+    },
+    "C32": {
+      "region": "전라남도",
+      "sector": "가구 제조업",
+      "establishments": 10.0,
+      "employees": 157.0,
+      "shipments_million_krw": 45388.0
+    },
+    "C33": {
+      "region": "전라남도",
+      "sector": "기타 제품 제조업",
+      "establishments": 8.0,
+      "employees": 143.0,
+      "shipments_million_krw": 28943.0
+    },
+    "C34": {
+      "region": "전라남도",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 78.0,
+      "employees": 5054.0,
+      "shipments_million_krw": 717839.0
+    }
+  },
+  "37": {
+    "C": {
+      "region": "경상북도",
+      "sector": "제조업(10~34)",
+      "establishments": 5472.0,
+      "employees": 243021.0,
+      "shipments_million_krw": 165090325.0
+    },
+    "C10": {
+      "region": "경상북도",
+      "sector": "식료품 제조업",
+      "establishments": 429.0,
+      "employees": 14016.0,
+      "shipments_million_krw": 5816000.0
+    },
+    "C11": {
+      "region": "경상북도",
+      "sector": "음료 제조업",
+      "establishments": 30.0,
+      "employees": 1313.0,
+      "shipments_million_krw": 357484.0
+    },
+    "C12": {
+      "region": "경상북도",
+      "sector": "담배 제조업",
+      "establishments": 3.0,
+      "employees": 532.0,
+      "shipments_million_krw": 1174684.0
+    },
+    "C13": {
+      "region": "경상북도",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 336.0,
+      "employees": 9265.0,
+      "shipments_million_krw": 3716520.0
+    },
+    "C14": {
+      "region": "경상북도",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 15.0,
+      "employees": 411.0,
+      "shipments_million_krw": 56288.0
+    },
+    "C15": {
+      "region": "경상북도",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 4.0,
+      "employees": 73.0,
+      "shipments_million_krw": 20897.0
+    },
+    "C16": {
+      "region": "경상북도",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 72.0,
+      "employees": 1107.0,
+      "shipments_million_krw": 399106.0
+    },
+    "C17": {
+      "region": "경상북도",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 127.0,
+      "employees": 3634.0,
+      "shipments_million_krw": 1695736.0
+    },
+    "C18": {
+      "region": "경상북도",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 9.0,
+      "employees": 195.0,
+      "shipments_million_krw": 42041.0
+    },
+    "C19": {
+      "region": "경상북도",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 21.0,
+      "employees": 493.0,
+      "shipments_million_krw": 305055.0
+    },
+    "C20": {
+      "region": "경상북도",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 297.0,
+      "employees": 12078.0,
+      "shipments_million_krw": 9108428.0
+    },
+    "C21": {
+      "region": "경상북도",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 18.0,
+      "employees": 1458.0,
+      "shipments_million_krw": 725790.0
+    },
+    "C22": {
+      "region": "경상북도",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 449.0,
+      "employees": 15723.0,
+      "shipments_million_krw": 7387692.0
+    },
+    "C23": {
+      "region": "경상북도",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 339.0,
+      "employees": 10555.0,
+      "shipments_million_krw": 3937843.0
+    },
+    "C24": {
+      "region": "경상북도",
+      "sector": "1차 금속 제조업",
+      "establishments": 365.0,
+      "employees": 26295.0,
+      "shipments_million_krw": 38946594.0
+    },
+    "C25": {
+      "region": "경상북도",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 724.0,
+      "employees": 23534.0,
+      "shipments_million_krw": 11382000.0
+    },
+    "C26": {
+      "region": "경상북도",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 267.0,
+      "employees": 38093.0,
+      "shipments_million_krw": 36519766.0
+    },
+    "C27": {
+      "region": "경상북도",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 115.0,
+      "employees": 4257.0,
+      "shipments_million_krw": 1260781.0
+    },
+    "C28": {
+      "region": "경상북도",
+      "sector": "전기장비 제조업",
+      "establishments": 277.0,
+      "employees": 16846.0,
+      "shipments_million_krw": 13245161.0
+    },
+    "C29": {
+      "region": "경상북도",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 658.0,
+      "employees": 20098.0,
+      "shipments_million_krw": 7956421.0
+    },
+    "C30": {
+      "region": "경상북도",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 705.0,
+      "employees": 33603.0,
+      "shipments_million_krw": 18889655.0
+    },
+    "C31": {
+      "region": "경상북도",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 79.0,
+      "employees": 1949.0,
+      "shipments_million_krw": 646295.0
+    },
+    "C32": {
+      "region": "경상북도",
+      "sector": "가구 제조업",
+      "establishments": 41.0,
+      "employees": 867.0,
+      "shipments_million_krw": 353876.0
+    },
+    "C33": {
+      "region": "경상북도",
+      "sector": "기타 제품 제조업",
+      "establishments": 29.0,
+      "employees": 1138.0,
+      "shipments_million_krw": 377579.0
+    },
+    "C34": {
+      "region": "경상북도",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 63.0,
+      "employees": 5488.0,
+      "shipments_million_krw": 768633.0
+    }
+  },
+  "38": {
+    "C": {
+      "region": "경상남도",
+      "sector": "제조업(10~34)",
+      "establishments": 7571.0,
+      "employees": 341352.0,
+      "shipments_million_krw": 179478289.0
+    },
+    "C10": {
+      "region": "경상남도",
+      "sector": "식료품 제조업",
+      "establishments": 516.0,
+      "employees": 18604.0,
+      "shipments_million_krw": 9864462.0
+    },
+    "C11": {
+      "region": "경상남도",
+      "sector": "음료 제조업",
+      "establishments": 31.0,
+      "employees": 1753.0,
+      "shipments_million_krw": 1926630.0
+    },
+    "C12": {
+      "region": "경상남도",
+      "sector": "담배 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C13": {
+      "region": "경상남도",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 148.0,
+      "employees": 3646.0,
+      "shipments_million_krw": 945647.0
+    },
+    "C14": {
+      "region": "경상남도",
+      "sector": "의복, 의복 액세서리 및 모피제품 제조업",
+      "establishments": 11.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C15": {
+      "region": "경상남도",
+      "sector": "가죽, 가방 및 신발 제조업",
+      "establishments": 21.0,
+      "employees": 499.0,
+      "shipments_million_krw": 111065.0
+    },
+    "C16": {
+      "region": "경상남도",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 91.0,
+      "employees": 1799.0,
+      "shipments_million_krw": 548811.0
+    },
+    "C17": {
+      "region": "경상남도",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 120.0,
+      "employees": 3739.0,
+      "shipments_million_krw": 2123548.0
+    },
+    "C18": {
+      "region": "경상남도",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 29.0,
+      "employees": 616.0,
+      "shipments_million_krw": 119685.0
+    },
+    "C19": {
+      "region": "경상남도",
+      "sector": "코크스, 연탄 및 석유정제품 제조업",
+      "establishments": 24.0,
+      "employees": 426.0,
+      "shipments_million_krw": 490214.0
+    },
+    "C20": {
+      "region": "경상남도",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 191.0,
+      "employees": 4866.0,
+      "shipments_million_krw": 2670003.0
+    },
+    "C21": {
+      "region": "경상남도",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 10.0,
+      "employees": 436.0,
+      "shipments_million_krw": 119602.0
+    },
+    "C22": {
+      "region": "경상남도",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 586.0,
+      "employees": 24545.0,
+      "shipments_million_krw": 8962627.0
+    },
+    "C23": {
+      "region": "경상남도",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 272.0,
+      "employees": 6323.0,
+      "shipments_million_krw": 2510341.0
+    },
+    "C24": {
+      "region": "경상남도",
+      "sector": "1차 금속 제조업",
+      "establishments": 456.0,
+      "employees": 17950.0,
+      "shipments_million_krw": 12933682.0
+    },
+    "C25": {
+      "region": "경상남도",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 1323.0,
+      "employees": 42843.0,
+      "shipments_million_krw": 21723615.0
+    },
+    "C26": {
+      "region": "경상남도",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 112.0,
+      "employees": 7663.0,
+      "shipments_million_krw": 2557243.0
+    },
+    "C27": {
+      "region": "경상남도",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 105.0,
+      "employees": 3120.0,
+      "shipments_million_krw": 1214097.0
+    },
+    "C28": {
+      "region": "경상남도",
+      "sector": "전기장비 제조업",
+      "establishments": 427.0,
+      "employees": 27511.0,
+      "shipments_million_krw": 19749104.0
+    },
+    "C29": {
+      "region": "경상남도",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 1433.0,
+      "employees": 49679.0,
+      "shipments_million_krw": 24623985.0
+    },
+    "C30": {
+      "region": "경상남도",
+      "sector": "자동차 및 트레일러 제조업",
+      "establishments": 782.0,
+      "employees": 37399.0,
+      "shipments_million_krw": 25699650.0
+    },
+    "C31": {
+      "region": "경상남도",
+      "sector": "기타 운송장비 제조업",
+      "establishments": 745.0,
+      "employees": 83201.0,
+      "shipments_million_krw": 38278805.0
+    },
+    "C32": {
+      "region": "경상남도",
+      "sector": "가구 제조업",
+      "establishments": 56.0,
+      "employees": 952.0,
+      "shipments_million_krw": 325095.0
+    },
+    "C33": {
+      "region": "경상남도",
+      "sector": "기타 제품 제조업",
+      "establishments": 42.0,
+      "employees": 1441.0,
+      "shipments_million_krw": 350812.0
+    },
+    "C34": {
+      "region": "경상남도",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 38.0,
+      "employees": 1000.0,
+      "shipments_million_krw": 151596.0
+    }
+  },
+  "39": {
+    "C": {
+      "region": "제주특별자치도",
+      "sector": "제조업(10~34)",
+      "establishments": 230.0,
+      "employees": 5948.0,
+      "shipments_million_krw": 2188179.0
+    },
+    "C10": {
+      "region": "제주특별자치도",
+      "sector": "식료품 제조업",
+      "establishments": 107.0,
+      "employees": 2584.0,
+      "shipments_million_krw": 922781.0
+    },
+    "C11": {
+      "region": "제주특별자치도",
+      "sector": "음료 제조업",
+      "establishments": 10.0,
+      "employees": 867.0,
+      "shipments_million_krw": 438136.0
+    },
+    "C13": {
+      "region": "제주특별자치도",
+      "sector": "섬유제품 제조업; 의복제외",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C16": {
+      "region": "제주특별자치도",
+      "sector": "목재 및 나무제품 제조업; 가구 제외",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C17": {
+      "region": "제주특별자치도",
+      "sector": "펄프, 종이 및 종이제품 제조업",
+      "establishments": 8.0,
+      "employees": 260.0,
+      "shipments_million_krw": 56712.0
+    },
+    "C18": {
+      "region": "제주특별자치도",
+      "sector": "인쇄 및 기록매체 복제업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C20": {
+      "region": "제주특별자치도",
+      "sector": "화학물질 및 화학제품 제조업; 의약품 제외",
+      "establishments": 13.0,
+      "employees": 245.0,
+      "shipments_million_krw": 57978.0
+    },
+    "C21": {
+      "region": "제주특별자치도",
+      "sector": "의료용 물질 및 의약품 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C22": {
+      "region": "제주특별자치도",
+      "sector": "고무 및 플라스틱제품 제조업",
+      "establishments": 9.0,
+      "employees": 156.0,
+      "shipments_million_krw": 32102.0
+    },
+    "C23": {
+      "region": "제주특별자치도",
+      "sector": "비금속 광물제품 제조업",
+      "establishments": 44.0,
+      "employees": 771.0,
+      "shipments_million_krw": 255587.0
+    },
+    "C24": {
+      "region": "제주특별자치도",
+      "sector": "1차 금속 제조업",
+      "establishments": 1.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C25": {
+      "region": "제주특별자치도",
+      "sector": "금속가공제품 제조업; 기계 및 가구 제외",
+      "establishments": 9.0,
+      "employees": 146.0,
+      "shipments_million_krw": 36746.0
+    },
+    "C26": {
+      "region": "제주특별자치도",
+      "sector": "전자부품, 컴퓨터, 영상, 음향 및 통신장비 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C27": {
+      "region": "제주특별자치도",
+      "sector": "의료, 정밀, 광학기기 및 시계 제조업",
+      "establishments": 3.0,
+      "employees": 75.0,
+      "shipments_million_krw": 5836.0
+    },
+    "C28": {
+      "region": "제주특별자치도",
+      "sector": "전기장비 제조업",
+      "establishments": 8.0,
+      "employees": 128.0,
+      "shipments_million_krw": 27039.0
+    },
+    "C29": {
+      "region": "제주특별자치도",
+      "sector": "기타 기계 및 장비 제조업",
+      "establishments": 6.0,
+      "employees": 104.0,
+      "shipments_million_krw": 33206.0
+    },
+    "C33": {
+      "region": "제주특별자치도",
+      "sector": "기타 제품 제조업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    },
+    "C34": {
+      "region": "제주특별자치도",
+      "sector": "산업용 기계 및 장비 수리업",
+      "establishments": 2.0,
+      "employees": null,
+      "shipments_million_krw": null
+    }
+  }
+}

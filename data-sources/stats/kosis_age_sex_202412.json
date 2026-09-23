@@ -1,0 +1,200 @@
+{
+  "00": {
+    "label": "전국",
+    "total": 51217221,
+    "male": 25498324,
+    "female": 25718897,
+    "youth": 5464421,
+    "working": 35496018,
+    "elderly": 10256782,
+    "young_male": 6558502,
+    "young_female": 6021717
+  },
+  "11": {
+    "label": "서울특별시",
+    "total": 9331828,
+    "male": 4505355,
+    "female": 4826473,
+    "youth": 835816,
+    "working": 6682364,
+    "elderly": 1813648,
+    "young_male": 1337997,
+    "young_female": 1412928
+  },
+  "26": {
+    "label": "부산광역시",
+    "total": 3266598,
+    "male": 1589912,
+    "female": 1676686,
+    "youth": 317226,
+    "working": 2168796,
+    "elderly": 780576,
+    "young_male": 384069,
+    "young_female": 363277
+  },
+  "27": {
+    "label": "대구광역시",
+    "total": 2363629,
+    "male": 1159601,
+    "female": 1204028,
+    "youth": 249281,
+    "working": 1621092,
+    "elderly": 493256,
+    "young_male": 291782,
+    "young_female": 258950
+  },
+  "28": {
+    "label": "인천광역시",
+    "total": 3021010,
+    "male": 1509243,
+    "female": 1511767,
+    "youth": 333296,
+    "working": 2154345,
+    "elderly": 533369,
+    "young_male": 401956,
+    "young_female": 371540
+  },
+  "29": {
+    "label": "광주광역시",
+    "total": 1408422,
+    "male": 695224,
+    "female": 713198,
+    "youth": 165076,
+    "working": 996366,
+    "elderly": 246980,
+    "young_male": 185169,
+    "young_female": 170626
+  },
+  "30": {
+    "label": "대전광역시",
+    "total": 1439157,
+    "male": 717291,
+    "female": 721866,
+    "youth": 158328,
+    "working": 1021584,
+    "elderly": 259245,
+    "young_male": 202372,
+    "young_female": 182035
+  },
+  "31": {
+    "label": "울산광역시",
+    "total": 1098049,
+    "male": 564888,
+    "female": 533161,
+    "youth": 129274,
+    "working": 780073,
+    "elderly": 188702,
+    "young_male": 141899,
+    "young_female": 111551
+  },
+  "36": {
+    "label": "세종특별자치시",
+    "total": 390685,
+    "male": 194413,
+    "female": 196272,
+    "youth": 69865,
+    "working": 275519,
+    "elderly": 45301,
+    "young_male": 47903,
+    "young_female": 47999
+  },
+  "41": {
+    "label": "경기도",
+    "total": 13694685,
+    "male": 6882186,
+    "female": 6812499,
+    "youth": 1609956,
+    "working": 9815126,
+    "elderly": 2269603,
+    "young_male": 1850559,
+    "young_female": 1684372
+  },
+  "51": {
+    "label": "강원특별자치도",
+    "total": 1517766,
+    "male": 763025,
+    "female": 754741,
+    "youth": 147995,
+    "working": 984801,
+    "elderly": 384970,
+    "young_male": 172370,
+    "young_female": 142364
+  },
+  "43": {
+    "label": "충청북도",
+    "total": 1591177,
+    "male": 809920,
+    "female": 781257,
+    "youth": 169634,
+    "working": 1072356,
+    "elderly": 349187,
+    "young_male": 200054,
+    "young_female": 162966
+  },
+  "44": {
+    "label": "충청남도",
+    "total": 2136574,
+    "male": 1096128,
+    "female": 1040446,
+    "youth": 237250,
+    "working": 1423676,
+    "elderly": 475648,
+    "young_male": 260116,
+    "young_female": 212491
+  },
+  "52": {
+    "label": "전북특별자치도",
+    "total": 1738690,
+    "male": 866030,
+    "female": 872660,
+    "youth": 174483,
+    "working": 1124944,
+    "elderly": 439263,
+    "young_male": 188832,
+    "young_female": 165078
+  },
+  "46": {
+    "label": "전라남도",
+    "total": 1788819,
+    "male": 902380,
+    "female": 886439,
+    "youth": 179798,
+    "working": 1122529,
+    "elderly": 486492,
+    "young_male": 184203,
+    "young_female": 154170
+  },
+  "47": {
+    "label": "경상북도",
+    "total": 2531384,
+    "male": 1280547,
+    "female": 1250837,
+    "youth": 248205,
+    "working": 1623952,
+    "elderly": 659227,
+    "young_male": 275491,
+    "young_female": 216093
+  },
+  "48": {
+    "label": "경상남도",
+    "total": 3228380,
+    "male": 1626926,
+    "female": 1601454,
+    "youth": 354839,
+    "working": 2169211,
+    "elderly": 704330,
+    "young_male": 356866,
+    "young_female": 294544
+  },
+  "50": {
+    "label": "제주특별자치도",
+    "total": 670368,
+    "male": 335255,
+    "female": 335113,
+    "youth": 84099,
+    "working": 459284,
+    "elderly": 126985,
+    "young_male": 76864,
+    "young_female": 70733
+  }
+}
