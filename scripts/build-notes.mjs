@@ -107,9 +107,8 @@ function renderMarkdown(post) {
         const question = title.match(/^(\d{1,2})번$/);
         currentQuestion = question ? Number(question[1]) : null;
         const id = question ? `q${question[1]}` : title === "서두" ? "intro" : title === "맺음" ? "ending" : slugify(title);
-        headings.push({ id, title });
-        const topic = post.q?.find((entry) => Number(entry.n) === currentQuestion)?.topic;
-        output.push(`<section class="notes-section tw-reveal" id="${escapeHtml(id)}">${currentQuestion ? `<span class="notes-question-number" aria-hidden="true">${String(currentQuestion).padStart(2, "0")}</span>` : ""}<h2>${inline(topic || title)}</h2>${currentQuestion ? `<!--QUESTION_META_${currentQuestion}--><!--LINEAGE_${currentQuestion}-->` : ""}`);
+        if (currentQuestion) headings.push({ id, title });
+        output.push(`<section class="notes-section tw-reveal" id="${escapeHtml(id)}">${currentQuestion ? `<h2 class="notes-question-number" aria-label="${currentQuestion}번">${String(currentQuestion).padStart(2, "0")}</h2><!--QUESTION_META_${currentQuestion}--><!--LINEAGE_${currentQuestion}-->` : ""}`);
       } else output.push(`<h3>${inline(title)}</h3>`);
       // Close sections before opening the next section in the final pass.
       i++; continue;
@@ -239,36 +238,20 @@ function nav(depth, current) {
 }
 function head(title, depth, og = {}) {
   const prefix = "../".repeat(depth);
-  return `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)} | Promenade Geography</title><meta name="theme-color" content="#ffffff">${og.description ? `<meta property="og:title" content="${escapeHtml(title)}"><meta property="og:description" content="${escapeHtml(og.description)}">${og.image ? `<meta property="og:image" content="${escapeHtml(og.image)}">` : ""}` : ""}<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="${prefix}ds/fonts.css"><link rel="stylesheet" href="${prefix}ds/tokens.css"><link rel="stylesheet" href="${prefix}ds/base.css"><link rel="stylesheet" href="${prefix}ds/components.css"><link rel="stylesheet" href="${prefix}ds/patterns.css"><link rel="stylesheet" href="${prefix}notes/notes.css"></head><body>`;
-}
-function readingMinutes(body) {
-  const text = body.replace(/^#{2,3} .+$/gm, "").replace(/^!\[[^\]]*\]\([^)]+\)$/gm, "").replace(/:::figures|:::/g, "").replace(/\*\*/g, "").replace(/\s/g, "");
-  return Math.max(1, Math.round([...text].length / 500));
-}
-function postSummary(post) {
-  if (post.summary) return post.summary;
-  const intro = post.body.match(/^## 서두\s+([^\n]+)/m)?.[1] || "";
-  return intro.match(/^.+?[.!?](?=\s|$)/)?.[0] || intro;
+  return `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)} | Promenade Geography</title><meta name="theme-color" content="#ffffff">${og.image ? `<meta property="og:title" content="${escapeHtml(title)}"><meta property="og:image" content="${escapeHtml(og.image)}">` : ""}<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="${prefix}ds/fonts.css"><link rel="stylesheet" href="${prefix}ds/tokens.css"><link rel="stylesheet" href="${prefix}ds/base.css"><link rel="stylesheet" href="${prefix}ds/components.css"><link rel="stylesheet" href="${prefix}ds/patterns.css"><link rel="stylesheet" href="${prefix}notes/notes.css"></head><body>`;
 }
 function questionRows(post, record) {
   return Array.isArray(post.q) ? post.q.map((entry) => {
     const item = record?.items?.find((candidate) => Number(candidate.question) === Number(entry.n));
-    return { ...entry, wrongRate: hasNumber(item?.national_rate) ? +(100 - Number(item.national_rate)).toFixed(1) : null };
+    return { ...entry, points: hasNumber(item?.points) ? Number(item.points) : null, wrongRate: hasNumber(item?.national_rate) ? +(100 - Number(item.national_rate)).toFixed(1) : null };
   }) : [];
 }
 function renderHeroChart(post, record) {
   const rows = questionRows(post, record);
   if (rows.length !== 20) return "";
-  const grade = hasNumber(record?.raw1) ? record.raw1 : post.stats?.grade1;
-  const hardest = rows.filter((row) => row.wrongRate !== null).sort((a, b) => b.wrongRate - a.wrongRate)[0];
-  const stats = [
-    ["1등급", hasNumber(grade) ? grade : "—"],
-    ["오답률 최고", hardest ? `${hardest.n}번` : "—"],
-    ["문항", rows.length],
-  ];
   const bars = rows.map((row) => {
     const rate = row.wrongRate;
-    const tooltip = `${row.n}번 · ${row.topic} · ${rate === null ? "오답률 자료 없음" : `오답률 ${rate}%`}`;
+    const tooltip = rate === null ? `${row.n}번 오답률 하위 5문항` : `${row.n}번 오답률 ${rate}%${row.points ? ` ${row.points}점` : ""}`;
     return `<a href="#q${row.n}" class="notes-overview-item" data-tooltip="${escapeHtml(tooltip)}" aria-label="${escapeHtml(tooltip)}"><span class="notes-overview-plot">${rate === null ? '<span class="notes-overview-tick"></span>' : `<span class="notes-overview-bar" style="height:${rate}%"></span>`}</span><span class="notes-overview-number">${row.n}</span></a>`;
   }).join("");
   const runs = [];
@@ -278,7 +261,7 @@ function renderHeroChart(post, record) {
     else runs.push({ unit: row.unit, start: row.n, count: 1 });
   }
   const units = runs.map((run) => `<span style="grid-column:${run.start} / span ${run.count}" title="${escapeHtml(UNIT_NAMES[run.unit] || run.unit)}">${escapeHtml(run.unit)}</span>`).join("");
-  return `<section class="notes-overview" aria-label="20문항 한눈에"><div class="notes-overview-stats">${stats.map(([label, value]) => `<div><strong>${escapeHtml(value)}</strong><span>${label}</span></div>`).join("")}</div><div class="notes-overview-bars">${bars}</div><div class="notes-overview-units" aria-label="대단원">${units}</div></section>`;
+  return `<section class="notes-overview" aria-label="문항별 오답률"><span class="notes-overview-label">문항별 오답률</span><div class="notes-overview-bars">${bars}</div><div class="notes-overview-units" aria-label="대단원">${units}</div></section>`;
 }
 function renderEndCards(post) {
   const archiveUrl = `../../tools/cut/index.html?subject=${encodeURIComponent(subjectName(post.subject))}&exam=${encodeURIComponent(post.exam)}`;
@@ -325,15 +308,13 @@ function renderArticle(post, rawHtml, headings, record, posts, ogImage) {
   article = article.replace(/<!--LINEAGE_(\d+)-->/g, (_, number) => renderLineage(post, Number(number)));
   article = article.replace(/(<section class="notes-section tw-reveal" id="intro">[\s\S]*?<\/section>)/, (section) => section + examSummary(record));
   const rows = new Map(questionRows(post, record).map((row) => [`q${row.n}`, row]));
-  const toc = headings.map(({ id, title }) => {
+  const toc = headings.map(({ id }) => {
     const row = rows.get(id);
-    const number = row ? `<span class="notes-toc-number">${String(row.n).padStart(2, "0")}</span>` : "";
-    const name = row ? row.topic : title;
     const bar = row?.wrongRate !== null && row?.wrongRate !== undefined ? `<span class="notes-toc-mini" aria-hidden="true"><i style="width:${(row.wrongRate * .32).toFixed(1)}px"></i></span>` : "";
-    return `<a href="#${escapeHtml(id)}"${row ? ` data-question="${row.n}"` : ""}>${number}<span class="notes-toc-topic">${escapeHtml(name)}</span>${bar}</a>`;
+    return `<a href="#${escapeHtml(id)}" data-question="${row.n}" aria-label="${row.n}번"><span class="notes-toc-number">${String(row.n).padStart(2, "0")}</span>${bar}</a>`;
   }).join("");
-  const mobileToc = [...rows.values()].map((row) => `<a href="#q${row.n}" aria-label="${row.n}번 ${escapeHtml(row.topic)}">${String(row.n).padStart(2, "0")}</a>`).join("");
-  return `${head(post.title, 2, { description: postSummary(post), image: ogImage })}${nav(2, true)}<nav class="notes-mobile-strip" aria-label="문항 바로가기">${mobileToc}</nav><div class="notes-layout"><header class="notes-article-head"><div class="tw-meta-list notes-overline"><span>${subjectName(post.subject)}</span><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span>${readingMinutes(post.body)}분</span></div><h1>${escapeHtml(post.title)}</h1><p class="notes-summary">${escapeHtml(postSummary(post))}</p><span class="notes-author">twotimess</span></header>${renderHeroChart(post, record)}<aside class="notes-desktop-toc"><nav aria-label="목차"><span class="notes-toc-indicator" aria-hidden="true"></span>${toc}</nav></aside><main class="notes-article">${article}${renderEndCards(post)}${adjacentPosts(post, posts)}<footer class="notes-article-footer"><span>문항 출처 한국교육과정평가원</span></footer></main></div><dialog id="notesLightbox" class="notes-lightbox" aria-label="그림 크게 보기"><div class="notes-lightbox-bar"><span id="notesLightboxCaption"></span><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxClose">닫기</button></div><img id="notesLightboxImage" alt=""><div class="notes-lightbox-actions"><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxPrev" aria-label="이전 그림">←</button><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxNext" aria-label="다음 그림">→</button></div></dialog><script src="../../ds/tooltip.js" defer></script><script src="../notes.js" defer></script></body></html>`;
+  const mobileToc = [...rows.values()].map((row) => `<a href="#q${row.n}" aria-label="${row.n}번">${String(row.n).padStart(2, "0")}</a>`).join("");
+  return `${head(post.title, 2, { image: ogImage })}${nav(2, true)}<nav class="notes-mobile-strip" aria-label="문항 바로가기">${mobileToc}</nav><div class="notes-layout"><header class="notes-article-head"><div class="tw-meta-list notes-overline"><span>${subjectName(post.subject)}</span><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span>twotimess</span></div><h1>${escapeHtml(post.title)}</h1></header>${renderHeroChart(post, record)}<aside class="notes-desktop-toc"><nav aria-label="목차"><span class="notes-toc-indicator" aria-hidden="true"></span>${toc}</nav></aside><main class="notes-article">${article}${renderEndCards(post)}${adjacentPosts(post, posts)}<footer class="notes-article-footer"><span>문항 출처 한국교육과정평가원</span></footer></main></div><dialog id="notesLightbox" class="notes-lightbox" aria-label="그림 크게 보기"><div class="notes-lightbox-bar"><span id="notesLightboxCaption"></span><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxClose">닫기</button></div><img id="notesLightboxImage" alt=""><div class="notes-lightbox-actions"><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxPrev" aria-label="이전 그림">←</button><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxNext" aria-label="다음 그림">→</button></div></dialog><script src="../../ds/tooltip.js" defer></script><script src="../notes.js" defer></script></body></html>`;
 }
 function renderSparkline(post) {
   const record = cutData.records.find((entry) => entry.subject === subjectName(post.subject)
@@ -351,6 +332,6 @@ function renderSparkline(post) {
 function renderList(posts) {
   const subjects = [...new Set(posts.map((post) => post.subject))];
   const filters = subjects.length > 1 ? `<nav class="tw-segmented notes-filters" aria-label="과목"><button type="button" data-subject="all" aria-pressed="true">전체</button><button type="button" data-subject="korea" aria-pressed="false">한국지리</button><button type="button" data-subject="world" aria-pressed="false">세계지리</button></nav>` : "";
-  const rows = posts.map((post) => `<a class="notes-list-row" href="./${encodeURIComponent(post.slug)}/index.html" data-subject="${escapeHtml(post.subject)}"><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span class="notes-list-copy"><span class="notes-list-title">${escapeHtml(post.title)}</span><span class="notes-list-summary">${escapeHtml(postSummary(post))}</span></span>${renderSparkline(post)}</a>`).join("\n");
+  const rows = posts.map((post) => `<a class="notes-list-row" href="./${encodeURIComponent(post.slug)}/index.html" data-subject="${escapeHtml(post.subject)}"><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span class="notes-list-copy"><span class="notes-list-title">${escapeHtml(post.title)}</span><span class="notes-list-subject">${escapeHtml(subjectName(post.subject))}</span></span>${renderSparkline(post)}</a>`).join("\n");
   return `${head("Notes", 1)}${nav(1, true)}<main class="notes-index tw-page"><header class="notes-index-head"><h1 class="tw-display" lang="en">Notes</h1>${filters}</header><div class="notes-list">${rows}</div></main><script src="./notes.js" defer></script></body></html>`;
 }

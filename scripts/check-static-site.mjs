@@ -67,9 +67,32 @@ for (const htmlPath of htmlFiles) {
 
 const notesListHtml = fs.readFileSync(path.join(rootDir, "notes", "index.html"), "utf8");
 const notesArticleHtml = fs.readFileSync(path.join(rootDir, "notes", "2027-09-world", "index.html"), "utf8");
-const questionHeadings = [...notesArticleHtml.matchAll(/<section class="notes-section tw-reveal" id="q(\d+)"><span class="notes-question-number" aria-hidden="true">(\d+)<\/span><h2>([^<]+)<\/h2>/g)];
-if (questionHeadings.length !== 20 || questionHeadings.some((match, index) => Number(match[1]) !== index + 1 || Number(match[2]) !== index + 1)) {
+const questionHeadings = [...notesArticleHtml.matchAll(/<section class="notes-section tw-reveal" id="q(\d+)"><h2 class="notes-question-number" aria-label="(\d+)번">(\d{2})<\/h2>/g)];
+if (questionHeadings.length !== 20 || questionHeadings.some((match, index) => Number(match[1]) !== index + 1 || Number(match[2]) !== index + 1 || match[3] !== String(index + 1).padStart(2, "0"))) {
   errors.push("Notes 첫 글의 1~20번 문항 머리말이 누락되었거나 순서가 틀렸습니다.");
+}
+const notesToc = notesArticleHtml.match(/<aside class="notes-desktop-toc"><nav[^>]*>[\s\S]*?<\/nav><\/aside>/)?.[0] || "";
+const tocQuestions = [...notesToc.matchAll(/href="#q(\d+)"/g)].map((match) => Number(match[1]));
+if (tocQuestions.length !== 20 || tocQuestions.some((number, index) => number !== index + 1) || /href="#(?:intro|ending)"/.test(notesToc)) {
+  errors.push("Notes 목차는 1~20번 문항만 포함해야 합니다.");
+}
+if (!notesArticleHtml.includes('class="notes-overview-label">문항별 오답률</span>')
+  || !notesArticleHtml.includes('data-tooltip="9번 오답률 하위 5문항"')
+  || !/data-tooltip="16번 오답률 [\d.]+% 3점"/.test(notesArticleHtml)) {
+  errors.push("Notes 대표 그림의 라벨 또는 오답률 툴팁이 틀렸습니다.");
+}
+const removedNotesElements = [
+  [notesArticleHtml, /class="notes-summary"|class="notes-author"|class="notes-overview-stats"|property="og:description"|<h2>서두<\/h2>|<h2>맺음<\/h2>|35분|topic/, "기사"],
+  [notesListHtml, /class="notes-list-summary"|35분|topic/, "목록"],
+];
+for (const [html, pattern, page] of removedNotesElements) {
+  if (pattern.test(html)) errors.push(`Notes ${page}에 삭제한 요약·읽는 시간·큰 숫자·topic 요소가 남았습니다.`);
+}
+if (!notesListHtml.includes('class="notes-list-subject">세계지리</span>')) {
+  errors.push("Notes 목록에 과목 표시가 없습니다.");
+}
+if (isSourceCheck && /"topic"\s*:/.test(fs.readFileSync(path.join(rootDir, "notes", "posts", "2027-09-world.md"), "utf8"))) {
+  errors.push("Notes front matter에 topic 항목이 남았습니다.");
 }
 const notesImages = [...notesArticleHtml.matchAll(/<img src="images\/[^"\s]+\.webp"[^>]*>/g)].map((match) => match[0]);
 if (notesImages.length !== 61 || notesImages.some((image) => !/\bwidth="\d+" height="\d+"/.test(image))) {
@@ -88,8 +111,8 @@ if (!notesListHtml.includes('2027-09-world/index.html') || !notesArticleHtml.inc
   errors.push("Notes 목록, 맺음 또는 캡션 표기를 확인해 주세요.");
 }
 const notesOgPath = path.join(rootDir, "notes", "2027-09-world", "og.png");
-if (!notesArticleHtml.includes('property="og:title"') || !notesArticleHtml.includes('property="og:description"')) {
-  errors.push("Notes 공유 제목 또는 설명이 없습니다.");
+if (!notesArticleHtml.includes('property="og:title"') || !notesArticleHtml.includes('property="og:image"')) {
+  errors.push("Notes 공유 제목 또는 이미지가 없습니다.");
 }
 if (notesArticleHtml.includes('property="og:image"')) {
   if (!fs.existsSync(notesOgPath)) errors.push("Notes 공유 이미지 파일이 없습니다.");
