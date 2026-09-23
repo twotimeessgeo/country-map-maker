@@ -4,7 +4,7 @@
   const seen = new Set();
   const thumbPositions = new Map();
   const thumbIntent = new Map();
-  const revealSelector = ".region-card, .kit-card, .kit-period, .map-card, .filter-bar";
+  const revealSelector = ".region-card, .kit-card";
   function motionTiming(token) {
     const css = getComputedStyle(document.documentElement);
     return {
@@ -104,21 +104,14 @@
     const next = { x: active.offsetLeft, width: active.offsetWidth };
     const previous = thumbPositions.get(key);
     const first = !group.dataset.motionThumb;
-    const animate = !reduced.matches && thumbIntent.has(key) && previous && (previous.x !== next.x || previous.width !== next.width);
+    const animate = !first && !reduced.matches && thumbIntent.has(key) && previous && (previous.x !== next.x || previous.width !== next.width);
     if (first) {
+      group.classList.add("thumb-no-motion");
+      group.style.setProperty("--seg-x", `${next.x}px`);
+      group.style.setProperty("--seg-width", `${next.width}px`);
       group.dataset.motionThumb = "true";
       group.classList.add("has-motion-thumb");
-      if (animate) {
-        group.style.setProperty("--seg-x", `${previous.x}px`);
-        group.style.setProperty("--seg-width", `${previous.width}px`);
-        requestAnimationFrame(() => {
-          group.style.setProperty("--seg-x", `${next.x}px`);
-          group.style.setProperty("--seg-width", `${next.width}px`);
-        });
-      } else {
-        group.style.setProperty("--seg-x", `${next.x}px`);
-        group.style.setProperty("--seg-width", `${next.width}px`);
-      }
+      requestAnimationFrame(() => requestAnimationFrame(() => group.classList.remove("thumb-no-motion")));
     } else if (group.style.getPropertyValue("--seg-x") !== `${next.x}px` || group.style.getPropertyValue("--seg-width") !== `${next.width}px`) {
       if (!animate) group.classList.add("thumb-no-motion");
       group.style.setProperty("--seg-x", `${next.x}px`);
@@ -226,7 +219,50 @@
       menu.open = !narrow;
     }
   }
+  function startNavigationMenus() {
+    const menus = [...document.querySelectorAll(".tw-nav > .tw-nav-inner .tw-nav-menu")];
+    for (const menu of menus) {
+      const summary = menu.querySelector("summary");
+      const panel = menu.querySelector(".tw-nav-menu-panel");
+      let closing = null;
+      const close = (restoreFocus = false) => {
+        if (!menu.open || closing) return;
+        if (reduced.matches || !panel?.animate) {
+          menu.open = false;
+          if (restoreFocus) summary?.focus();
+          return;
+        }
+        closing = panel.animate([
+          { opacity: 1, transform: "scale(1)" },
+          { opacity: 0, transform: "scale(0.98)" },
+        ], { duration: 120, easing: "ease-out" });
+        closing.finished.finally(() => {
+          menu.open = false;
+          closing = null;
+          if (restoreFocus) summary?.focus();
+        });
+      };
+      summary?.addEventListener("click", (event) => {
+        if (!menu.open) return;
+        event.preventDefault();
+        close();
+      });
+      menu.addEventListener("click", (event) => {
+        if (event.target.closest(".tw-nav-menu-panel a")) close();
+      });
+      document.addEventListener("pointerdown", (event) => {
+        if (menu.open && !menu.contains(event.target)) close();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (menu.open && event.key === "Escape") {
+          event.preventDefault();
+          close(true);
+        }
+      });
+    }
+  }
   function start() {
+    startNavigationMenus();
     const subnav = document.querySelector(".tw-subnav");
     if (subnav) {
       const syncSubnavHeight = () => document.documentElement.style.setProperty("--tw-subnav-h", `${Math.ceil(subnav.getBoundingClientRect().height)}px`);

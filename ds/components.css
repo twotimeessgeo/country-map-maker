@@ -127,28 +127,34 @@
   height: 10px;
   border-top: 1.5px solid currentColor;
   border-bottom: 1.5px solid currentColor;
+  transition: border-color 120ms ease-out;
 }
 
 .tw-nav-menu[open] .tw-nav-menu-icon {
   border-color: transparent;
 }
 
-.tw-nav-menu[open] .tw-nav-menu-icon::before,
-.tw-nav-menu[open] .tw-nav-menu-icon::after {
+.tw-nav-menu-icon::before,
+.tw-nav-menu-icon::after {
   content: "";
   position: absolute;
   top: 50%;
   left: 0;
   width: 100%;
   border-top: 1.5px solid var(--tw-ink);
-  transform: rotate(45deg);
+  opacity: 0;
+  transform: rotate(0);
+  transition: opacity 120ms ease-out, transform 120ms ease-out;
 }
 
+.tw-nav-menu[open] .tw-nav-menu-icon::before,
+.tw-nav-menu[open] .tw-nav-menu-icon::after { opacity: 1; }
+.tw-nav-menu[open] .tw-nav-menu-icon::before { transform: rotate(45deg); }
 .tw-nav-menu[open] .tw-nav-menu-icon::after {
   transform: rotate(-45deg);
 }
 
-.tw-nav-menu-panel {
+.tw-nav-menu[open] > .tw-nav-menu-panel {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
@@ -159,6 +165,13 @@
   border-radius: var(--tw-radius-md);
   background: var(--tw-bg);
   box-shadow: var(--tw-shadow-pop);
+  transform-origin: top right;
+  animation: tw-nav-menu-in 120ms ease-out both;
+}
+
+@keyframes tw-nav-menu-in {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .tw-nav-menu-panel a {

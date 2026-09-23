@@ -137,10 +137,6 @@ a {
   view-transition-name: site-nav;
 }
 
-.tw-hero h1 {
-  view-transition-name: page-title;
-}
-
 ::view-transition-old(root) {
   animation: var(--tw-dur-1) var(--tw-ease-out) both tw-page-out;
 }
@@ -150,9 +146,7 @@ a {
 }
 
 ::view-transition-old(site-nav),
-::view-transition-new(site-nav),
-::view-transition-old(page-title),
-::view-transition-new(page-title) {
+::view-transition-new(site-nav) {
   animation: none;
 }
 
