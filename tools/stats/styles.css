@@ -1,10 +1,10 @@
 :root { --stats-toolbar-h: 64px; --stats-subnav-h: 64px; }
 .stats-hero {
-  display: flex; align-items: end; justify-content: space-between; gap: 24px;
-  min-height: 176px; padding-top: 36px; padding-bottom: 28px;
+  display: grid; justify-items: start; gap: var(--tw-space-4);
+  min-height: 0; padding-top: clamp(40px, 5vw, 64px); padding-bottom: var(--tw-space-8);
 }
-.stats-hero h1 { margin: 0; font-size: clamp(2.7rem, 5vw, 4.5rem); }
-.stats-subject { flex: none; margin-bottom: 4px; }
+.stats-hero h1 { margin: 0; max-width: none; font-size: clamp(2.65rem, 6vw, 4rem); }
+.stats-subject { flex: none; margin: 0; }
 .stats-toolbar { position: sticky; top: 0; z-index: 60; background: var(--tw-bg); }
 .stats-toolbar .tw-subnav-inner { min-height: 64px; gap: 12px; }
 .stats-search { width: min(420px, 100%); }
@@ -76,8 +76,7 @@
 .stats-note { margin: 4px 0 0; color: var(--tw-ink-3); font-size: 12px; }
 .stats-empty { padding: 28px 0; color: var(--tw-ink-2); font-size: var(--tw-text-sm); }
 @media (max-width:760px) {
-  .stats-hero { min-height: 138px; padding-top: 24px; padding-bottom: 18px; }
-  .stats-hero h1 { font-size: clamp(2.5rem, 11vw, 3.5rem); }
+  .stats-hero { padding-top: 40px; padding-bottom: var(--tw-space-6); }
   .stats-subject > a { min-width: 72px; }
   .stats-layout { display: block; padding-top: 0; }
   .stats-aside { position: sticky; top: var(--stats-toolbar-h); z-index: 50; margin: 0 calc(-1*var(--tw-gutter)) 24px; padding: 8px var(--tw-gutter); background: var(--tw-bg); border-bottom: 1px solid var(--tw-hairline); }
