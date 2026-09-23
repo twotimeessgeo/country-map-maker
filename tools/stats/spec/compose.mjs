@@ -8,6 +8,7 @@ const regionDefs = {
 };
 const slugNames = {
   "k-4-01":"city-rank-province","k-4-02":"city-rank-region","k-4-07":"daytime-seoul","k-4-08":"daytime-busan",
+  "k-4-03":"city-change-capital","k-4-04":"city-change-yeongnam","k-4-05":"city-change-chungcheong","k-4-06":"city-change-honam",
   "k-x-02":"final-energy","k-5-07":"farm-households","k-5-17":"manufacturing","k-5-25":"grdp",
   "k-5-02":"primary-supply","k-5-03":"primary-production","k-5-04":"generation-mix","k-5-05":"renewable-production",
   "k-5-06":"renewable-production-region","k-5-09":"cultivated-area","k-5-18":"manufacturing-shipments",
@@ -16,6 +17,8 @@ const slugNames = {
   "w-3-01":"religion-continents","w-3-02":"religion-distribution","w-3-03":"religion-rank",
   "w-3-23":"world-crops","w-3-24":"crop-yield-trade","w-3-26":"crop-continents",
   "w-3-27":"crop-trade-continents","w-3-28":"crop-trade-rank","w-3-33":"livestock-continents",
+  "k-5-08":"farm-types","k-5-12":"small-farms","k-5-21":"manufacturing-sectors-province","k-5-22":"manufacturing-sectors-region","k-5-24":"employment-structure",
+  "w-3-37":"fossil-energy-balance","w-3-40":"renewable-generation-rank","w-4-01":"monsoon-gdp","w-5-01":"dry-gdp","w-5-04":"dry-fossil-production",
   "k-6-01":"population","k-6-03":"age-structure","k-6-06":"net-migration","k-6-07":"city-growth",
   "k-x-03":"births-deaths","k-6-08":"foreign-residents","k-6-09":"city-foreign-share","k-x-04":"foreign-types","k-7-05":"capital-share",
   "w-3-04":"religion-asia","w-3-05":"religion-africa","w-3-06":"population-history","w-3-07":"birth-death",
@@ -30,12 +33,15 @@ const slugNames = {
 const titles = {
   "k-4-01":"인구 상위 도시","k-4-02":"인구 상위 도시","k-4-07":"상주인구와 주간인구","k-4-08":"상주인구와 주간인구",
   "k-x-02":"최종에너지와 전력","k-5-07":"농가 수","k-5-17":"제조업","k-5-25":"지역 내 총생산",
+  "k-5-08":"전·겸업 농가","k-5-12":"0.5ha 미만 농가","k-5-21":"제조업 업종","k-5-22":"제조업 업종 구성","k-5-24":"취업 구조",
   "k-6-01":"총인구","k-6-03":"연령 구조","k-6-06":"인구 순이동","k-6-07":"시군 인구 증가율",
   "k-x-03":"출생과 사망","k-6-08":"외국인주민","k-6-09":"시군 외국인주민 비율","k-x-04":"외국인주민 유형",
   "k-7-05":"수도권 주요 지표","w-3-04":"종교 구성","w-3-05":"종교 구성",
   "w-3-13":"총인구","w-3-14":"출생률과 사망률","w-3-16":"순이동",
   "w-3-22":"도시화율","w-x-01":"도시화율","w-3-29":"생산 상위 국가",
   "w-3-32":"사육 두수 상위 국가","w-3-42":"발전원 구성","w-x-02":"발전원 구성",
+  "w-3-34":"세계 1차 에너지 공급","w-3-35":"1차 에너지 공급 상위 국가","w-3-37":"화석연료 생산과 소비","w-3-40":"재생 발전 비율 상위 국가",
+  "w-4-01":"GDP와 1인당 GDP","w-5-01":"GDP와 1인당 GDP","w-5-04":"화석연료 생산",
   "w-4-02":"산업 구조","w-4-04":"작물 생산","w-5-03":"산업 구조","w-5-05":"작물 생산","w-x-04":"산업 구조",
 };
 export function topicFor(subject,id) {
@@ -87,10 +93,12 @@ function sourceName(id,table) {
   if(["k-4-07","k-4-08"].includes(id)) return "국가데이터처 인구총조사";
   if(id==="k-5-07") return "국가데이터처 농림어업조사";
   if(id==="k-5-17") return "국가데이터처 광업·제조업조사";
+  if(["k-5-08","k-5-12"].includes(id)) return "국가데이터처 농림어업조사";
+  if(id==="k-5-24") return "국가데이터처 경제활동인구조사";
   if(["k-5-18","k-5-19","k-5-20","k-5-21","k-5-22"].includes(id)) return "국가데이터처 광업·제조업조사";
   if(["k-5-02","k-5-03"].includes(id)) return "에너지경제연구원 지역에너지통계연보";
   if(["k-5-05","k-5-06"].includes(id)) return "한국에너지공단 신재생에너지 보급통계";
-  if(id==="k-5-04"||["w-3-34","w-3-35","w-3-36"].includes(id)) return "Energy Institute 세계에너지통계";
+  if(id==="k-5-04"||["w-3-34","w-3-35","w-3-36","w-3-37","w-3-40","w-5-04"].includes(id)) return "Energy Institute 세계에너지통계";
   if(id==="k-5-09") return "국가데이터처 경지면적조사";
   if(id==="k-5-25") return "국가데이터처 지역소득";
   if(id==="k-x-02") return "에너지경제연구원 지역에너지통계연보, 한국전력공사 전력통계";
@@ -100,6 +108,7 @@ function sourceName(id,table) {
   if(id==="k-7-05") return "국가데이터처 e-지방지표";
   if(["k-6-08","k-6-09","k-x-04"].includes(id)) return "행정안전부 지방자치단체 외국인주민 현황";
   if(original.includes("Pew")) return "Pew Research Center (Our World in Data)";
+  if(["w-4-01","w-5-01"].includes(id)) return "World Bank WDI, UN 세계인구전망 2024";
   if(original.includes("UN") && ["w-3-18","w-3-19","w-3-20","w-3-21","w-3-22","w-x-01"].includes(id)) return "UN 세계도시화전망";
   if(original.includes("UN")) return "UN 세계인구전망 2024";
   if(original.includes("FAOSTAT")) return "FAOSTAT";
@@ -161,7 +170,7 @@ function viewFrom(subject,id,table,label,viewId,variant) {
 function tableFrom(subject,entry) {
   const {target,table}=entry,id=target.id;
   const views=table.variants?.length
-    ? table.variants.map((v,i)=>viewFrom(subject,id,table,v.label,v.id||String(i),{...v,columns:table.columns}))
+    ? table.variants.map((v,i)=>viewFrom(subject,id,table,v.label,v.id||String(i),{...v,columns:v.columns||table.columns}))
     : [viewFrom(subject,id,table,"기본","default")];
   return {id:slugFor(subject,id),title:titles[id]||table.title.replace(/^(도별|시도별|대륙별|주요국)\s*/,""),views};
 }
@@ -183,6 +192,8 @@ function combine(subject,topic,entries) {
     add("korea-daytime-compare","상주인구와 주간인구",[["k-4-07","서울"],["k-4-08","부산"]]);
     const ranks=[get("k-4-01","도별"),get("k-4-02","권역별")].filter(Boolean);
     if(ranks.length)out.push({id:"korea-city-rank",title:"인구 상위 도시",views:ranks});
+    const changes=[["k-4-03","수도권·강원"],["k-4-04","영남"],["k-4-05","충청"],["k-4-06","호남·제주"]].map(([key,label])=>get(key,label)).filter(Boolean);
+    if(changes.length)out.push({id:"korea-city-change",title:"도시 인구 변화 지수",views:changes});
   }
   if(subject==="korea"&&topic==="agriculture") add("korea-agriculture-compare","농업 비교",[["k-5-07","농가"],["k-5-09","경지"],["k-5-15","생산"]]);
   if(subject==="korea"&&topic==="energy") add("korea-energy-compare","에너지 비교",[["k-x-02","소비와 판매"],["k-5-02","공급"],["k-5-03","생산"]]);

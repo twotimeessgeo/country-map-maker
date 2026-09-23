@@ -1,0 +1,174 @@
+{
+  "under_half_ha": [
+    {
+      "region": "서울특별시",
+      "total": 5084,
+      "no_land": null,
+      "under_half_ha": 3778
+    },
+    {
+      "region": "부산광역시",
+      "total": 9902,
+      "no_land": 30,
+      "under_half_ha": 8109
+    },
+    {
+      "region": "대구광역시",
+      "total": 19893,
+      "no_land": 38,
+      "under_half_ha": 15420
+    },
+    {
+      "region": "인천광역시",
+      "total": 11421,
+      "no_land": 34,
+      "under_half_ha": 5761
+    },
+    {
+      "region": "광주광역시",
+      "total": 12521,
+      "no_land": null,
+      "under_half_ha": 8737
+    },
+    {
+      "region": "대전광역시",
+      "total": 11767,
+      "no_land": 61,
+      "under_half_ha": 9021
+    },
+    {
+      "region": "울산광역시",
+      "total": 12487,
+      "no_land": 18,
+      "under_half_ha": 9913
+    },
+    {
+      "region": "세종특별자치시",
+      "total": 5890,
+      "no_land": 38,
+      "under_half_ha": 3619
+    },
+    {
+      "region": "경기도",
+      "total": 106373,
+      "no_land": 1025,
+      "under_half_ha": 59090
+    },
+    {
+      "region": "강원도",
+      "total": 64974,
+      "no_land": 356,
+      "under_half_ha": 34955
+    },
+    {
+      "region": "충청북도",
+      "total": 68472,
+      "no_land": 510,
+      "under_half_ha": 35728
+    },
+    {
+      "region": "충청남도",
+      "total": 113142,
+      "no_land": 756,
+      "under_half_ha": 48510
+    },
+    {
+      "region": "전라북도",
+      "total": 87718,
+      "no_land": 693,
+      "under_half_ha": 40735
+    },
+    {
+      "region": "전라남도",
+      "total": 139132,
+      "no_land": 1056,
+      "under_half_ha": 67755
+    },
+    {
+      "region": "경상북도",
+      "total": 162801,
+      "no_land": 1608,
+      "under_half_ha": 83749
+    },
+    {
+      "region": "경상남도",
+      "total": 113007,
+      "no_land": 530,
+      "under_half_ha": 68110
+    },
+    {
+      "region": "제주특별자치도",
+      "total": 29125,
+      "no_land": 316,
+      "under_half_ha": 11747
+    }
+  ],
+  "occupation_types": [
+    {
+      "region": "전국",
+      "total_thousands": 974,
+      "fulltime_percent": 55.7,
+      "parttime_percent": 44.3
+    },
+    {
+      "region": "특·광역시",
+      "total_thousands": 89,
+      "fulltime_percent": 46.8,
+      "parttime_percent": 53.2
+    },
+    {
+      "region": "경기",
+      "total_thousands": 106,
+      "fulltime_percent": 48.8,
+      "parttime_percent": 51.2
+    },
+    {
+      "region": "강원",
+      "total_thousands": 65,
+      "fulltime_percent": 47.9,
+      "parttime_percent": 52.1
+    },
+    {
+      "region": "충북",
+      "total_thousands": 68,
+      "fulltime_percent": 56.6,
+      "parttime_percent": 43.4
+    },
+    {
+      "region": "충남",
+      "total_thousands": 113,
+      "fulltime_percent": 59.7,
+      "parttime_percent": 40.3
+    },
+    {
+      "region": "전북",
+      "total_thousands": 88,
+      "fulltime_percent": 54.9,
+      "parttime_percent": 45.1
+    },
+    {
+      "region": "전남",
+      "total_thousands": 139,
+      "fulltime_percent": 60.2,
+      "parttime_percent": 39.8
+    },
+    {
+      "region": "경북",
+      "total_thousands": 163,
+      "fulltime_percent": 64.7,
+      "parttime_percent": 35.3
+    },
+    {
+      "region": "경남",
+      "total_thousands": 113,
+      "fulltime_percent": 52.7,
+      "parttime_percent": 47.3
+    },
+    {
+      "region": "제주",
+      "total_thousands": 29,
+      "fulltime_percent": 50.9,
+      "parttime_percent": 49.1
+    }
+  ]
+}

@@ -4,24 +4,15 @@
 
 | ID | 주제 | 표 | 필요한 원천 또는 사유 | 확인한 경로 |
 | --- | --- | --- | --- | --- |
-| korea-urban-4-03 | 한국 urban | 수도권과 강원 주요 도시 인구 변화 지수 | KOSIS DT_1YL20651E 도시별 장기 시계열과 교재 대상 도시 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| korea-urban-4-04 | 한국 urban | 영남 주요 도시 인구 변화 지수 | KOSIS 도시별 장기 시계열과 교재 대상 도시 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| korea-urban-4-05 | 한국 urban | 충청 주요 도시 인구 변화 지수 | KOSIS 도시별 장기 시계열과 교재 대상 도시 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| korea-urban-4-06 | 한국 urban | 호남과 제주 주요 도시 인구 변화 지수 | KOSIS 도시별 장기 시계열과 교재 대상 도시 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-urban-x-01 | 한국 urban | 주요 시군 거주지 내 취업과 타지역 통근 비율 | KOSIS INH_1ES3A11S 같은 반기 광역시·주변 시군 취업자 통근 원표 | data/korea-stats.js의 시군 취업자 통근 비율에는 광역시가 없음; KOSIS DT_1PA2021은 통근통학 혼합 |
 | korea-energy-5-01 | 한국 energy | 주요 광물 지역별 생산량 | KOSIS 광업 통계 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| korea-agriculture-5-08 | 한국 agriculture | 도별 전업농가와 겸업농가 비율 | 국가데이터처 농림어업총조사 경영형태 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-agriculture-5-10 | 한국 agriculture | 도별 논과 밭 비율 | KOSIS korea_land_farm_2024 논·밭 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-agriculture-5-11 | 한국 agriculture | 도별 작물 재배 면적과 시설 작물 면적 | KOSIS 농업면적조사 재배 면적과 시설 재배 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| korea-agriculture-5-12 | 한국 agriculture | 0.5ha 미만 농가 | 농림어업총조사 경영 규모 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-agriculture-5-13 | 한국 agriculture | 주요 작물 도별 재배 면적 비율 | KOSIS 작물별 시도 재배 면적 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-agriculture-5-14 | 한국 agriculture | 주요 작물 지역 내 재배 면적 비율 | KOSIS 작물별 시도 재배 면적 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-agriculture-5-15 | 한국 agriculture | 주요 작물 도별 생산량 | KOSIS 농작물 생산조사 시도 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-agriculture-5-16 | 한국 agriculture | 시군별 주요 작물 재배 면적 비율 | KOSIS 시군별 작물 재배 면적 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| korea-industry-5-21 | 한국 industry | 시도별 제조업별 출하액과 종사자 | KOSIS DT_1FS1101 시도·업종 교차 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| korea-industry-5-22 | 한국 industry | 권역별 제조업별 출하액 비율 | KOSIS DT_1FS1101 시도·업종 교차 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-industry-5-23 | 한국 industry | 시도별 소매 업태 상위 지역 | KOSIS 서비스업조사 소매 업태별 시도 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| korea-industry-5-24 | 한국 industry | 시도별 취업자 수와 산업 구조 | KOSIS 지역별 고용조사 산업별 취업자 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-transport-5-26 | 한국 transport | 교통수단별 여객 수송 분담률 | 국토교통부 국가교통조사 여객 수송 분담률 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-transport-5-27 | 한국 transport | 교통수단별 화물 수송 분담률 | 국토교통부 국가교통조사 화물 수송 분담률 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-population-6-02 | 한국 population | 시도별 인구 밀도 | KOSIS 시도 면적과 같은 시점의 인구 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
@@ -36,15 +27,10 @@
 | world-population-3-15 | 세계 population | 국가별 순이동률 변화 | World Bank 연도별 순이동률 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-population-3-17 | 세계 population | 국가별 유입 이주자 출신국 | UN DESA 국제이주 양자 행렬 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-energy-3-36 | 세계 energy | 대륙별 1차 에너지 소비 비중 | Energy Institute 대륙별 소비 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-energy-3-37 | 세계 energy | 화석 에너지 생산과 소비 및 순수출입 | Energy Institute 석탄·석유·가스 생산·소비·교역 동일 연도 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-energy-3-40 | 세계 energy | 신재생 에너지원별 발전 비율 상위 국가 | Energy Institute 국가별 재생 발전 전체 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-energy-3-41 | 세계 energy | 주요국 신재생 에너지 공급 구조 | IRENA 국가별 재생에너지 공급 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-region-4-01 | 세계 region | 주요국 GDP와 1인당 GDP | 같은 정의와 시점의 완전한 값을 확인하지 못함 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-region-4-03 | 세계 region | 주요국 상품별 수출액 비율 | WITS 국가별 상품군 수출 비율 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-region-4-05 | 세계 region | 주요국 기타 자원 생산량 | FAOSTAT·Energy Institute 자원별 생산 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-region-5-01 | 세계 region | 주요국 GDP와 1인당 GDP | 같은 정의와 시점의 완전한 값을 확인하지 못함 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-region-5-02 | 세계 region | 품목별 수출액 비율과 총수출액 | WITS 품목별 수출액과 총수출액 동일 연도 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-region-5-04 | 세계 region | 주요국 화석 에너지 생산량 | Energy Institute 국가별 화석 에너지 생산 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-region-6-01 | 세계 region | 미국 주별 제조업 출하액 상위 업종 | U.S. Census AIES 2023 주별 NAICS 출하액 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-region-7-01 | 세계 region | 중·남부 아메리카 국가별 인종 비율 | CIA World Factbook 국가별 서로 다른 조사 연도와 범주 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-region-7-02 | 세계 region | 중·남부 아메리카 품목별 수출액 비율과 총수출액 | WITS 수출 상품군과 총수출액 동일 연도 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |

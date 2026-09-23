@@ -25,7 +25,7 @@ const supplemental = JSON.parse(fs.readFileSync(path.join(root, "data/supplement
 const local = Object.fromEntries([
   "kosis_age_sex_202412", "kosis_manufacturing_2024", "keei_regional_energy_2024",
   "knrec_regional_renewable_2024", "ei_energy_2024", "kosis_cultivated_area_2025",
-  "faostat_production_2024", "faostat_trade_2024",
+  "faostat_production_2024", "faostat_trade_2024", "kosis_employment_2025", "kostat_farm_households_2024",
 ].map((name) => [name, JSON.parse(fs.readFileSync(path.join(root, "data-sources/stats", name + ".json"), "utf8"))]));
 const regionSets = {
   monsoon: majorCountryRows.monsoon,
@@ -66,6 +66,8 @@ const ageParts = (record) => [record.youth, record.working, record.elderly].map(
 const industryAll = Object.values(local.kosis_manufacturing_2024);
 const industryCodeByProvince = Object.fromEntries(provinceOrder.map((name,index)=>[name,["11","21","22","23","24","25","26","29","31","32","33","34","35","36","37","38","39"][index]]));
 const industryByProvince = (name) => local.kosis_manufacturing_2024[industryCodeByProvince[name]];
+const employmentFullNames = ["서울특별시","부산광역시","대구광역시","인천광역시","광주광역시","대전광역시","울산광역시","세종특별자치시","경기도","강원특별자치도","충청북도","충청남도","전북특별자치도","전라남도","경상북도","경상남도","제주특별자치도"];
+const employmentByProvince = (name) => local.kosis_employment_2025[employmentFullNames[provinceOrder.indexOf(name)]];
 const industryGroups = {
   수도권: ["서울", "인천", "경기"], 강원권: ["강원"], 충청권: ["대전", "세종", "충북", "충남"],
   호남권: ["광주", "전북", "전남"], 영남권: ["부산", "대구", "울산", "경북", "경남"], 제주권: ["제주"],
@@ -87,7 +89,8 @@ const faContinent = (dataset,continent,item,element) => {
   return f(americas)&&f(north)?americas-north:null;
 };
 const faSource = source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL");
-const religionKeys = [["christians","기독교"],["muslims","이슬람교"],["hindus","힌두교"],["buddhists","불교"],["jews","유대교"],["noReligion","무종교"],["other","기타"]];
+const farmSource = source("국가데이터처 농림어업조사","https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3");
+const religionKeys = [["christians","크리스트교"],["muslims","이슬람교"],["hindus","힌두교"],["buddhists","불교"],["jews","유대교"],["noReligion","무종교"],["other","기타"]];
 const religionByContinent = (continent) => {
   const values = Object.fromEntries(religionKeys.map(([key])=>[key,0]));
   let total=0;
@@ -265,6 +268,89 @@ function withContinentRows(built, kind) {
 function make(target) {
   const [kind, arg] = (target.kind || "").split(":");
   if (!kind) return null;
+  if (kind === "city-change-index") {
+    const groups={capital:["11","28","41","42","51"],yeongnam:["26","27","31","47","48"],chungcheong:["30","36","43","44"],honam:["29","45","46","50","52"]};
+    const sourceMetric=km.cities["resident-population"];
+    const rows=Object.entries(kr.cities).filter(([code,city])=>groups[arg].includes(city.parentCode))
+      .map(([code,city])=>{
+        const points=sourceMetric.seriesByRegion[code]||[];
+        const at=(key)=>points.find((p)=>p.periodKey===key)?.value;
+        const baseline=at("201112"),latest=at("202606");
+        return baseline>0&&f(latest)?row(city.shortLabel||city.label,[100,...["201512","202012","202512","202606"].map((key)=>f(at(key))?round(at(key)/baseline*100,1):null)]):null;
+      }).filter(Boolean).sort((a,b)=>b.values[4]-a.values[4]).slice(0,12);
+    return rows.length?table(target,"지수","2026.06",sourceFromMetric(sourceMetric),["시군",{label:"2011년 12월",unit:"지수"},{label:"2015년 12월",unit:"지수"},{label:"2020년 12월",unit:"지수"},{label:"2025년 12월",unit:"지수"},{label:"2026년 6월",unit:"지수"}],rows,{note:"2011년 12월 = 100; 동일 행정구역 경계 비교에 유의"}):null;
+  }
+  if (kind === "kosis-employment") {
+    const rows=provinceOrder.map((name)=>{
+      const a=employmentByProvince(name);
+      return row(name,[a.total,...["agriculture","mining_manufacturing","services"].map((field)=>round(a[field]/a.total*100,1))]);
+    });
+    return table(target,"천 명, %","2025",source("국가데이터처 경제활동인구조사","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1DA7E33S_NEW"),["시도",{label:"취업자",unit:"천 명"},{label:"농림어업",unit:"%"},{label:"광공업",unit:"%"},{label:"서비스업 등",unit:"%"}],rows,{note:"서비스업 등은 사회간접자본 및 기타서비스업(D~U); 2025년 광주·전남 개별 행 사용"});
+  }
+  if (kind === "kosis-manufacturing-province-sectors") {
+    const sectors=[["C10","식료품"],["C20","화학제품"],["C22","고무·플라스틱"],["C23","비금속광물"],["C25","금속가공"],["C26","전자·통신"],["C29","기계장비"],["C30","자동차"]];
+    const rows=provinceOrder.map((name)=>{
+      const sectorsByCode=industryByProvince(name);
+      return row(name,sectors.map(([code])=>sectorsByCode[code]?.shipments_million_krw==null?null:round(sectorsByCode[code].shipments_million_krw/1000,1)));
+    });
+    const variants=[{id:"shipments",label:"출하액",rows}, {id:"employees",label:"종사자",unit:"명",columns:sectors.map(([,label])=>({label,unit:"명"})),rows:provinceOrder.map((name)=>{
+      const sectorsByCode=industryByProvince(name);
+      return row(name,sectors.map(([code])=>sectorsByCode[code]?.employees??null));
+    })}];
+    return table(target,"십억 원","2024",kosisIndustrySource,["시도",...sectors.map(([,label])=>({label,unit:"십억 원"}))],rows,{variants,note:"종사자 10명 이상 사업체; 비공개 X는 빈값"});
+  }
+  if (kind === "kosis-manufacturing-region-sectors") {
+    const sectors=[["C10","식료품"],["C20","화학제품"],["C22","고무·플라스틱"],["C23","비금속광물"],["C25","금속가공"],["C26","전자·통신"],["C29","기계장비"],["C30","자동차"]];
+    const rows=Object.entries(industryGroups).map(([label,names])=>{
+      const total=names.reduce((sum,name)=>sum+industryByProvince(name).C.shipments_million_krw,0);
+      return row(label,sectors.map(([code])=>{
+        const cells=names.map((name)=>industryByProvince(name)[code]?.shipments_million_krw);
+        return cells.every(f)?round(cells.reduce((a,b)=>a+b,0)/total*100,1):null;
+      }));
+    });
+    return table(target,"%","2024",kosisIndustrySource,["권역",...sectors.map(([,label])=>({label,unit:"%"}))],rows,{note:"시도 합산, 종사자 10명 이상 사업체; 비공개 X가 있는 권역은 빈값"});
+  }
+  if (kind === "region-gdp") {
+    const rows=worldRows(regionSets[arg],(country)=>{
+      const gdp=country.economy?.gdp?.valueCurrentUsd?.latest;
+      const population=wppCountry.get(country.iso3);
+      return gdp?.year===2025&&f(gdp.value)&&f(Number(population?.population_thousands))?{gdp:gdp.value,pop:Number(population.population_thousands)*1000}:null;
+    }).map(({country,value})=>row(cName(country),[round(value.gdp/1e9,1),Math.round(value.gdp/value.pop)]));
+    return rows.length?table(target,"십억 달러, 달러","2025",source("World Bank WDI, UN 세계인구전망 2024","https://data.worldbank.org/indicator/NY.GDP.MKTP.CD"),["국가",{label:"GDP",unit:"십억 달러"},{label:"1인당 GDP*",unit:"달러"}],rows,{note:"* GDP를 같은 해 UN WPP 인구로 나눈 참고값; World Bank의 공식 1인당 GDP 지표와 다를 수 있음"}):null;
+  }
+  if (kind === "farm-types") {
+    const rows=local.kostat_farm_households_2024.occupation_types.map((record)=>row(record.region,[record.fulltime_percent,record.parttime_percent]));
+    return table(target,"%","2024.12.1",farmSource,["지역",{label:"전업",unit:"%"},{label:"겸업",unit:"%"}],rows,{note:"특·광역시는 세종 포함 통합값; 도별 값은 2024년 농림어업조사 표 1-10"});
+  }
+  if (kind === "farm-small") {
+    const rows=local.kostat_farm_households_2024.under_half_ha.map((record)=>row(record.region,[record.under_half_ha,round(record.under_half_ha/record.total*100,1)]));
+    return table(target,"가구, %","2024.12.1",farmSource,["시도",{label:"0.5ha 미만",unit:"가구"},{label:"전체 농가 비율",unit:"%"}],rows,{note:"2024년 농림어업조사 46쪽 표 6; 시도 합계와 전국 추정치에 2가구 차이"});
+  }
+  if (kind === "ei-fossil-balance" || kind === "ei-fossil-production") {
+    const fuels=[["oil","석유","백만 t","oil_production_mt","oil_consumption_mt"],["gas","천연가스","십억 m³","gas_production_bcm","gas_consumption_bcm"],["coal","석탄","EJ","coal_production_ej","coal_consumption_ej"]];
+    const isos=kind==="ei-fossil-production"?regionSets.dry:[...new Set([...majorCountryRows.energy,...regionSets.dry,...regionSets.monsoon])];
+    const variants=fuels.map(([id,label,unit,productionKey,consumptionKey])=>{
+      const rows=worldRows(isos,(country)=>{
+        const name=eiNames[country.iso3]||country.atlasName;
+        const production=local.ei_energy_2024[productionKey][name];
+        const consumption=local.ei_energy_2024[consumptionKey][name];
+        return f(production)&&f(consumption)?{production,consumption}:null;
+      }).map(({country,value})=>row(cName(country),kind==="ei-fossil-production"?[round(value.production,1)]:[round(value.production,1),round(value.consumption,1),round(value.production-value.consumption,1)]));
+      return {id,label,unit,columns:kind==="ei-fossil-production"?[{label:"생산량",unit}]:[{label:"생산량",unit},{label:"소비량",unit},{label:"생산−소비",unit}],rows};
+    });
+    return table(target,"","2024",eiSource,["국가",...(kind==="ei-fossil-production"?[{label:"생산량",unit:"백만 t"}]:[{label:"생산량",unit:"백만 t"},{label:"소비량",unit:"백만 t"},{label:"생산−소비",unit:"백만 t"}])],variants[0].rows,{variants,note:"생산−소비는 수급 차이이며 순수출입과 동일하지 않음"});
+  }
+  if (kind === "ei-renewable-rank") {
+    const englishToKorean=new Map(countries.map((country)=>[eiNames[country.iso3]||country.atlasName,cName(country)]));
+    const fuels=[["Wind","풍력"],["Solar","태양광"],["Hydro","수력"],["Other renewables #","기타 재생"]];
+    const records=local.ei_energy_2024.renewable_generation_twh;
+    const totalGeneration=local.ei_energy_2024.generation_twh;
+    const variants=fuels.map(([key,label])=>({id:key.replace(/[^a-z]/gi,"").toLowerCase(),label,rows:Object.entries(records)
+      .filter(([name,value])=>totalGeneration[name]?.Total>=10&&f(value[key])&&!/^Total |^Other /.test(name))
+      .map(([name,value])=>({name,value:round(value[key]/totalGeneration[name].Total*100,1),amount:round(value[key],1)}))
+      .sort((a,b)=>b.value-a.value).slice(0,5).map((item,index)=>row(String(index+1)+"위",[{name:englishToKorean.get(item.name)||item.name,value:item.value}]))}));
+    return table(target,"%","2024",eiSource,["순위",{label:"국가 · 총발전량 대비 비율",unit:"%"}],variants[0].rows,{variants,note:"Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"});
+  }
   if (kind === "religion-continent") {
     const rows=continentOrder.map((continent)=>{
       const {total,values}=religionByContinent(continent);
@@ -281,7 +367,7 @@ function make(target) {
     return table(target,"백만 명, %","2020",sourceFromCountry("religion"),["종교",{label:"수록 신자",unit:"백만 명"},...continentOrder.map((name)=>({label:continentLabels[name],unit:"%"}))],rows,{note:"* 국가별 신자 수 합산; 수록 국가 범위"});
   }
   if (kind === "religion-rank") {
-    const keys=[["christians","기독교"],["muslims","이슬람교"],["hindus","힌두교"],["buddhists","불교"]];
+    const keys=[["christians","크리스트교"],["muslims","이슬람교"],["hindus","힌두교"],["buddhists","불교"]];
     const variants=keys.map(([key,label])=>({id:key,label,rows:allCountries.filter((c)=>c.religion2020?.counts?.[key]!=null)
       .sort((a,b)=>b.religion2020.counts[key]-a.religion2020.counts[key]).slice(0,5)
       .map((c,i)=>row(String(i+1)+"위",[{name:cName(c),value:round(c.religion2020.counts[key]/1e6,1)}]))}));
@@ -564,7 +650,7 @@ function make(target) {
       .map(({ country, value }) => row(cName(country), [value.christians, value.muslims, value.hindus, value.buddhists]))
       .filter((r) => r.values.every(f));
     return rows.length ? table(target, "%", "2020", sourceFromCountry("religion"),
-      ["국가", "기독교", "이슬람교", "힌두교", "불교"], rows) : null;
+      ["국가", "크리스트교", "이슬람교", "힌두교", "불교"], rows) : null;
   }
   if (kind === "wpp-history" || kind === "wpp-rates" || kind === "wpp-growth") {
     const years = kind === "wpp-history" ? ["1950", "1970", "1990", "2010", "2020", "2025"] : ["2025"];

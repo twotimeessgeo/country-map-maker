@@ -112,6 +112,20 @@ for sheet, key, start in [('TES by fuel', 'supply_ej', 8), ('Elec generation by 
             records[row[0]] = dict(zip(headers, [float(x) for x in values]))
     ei[key] = records
     ei[key + '_headers'] = headers
+ws = book['Renewables Generation by Source']
+headers = [str(cell.value) for cell in ws[3][6:11]]
+ei['renewable_generation_twh'] = {row[0]: dict(zip(headers, [float(x) for x in row[6:11]])) for row in ws.iter_rows(min_row=5, values_only=True)
+    if isinstance(row[0], str) and all(numeric(x) is not None for x in row[6:11])}
+for sheet, key in [
+    ('Oil Production - tonnes', 'oil_production_mt'), ('Oil Consumption - Tonnes', 'oil_consumption_mt'),
+    ('Gas Production - Bcm', 'gas_production_bcm'), ('Gas Consumption - Bcm', 'gas_consumption_bcm'),
+    ('Coal Production - EJ', 'coal_production_ej'), ('Coal Consumption - EJ', 'coal_consumption_ej'),
+]:
+    ws = book[sheet]
+    head = next(ws.iter_rows(min_row=3, max_row=3, values_only=True))
+    year_index = next(i for i, value in enumerate(head) if str(value).strip() == '2024')
+    ei[key] = {row[0]: float(row[year_index]) for row in ws.iter_rows(min_row=5, values_only=True)
+        if isinstance(row[0], str) and numeric(row[year_index]) is not None}
 write('ei_energy_2024.json', ei)
 
 land_path = source / 'kosis/korea_land_farm_2024/raw/kosis_bubble_cultivated_area_536_info_20260822.json'
@@ -119,3 +133,18 @@ land_source = json.loads(land_path.read_text())
 land = {r['itmNm']: int(r['rn1'].replace(',', '')) for r in land_source['mobInfoNewSeries'] if r['prdDe1'] == '2025'}
 assert len(land) == 17
 write('kosis_cultivated_area_2025.json', land)
+
+employment_path = source / 'kosis/raw/DT_1DA7E33S_NEW/행정구역_시도__산업별_취업자_2025.csv.csv'
+employment = defaultdict(dict)
+labels = {'계': 'total', 'A 농업 임업 및 어업(01~03)': 'agriculture', '* 광공업(BC)': 'mining_manufacturing', '* 사회간접자본 및 기타서비스업(D~U)': 'services'}
+with employment_path.open(encoding='utf-8-sig') as handle:
+    for record in csv.DictReader(handle):
+        field = labels.get(record['산업별(1)'])
+        if not field:
+            continue
+        primary, secondary = record['시도별(1)'], record['시도별(2)']
+        region = secondary if primary == '전남광주통합특별시' and secondary != '소계' else primary if secondary == '소계' and primary != '전남광주통합특별시' else None
+        if region and region != '계':
+            employment[region][field] = numeric(record['2025'])
+assert len(employment) == 17 and all(len(value) == 4 for value in employment.values())
+write('kosis_employment_2025.json', dict(employment))
