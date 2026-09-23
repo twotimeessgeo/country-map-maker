@@ -39,6 +39,7 @@ const titles = {
   "k-4-01":"인구 상위 도시","k-4-02":"인구 상위 도시","k-4-07":"상주인구와 주간인구","k-4-08":"상주인구와 주간인구",
   "k-x-02":"최종에너지와 전력","k-5-07":"농가 수","k-5-17":"제조업","k-5-25":"지역 내 총생산",
   "k-5-08":"전·겸업 농가","k-5-12":"0.5ha 미만 농가","k-5-21":"제조업 업종","k-5-22":"제조업 업종 구성","k-5-24":"취업 구조",
+  "k-5-19":"권역별 제조업","k-5-20":"업종별 제조업",
   "k-5-10":"논과 밭","k-5-11":"작물 재배 면적","k-5-13":"작물별 전국 비중","k-5-14":"작물별 지역 내 비중","k-6-02":"인구 밀도",
   "k-6-01":"총인구","k-6-03":"연령 구조","k-6-06":"인구 순이동","k-6-07":"시군 인구 증가율",
   "k-x-03":"출생과 사망","k-6-08":"외국인주민","k-6-09":"시군 외국인주민 비율","k-x-04":"외국인주민 유형",
@@ -46,6 +47,9 @@ const titles = {
   "w-3-13":"총인구","w-3-14":"출생률과 사망률","w-3-16":"순이동",
   "w-3-22":"도시화율","w-x-01":"도시화율","w-3-29":"생산 상위 국가",
   "w-3-32":"사육 두수 상위 국가","w-3-42":"발전원 구성","w-x-02":"발전원 구성",
+  "w-3-03":"종교별 신자 수 상위 국가","w-3-23":"생산량과 재배 면적","w-3-24":"단위 면적 생산량과 수출 비중",
+  "w-3-25":"용도별 소비","w-3-26":"대륙별 생산 비율","w-3-27":"대륙별 수출입","w-3-28":"수출입 상위 국가",
+  "w-3-40":"재생에너지 발전 비율 상위 국가",
   "w-3-34":"세계 1차 에너지 공급","w-3-35":"1차 에너지 공급 상위 국가","w-3-37":"화석연료 생산과 소비","w-3-40":"재생 발전 비율 상위 국가",
   "w-3-08":"연령 구조","w-3-12":"이주자 목적지","w-3-15":"국가별 순이동률","w-3-17":"이주자 출신국",
   "k-7-06":"경기 주요 시군 토지 이용","k-7-07":"경기 주요 시군 경지","w-5-02":"수출 구성",
@@ -171,6 +175,7 @@ function sourceItems(id,table,year,columns) {
   if(id==="k-6-02") return [item("행정안전부","2024"),item("국토교통부","2024")];
   if(id==="k-x-02") return [item("에너지경제연구원","2024"),item("한국전력공사","2025")];
   if(id==="k-5-09") return [item("국가데이터처","2025"),item("국토교통부","2024")];
+  if(id==="k-5-04") return [item("한국전력거래소","2024")];
   if(["w-4-01","w-5-01"].includes(id)) return [item("World Bank",latest),item("UN",latest)];
   const label=name.includes("Pew")?"Pew Research Center":name.includes("Ember")?"Ember":name.includes("Energy Institute")?"Energy Institute":
     name.includes("FAOSTAT")?"FAOSTAT":name.includes("World Bank")?"World Bank":name.includes("UN")?"UN":
@@ -232,6 +237,15 @@ function combine(subject,topic,entries) {
   const out=[];
   const get=(id,label)=>{const t=map.get(id);map.delete(id);return t?{...t.views[0],id:label,label}:null;};
   const add=(id,title,pairs)=>{const t=compare(id,title,pairs.map(p=>get(p[0],p[1])).filter(Boolean));if(t)out.push(t);};
+  const mergeViews=(firstId,secondId,title,firstLabel,secondLabel)=>{
+    const first=map.get(firstId),second=map.get(secondId);
+    if(!first||!second)return;
+    map.delete(firstId);map.delete(secondId);
+    out.push({id:first.id,title,views:[
+      {...first.views[0],id:firstLabel,label:firstLabel,...(first.views.length>1?{subviews:first.views}:{} )},
+      {...second.views[0],id:secondLabel,label:secondLabel,...(second.views.length>1?{subviews:second.views}:{} )},
+    ]});
+  };
   if(subject==="korea"&&topic==="population") {
     const scale=get("k-6-01","규모"),density=get("k-6-02","밀도"),sex=get("k-6-05","성비");
     if(scale&&density&&sex) {
@@ -250,10 +264,11 @@ function combine(subject,topic,entries) {
   if(subject==="korea"&&topic==="multicultural") {
     const scale=get("k-6-08","규모"),types=map.get("k-x-04");map.delete("k-x-04");
     const views=[scale,types&&{...types.views[0],id:"types",label:"유형",subviews:types.views}].filter(Boolean);
-    const t=compare("korea-multicultural-compare","다문화 비교",views);if(t)out.push(t);
+    const t=compare("korea-multicultural-compare","시도별 외국인주민",views);if(t)out.push(t);
   }
-  if(subject==="korea"&&topic==="industry") add("korea-industry-compare","산업 비교",[["k-5-17","제조업"],["k-5-25","생산"],["k-5-24","취업 구조"]]);
+  if(subject==="korea"&&topic==="industry") add("korea-industry-compare","시도별 산업",[["k-5-17","제조업"],["k-5-25","생산"],["k-5-24","취업 구조"]]);
   if(subject==="korea"&&topic==="industry") map.delete("k-5-18");
+  if(subject==="korea"&&topic==="industry") mergeViews("k-5-21","k-5-22","제조업 업종","시도","권역");
   if(subject==="korea"&&topic==="urban") {
     add("korea-daytime-compare","상주인구와 주간인구",[["k-4-07","서울"],["k-4-08","부산"]]);
     const ranks=[get("k-4-01","도별"),get("k-4-02","권역별")].filter(Boolean);
@@ -261,17 +276,24 @@ function combine(subject,topic,entries) {
     const changes=[["k-4-03","수도권·강원"],["k-4-04","영남"],["k-4-05","충청"],["k-4-06","호남·제주"]].map(([key,label])=>get(key,label)).filter(Boolean);
     if(changes.length)out.push({id:"korea-city-change",title:"도시 인구 변화 지수",views:changes});
   }
-  if(subject==="korea"&&topic==="agriculture") add("korea-agriculture-compare","농업 비교",[["k-5-07","농가"],["k-5-09","경지"],["k-5-15","생산"]]);
-  if(subject==="korea"&&topic==="energy") add("korea-energy-compare","에너지 비교",[["k-x-02","소비와 판매"],["k-5-02","공급"],["k-5-03","생산"]]);
-  if(subject==="world"&&topic==="religion") add("world-religion-compare","종교 비교",[["w-3-01","대륙"],["w-3-04","아시아"],["w-3-05","아프리카"]]);
-  if(subject==="world"&&topic==="population") add("world-population-compare","인구와 이주 비교",[["w-3-13","규모"],["w-3-14","출생과 사망"],["w-3-16","이동"]]);
+  if(subject==="korea"&&topic==="agriculture") {
+    add("korea-agriculture-compare","시도별 농업",[["k-5-07","농가"],["k-5-09","경지"],["k-5-15","생산"]]);
+    mergeViews("k-5-13","k-5-14","작물별 재배 면적 비율","전국 대비","지역 내");
+  }
+  if(subject==="korea"&&topic==="energy") add("korea-energy-compare","시도별 에너지",[["k-x-02","소비와 판매"],["k-5-02","공급"],["k-5-03","생산"]]);
+  if(subject==="world"&&topic==="religion") add("world-religion-compare","대륙과 주요국 종교",[["w-3-01","대륙"],["w-3-04","아시아"],["w-3-05","아프리카"]]);
+  if(subject==="world"&&topic==="population") {
+    add("world-population-compare","대륙과 주요국 인구",[["w-3-13","규모"],["w-3-14","출생과 사망"],["w-3-16","이동"]]);
+    mergeViews("w-3-06","w-3-09","인구 변화","수","비율");
+    mergeViews("w-3-11","w-3-10","순이동 변화","수","비율");
+  }
   if(subject==="world"&&topic==="urban") {
-    add("world-urban-compare","도시화 비교",[["w-x-01","도시화율"],["w-3-19","도시와 촌락"],["w-3-20","도시 증가"],["w-3-21","촌락 증가"]]);
+    add("world-urban-compare","대륙과 주요국 도시화",[["w-x-01","도시화율"],["w-3-19","도시와 촌락"],["w-3-20","도시 증가"],["w-3-21","촌락 증가"]]);
     map.delete("w-3-22");
   }
-  if(subject==="world"&&topic==="food") add("world-food-compare","식량 비교",[["w-3-30","작물"],["w-3-31","가축"]]);
+  if(subject==="world"&&topic==="food") add("world-food-compare","대륙과 주요국 식량",[["w-3-30","작물"],["w-3-31","가축"]]);
   if(subject==="world"&&topic==="energy") {
-    add("world-energy-compare","에너지 비교",[["w-3-39","1차 에너지"],["w-x-02","발전"],["w-3-38","원자력"]]);
+    add("world-energy-compare","대륙과 주요국 에너지",[["w-3-39","1차 에너지"],["w-x-02","발전"],["w-3-38","원자력"]]);
     map.delete("w-3-42");
   }
   if(subject==="world"&&topic==="region") {
@@ -282,7 +304,7 @@ function combine(subject,topic,entries) {
       region==="dry"?[["w-5-03","산업 구조"],["w-5-02","수출 구성"],["w-5-05","작물"],["w-5-04","자원"]]:
       region==="europe-america"?[["w-x-03","산업 구조"]]:
       [["w-x-04","산업 구조"],["w-7-02","수출 구성"],["w-7-03","자원"]];
-    add("world-"+region+"-compare","지역 비교",pairs);
+    add("world-"+region+"-compare","주요국 지표",pairs);
   }
   if(subject==="korea"&&topic==="region") {
     if([...map.keys()].some((key)=>/^k-7-0[1-4]$/.test(key)))

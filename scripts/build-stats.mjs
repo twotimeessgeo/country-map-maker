@@ -587,10 +587,14 @@ function make(target) {
     return table(target,"천 toe, %","2024",knrecSource,[kind==="knrec-province"?"시도":"권역",{label:"생산",unit:"천 toe"},{label:"전국 비중",unit:"%"}],rows,kind==="knrec-region"?{note:"시도 합산"}:{});
   }
   if (kind === "ei-korea-generation") {
-    const a=local.ei_energy_2024.generation_twh['South Korea'];
-    const fields=["Coal","Oil","Natural Gas","Nuclear energy","Hydro electric","Renewables","Other#"];
-    return table(target,"%","2024",eiSource,["국가",...fields.map((field)=>({label:({Coal:"석탄",Oil:"석유","Natural Gas":"천연가스","Nuclear energy":"원자력","Hydro electric":"수력",Renewables:"재생", "Other#":"기타"})[field],unit:"%"}))],
-      [row("한국",fields.map((field)=>round(a[field]/a.Total*100,1)))],{note:"총발전량 625.4 TWh 기준"});
+    const records=readCsv("korea_generation_by_energy_source_2014_2024.csv");
+    const fields=[["석탄","coal_gwh"],["석유","oil_gwh"],["원자력","nuclear_gwh"],["신재생","new_renewable_gwh"]];
+    const rows=records.map((record)=>{
+      const total=fields.reduce((sum,[,key])=>sum+Number(record[key]),0);
+      return row(String(record.year),fields.map(([,key])=>round(Number(record[key])/total*100,1)));
+    });
+    return table(target,"%","2014–2024",source("한국전력거래소","https://new.kpx.or.kr/boardDownload.es?bid=0085&list_no=75637&seq=1"),
+      ["연도",...fields.map(([label])=>({label,unit:"%"}))],rows,{note:"4개 에너지원 합계 대비"});
   }
   if (kind === "kosis-land-area") {
     return table(target,"ha, %","2025",source("국가데이터처 경지면적조사, 국토교통부 지적통계","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1EB001"),
