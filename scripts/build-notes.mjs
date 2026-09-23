@@ -3,6 +3,17 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const UNIT_NAMES = {
+  I: "세계화와 지역 이해",
+  II: "세계의 자연환경과 인간 생활",
+  III: "세계의 인문 환경과 인문 경관",
+  IV: "몬순 아시아와 오세아니아",
+  V: "건조 아시아와 북부 아프리카",
+  VI: "유럽과 북부 아메리카",
+  VII: "사하라 이남 아프리카와 중·남부 아메리카",
+  VIII: "평화와 공존의 세계",
+};
+
 const notesDir = path.join(root, "notes");
 const postsDir = path.join(notesDir, "posts");
 const cutData = JSON.parse(fs.readFileSync(path.join(root, "tools/cut/data/ebsi_geo_data.json"), "utf8"));
@@ -33,9 +44,9 @@ function readPost(filename) {
     const item = line.match(/^\s+-\s+(.+)$/);
     if (key) {
       listKey = key[1];
-      meta[listKey] = key[2] ? key[2].trim() : [];
+      meta[listKey] = key[2] ? parseMetaValue(key[2].trim()) : [];
     } else if (item && Array.isArray(meta[listKey])) {
-      meta[listKey].push(item[1].trim());
+      meta[listKey].push(parseMetaValue(item[1].trim()));
     } else if (line.trim()) throw new Error(`front matter 형식 오류: ${line}`);
   }
   for (const field of ["title", "date", "subject", "exam", "sources"]) {
@@ -45,6 +56,10 @@ function readPost(filename) {
     throw new Error(`${filename}: sources 형식 오류`);
   }
   return { ...meta, slug: path.basename(filename, ".md"), body: match[2] };
+}
+
+function parseMetaValue(value) {
+  return /^[{[]/.test(value) ? JSON.parse(value) : value;
 }
 
 function renderMarkdown(markdown, slug) {
@@ -194,12 +209,51 @@ function head(title, depth) {
   const prefix = "../".repeat(depth);
   return `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)} | Promenade Geography</title><meta name="theme-color" content="#ffffff"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="${prefix}ds/fonts.css"><link rel="stylesheet" href="${prefix}ds/tokens.css"><link rel="stylesheet" href="${prefix}ds/base.css"><link rel="stylesheet" href="${prefix}ds/components.css"><link rel="stylesheet" href="${prefix}ds/patterns.css"><link rel="stylesheet" href="${prefix}notes/notes.css"></head><body>`;
 }
+function readingMinutes(body) {
+  const text = body.replace(/^#{2,3} .+$/gm, "").replace(/^!\[[^\]]*\]\([^)]+\)$/gm, "").replace(/:::figures|:::/g, "").replace(/\*\*/g, "").replace(/\s/g, "");
+  return Math.max(1, Math.round([...text].length / 500));
+}
+function postSummary(post) {
+  if (post.summary) return post.summary;
+  const intro = post.body.match(/^## 서두\s+([^\n]+)/m)?.[1] || "";
+  return intro.match(/^.+?[.!?](?=\s|$)/)?.[0] || intro;
+}
+function questionRows(post, record) {
+  return Array.isArray(post.q) ? post.q.map((entry) => {
+    const item = record?.items?.find((candidate) => Number(candidate.question) === Number(entry.n));
+    return { ...entry, wrongRate: hasNumber(item?.national_rate) ? +(100 - Number(item.national_rate)).toFixed(1) : null };
+  }) : [];
+}
+function renderHeroChart(post, record) {
+  const rows = questionRows(post, record);
+  if (rows.length !== 20) return "";
+  const grade = hasNumber(record?.raw1) ? record.raw1 : post.stats?.grade1;
+  const hardest = rows.filter((row) => row.wrongRate !== null).sort((a, b) => b.wrongRate - a.wrongRate)[0];
+  const stats = [
+    ["1등급", hasNumber(grade) ? grade : "—"],
+    ["오답률 최고", hardest ? `${hardest.n}번` : "—"],
+    ["문항", rows.length],
+  ];
+  const bars = rows.map((row) => {
+    const rate = row.wrongRate;
+    const tooltip = `${row.n}번 · ${row.topic} · ${rate === null ? "오답률 자료 없음" : `오답률 ${rate}%`}`;
+    return `<a href="#q${row.n}" class="notes-overview-item" data-tooltip="${escapeHtml(tooltip)}" aria-label="${escapeHtml(tooltip)}"><span class="notes-overview-plot">${rate === null ? '<span class="notes-overview-tick"></span>' : `<span class="notes-overview-bar" style="height:${rate}%"></span>`}</span><span class="notes-overview-number">${row.n}</span></a>`;
+  }).join("");
+  const runs = [];
+  for (const row of rows) {
+    const previous = runs.at(-1);
+    if (previous?.unit === row.unit) previous.count++;
+    else runs.push({ unit: row.unit, start: row.n, count: 1 });
+  }
+  const units = runs.map((run) => `<span style="grid-column:${run.start} / span ${run.count}" title="${escapeHtml(UNIT_NAMES[run.unit] || run.unit)}">${escapeHtml(run.unit)}</span>`).join("");
+  return `<section class="notes-overview" aria-label="20문항 한눈에"><div class="notes-overview-stats">${stats.map(([label, value]) => `<div><strong>${escapeHtml(value)}</strong><span>${label}</span></div>`).join("")}</div><div class="notes-overview-bars">${bars}</div><div class="notes-overview-units" aria-label="대단원">${units}</div></section>`;
+}
 function renderArticle(post, rawHtml, headings, record) {
   let article = rawHtml.replace(/<!--QUESTION_META_(\d+)-->/g, (_, number) => questionMeta(record, Number(number)));
   article = article.replace(/(<section class="notes-section tw-reveal" id="intro">[\s\S]*?<\/section>)/, (section) => section + examSummary(record));
   const toc = headings.map(({ id, title }) => `<a href="#${escapeHtml(id)}">${escapeHtml(title)}</a>`).join("");
   const sources = post.sources.map((url, index) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${index === 0 ? "상" : index === 1 ? "하" : `원문 ${index + 1}`}</a>`).join(" ");
-  return `${head(post.title, 2)}${nav(2, true)}<div class="notes-layout"><header class="notes-article-head"><div class="tw-meta-list notes-overline"><span>${subjectName(post.subject)}</span><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time></div><h1>${escapeHtml(post.title)}</h1><details class="tw-disclosure notes-mobile-toc"><summary>목차</summary><nav aria-label="목차">${toc}</nav></details></header><aside class="notes-desktop-toc"><nav aria-label="목차">${toc}</nav></aside><main class="notes-article">${article}<footer class="notes-article-footer"><span>원문 ${sources}</span><span>문항 출처 한국교육과정평가원</span></footer></main></div><dialog id="notesLightbox" class="notes-lightbox" aria-label="그림 크게 보기"><div class="notes-lightbox-bar"><span id="notesLightboxCaption"></span><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxClose">닫기</button></div><img id="notesLightboxImage" alt=""></dialog><script src="../notes.js" defer></script></body></html>`;
+  return `${head(post.title, 2)}${nav(2, true)}<div class="notes-layout"><header class="notes-article-head"><div class="tw-meta-list notes-overline"><span>${subjectName(post.subject)}</span><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span>${readingMinutes(post.body)}분</span></div><h1>${escapeHtml(post.title)}</h1><p class="notes-summary">${escapeHtml(postSummary(post))}</p><span class="notes-author">twotimess</span></header>${renderHeroChart(post, record)}<aside class="notes-desktop-toc"><nav aria-label="목차">${toc}</nav></aside><main class="notes-article">${article}<footer class="notes-article-footer"><span>원문 ${sources}</span><span>문항 출처 한국교육과정평가원</span></footer></main></div><dialog id="notesLightbox" class="notes-lightbox" aria-label="그림 크게 보기"><div class="notes-lightbox-bar"><span id="notesLightboxCaption"></span><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxClose">닫기</button></div><img id="notesLightboxImage" alt=""></dialog><script src="../../ds/tooltip.js" defer></script><script src="../notes.js" defer></script></body></html>`;
 }
 function renderList(posts) {
   const subjects = [...new Set(posts.map((post) => post.subject))];
