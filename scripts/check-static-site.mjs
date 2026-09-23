@@ -9,7 +9,6 @@ const rootDir = rootArgument ? path.resolve(projectRoot, rootArgument) : project
 const isSourceCheck = rootDir === projectRoot;
 const publicHtmlFiles = [
   path.join(rootDir, "index.html"),
-  path.join(rootDir, "map.html"),
   path.join(rootDir, "tools", "climate", "index.html"),
   path.join(rootDir, "tools", "climate", "korea.html"),
   path.join(rootDir, "tools", "cut", "index.html"),
@@ -17,13 +16,20 @@ const publicHtmlFiles = [
 const htmlFiles = isSourceCheck
   ? [
       ...publicHtmlFiles,
+      path.join(rootDir, "map.html"),
       path.join(rootDir, "tools", "stats", "index.html"),
       path.join(rootDir, "tools", "choices", "index.html"),
     ]
   : publicHtmlFiles;
 const errors = [];
 let localReferenceCount = 0;
-const unpublishedToolRoots = ["tools/stats", "tools/choices"];
+const unpublishedToolRoots = [
+  "tools/stats", "tools/choices", "map.html", "app.js", "styles.css", "vendor",
+  "tokens.css", "base.css", "components.css", "patterns.css",
+  "data/country-stats.js", "data/embedded-font.js", "data/exam-country-catalog.js",
+  "data/korea-admin.js", "data/korea-routes.js", "data/korea-stats.js",
+  "data/world-atlas.js", "data/world-atlas-variants.js", "data/world-lakes.js",
+];
 
 if (!isSourceCheck) {
   for (const relativePath of unpublishedToolRoots) {
@@ -59,9 +65,8 @@ for (const htmlPath of htmlFiles) {
 
 const publicSurfaceText = [
   ...publicHtmlFiles.map((htmlPath) => fs.readFileSync(htmlPath, "utf8")),
-  fs.readFileSync(path.join(rootDir, "app.js"), "utf8"),
 ].join("\n");
-for (const forbidden of ["Data Library", "Choice Lab", "tools/stats/", "tools/choices/"]) {
+for (const forbidden of ["Data Library", "Choice Lab", "Map Editor", "map.html", "tools/stats/", "tools/choices/"]) {
   if (publicSurfaceText.includes(forbidden)) {
     errors.push(`공개 화면에 숨김 도구의 이름 또는 링크가 남았습니다: ${forbidden}`);
   }
@@ -116,6 +121,7 @@ if (isSourceCheck) {
   }
 }
 
+if (isSourceCheck) {
 const mapAppText = fs.readFileSync(path.join(rootDir, "app.js"), "utf8");
 const mapHtmlText = fs.readFileSync(path.join(rootDir, "map.html"), "utf8");
 for (const required of ["stats-module--builder", "examGraphModule", "examGraphPanel"]) {
@@ -165,6 +171,8 @@ if (!drillScenarioText || /skillKey:\s*["']rank["']/.test(drillScenarioText)) {
 }
 if (/state\.examGraphPresetKey\s*=\s*["']rankBars["']/.test(mapAppText)) {
   errors.push("일반 탐색 동작이 Graph Builder를 단일 지표 순위로 강제합니다.");
+}
+
 }
 
 for (const climateAppPath of [

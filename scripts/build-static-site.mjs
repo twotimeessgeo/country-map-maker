@@ -7,33 +7,18 @@ const outputDir = path.join(rootDir, "dist");
 const publicEntries = [
   ".nojekyll",
   "index.html",
-  "map.html",
-  "app.js",
-  "tokens.css",
-  "base.css",
-  "components.css",
-  "patterns.css",
-  "styles.css",
   "portal.css",
   "ds",
   "data",
   "fonts",
-  "vendor",
   "tools",
 ];
 const requiredOutputs = [
   "index.html",
-  "map.html",
-  "app.js",
-  "data/country-stats.js",
-  "data/exam-country-catalog.js",
   "data/graph-catalog.js",
   "data/graph-catalog.json",
   "data/statistics-index.js",
   "data/statistics-index.json",
-  "data/korea-admin.js",
-  "data/korea-routes.js",
-  "data/korea-stats.js",
   "data/supplemental-stats.js",
   "data/supplemental-stats.json",
   "tools/climate/index.html",
@@ -49,10 +34,35 @@ const requiredOutputs = [
   "tools/cut/question-images",
 ];
 const forbiddenOutputs = [
+  "map.html",
+  "app.js",
+  "styles.css",
+  "tokens.css",
+  "base.css",
+  "components.css",
+  "patterns.css",
+  "vendor",
+  "data/country-stats.js",
+  "data/embedded-font.js",
+  "data/exam-country-catalog.js",
+  "data/korea-admin.js",
+  "data/korea-routes.js",
+  "data/korea-stats.js",
+  "data/world-atlas.js",
+  "data/world-atlas-variants.js",
+  "data/world-lakes.js",
   "tools/stats",
   "tools/choices",
 ];
 const unpublishedToolRoots = ["tools/stats", "tools/choices"];
+const publicDataFiles = new Set([
+  "data/graph-catalog.js",
+  "data/graph-catalog.json",
+  "data/statistics-index.js",
+  "data/statistics-index.json",
+  "data/supplemental-stats.js",
+  "data/supplemental-stats.json",
+]);
 
 fs.rmSync(outputDir, { recursive: true, force: true });
 fs.mkdirSync(outputDir, { recursive: true });
@@ -96,6 +106,7 @@ function shouldPublish(sourcePath) {
   const relativePath = path.relative(rootDir, sourcePath).split(path.sep).join("/");
   if (!relativePath) return true;
   if (path.basename(sourcePath) === ".DS_Store") return false;
+  if (relativePath.startsWith("data/") && !publicDataFiles.has(relativePath)) return false;
   if (unpublishedToolRoots.some((root) => relativePath === root || relativePath.startsWith(`${root}/`))) {
     return false;
   }
