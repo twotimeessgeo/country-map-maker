@@ -154,7 +154,7 @@
   transform: rotate(-45deg);
 }
 
-.tw-nav-menu[open] > .tw-nav-menu-panel {
+.tw-nav .tw-nav-menu[open] > .tw-nav-menu-panel {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
