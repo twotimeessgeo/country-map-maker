@@ -75,8 +75,9 @@ const state = {
   regionSort: document.querySelector("#regionSortSelect")?.value || "default",
   nation: "전체",
   zone: "전체",
-  mapScope: "all",
+  mapScope: "major",
   comparisonBaseline: "mean",
+  comparisonMode: "value",
   selectedIds: new Set(),
   mapCandidatePicker: null,
 };
@@ -389,13 +390,8 @@ function bindEvents() {
       return;
     }
 
+    // Direct selection; dense areas are handled by zoom (map-zoom.js) and the 주요 지점 scope.
     const regionId = marker.dataset.mapRegionId;
-    const nearbyCandidates = collectNearbyMapCandidates(event, marker);
-    if (nearbyCandidates.total > 1) {
-      openMapCandidatePicker(nearbyCandidates, regionId, event.detail === 0);
-      return;
-    }
-
     closeMapCandidatePicker();
     toggleSelection(regionId, "data-map-region-id");
   });
@@ -413,6 +409,14 @@ function bindEvents() {
     }
 
     toggleSelection(candidateButton.dataset.mapCandidateId, "data-map-candidate-id");
+  });
+
+  elements.comparisonContent?.addEventListener("click", (event) => {
+    const modeButton = event.target.closest("[data-comparison-mode]");
+    if (!modeButton) return;
+    state.comparisonMode = modeButton.dataset.comparisonMode === "deviation" ? "deviation" : "value";
+    render();
+    restoreFocusByDataAttribute("data-comparison-mode", state.comparisonMode);
   });
 
   elements.comparisonContent?.addEventListener("change", (event) => {
@@ -449,7 +453,7 @@ function applyUrlStateFromLocation() {
   state.nation = readUrlEnum(params, "nation", nationValues, "전체");
   state.zone = readUrlEnum(params, "zone", zoneValues, "전체");
   state.regionSort = readUrlEnum(params, "sort", REGION_SORT_VALUES, "default");
-  state.mapScope = readUrlEnum(params, "map", new Set(["all", "selected"]), "all");
+  state.mapScope = readUrlEnum(params, "map", new Set(["major", "all", "selected"]), "major");
   state.search = (params.get("query") ?? "").slice(0, 160);
   state.comparisonBaseline = "mean";
 
@@ -490,7 +494,7 @@ function buildCurrentViewUrl() {
   if (state.zone !== "전체") url.searchParams.set("zone", state.zone);
   if (state.search) url.searchParams.set("query", state.search);
   if (state.regionSort !== "default") url.searchParams.set("sort", state.regionSort);
-  if (state.mapScope !== "all") url.searchParams.set("map", state.mapScope);
+  if (state.mapScope !== "major") url.searchParams.set("map", state.mapScope);
   if (state.comparisonBaseline !== "mean") {
     url.searchParams.set("baseline", state.comparisonBaseline);
   }
@@ -524,6 +528,13 @@ function restoreUrlStateFromHistory() {
     isRestoringUrlState = false;
   }
   syncUrlState("replace");
+}
+
+function renderMetaList(parts) {
+  return `<span class="tw-meta-list">${parts
+    .filter((part) => part !== undefined && part !== null && part !== "")
+    .map((part) => `<span>${escapeHtml(part)}</span>`)
+    .join("")}</span>`;
 }
 
 function renderSelectedTray(selectedRegions) {
@@ -750,7 +761,12 @@ function compareRegionsByActiveSort(left, right) {
 }
 
 function getMapRegions(visibleRegions, selectedRegions) {
-  return state.mapScope === "selected" ? selectedRegions : visibleRegions;
+  if (state.mapScope === "selected") return selectedRegions;
+  if (state.mapScope === "major") {
+    // ASOS·북한 지점(지점번호 300 미만)만 표시하고, 선택한 지점은 항상 남김
+    return visibleRegions.filter((region) => region.stationId < 300 || state.selectedIds.has(region.id));
+  }
+  return visibleRegions;
 }
 
 function renderNationChips() {
@@ -797,8 +813,9 @@ function renderZoneChips() {
 
 function renderMapScopeChips() {
   const items = [
-    { id: "all", label: "필터 결과" },
-    { id: "selected", label: "선택 지역만" },
+    { id: "major", label: "주요 지점" },
+    { id: "all", label: "전체" },
+    { id: "selected", label: "선택만" },
   ];
   return items
     .map(
@@ -829,7 +846,7 @@ function renderRegionList(regions) {
           <div class="region-option-top">
             <div class="region-option-title">
               <strong>${escapeHtml(region.name)}</strong>
-              <span>${escapeHtml(region.officialName)} · ${escapeHtml(region.nation)}</span>
+              ${renderMetaList([region.officialName !== region.name ? region.officialName : "", region.nation])}
             </div>
             <input
               type="checkbox"
@@ -838,7 +855,7 @@ function renderRegionList(regions) {
               aria-label="${escapeHtml(region.name)} 선택"
             />
           </div>
-          <div class="region-option-meta">${escapeHtml(region.zone)} · ${region.stationId}</div>
+          <div class="region-option-meta">${escapeHtml(region.zone)}</div>
         </label>
       `;
     })
@@ -894,7 +911,7 @@ function renderRegionCard(region, sharedChartScale) {
       <header class="region-card-head">
         <div class="region-card-title">
           <h3>${escapeHtml(region.name)}</h3>
-          <p class="region-card-sub">${escapeHtml(region.nation)} · ${escapeHtml(region.zone)}</p>
+          <p class="region-card-sub">${renderMetaList([region.nation, region.zone])}</p>
         </div>
         <dl class="region-card-stats">
           <div><dt>연평균</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
@@ -961,216 +978,23 @@ function renderComparison(regions) {
     return renderEmptyState("2곳 이상 선택하세요", "");
   }
 
-  const rows = buildComparisonRows(regions);
-  const baseline = resolveComparisonBaseline(rows);
-  const allMonthIndexes = state.dataset.months.map((_, index) => index);
-  const januaryAugustMonthIndexes = [0, 7];
-  const periodLookup = Object.fromEntries(
-    state.dataset.comparisonPeriods.map((period) => [period.id, period])
-  );
-  const rowsWithComparisonTag = rows.map((row) => {
-    const isBaseline = baseline.mode === "region" && baseline.row.region.id === row.region.id;
-    return {
-      row,
-      isBaseline,
-    };
+  return window.ComparisonKit.render({
+    mode: state.comparisonMode,
+    baselineId: state.comparisonBaseline,
+    regions: regions.map((region) => ({
+      id: region.id,
+      name: region.name,
+      temps: region.monthlyTemperatureC,
+      precs: region.monthlyPrecipitationMm,
+      source: region,
+    })),
+    periods: state.dataset.comparisonPeriods.map((period) => ({
+      label: period.label,
+      pick: (item) => getPeriodMetrics(item.source, period),
+    })),
+    extras: [{ title: "연교차", unit: "°C", kind: "bar", value: (item) => getAnnualTemperatureRange(item.source) }],
+    csv: (key, headers, rows, filename) => registerClimateCsvExport(`korea-${key}`, headers, rows, filename),
   });
-  const comparisonCsvKey = registerClimateCsvExport(
-    `korea-comparison-${regions.length}-raw`,
-    [
-      "지역",
-      "1월 기온",
-      "1월 강수",
-      "8월 기온",
-      "8월 강수",
-      "겨울 기온",
-      "겨울 강수",
-      "여름 기온",
-      "여름 강수",
-      "연교차",
-      "기준구분",
-    ],
-    rowsWithComparisonTag.map(({ row, isBaseline }) => [
-      row.region.name,
-      row.metrics.jan.temperature,
-      row.metrics.jan.precipitation,
-      row.metrics.aug.temperature,
-      row.metrics.aug.precipitation,
-      row.metrics.winter.temperature,
-      row.metrics.winter.precipitation,
-      row.metrics.summer.temperature,
-      row.metrics.summer.precipitation,
-      row.annualRange,
-      isBaseline ? "기준" : "일반",
-    ]),
-    `${rows.length}개지역-비교-원데이터`
-  );
-
-  return `
-    <div class="comparison-controls">
-      <label class="comparison-select">
-        <span>편차 기준</span>
-        <select data-baseline-select aria-label="편차 기준">
-          <option value="mean" ${baseline.mode === "mean" ? "selected" : ""}>선택 지역 평균</option>
-          ${rows
-            .map(
-              (row) => `
-                <option value="${row.region.id}" ${baseline.mode === "region" && baseline.row.region.id === row.region.id ? "selected" : ""}>
-                  ${escapeHtml(row.region.name)}
-                </option>
-              `
-            )
-            .join("")}
-        </select>
-      </label>
-    </div>
-    <details class="climate-data-details">
-      <summary>원 데이터</summary>
-      <div class="climate-data-tools">
-        <button
-          type="button"
-          class="ghost-button climate-csv-download"
-          data-climate-csv-download="${escapeHtml(comparisonCsvKey)}"
-        >
-          CSV 다운로드
-        </button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>지역</th>
-              <th>1월 기온</th>
-              <th>1월 강수</th>
-              <th>8월 기온</th>
-              <th>8월 강수</th>
-              <th>겨울 기온</th>
-              <th>겨울 강수</th>
-              <th>여름 기온</th>
-              <th>여름 강수</th>
-              <th>연교차</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows
-              .map(
-                (row) => `
-                  <tr>
-                    <td>${escapeHtml(
-                      baseline.mode === "region" && baseline.row.region.id === row.region.id
-                        ? `${row.region.name} (기준)`
-                        : row.region.name
-                    )}</td>
-                    <td>${formatTemp(row.metrics.jan.temperature)}</td>
-                    <td>${formatMm(row.metrics.jan.precipitation)}</td>
-                    <td>${formatTemp(row.metrics.aug.temperature)}</td>
-                    <td>${formatMm(row.metrics.aug.precipitation)}</td>
-                    <td>${formatTemp(row.metrics.winter.temperature)}</td>
-                    <td>${formatMm(row.metrics.winter.precipitation)}</td>
-                    <td>${formatTemp(row.metrics.summer.temperature)}</td>
-                    <td>${formatMm(row.metrics.summer.precipitation)}</td>
-                    <td>${formatTemp(row.annualRange)}</td>
-                  </tr>
-                `
-              )
-              .join("")}
-          </tbody>
-        </table>
-      </div>
-    </details>
-    <div class="charts-grid">
-      <article class="chart-card world-trend-card">
-        <h4>월 평균 기온 편차</h4>
-        ${renderMonthlyTemperatureTrendChart(rows, baseline)}
-        ${renderTrendLegend(comparableTrendRows(rows, baseline), "#111111")}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>누적 강수량 편차</h4>
-        ${renderCumulativePrecipitationTrendChart(rows, baseline)}
-        ${renderTrendLegend(comparableTrendRows(rows, baseline), "#555555")}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>월 평균 기온</h4>
-        ${renderMonthlyTemperatureActualTrendChart(
-          rows,
-          allMonthIndexes,
-          (row, monthIndex) => row.region.monthlyTemperatureC[monthIndex],
-          {
-            pointPadding: 14,
-          }
-        )}
-        ${renderTrendLegend(rows, "#111111")}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>누적 강수량</h4>
-        ${renderCumulativePrecipitationActualTrendChart(
-          rows,
-          allMonthIndexes,
-          (row, monthIndex) => cumulativePrecipitationValues(row.region)[monthIndex],
-          {
-            pointPadding: 14,
-          }
-        )}
-        ${renderTrendLegend(rows, "#555555")}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>1월·8월 강수량</h4>
-        ${renderCumulativePrecipitationActualTrendChart(
-          rows,
-          januaryAugustMonthIndexes,
-          (row, monthIndex) => row.region.monthlyPrecipitationMm[monthIndex],
-          {
-            showLine: false,
-            horizontalPadding: 30,
-            pointPadding: 24,
-          }
-        )}
-        ${renderTrendLegend(rows, "#555555")}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>1월·8월 평균 기온</h4>
-        ${renderMonthlyTemperatureActualTrendChart(
-          rows,
-          januaryAugustMonthIndexes,
-          (row, monthIndex) => row.region.monthlyTemperatureC[monthIndex],
-          {
-            showLine: false,
-            horizontalPadding: 30,
-            pointPadding: 24,
-          }
-        )}
-        ${renderTrendLegend(rows, "#111111")}
-      </article>
-    </div>
-    <div class="comparison-pair-grid">
-      ${COMPARISON_PAIR_CONFIGS.map((pair) => {
-        const leftPeriod = periodLookup[pair.leftPeriodId];
-        const rightPeriod = periodLookup[pair.rightPeriodId];
-        return `
-          <div class="chart-card">
-            <h4>${escapeHtml(pair.title)} 기온 편차</h4>
-            ${renderPairedTemperatureDeviationChart(rows, leftPeriod, rightPeriod, baseline)}
-            ${renderSeriesLegend([
-              { label: leftPeriod.label, style: pair.leftStyle },
-              { label: rightPeriod.label, style: pair.rightStyle },
-            ])}
-          </div>
-          <div class="chart-card">
-            <h4>${escapeHtml(pair.title)} 강수량 편차</h4>
-            ${renderPairedPrecipitationDeviationChart(rows, leftPeriod, rightPeriod, baseline)}
-            ${renderSeriesLegend([
-              { label: leftPeriod.label, style: pair.leftBarStyle },
-              { label: rightPeriod.label, style: pair.rightBarStyle },
-            ])}
-          </div>
-        `;
-      }).join("")}
-      <div class="chart-card is-wide">
-        <h4>연교차 비교</h4>
-        ${renderAnnualRangeChart(rows)}
-      </div>
-    </div>
-  `;
 }
 
 function renderMap(visibleRegions, selectedRegions) {

@@ -105,7 +105,7 @@
       const t = temps[i];
       const p = precs[i];
       const month = months[i] ?? `${i + 1}월`;
-      const tip = `${month} · 기온 ${Number.isFinite(t) ? num(t) + "°C" : "–"} · 강수량 ${Number.isFinite(p) ? num(p) + "mm" : "–"}`;
+      const tip = `${month}  기온 ${Number.isFinite(t) ? num(t) + "°C" : "–"}  강수량 ${Number.isFinite(p) ? num(p) + "mm" : "–"}`;
       hits += `<rect class="chart-hit" x="${m.left + stepX * i}" y="${m.top}" width="${stepX}" height="${plotH}" fill="transparent"><title>${esc(tip)}</title></rect>`;
       if (Number.isFinite(p)) {
         const y = yP(p);

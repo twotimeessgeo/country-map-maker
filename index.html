@@ -13,12 +13,12 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="./ds/fonts.css?v=31" />
-    <link rel="stylesheet" href="./ds/tokens.css?v=31" />
-    <link rel="stylesheet" href="./ds/base.css?v=31" />
-    <link rel="stylesheet" href="./ds/components.css?v=31" />
-    <link rel="stylesheet" href="./ds/patterns.css?v=31" />
-    <link rel="stylesheet" href="./portal.css?v=31" />
+    <link rel="stylesheet" href="./ds/fonts.css?v=32" />
+    <link rel="stylesheet" href="./ds/tokens.css?v=32" />
+    <link rel="stylesheet" href="./ds/base.css?v=32" />
+    <link rel="stylesheet" href="./ds/components.css?v=32" />
+    <link rel="stylesheet" href="./ds/patterns.css?v=32" />
+    <link rel="stylesheet" href="./portal.css?v=32" />
   </head>
   <body>
     <header class="tw-nav">
@@ -47,77 +47,11 @@
       <section class="tw-page tw-hero portal-hero" aria-labelledby="portalTitle">
         <p class="tw-meta-line"><span lang="en">The Geography Workroom</span></p>
         <h1 id="portalTitle" class="portal-title" lang="en">Promenade</h1>
-        <div class="tw-hero-actions">
-          <a class="tw-button is-primary is-lg" href="./tools/climate/index.html">
-            기후머신 열기 <span class="tw-arrow" aria-hidden="true"></span>
-          </a>
-          <a class="tw-button is-lg" href="./map.html">지도 만들기</a>
-        </div>
-      </section>
-
-      <section class="tw-page portal-tools" aria-label="도구">
-        <div class="tw-index-grid">
-          <a class="tw-index-card" href="./map.html">
-            <div class="tw-index-media" aria-hidden="true">
-              <svg viewBox="0 0 200 150" fill="none" stroke="#0d0d0d" stroke-width="1.2">
-                <circle cx="100" cy="75" r="56" fill="#fff" />
-                <ellipse cx="100" cy="75" rx="24" ry="56" />
-                <ellipse cx="100" cy="75" rx="44" ry="56" opacity=".45" />
-                <path d="M44 75h112M52 47h96M52 103h96" opacity=".45" />
-                <path d="M86 50c9-6 22-4 28 4 5 7 1 14-6 17-6 3-5 10-11 13-8 4-16-3-15-12 1-7-5-12 4-22Z" fill="#0d0d0d" stroke="none" />
-                <circle cx="132" cy="92" r="3.5" fill="#0d0d0d" stroke="none" />
-              </svg>
-            </div>
-            <div class="tw-index-copy">
-              <strong lang="en">Map Editor</strong>
-              <span>세계·한국 지도</span>
-            </div>
-          </a>
-
-          <a class="tw-index-card" href="./tools/climate/index.html">
-            <div class="tw-index-media" aria-hidden="true">
-              <svg viewBox="0 0 200 150" fill="none" stroke="#0d0d0d" stroke-width="1.2">
-                <rect x="28" y="22" width="144" height="104" rx="2" fill="#fff" />
-                <g fill="#d9d9d9">
-                  <rect x="36" y="112" width="8" height="14" /><rect x="48" y="114" width="8" height="12" />
-                  <rect x="60" y="108" width="8" height="18" /><rect x="72" y="96" width="8" height="30" />
-                  <rect x="84" y="76" width="8" height="50" /><rect x="96" y="52" width="8" height="74" />
-                  <rect x="108" y="44" width="8" height="82" /><rect x="120" y="58" width="8" height="68" />
-                  <rect x="132" y="82" width="8" height="44" /><rect x="144" y="100" width="8" height="26" />
-                  <rect x="156" y="112" width="8" height="14" />
-                </g>
-                <path d="M40 92 52 88 64 78 76 64 88 52 100 44 112 42 124 46 136 58 148 72 160 86" stroke-width="1.8" />
-                <g fill="#0d0d0d" stroke="none">
-                  <circle cx="40" cy="92" r="2.4" /><circle cx="64" cy="78" r="2.4" /><circle cx="88" cy="52" r="2.4" />
-                  <circle cx="112" cy="42" r="2.4" /><circle cx="136" cy="58" r="2.4" /><circle cx="160" cy="86" r="2.4" />
-                </g>
-              </svg>
-            </div>
-            <div class="tw-index-copy">
-              <strong lang="en">Climate Atlas</strong>
-              <span>기후 그래프·비교</span>
-            </div>
-          </a>
-
-          <a class="tw-index-card" href="./tools/cut/index.html">
-            <div class="tw-index-media" aria-hidden="true">
-              <svg viewBox="0 0 200 150" fill="none" stroke="#0d0d0d" stroke-width="1.2">
-                <path d="M30 124h140" />
-                <g fill="#fff">
-                  <rect x="38" y="30" width="14" height="94" /><rect x="58" y="42" width="14" height="82" />
-                  <rect x="78" y="56" width="14" height="68" /><rect x="98" y="70" width="14" height="54" />
-                  <rect x="118" y="84" width="14" height="40" /><rect x="138" y="100" width="14" height="24" />
-                </g>
-                <rect x="38" y="30" width="14" height="94" fill="#0d0d0d" />
-                <path d="M30 64h140" stroke-dasharray="3 4" opacity=".6" />
-              </svg>
-            </div>
-            <div class="tw-index-copy">
-              <strong lang="en">Grade Cut Archive</strong>
-              <span>지리 등급컷</span>
-            </div>
-          </a>
-        </div>
+        <nav class="tw-hero-actions" aria-label="도구">
+          <a class="tw-button is-primary is-lg" lang="en" href="./tools/climate/index.html">Climate Atlas</a>
+          <a class="tw-button is-lg" lang="en" href="./map.html">Map Editor</a>
+          <a class="tw-button is-lg" lang="en" href="./tools/cut/index.html">Grade Cut Archive</a>
+        </nav>
       </section>
     </main>
 

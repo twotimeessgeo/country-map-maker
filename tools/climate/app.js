@@ -706,6 +706,7 @@ const state = {
   regions: [],
   selectedIds: new Set(),
   comparisonBaseline: "mean",
+  comparisonMode: "value",
   continent: "전체",
   hemisphere: "전체",
   climateGroup: "전체",
@@ -895,6 +896,14 @@ function bindEvents() {
 
   elements.downloadSelectedCsvButton?.addEventListener("click", downloadSelectedRegionsCsv);
 
+  elements.comparisonContent?.addEventListener("click", (event) => {
+    const modeButton = event.target.closest("[data-comparison-mode]");
+    if (!modeButton) return;
+    state.comparisonMode = modeButton.dataset.comparisonMode === "deviation" ? "deviation" : "value";
+    render();
+    restoreFocusByDataAttribute("data-comparison-mode", state.comparisonMode);
+  });
+
   elements.comparisonContent.addEventListener("change", (event) => {
     const baselineSelect = event.target.closest("[data-baseline-select]");
     if (baselineSelect) {
@@ -1048,13 +1057,8 @@ function bindEvents() {
       return;
     }
 
+    // Direct selection; dense areas are handled by zoom (map-zoom.js).
     const regionId = button.dataset.mapRegionId;
-    const nearbyCandidates = collectNearbyMapCandidates(event, button);
-    if (nearbyCandidates.total > 1) {
-      openMapCandidatePicker(nearbyCandidates, regionId, event.detail === 0);
-      return;
-    }
-
     closeMapCandidatePicker();
     toggleRegion(regionId, !state.selectedIds.has(regionId));
     pushUrlStateOnNextRender();
@@ -1303,6 +1307,13 @@ function pickRandomClimateSelection() {
   }
 
   return shuffleArray(state.regions).slice(0, RANDOM_CLIMATE_SELECTION_SIZE);
+}
+
+function renderMetaList(parts) {
+  return `<span class="tw-meta-list">${parts
+    .filter((part) => part !== undefined && part !== null && part !== "")
+    .map((part) => `<span>${escapeHtml(part)}</span>`)
+    .join("")}</span>`;
 }
 
 function renderSelectedTray(selectedRegions) {
@@ -1994,11 +2005,7 @@ function renderRegionOptions(regions) {
           <div class="region-option-top">
             <div class="region-option-title">
               <strong>${escapeHtml(region.name)}</strong>
-              <span>${escapeHtml(
-                [region.continent, getHemisphere(region), region.climateGroup, region.country]
-                  .filter(Boolean)
-                  .join(" · ")
-              )}</span>
+              ${renderMetaList([region.country, region.continent, getHemisphere(region)])}
             </div>
             <input
               type="checkbox"
@@ -2008,9 +2015,7 @@ function renderRegionOptions(regions) {
             />
           </div>
           <div class="region-option-meta">
-            ${escapeHtml(region.climateCode)} · ${formatTemp(region.annualMeanTemperatureC)} · ${formatMm(
-              region.annualPrecipitationMm
-            )}
+            ${renderMetaList([region.climateCode, formatTemp(region.annualMeanTemperatureC), formatMm(region.annualPrecipitationMm)])}
           </div>
         </label>
       `;
@@ -2043,15 +2048,14 @@ function renderSelectedRegions(selectedRegions) {
           <header class="region-card-head">
             <div class="region-card-title">
               <h3>${escapeHtml(region.name)}</h3>
-              <p class="region-card-sub">${escapeHtml(
-                [region.country, region.climateCode].filter(Boolean).join(" · ")
-              )}${
-                region.source?.type === "open-meteo-live" ? ` · Open-Meteo` : ""
-              }${
+              <p class="region-card-sub">${renderMetaList([
+                region.country,
+                region.climateCode,
+                region.source?.type === "open-meteo-live" ? "Open-Meteo" : "",
                 region.classificationReview?.status === "review-required"
-                  ? ` · 분류 재검토(${escapeHtml(region.classificationReview.appDerivedGroup)})`
-                  : ""
-              }</p>
+                  ? `분류 재검토 ${region.classificationReview.appDerivedGroup}`
+                  : "",
+              ])}</p>
             </div>
             <dl class="region-card-stats">
               <div><dt>연평균</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
@@ -2086,21 +2090,21 @@ function renderSelectedRegions(selectedRegions) {
               <table class="transpose-table">
                 <thead>
                   <tr>
-                    <th>항목</th>
-                    ${region.months.map((month) => `<th>${escapeHtml(month)}</th>`).join("")}
+                    <th></th>
+                    ${region.months.map((month, monthIndex) => `<th>${monthIndex + 1}</th>`).join("")}
                     <th>연간</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <th scope="row">평균 기온</th>
-                    ${region.monthlyTemperatureC.map((value) => `<td>${formatTemp(value)}</td>`).join("")}
-                    <td>${formatTemp(region.annualMeanTemperatureC)}</td>
+                    <th scope="row">기온 °C</th>
+                    ${region.monthlyTemperatureC.map((value) => `<td>${formatPlainNumber(value)}</td>`).join("")}
+                    <td>${formatPlainNumber(region.annualMeanTemperatureC)}</td>
                   </tr>
                   <tr>
-                    <th scope="row">강수량</th>
-                    ${region.monthlyPrecipitationMm.map((value) => `<td>${formatMm(value)}</td>`).join("")}
-                    <td>${formatMm(region.annualPrecipitationMm)}</td>
+                    <th scope="row">강수량 mm</th>
+                    ${region.monthlyPrecipitationMm.map((value) => `<td>${formatPlainNumber(value)}</td>`).join("")}
+                    <td>${formatPlainNumber(region.annualPrecipitationMm)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -2560,178 +2564,26 @@ function renderComparison(selectedRegions) {
     return renderEmptyState("2곳 이상 선택하세요", "");
   }
 
-  const baseline = resolveWorldComparisonBaseline(selectedRegions);
-  const januaryJulyMonthIndexes = COMPARISON_MONTHS;
-  const allMonthIndexes = MONTH_LABELS.map((_, index) => index);
-  const precipitationJanJulyDataTable = renderClimateComparisonTable(
-    selectedRegions,
-    januaryJulyMonthIndexes,
-    (region, monthIndex) => region.monthlyPrecipitationMm[monthIndex],
-    (value) => formatMm(value),
-    "mm",
-    "comparison-precipitation-july-focus",
-    "원 데이터 (1월·7월)"
+  return (
+    window.ComparisonKit.render({
+      mode: state.comparisonMode,
+      baselineId: state.comparisonBaseline,
+      regions: selectedRegions.map((region) => ({
+        id: region.id,
+        name: region.name,
+        temps: region.monthlyTemperatureC,
+        precs: region.monthlyPrecipitationMm,
+      })),
+      periods: COMPARISON_MONTHS.map((monthIndex) => ({
+        label: state.dataset.months[monthIndex],
+        pick: (region) => ({
+          temperature: region.temps[monthIndex],
+          precipitation: region.precs[monthIndex],
+        }),
+      })),
+      csv: (key, headers, rows, filename) => registerClimateCsvExport(`world-${key}`, headers, rows, filename),
+    }) + renderExamClimateSourcePanel(selectedRegions)
   );
-  const temperatureJanJulyDataTable = renderClimateComparisonTable(
-    selectedRegions,
-    januaryJulyMonthIndexes,
-    (region, monthIndex) => region.monthlyTemperatureC[monthIndex],
-    (value) => formatTemp(value),
-    "°C",
-    "comparison-temperature-july-focus",
-    "원 데이터 (1월·7월)"
-  );
-  const monthlyTemperatureAnnualDataTable = renderClimateComparisonTable(
-    selectedRegions,
-    allMonthIndexes,
-    (region, monthIndex) => region.monthlyTemperatureC[monthIndex],
-    (value) => formatTemp(value),
-    "°C",
-    "comparison-monthly-temperature-annual",
-    "원 데이터"
-  );
-  const cumulativePrecipitationAnnualDataTable = renderClimateComparisonTable(
-    selectedRegions,
-    allMonthIndexes,
-    (region, monthIndex) => cumulativePrecipitationValues(region)[monthIndex],
-    (value) => formatMm(value),
-    "mm",
-    "comparison-cumulative-precipitation-annual",
-    "원 데이터 (1월~12월)"
-  );
-  const comparableTrendRows = comparableTrendRegions(selectedRegions, baseline);
-  const worldTemperatureDeltaRows = comparableTrendRows.map((region) => [
-    region.name,
-    ...region.monthlyTemperatureC.map((value, monthIndex) =>
-      round(value - monthlyTemperatureTrendReference(selectedRegions, baseline, monthIndex))
-    ),
-  ]);
-  const worldCumulativePrecipitationDeltaRows = comparableTrendRows.map((region) => [
-    region.name,
-    ...cumulativePrecipitationValues(region).map((value, monthIndex) =>
-      round(value - cumulativePrecipitationTrendReference(selectedRegions, baseline, monthIndex))
-    ),
-  ]);
-  const monthlyTemperatureDeltaHeaders = MONTH_LABELS.map((monthLabel) => `${monthLabel}(°C)`);
-  const monthlyPrecipitationDeltaHeaders = MONTH_LABELS.map((monthLabel) => `${monthLabel}(mm)`);
-  const worldTemperatureDeltaTable = renderChartDataBlock({
-    tableLabel: "월별 온도 차이 원 데이터",
-    headers: ["지역", ...monthlyTemperatureDeltaHeaders],
-    rows: worldTemperatureDeltaRows,
-    displayRows: worldTemperatureDeltaRows.map((row) => [
-      row[0],
-      ...row.slice(1).map((value) => formatSigned(value, "°C")),
-    ]),
-    csvContext: "world-comparison-monthly-temperature-delta",
-    csvFilename: "월별온도차이원데이터",
-  });
-  const worldPrecipitationDeltaTable = renderChartDataBlock({
-    tableLabel: "월별 누적강수량 차이 원 데이터",
-    headers: ["지역", ...monthlyPrecipitationDeltaHeaders],
-    rows: worldCumulativePrecipitationDeltaRows,
-    displayRows: worldCumulativePrecipitationDeltaRows.map((row) => [
-      row[0],
-      ...row.slice(1).map((value) => formatSigned(value, " mm")),
-    ]),
-    csvContext: "world-comparison-monthly-cumulative-precipitation-delta",
-    csvFilename: "월별누적강수량차이원데이터",
-  });
-
-  return `
-    <div class="comparison-controls">
-      <label class="comparison-select">
-        <span>편차 기준</span>
-        <select data-baseline-select aria-label="세계지리 편차 기준">
-          <option value="mean" ${baseline.mode === "mean" ? "selected" : ""}>선택 지역 평균</option>
-          ${selectedRegions
-            .map(
-              (region) => `
-                <option value="${region.id}" ${baseline.mode === "region" && baseline.region.id === region.id ? "selected" : ""}>
-                  ${escapeHtml(region.name)}
-                </option>
-              `
-            )
-            .join("")}
-        </select>
-      </label>
-    </div>
-    <div class="comparison-grid">
-      ${COMPARISON_MONTHS.map((monthIndex, panelIndex) =>
-        renderMonthPanel(selectedRegions, monthIndex, panelIndex, baseline)
-      ).join("")}
-    </div>
-    <div class="charts-grid">
-      <article class="chart-card world-trend-card">
-        <h4>월 평균 기온 편차</h4>
-        ${renderMonthlyTemperatureTrendChart(selectedRegions, baseline)}
-        ${renderTrendLegend(comparableTrendRegions(selectedRegions, baseline), COLORS.temperature)}
-        ${worldTemperatureDeltaTable}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>누적 강수량 편차</h4>
-        ${renderCumulativePrecipitationTrendChart(selectedRegions, baseline)}
-        ${renderTrendLegend(comparableTrendRegions(selectedRegions, baseline), COLORS.rain)}
-        ${worldPrecipitationDeltaTable}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>월 평균 기온</h4>
-        ${renderMonthlyTemperatureActualTrendChart(
-          selectedRegions,
-          allMonthIndexes,
-          (region, monthIndex) => region.monthlyTemperatureC[monthIndex],
-          {
-            pointPadding: 14,
-          }
-        )}
-        ${renderTrendLegend(selectedRegions, COLORS.temperature)}
-        ${monthlyTemperatureAnnualDataTable}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>누적 강수량</h4>
-        ${renderCumulativePrecipitationActualTrendChart(
-          selectedRegions,
-          allMonthIndexes,
-          (region, monthIndex) => cumulativePrecipitationValues(region)[monthIndex],
-          {
-            pointPadding: 14,
-          }
-        )}
-        ${renderTrendLegend(selectedRegions, COLORS.rain)}
-        ${cumulativePrecipitationAnnualDataTable}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>1월·7월 강수량</h4>
-        ${renderCumulativePrecipitationActualTrendChart(
-          selectedRegions,
-          januaryJulyMonthIndexes,
-          (region, monthIndex) => region.monthlyPrecipitationMm[monthIndex],
-          {
-            showLine: false,
-            horizontalPadding: 30,
-            pointPadding: 24,
-          }
-        )}
-        ${renderTrendLegend(selectedRegions, COLORS.rain)}
-        ${precipitationJanJulyDataTable}
-      </article>
-      <article class="chart-card world-trend-card">
-        <h4>1월·7월 평균 기온</h4>
-        ${renderMonthlyTemperatureActualTrendChart(
-          selectedRegions,
-          januaryJulyMonthIndexes,
-          (region, monthIndex) => region.monthlyTemperatureC[monthIndex],
-          {
-            showLine: false,
-            horizontalPadding: 30,
-            pointPadding: 24,
-          }
-        )}
-        ${renderTrendLegend(selectedRegions, COLORS.temperature)}
-        ${temperatureJanJulyDataTable}
-      </article>
-    </div>
-    ${renderExamClimateSourcePanel(selectedRegions)}
-  `;
 }
 
 function renderExamClimateSourcePanel(selectedRegions) {

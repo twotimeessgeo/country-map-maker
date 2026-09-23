@@ -2167,3 +2167,121 @@ tfoot td {
     gap: var(--tw-space-4);
   }
 }
+
+/* ───────── Grid children must be allowed to shrink (raw-data tables scroll inside cards) ───────── */
+
+.selected-grid > *,
+.comparison-grid > *,
+.charts-grid > *,
+.kit-pair > *,
+.region-card > *,
+.month-panel > * {
+  min-width: 0;
+}
+
+.climate-data-details .table-wrap {
+  margin-bottom: var(--tw-space-2);
+}
+
+.region-card .table-wrap.is-transposed table {
+  min-width: 560px;
+  table-layout: fixed;
+}
+
+.region-card .transpose-table th,
+.region-card .transpose-table td {
+  min-width: 0;
+  padding: 8px 4px;
+  font-family: var(--tw-font-latin);
+  text-align: center;
+}
+
+.region-card .transpose-table th:first-child {
+  width: 76px;
+  padding-left: 12px;
+  font-family: var(--tw-font-sans);
+  text-align: left;
+}
+
+.region-card .transpose-table th:last-child {
+  width: 56px;
+}
+
+/* ───────── Comparison (comparison-kit.js) ───────── */
+
+.comparison-controls .tw-segmented > button {
+  min-width: 64px;
+}
+
+.comparison-controls .comparison-select {
+  min-width: 160px;
+}
+
+.kit-periods {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 520px), 1fr));
+}
+
+.kit-period h3 {
+  font-size: var(--tw-text-lg);
+}
+
+.kit-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--tw-space-5);
+}
+
+.kit-pair h4,
+.kit-card h4 {
+  margin-bottom: var(--tw-space-1);
+  color: var(--tw-ink-2);
+  font-size: var(--tw-text-sm);
+  font-weight: var(--tw-weight-medium);
+}
+
+.kit-card {
+  gap: var(--tw-space-3);
+  padding: var(--tw-space-6);
+  border-radius: var(--tw-radius-xl);
+}
+
+.kit-card h4 {
+  color: var(--tw-ink);
+  font-size: var(--tw-text-md);
+  font-weight: var(--tw-weight-strong);
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  color: var(--tw-ink-2);
+  font-size: var(--tw-text-xs);
+}
+
+.chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kit-chart g:hover circle,
+.kit-chart g:hover rect,
+.kit-chart g:hover path {
+  opacity: 0.7;
+}
+
+@media (max-width: 760px) {
+  .kit-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .kit-card {
+    padding: var(--tw-space-4);
+    border-radius: var(--tw-radius-lg);
+  }
+
+  .kit-chart text {
+    font-size: 17px;
+  }
+}

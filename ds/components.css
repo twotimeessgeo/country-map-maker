@@ -40,15 +40,6 @@
   white-space: nowrap;
 }
 
-.tw-brand-mark {
-  width: 18px;
-  height: 18px;
-  border: 1.5px solid currentColor;
-  border-radius: 50%;
-  background:
-    linear-gradient(currentColor, currentColor) center / 1.5px 100% no-repeat,
-    linear-gradient(currentColor, currentColor) center / 100% 1.5px no-repeat;
-}
 
 .tw-nav-links {
   display: flex;
@@ -656,4 +647,12 @@ a:hover .tw-arrow::after,
   background: var(--tw-surface);
   color: var(--tw-ink-2);
   text-align: center;
+}
+
+/* ───────── Meta list (no middle dots; items separated by space) ───────── */
+
+.tw-meta-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  column-gap: 0.6em;
 }

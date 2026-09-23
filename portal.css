@@ -12,6 +12,7 @@
   letter-spacing: -0.045em;
 }
 
-.portal-tools {
-  padding-bottom: var(--tw-space-8);
+.portal-hero {
+  min-height: calc(100vh - var(--tw-nav-height) - 140px);
+  align-content: center;
 }

@@ -1,7 +1,7 @@
 /*
  * Promenade Design System 3.0 — tokens
  * Monochrome, soft surfaces, pill controls, generous whitespace.
- * Latin/numerals: TWK Lausanne (200·300). Korean: Pretendard.
+ * Latin and numerals: TWK Lausanne (200, 300). Hangul falls through to Pretendard.
  */
 
 :root {
@@ -26,7 +26,7 @@
 
   /* Type */
   --tw-font-latin: "TWK Lausanne", "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", sans-serif;
-  --tw-font-sans: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --tw-font-sans: "TWK Lausanne", "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --tw-weight-display: 200;
   --tw-weight-latin: 300;
   --tw-weight-body: 400;

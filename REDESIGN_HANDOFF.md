@@ -13,10 +13,11 @@ Codex용 작업 지시서. 포털 홈과 Climate Atlas(World·Korea)는 이미 D
 1. `<head>`에서 루트의 2.1 CSS(`tokens.css`, `base.css`, `components.css`, `patterns.css`)를 빼고 `ds/fonts.css → tokens → base → components → patterns → 페이지 CSS` 순서로 불러옴.
 2. 상단은 기후머신과 같은 `header.tw-nav.is-static`을 씀. 로고 마크 없이 `Promenade` 글자만 넣음. 현재 페이지 링크에 `aria-current="page"`.
 3. 도구 페이지 흐름: 짧은 머리말(제목 + 필요하면 전환 컨트롤) → `tw-subnav`(스크롤해도 붙는 툴바. 행동 버튼, 검정은 하나) → 작업 영역.
-4. **텍스트 최소화.** 설명 문장, 리드 문구, 도움말, 출처·평년값 설명, "자동 조합" 같은 괄호 부연은 넣지 않음. 라벨은 명사 하나로 씀(예: "정렬", "기준"). 숫자 옆 단위만 남김.
-5. 색은 흑백만(`--tw-ink*`, `--tw-surface*`). 1px 검정 테두리 대신 회색 면이나 `--tw-hairline`. 컨트롤은 pill, 카드 20–28px.
-6. **JS 훅은 건드리지 않음.** `id`, `data-*`, JS가 만드는 클래스명은 그대로 두고 HTML 뼈대와 CSS만 바꿈. JS 수정이 꼭 필요하면 기능은 두고 마크업 문자열만 바꿈.
-7. 페이지 안 SVG 그래프는 `chart-kit.js`와 같은 문법을 씀: 헤어라인 그리드(`rgba(0,0,0,.08)`), 바닥선만 진하게, 점선 그리드 없음, 축 단위는 축 위에 `°C`·`mm`처럼 괄호 없이, 막대는 윤곽선 없는 `#d4d4d4`, 숫자는 TWK Lausanne, 음수는 `−`.
+4. `twotimess`는 소문자, 로고·마크 없음. 영문·숫자는 TWK Lausanne(폰트 스택이 Lausanne부터 시작하므로 따로 지정할 필요 없음). 정보 나열에 가운뎃점(·)을 쓰지 말고 `tw-meta-list`(간격 나열)를 씀.
+5. **텍스트 최소화.** 설명 문장, 리드 문구, 도움말, 출처·평년값 설명, "자동 조합" 같은 괄호 부연은 넣지 않음. 라벨은 명사 하나로 씀(예: "정렬", "기준"). 숫자 옆 단위만 남김.
+6. 색은 흑백만(`--tw-ink*`, `--tw-surface*`). 1px 검정 테두리 대신 회색 면이나 `--tw-hairline`. 컨트롤은 pill, 카드 20–28px.
+7. **JS 훅은 건드리지 않음.** `id`, `data-*`, JS가 만드는 클래스명은 그대로 두고 HTML 뼈대와 CSS만 바꿈. JS 수정이 꼭 필요하면 기능은 두고 마크업 문자열만 바꿈.
+8. 페이지 안 SVG 그래프는 `chart-kit.js`·`comparison-kit.js`와 같은 문법을 씀: 헤어라인 그리드(`rgba(0,0,0,.08)`), 바닥선만 진하게, 점선 그리드 없음, 축 단위는 축 위에 `°C`·`mm`처럼 괄호 없이, 막대는 윤곽선 없는 `#d4d4d4`, 숫자는 TWK Lausanne, 음수는 `−`.
    - 예외: **내보내기용 SVG**(Map Editor의 지도 SVG, 출제형 Graph Builder)는 `GRAPH_AND_EXAM_GUIDE.md`의 시험지 규칙(0.3–0.4pt 선, 패턴 채우기, SidaeAi_S)을 그대로 따름. 바꾸는 건 화면 UI뿐.
 
 ## Map Editor (`map.html`, `styles.css`, `app.js`)

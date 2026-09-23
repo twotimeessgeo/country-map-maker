@@ -1,0 +1,269 @@
+/*
+ * Climate Atlas — comparison section (Design System 3.0).
+ * Shared by app.js (world) and korea-app.js (korea). The apps pass plain data; this file owns layout and charts.
+ * One 값/편차 toggle drives every chart; 편차 is measured against the selected-region mean or one region.
+ */
+(function () {
+  const INK = "#0d0d0d";
+  const INK_2 = "#5d5d5d";
+  const INK_3 = "#8f8f8f";
+  const BAR = "#d4d4d4";
+  const BAR_DARK = "#8f8f8f";
+  const GRID = "rgba(0, 0, 0, 0.08)";
+  const BASE = "rgba(0, 0, 0, 0.32)";
+  const FONT = "TWK Lausanne, Pretendard Variable, Pretendard, sans-serif";
+  const DASHES = ["", "6 4", "2 3", "10 4 2 4", "1 3", "12 4 4 4"];
+  const MARKERS = ["circle", "square-o", "triangle", "diamond-o", "circle-o", "square"];
+
+  const esc = (value) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  const round1 = (value) => Math.round(value * 10) / 10;
+  const mean = (values) => values.reduce((sum, value) => sum + value, 0) / Math.max(values.length, 1);
+
+  function num(value, signed = false) {
+    if (!Number.isFinite(value)) return "–";
+    const rounded = round1(value);
+    const abs = Math.abs(rounded);
+    const body = (Number.isInteger(abs) ? String(abs) : abs.toFixed(1)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    if (rounded < 0) return `−${body}`;
+    return signed && rounded > 0 ? `+${body}` : body;
+  }
+
+  function niceStep(raw) {
+    const power = 10 ** Math.floor(Math.log10(raw || 1));
+    const unit = raw / power;
+    const nice = unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 2.5 ? 2.5 : unit <= 5 ? 5 : 10;
+    return nice * power;
+  }
+
+  function scale(values, { includeZero = true, count = 5 } = {}) {
+    const finite = values.filter(Number.isFinite);
+    let min = finite.length ? Math.min(...finite) : 0;
+    let max = finite.length ? Math.max(...finite) : 1;
+    if (includeZero) {
+      min = Math.min(min, 0);
+      max = Math.max(max, 0);
+    }
+    if (min === max) max = min + 1;
+    const step = niceStep((max - min) / count);
+    const lo = Math.floor(min / step) * step;
+    const hi = Math.ceil(max / step) * step;
+    const ticks = [];
+    for (let tick = lo; tick <= hi + step / 1000; tick += step) ticks.push(round1(tick));
+    return { lo, hi, ticks };
+  }
+
+  function marker(kind, x, y, r = 3.6) {
+    const fill = kind.endsWith("-o") ? "#ffffff" : INK;
+    const shape = kind.replace("-o", "");
+    const common = `fill="${fill}" stroke="${INK}" stroke-width="1.4"`;
+    if (shape === "square") return `<rect x="${x - r}" y="${y - r}" width="${r * 2}" height="${r * 2}" ${common} />`;
+    if (shape === "triangle") return `<path d="M${x},${y - r * 1.2}L${x + r * 1.1},${y + r * 0.8}L${x - r * 1.1},${y + r * 0.8}Z" ${common} />`;
+    if (shape === "diamond") return `<path d="M${x},${y - r * 1.25}L${x + r * 1.1},${y}L${x},${y + r * 1.25}L${x - r * 1.1},${y}Z" ${common} />`;
+    return `<circle cx="${x}" cy="${y}" r="${r}" ${common} />`;
+  }
+
+  function seriesStyle(index) {
+    return { dash: DASHES[index % DASHES.length], marker: MARKERS[index % MARKERS.length] };
+  }
+
+  function legend(names) {
+    return `<div class="chart-legend">${names
+      .map((name, index) => {
+        const style = seriesStyle(index);
+        return `<span><svg width="28" height="12" viewBox="0 0 28 12" aria-hidden="true"><line x1="1" y1="6" x2="27" y2="6" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" />${marker(style.marker, 14, 6, 3.2)}</svg>${esc(name)}</span>`;
+      })
+      .join("")}</div>`;
+  }
+
+  function frame(width, height, body, label) {
+    return `<svg class="svg-chart kit-chart" viewBox="0 0 ${width} ${height}" role="img" font-size="12" font-family="${FONT}" aria-label="${esc(label)}">${body}</svg>`;
+  }
+
+  function yAxis(s, m, width, plotH, unit, signed) {
+    const y = (value) => m.top + plotH - ((value - s.lo) / (s.hi - s.lo)) * plotH;
+    let out = `<text x="${m.left - 10}" y="${m.top - 14}" text-anchor="end" fill="${INK_3}">${esc(unit)}</text>`;
+    s.ticks.forEach((tick) => {
+      out += `<line x1="${m.left}" y1="${y(tick)}" x2="${width - m.right}" y2="${y(tick)}" stroke="${tick === 0 ? BASE : GRID}" />`;
+      out += `<text x="${m.left - 10}" y="${y(tick) + 4}" text-anchor="end" fill="${INK_2}">${num(tick, signed)}</text>`;
+    });
+    return { out, y };
+  }
+
+  /* 12-month multi-series line chart */
+  function lineChart({ series, unit, signed, label }) {
+    const width = 600;
+    const height = 300;
+    const m = { top: 32, right: 16, bottom: 30, left: 52 };
+    const plotW = width - m.left - m.right;
+    const plotH = height - m.top - m.bottom;
+    const s = scale(series.flatMap((item) => item.values), { includeZero: true });
+    const axis = yAxis(s, m, width, plotH, unit, signed);
+    const x = (index) => m.left + (plotW * (index + 0.5)) / 12;
+    let body = axis.out;
+    for (let i = 0; i < 12; i += 1) {
+      body += `<text x="${x(i)}" y="${height - 8}" text-anchor="middle" fill="${INK_3}">${i + 1}</text>`;
+    }
+    series.forEach((item, index) => {
+      const style = seriesStyle(index);
+      const points = item.values.map((value, i) => [x(i), axis.y(value), value]).filter((point) => Number.isFinite(point[2]));
+      body += `<polyline points="${points.map((p) => `${p[0]},${p[1]}`).join(" ")}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" stroke-linejoin="round" />`;
+      body += points
+        .map((p, i) => `<g>${marker(style.marker, p[0], p[1])}<title>${esc(`${item.name}  ${i + 1}월  ${num(p[2], signed)}${unit}`)}</title></g>`)
+        .join("");
+    });
+    return frame(width, height, body, label) + legend(series.map((item) => item.name));
+  }
+
+  /* One value per region: dots (temperature) or bars (precipitation) */
+  function categoryChart({ categories, values, kind, unit, signed, label }) {
+    const width = 340;
+    const height = 230;
+    const m = { top: 30, right: 6, bottom: 30, left: 40 };
+    const plotW = width - m.left - m.right;
+    const plotH = height - m.top - m.bottom;
+    const s = scale(values, { includeZero: true });
+    const axis = yAxis(s, m, width, plotH, unit, signed);
+    const step = plotW / Math.max(categories.length, 1);
+    const barW = Math.min(28, step * 0.5);
+    const maxChars = categories.length > 5 ? 3 : 5;
+    let body = axis.out;
+    categories.forEach((name, i) => {
+      const cx = m.left + step * (i + 0.5);
+      const value = values[i];
+      const short = name.length > maxChars + 1 ? `${name.slice(0, maxChars)}…` : name;
+      body += `<text x="${cx}" y="${height - 9}" text-anchor="middle" font-size="11" fill="${INK_2}">${esc(short)}</text>`;
+      if (!Number.isFinite(value)) return;
+      const tip = `<title>${esc(`${name}  ${num(value, signed)}${unit}`)}</title>`;
+      if (kind === "bar") {
+        const y0 = axis.y(0);
+        const y1 = axis.y(value);
+        const top = Math.min(y0, y1);
+        const h = Math.max(Math.abs(y1 - y0), 0.5);
+        body += `<g><rect x="${cx - barW / 2}" y="${top}" width="${barW}" height="${h}" rx="3" fill="${BAR}" />${tip}</g>`;
+      } else {
+        body += `<g><circle cx="${cx}" cy="${axis.y(value)}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" />${tip}</g>`;
+      }
+    });
+    return frame(width, height, body, label);
+  }
+
+  function table(headers, rows) {
+    return `<div class="table-wrap"><table><thead><tr>${headers.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows
+      .map((row) => `<tr>${row.map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`)
+      .join("")}</tbody></table></div>`;
+  }
+
+  function dataBlock(csvKey, headers, rows) {
+    const button = csvKey
+      ? `<div class="climate-data-tools"><button type="button" class="ghost-button climate-csv-download" data-climate-csv-download="${esc(csvKey)}">CSV</button></div>`
+      : "";
+    return `<details class="climate-data-details"><summary>원 데이터</summary>${button}${table(headers, rows)}</details>`;
+  }
+
+  function card(title, chart, data, wide = false) {
+    return `<article class="chart-card kit-card${wide ? " is-wide" : ""}"><h4>${esc(title)}</h4>${chart}${data}</article>`;
+  }
+
+  /*
+   * input = {
+   *   mode: "value" | "deviation", baselineId: "mean" | regionId,
+   *   regions: [{ id, name, temps[12], precs[12] }],
+   *   periods: [{ label, pick: (region) => ({ temperature, precipitation }) }],
+   *   extras: [{ title, unit, kind, value: (region) => number }],   // value-only charts (e.g. 연교차)
+   *   csv: (key, headers, rows, filename) => csvKey
+   * }
+   */
+  function render(input) {
+    const { regions, mode, csv } = input;
+    const deviation = mode === "deviation";
+    const baseline = regions.find((region) => region.id === input.baselineId) ?? null;
+    const shown = deviation && baseline ? regions.filter((region) => region.id !== baseline.id) : regions;
+    const reference = (pick) => (baseline ? pick(baseline) : mean(regions.map(pick)));
+    const adjust = (pick) => (region) => (deviation ? round1(pick(region) - reference(pick)) : pick(region));
+    const cumulative = (region) => region.precs.reduce((acc, value, i) => (acc.push((acc[i - 1] ?? 0) + value), acc), []);
+    const suffix = deviation ? " 편차" : "";
+    const names = shown.map((region) => region.name);
+
+    const controls = `
+      <div class="comparison-controls">
+        <div class="tw-segmented" role="group" aria-label="값 또는 편차">
+          <button type="button" data-comparison-mode="value" aria-pressed="${!deviation}">값</button>
+          <button type="button" data-comparison-mode="deviation" aria-pressed="${deviation}">편차</button>
+        </div>
+        ${
+          deviation
+            ? `<label class="comparison-select"><span class="tw-sr-only">편차 기준</span><select data-baseline-select aria-label="편차 기준">
+                <option value="mean" ${baseline ? "" : "selected"}>평균 대비</option>
+                ${regions.map((region) => `<option value="${esc(region.id)}" ${baseline?.id === region.id ? "selected" : ""}>${esc(region.name)} 대비</option>`).join("")}
+              </select></label>`
+            : ""
+        }
+      </div>`;
+
+    const periodCards = input.periods
+      .map((period) => {
+        const t = adjust((region) => period.pick(region).temperature);
+        const p = adjust((region) => period.pick(region).precipitation);
+        const tv = shown.map(t);
+        const pv = shown.map(p);
+        const headers = ["지역", `기온${suffix}(°C)`, `강수량${suffix}(mm)`];
+        const rows = shown.map((region, i) => [region.name, num(tv[i], deviation), num(pv[i], deviation)]);
+        const key = csv?.(`cmp-${period.label}-${mode}`, headers, shown.map((region, i) => [region.name, tv[i], pv[i]]), `${period.label}-${deviation ? "편차" : "값"}`);
+        return `
+          <article class="month-panel kit-period">
+            <h3>${esc(period.label)}</h3>
+            <div class="kit-pair">
+              <div><h4>기온${suffix}</h4>${categoryChart({ categories: names, values: tv, kind: "dot", unit: "°C", signed: deviation, label: `${period.label} 기온${suffix}` })}</div>
+              <div><h4>강수량${suffix}</h4>${categoryChart({ categories: names, values: pv, kind: "bar", unit: "mm", signed: deviation, label: `${period.label} 강수량${suffix}` })}</div>
+            </div>
+            ${dataBlock(key, headers, rows)}
+          </article>`;
+      })
+      .join("");
+
+    const monthHeaders = ["지역", ...Array.from({ length: 12 }, (_, i) => `${i + 1}월`)];
+    const trend = (title, unit, pick) => {
+      const series = shown.map((region) => ({
+        name: region.name,
+        values: pick(region).map((value, i) =>
+          deviation ? round1(value - (baseline ? pick(baseline)[i] : mean(regions.map((r) => pick(r)[i])))) : round1(value)
+        ),
+      }));
+      const key = csv?.(`cmp-trend-${title}-${mode}`, monthHeaders, series.map((item) => [item.name, ...item.values]), `${title}${suffix}`);
+      return card(
+        `${title}${suffix}`,
+        lineChart({ series, unit, signed: deviation, label: `${title}${suffix}` }),
+        dataBlock(key, monthHeaders, series.map((item) => [item.name, ...item.values.map((value) => num(value, deviation))]))
+      );
+    };
+
+    const extras = (input.extras ?? [])
+      .map((extra) => {
+        const values = regions.map(extra.value);
+        const rows = regions.map((region, i) => [region.name, num(values[i])]);
+        const key = csv?.(`cmp-extra-${extra.title}`, ["지역", `${extra.title}(${extra.unit})`], regions.map((region, i) => [region.name, values[i]]), extra.title);
+        return card(
+          extra.title,
+          categoryChart({ categories: regions.map((region) => region.name), values, kind: extra.kind ?? "bar", unit: extra.unit, signed: false, label: extra.title }),
+          dataBlock(key, ["지역", `${extra.title}(${extra.unit})`], rows)
+        );
+      })
+      .join("");
+
+    return `
+      ${controls}
+      <div class="comparison-grid kit-periods">${periodCards}</div>
+      <div class="charts-grid kit-trends">
+        ${trend("월별 기온", "°C", (region) => region.temps)}
+        ${trend("누적 강수량", "mm", cumulative)}
+        ${extras}
+      </div>`;
+  }
+
+  window.ComparisonKit = { render };
+})();
