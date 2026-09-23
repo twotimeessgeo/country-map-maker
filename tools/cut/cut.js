@@ -8,8 +8,11 @@ const CIRCLED_CHOICES = ["", "①", "②", "③", "④", "⑤"];
 const elements = {
   form: document.querySelector("#cutLookupForm"),
   subject: document.querySelector("#subjectSelect"),
+  subjectChips: document.querySelector("#subjectChips"),
   year: document.querySelector("#yearSelect"),
+  yearChips: document.querySelector("#yearChips"),
   exam: document.querySelector("#examSelect"),
+  examChips: document.querySelector("#examChips"),
   recordCount: document.querySelector("#recordCount"),
   status: document.querySelector("#lookupStatus"),
   resultSubject: document.querySelector("#resultSubject"),
@@ -123,32 +126,61 @@ function populateExams(preferredKey = elements.exam.value) {
   );
 }
 
+function renderChipGroup(container, select, options, className) {
+  const fragment = document.createDocumentFragment();
+  for (const { value, label } of options) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = className;
+    button.textContent = label;
+    button.dataset.value = String(value);
+    button.setAttribute("aria-pressed", String(String(value) === select.value));
+    if (String(value) === select.value) button.classList.add("is-active");
+    button.addEventListener("click", () => {
+      if (select.value === String(value)) return;
+      select.value = String(value);
+      select.dispatchEvent(new Event("change", { bubbles: true }));
+    });
+    fragment.appendChild(button);
+  }
+  container.replaceChildren(fragment);
+}
+
+function renderFilterChips() {
+  renderChipGroup(elements.subjectChips, elements.subject, SUPPORTED_SUBJECTS.map((value) => ({ value, label: value })), "cut-subject-chip");
+  renderChipGroup(elements.yearChips, elements.year, [...elements.year.options].map(({ value, textContent }) => ({ value, label: textContent })), "tw-chip cut-year-chip");
+  renderChipGroup(elements.examChips, elements.exam, [...elements.exam.options].map(({ value, textContent }) => ({ value, label: textContent })), "tw-chip cut-exam-chip");
+}
+
 function renderGradeCards(record) {
   const fragment = document.createDocumentFragment();
 
   for (const grade of GRADE_KEYS) {
-    const card = document.createElement("article");
+    const card = document.createElement("tr");
     card.className = "cut-grade-card";
 
-    const label = document.createElement("span");
+    const label = document.createElement("td");
     label.className = "cut-grade-label";
     label.textContent = `${grade}등급`;
 
-    const score = document.createElement("strong");
+    const score = document.createElement("td");
     score.className = "cut-grade-score";
     score.textContent = formatNumber(record[`raw${grade}`], 0);
 
     const unit = document.createElement("span");
-    unit.className = "cut-grade-unit";
-    unit.textContent = isFiniteNumber(record[`raw${grade}`]) ? "원점수" : "자료 없음";
+    unit.className = "cut-grade-unit tw-sr-only";
+    unit.textContent = "원점수";
+    score.appendChild(unit);
 
-    const standard = document.createElement("span");
+    const standard = document.createElement("td");
     standard.className = "cut-standard-score";
-    standard.textContent = isFiniteNumber(record[`std${grade}`])
-      ? `표준점수 ${formatNumber(record[`std${grade}`], 0)}`
-      : "표준점수 -";
+    standard.textContent = formatNumber(record[`std${grade}`], 0);
 
-    card.append(label, score, unit, standard);
+    const percentile = document.createElement("td");
+    percentile.className = "cut-percentile-score";
+    percentile.textContent = formatNumber(record[`pct${grade}`], 0);
+
+    card.append(label, score, standard, percentile);
     fragment.appendChild(card);
   }
 
@@ -381,8 +413,12 @@ function renderQuestionAnalysis(record) {
   }
 
   elements.questionGrid.replaceChildren(fragment);
-  const imageSummary = imageCount > 0 ? `이미지 ${imageCount}장` : "사진 없음";
-  elements.questionCount.textContent = `20문항 · ${imageSummary} · 선택률 ${choiceRateCount}문항`;
+  const summary = [`20문항`, ...(imageCount ? [`이미지 ${imageCount}장`] : []), ...(choiceRateCount ? [`선택률 ${choiceRateCount}문항`] : [])];
+  elements.questionCount.replaceChildren(...summary.map((label) => {
+    const item = document.createElement("span");
+    item.textContent = label;
+    return item;
+  }));
 }
 
 function createHistoryCell(text) {
@@ -440,6 +476,7 @@ function syncUrl(record) {
 
 function renderSelection() {
   const record = selectedRecord();
+  renderFilterChips();
   renderResult(record);
   renderQuestionAnalysis(record);
   renderHistory(record);
@@ -510,7 +547,7 @@ async function initialize() {
     populateExams(matchingMonthRecord ? recordKey(matchingMonthRecord) : "");
 
     elements.recordCount.textContent = `${records.length} records`;
-    elements.status.textContent = "EBSi 실제 시행 자료";
+    elements.status.textContent = "자료 준비됨";
     if (payload.source_url) elements.sourceLink.href = payload.source_url;
     renderSelection();
   } catch (error) {

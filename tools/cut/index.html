@@ -3,142 +3,96 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>등급컷 아카이브 | Promenade Geography</title>
-    <meta
-      name="description"
-      content="한국지리와 세계지리의 실제 시행 시험 등급컷을 확인합니다."
-    />
-    <meta name="theme-color" content="#efefec" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
-    />
-    <link rel="stylesheet" href="../../tokens.css?v=20260710h" />
-    <link rel="stylesheet" href="../../base.css?v=20260710h" />
-    <link rel="stylesheet" href="../../components.css?v=20260710h" />
-    <link rel="stylesheet" href="../../patterns.css?v=20260710h" />
-    <link rel="stylesheet" href="./cut.css?v=20260710k" />
+    <title>Grade Cut Archive | Promenade Geography</title>
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="../../ds/fonts.css?v=32" />
+    <link rel="stylesheet" href="../../ds/tokens.css?v=32" />
+    <link rel="stylesheet" href="../../ds/base.css?v=32" />
+    <link rel="stylesheet" href="../../ds/components.css?v=32" />
+    <link rel="stylesheet" href="../../ds/patterns.css?v=32" />
+    <link rel="stylesheet" href="./cut.css?v=33" />
   </head>
   <body>
-    <div class="tw-page tw-stack cut-page">
-      <nav class="app-context-bar" aria-label="Promenade Geography">
-        <a class="app-context-brand" href="../../index.html" aria-label="Promenade Geography home">
-          <span>Promenade</span>
-        </a>
-        <details class="app-context-menu">
-          <summary>
-            <span class="app-menu-mark" aria-hidden="true"></span>
-            <span>Menu</span>
-          </summary>
-          <div class="app-context-menu-panel">
-            <a href="../../map.html">Map Editor</a>
-            <a href="../climate/index.html">Climate Atlas</a>
-            <a class="is-active" href="./index.html" aria-current="page">Grade Cut Archive</a>
+    <header class="tw-nav is-static">
+      <nav class="tw-nav-inner" aria-label="Promenade Geography">
+        <a class="tw-brand" href="../../index.html" aria-label="Promenade Geography home"><span lang="en">Promenade</span></a>
+        <div class="tw-nav-links">
+          <a class="tw-nav-link" lang="en" href="../../map.html">Map Editor</a>
+          <a class="tw-nav-link" lang="en" href="../climate/index.html">Climate Atlas</a>
+          <a class="tw-nav-link" lang="en" href="./index.html" aria-current="page">Grade Cut Archive</a>
+        </div>
+        <span class="tw-nav-spacer"></span>
+        <details class="tw-nav-menu">
+          <summary aria-label="메뉴"><span class="tw-nav-menu-icon" aria-hidden="true"></span></summary>
+          <div class="tw-nav-menu-panel">
+            <a lang="en" href="../../map.html">Map Editor</a>
+            <a lang="en" href="../climate/index.html">Climate Atlas</a>
+            <a lang="en" href="./index.html" aria-current="page">Grade Cut Archive</a>
           </div>
         </details>
       </nav>
+    </header>
 
-      <header class="tw-hero cut-hero">
-        <div class="tw-hero-copy">
-          <h1 class="tw-hero-title" lang="en">Grade Cut Archive</h1>
-        </div>
-        <p class="cut-record-count" id="recordCount" lang="en" aria-live="polite">불러오는 중</p>
-      </header>
+    <header class="tw-page tw-hero cut-hero">
+      <h1 class="tw-display" lang="en">Grade Cut Archive</h1>
+      <div class="cut-hero-meta">
+        <nav id="subjectChips" class="tw-segmented" aria-label="과목"></nav>
+        <span class="cut-record-count" id="recordCount" lang="en" aria-live="polite"></span>
+      </div>
+    </header>
 
-      <main class="cut-archive-layout">
-        <aside class="tw-panel cut-filter-panel" aria-labelledby="filterTitle">
-          <div class="tw-section-heading compact">
-            <h2 id="filterTitle" class="tw-section-title">시험 선택</h2>
-          </div>
-
-          <form id="cutLookupForm" class="cut-filter-form">
-            <label class="tw-field">
-              <span>과목</span>
-              <select id="subjectSelect" name="subject">
-                <option value="한국지리">한국지리</option>
-                <option value="세계지리">세계지리</option>
-              </select>
-            </label>
-            <label class="tw-field">
-              <span>학년도</span>
-              <select id="yearSelect" name="year" aria-describedby="lookupStatus"></select>
-            </label>
-            <label class="tw-field">
-              <span>시행</span>
-              <select id="examSelect" name="exam" aria-describedby="lookupStatus"></select>
-            </label>
-          </form>
-
-          <p class="cut-status" id="lookupStatus" role="status">실제 시행 자료를 불러오는 중입니다.</p>
-        </aside>
-
-        <div class="cut-results-stack">
-          <section class="tw-panel cut-result-panel" aria-labelledby="resultTitle">
-            <div class="cut-result-heading">
-              <div>
-                <p class="cut-result-subject" id="resultSubject">-</p>
-                <h2 id="resultTitle" class="tw-section-title">시험을 선택하세요</h2>
-              </div>
-              <a
-                class="cut-source-link"
-                id="sourceLink"
-                href="https://www.ebsi.co.kr/ebs/xip/xipa/retrievePastGrdCutWrongAnswerRate.ebs?tab=1"
-                target="_blank"
-                rel="noreferrer"
-                lang="en"
-              >EBSi</a>
-            </div>
-
-            <div class="cut-grade-grid" id="gradeCutGrid" aria-live="polite"></div>
-
-            <dl class="cut-exam-meta" id="examMeta">
-              <div>
-                <dt>평균</dt>
-                <dd id="meanValue">-</dd>
-              </div>
-              <div>
-                <dt>표준편차</dt>
-                <dd id="sdValue">-</dd>
-              </div>
-              <div>
-                <dt>시행 연도</dt>
-                <dd id="examYearValue">-</dd>
-              </div>
-            </dl>
-          </section>
-
-          <section class="tw-panel cut-question-panel" aria-labelledby="questionAnalysisTitle">
-            <div class="cut-question-heading">
-              <h2 id="questionAnalysisTitle" class="tw-section-title">문항 분석</h2>
-              <span id="questionAnalysisCount" aria-live="polite">0문항</span>
-            </div>
-            <div class="cut-question-grid" id="questionAnalysisGrid"></div>
-          </section>
-
-          <section class="tw-panel cut-history-panel" aria-labelledby="historyTitle">
-            <div class="cut-history-heading">
-              <h2 id="historyTitle" class="tw-section-title">전체 기록</h2>
-              <span id="historyCount" aria-live="polite">0개 시험</span>
-            </div>
-            <div class="cut-table-wrap">
-              <table class="cut-history-table">
-                <thead>
-                  <tr>
-                    <th scope="col">시험</th>
-                    <th scope="col">1등급</th>
-                    <th scope="col">2등급</th>
-                    <th scope="col">3등급</th>
-                    <th scope="col">평균</th>
-                  </tr>
-                </thead>
-                <tbody id="historyTableBody"></tbody>
-              </table>
-            </div>
-          </section>
-        </div>
-      </main>
+    <div class="tw-subnav cut-toolbar">
+      <div class="tw-subnav-inner cut-toolbar-inner">
+        <div class="cut-filter-group"><span class="cut-filter-label">학년도</span><div id="yearChips" class="cut-chip-row" role="group" aria-label="학년도"></div></div>
+        <div class="cut-filter-group"><span class="cut-filter-label">시험</span><div id="examChips" class="cut-chip-row" role="group" aria-label="시험"></div></div>
+      </div>
     </div>
 
-    <script src="./cut.js?v=20260710k"></script>
+    <main class="tw-page cut-page">
+      <form id="cutLookupForm" class="tw-sr-only" aria-label="시험 선택">
+        <label>과목<select id="subjectSelect" name="subject"><option value="한국지리">한국지리</option><option value="세계지리">세계지리</option></select></label>
+        <label>학년도<select id="yearSelect" name="year"></select></label>
+        <label>시험<select id="examSelect" name="exam"></select></label>
+      </form>
+      <p class="tw-sr-only cut-status" id="lookupStatus" role="status">자료 준비 중</p>
+
+      <section class="tw-section cut-result-panel" aria-labelledby="resultTitle">
+        <div class="tw-section-head cut-result-heading">
+          <div><p class="cut-result-subject" id="resultSubject">-</p><h2 id="resultTitle">등급컷</h2></div>
+        </div>
+        <div class="tw-card cut-result-card">
+          <div class="tw-table-wrap cut-grade-wrap">
+            <table class="tw-table cut-grade-table">
+              <thead><tr><th scope="col">등급</th><th scope="col">원점수</th><th scope="col">표준점수</th><th scope="col">백분위</th></tr></thead>
+              <tbody class="cut-grade-grid" id="gradeCutGrid" aria-live="polite"></tbody>
+            </table>
+          </div>
+          <dl class="tw-meta-list cut-exam-meta" id="examMeta">
+            <div><dt>평균</dt><dd id="meanValue">-</dd></div>
+            <div><dt>표준편차</dt><dd id="sdValue">-</dd></div>
+            <div><dt>시행 연도</dt><dd id="examYearValue">-</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="tw-section cut-question-panel" aria-labelledby="questionAnalysisTitle">
+        <div class="tw-section-head cut-question-heading"><h2 id="questionAnalysisTitle">문항 분석</h2><span id="questionAnalysisCount" class="tw-meta-list" aria-live="polite">0문항</span></div>
+        <div class="cut-question-grid" id="questionAnalysisGrid"></div>
+      </section>
+
+      <section class="tw-section cut-history-panel" aria-labelledby="historyTitle">
+        <div class="tw-section-head cut-history-heading"><h2 id="historyTitle">전체 기록</h2><span id="historyCount" aria-live="polite">0개 시험</span></div>
+        <div class="tw-table-wrap cut-table-wrap">
+          <table class="tw-table cut-history-table">
+            <thead><tr><th scope="col">시험</th><th scope="col">1등급</th><th scope="col">2등급</th><th scope="col">3등급</th><th scope="col">평균</th></tr></thead>
+            <tbody id="historyTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="tw-footer"><div class="tw-footer-inner"><a id="sourceLink" href="https://www.ebsi.co.kr/ebs/xip/xipa/retrievePastGrdCutWrongAnswerRate.ebs?tab=1" target="_blank" rel="noreferrer" lang="en">EBSi</a></div></footer>
+    <script src="./cut.js?v=33"></script>
   </body>
 </html>
