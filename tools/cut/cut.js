@@ -17,7 +17,6 @@ const elements = {
   nextExam: document.querySelector("#cutNextExam"),
   currentExam: document.querySelector("#cutCurrentExam"),
   scopeChips: document.querySelector("#scopeChips"),
-  recordCount: document.querySelector("#recordCount"),
   status: document.querySelector("#lookupStatus"),
   resultSubject: document.querySelector("#resultSubject"),
   resultTitle: document.querySelector("#resultTitle"),
@@ -359,6 +358,12 @@ function questionChoiceRates(record, question) {
     : null;
 }
 
+function missingRateLabel(record) {
+  const published = (record?.items || []).filter((item) =>
+    item.source === "ebsi_wrong_top15" && isFiniteNumber(item.national_rate)).length;
+  return published === 15 ? "오답률 하위 5문항" : "오답률 미발표";
+}
+
 function orderedQuestionNumbers(record) {
   const byNumber = new Map((record?.items || []).map((item) => [Number(item.question), item]));
   return [...QUESTION_NUMBERS].sort((left, right) => {
@@ -397,14 +402,15 @@ function renderQuestionPhotos(record, order) {
     }
     const caption = document.createElement("span");
     caption.className = "cut-photo-caption tw-meta-list";
-    const rate = isFiniteNumber(item?.national_rate) ? formatPercent(100 - Number(item.national_rate)) : "미발표";
-    for (const text of [`${question}번`, `오답률 ${rate}`, isFiniteNumber(item?.points) ? `${formatNumber(item.points, 0)}점` : ""]) {
+    const rate = isFiniteNumber(item?.national_rate)
+      ? `오답률 ${formatPercent(100 - Number(item.national_rate))}` : missingRateLabel(record);
+    for (const text of [`${question}번`, rate, isFiniteNumber(item?.points) ? `${formatNumber(item.points, 0)}점` : ""]) {
       if (!text) continue;
       const part = document.createElement("span");
       part.textContent = text;
       caption.appendChild(part);
     }
-    button.setAttribute("aria-label", `${question}번, 오답률 ${rate}, 문항 크게 보기`);
+    button.setAttribute("aria-label", `${question}번, ${rate}, 문항 크게 보기`);
     button.append(visual, caption);
     fragment.appendChild(button);
   }
@@ -665,10 +671,10 @@ function renderHistory(activeRecord) {
         cell.dataset.tooltip = `${question}번 오답률 ${formatPercent(wrongRate)}`;
       } else if (observed.size) {
         cell.classList.add("is-unpublished");
-        cell.dataset.tooltip = `${question}번 미발표`;
+        cell.dataset.tooltip = `${question}번 ${missingRateLabel(record)}`;
       } else {
         cell.classList.add("is-empty");
-        cell.dataset.tooltip = `${question}번 미발표`;
+        cell.dataset.tooltip = `${question}번 오답률 미발표`;
       }
       cell.setAttribute("aria-label", cell.dataset.tooltip);
       cell.tabIndex = 0;
@@ -702,7 +708,6 @@ function renderSelection() {
   renderTrend(record);
   renderQuestionAnalysis(record);
   renderHistory(record);
-  elements.recordCount.textContent = new Set(scopeRecords().map(recordKey)).size + "회";
   syncUrl(record);
 }
 
@@ -747,7 +752,7 @@ async function loadQuestionImageManifest() {
 
 function initialSelectionFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  const subject = params.get("subject");
+  const subject = ({ world: "세계지리", korea: "한국지리" })[params.get("subject")] || params.get("subject");
   if (SUPPORTED_SUBJECTS.includes(subject)) elements.subject.value = subject;
   scope = params.get("scope") === "all" ? "all" : "evaluation";
   const exam = params.get("exam") ||
@@ -790,7 +795,7 @@ function updateLightbox() {
   elements.lightboxImage.alt = imageData?.url ? recordTitle(record) + " " + question + "번 문항" : "";
   const rate = isFiniteNumber(item?.national_rate)
     ? 100 - Number(item.national_rate) : null;
-  elements.lightboxRate.textContent = "오답률 " + (rate === null ? "-" : formatPercent(rate));
+  elements.lightboxRate.textContent = rate === null ? missingRateLabel(record) : "오답률 " + formatPercent(rate);
   elements.lightboxPoints.textContent = isFiniteNumber(item?.points)
     ? "배점 " + formatNumber(item.points, 0) + "점" : "";
   elements.lightboxPrev.disabled = position <= 0;
@@ -841,7 +846,6 @@ async function initialize() {
     bindDisclosureState(elements.historyDisclosure, "cut-history-disclosure");
     renderSelection();
   } catch (error) {
-    elements.recordCount.textContent = "";
     console.warn("Archive data load failed:", error);
     elements.status.textContent = "자료를 불러오지 못했습니다";
     elements.status.hidden = false;

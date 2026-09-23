@@ -187,6 +187,7 @@ html { scroll-behavior: auto; }
 .notes-lightbox-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
 .notes-lightbox-actions button:disabled { opacity: .35; cursor: default; }
 @media (max-width: 1199px) {
+  html:has(.tw-nav.is-static):has(.notes-mobile-strip) { scroll-padding-top: 0; }
   .notes-layout { display: block; max-width: 760px; }
   .notes-desktop-toc { display: none; }
   .notes-mobile-strip {
@@ -206,8 +207,13 @@ html { scroll-behavior: auto; }
   .notes-mobile-strip a { flex: 0 0 auto; min-width: 36px; padding: 6px 8px; border-radius: var(--tw-radius-pill); color: var(--tw-ink-2); font-family: var(--tw-font-latin); font-size: 12px; font-variant-numeric: proportional-nums; letter-spacing: -.04em; text-align: center; text-decoration: none; }
   .notes-mobile-strip a.is-active { background: var(--tw-ink); color: var(--tw-inverse); }
   .notes-mobile-strip a:focus-visible { outline: none; box-shadow: var(--tw-focus); }
+  .notes-section { scroll-margin-top: calc(var(--tw-nav-height) + var(--notes-strip-h, 52px)); }
+  .notes-figure { scroll-margin-top: calc(var(--tw-nav-height) + var(--notes-strip-h, 52px)); }
   .notes-article-head { max-width: 680px; margin: 0 auto; padding-bottom: 64px; }
   .notes-overview { margin-bottom: 56px; }
+}
+@media (max-width: 479px) {
+  .notes-overview-units { display: none; }
 }
 @media (max-width: 600px) {
   .notes-index { padding-top: 64px; }

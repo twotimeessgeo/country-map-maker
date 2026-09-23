@@ -7,7 +7,6 @@
 }
 .cut-hero .tw-display { max-width: none; font-weight: var(--tw-weight-display); }
 .cut-hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tw-space-4); }
-.cut-record-count { color: var(--tw-ink-2); font-size: var(--tw-text-sm); font-variant-numeric: tabular-nums; }
 .cut-toolbar-inner { min-height: 68px; gap: var(--tw-space-6); }
 .cut-chip-row { display: flex; gap: var(--tw-space-1); min-width: 0; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .cut-chip-row::-webkit-scrollbar { display: none; }

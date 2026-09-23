@@ -29,6 +29,65 @@
   const desktopLinks = [...document.querySelectorAll(".notes-desktop-toc a")];
   const mobileStrip = document.querySelector(".notes-mobile-strip");
   const mobileLinks = [...document.querySelectorAll(".notes-mobile-strip a")];
+  if (mobileStrip) {
+    const syncStripHeight = () => document.documentElement.style.setProperty("--notes-strip-h", `${Math.ceil(mobileStrip.getBoundingClientRect().height)}px`);
+    syncStripHeight();
+    if ("ResizeObserver" in window) new ResizeObserver(syncStripHeight).observe(mobileStrip);
+  }
+  let activeAnchor = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+  let anchorScheduled = false;
+  function alignAnchor() {
+    if (!activeAnchor || anchorScheduled) return;
+    anchorScheduled = true;
+    requestAnimationFrame(() => {
+      anchorScheduled = false;
+      if (activeAnchor?.isConnected) activeAnchor.scrollIntoView({ block: "start", behavior: "instant" });
+    });
+  }
+  if (activeAnchor) {
+    alignAnchor();
+    addEventListener("load", alignAnchor, { once: true });
+    document.fonts?.ready.then(alignAnchor);
+  }
+  if ("ResizeObserver" in window) new ResizeObserver(alignAnchor).observe(document.body);
+  addEventListener("hashchange", () => {
+    activeAnchor = location.hash ? document.getElementById(decodeURIComponent(location.hash.slice(1))) : null;
+    alignAnchor();
+  });
+  document.addEventListener("click", (event) => {
+    const href = event.target.closest?.('a[href^="#"]')?.getAttribute("href");
+    if (href) {
+      activeAnchor = document.getElementById(decodeURIComponent(href.slice(1)));
+      alignAnchor();
+    }
+  });
+  document.addEventListener("pointerdown", (event) => {
+    if (!event.target.closest?.('a[href^="#"]')) activeAnchor = null;
+  }, { passive: true });
+  addEventListener("wheel", () => { activeAnchor = null; }, { passive: true });
+  addEventListener("touchmove", () => { activeAnchor = null; }, { passive: true });
+  addEventListener("keydown", (event) => {
+    if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Home", "End", " "].includes(event.key)) activeAnchor = null;
+  });
+
+  const overviewItems = [...document.querySelectorAll(".notes-overview-item")];
+  const overviewUnits = [...document.querySelectorAll(".notes-overview-units span")].map((unit) => ({
+    start: Number(unit.style.gridColumnStart),
+    end: Number(unit.style.gridColumnStart) + Number(unit.style.gridColumnEnd.replace("span ", "")) - 1,
+    name: unit.title,
+  }));
+  function syncOverviewTooltips() {
+    const narrow = innerWidth < 480;
+    overviewItems.forEach((item, index) => {
+      if (!item.dataset.baseTooltip) item.dataset.baseTooltip = item.dataset.tooltip;
+      const unit = overviewUnits.find((entry) => index + 1 >= entry.start && index + 1 <= entry.end);
+      const text = narrow && unit ? `${item.dataset.baseTooltip} ${unit.name}` : item.dataset.baseTooltip;
+      item.dataset.tooltip = text;
+      item.setAttribute("aria-label", text);
+    });
+  }
+  syncOverviewTooltips();
+  addEventListener("resize", syncOverviewTooltips);
   let currentSection = "";
   function updateToc() {
     if (!sections.length) return;
