@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../../ds/base.css?v=51" />
     <link rel="stylesheet" href="../../ds/components.css?v=51" />
     <link rel="stylesheet" href="../../ds/patterns.css?v=49" />
-    <link rel="stylesheet" href="./cut.css?v=54" />
+    <link rel="stylesheet" href="./cut.css?v=55" />
   </head>
   <body>
     <header class="tw-nav is-static">
@@ -48,26 +48,27 @@
     <div class="tw-subnav cut-toolbar">
       <div class="tw-subnav-inner cut-toolbar-inner">
         <button id="cutPrevExam" class="tw-button is-ghost is-sm cut-exam-arrow" type="button" aria-label="이전 시험">‹</button>
-        <span id="cutCurrentExam" class="cut-current-exam" aria-live="polite"></span>
+        <div class="cut-exam-menu">
+          <button id="cutCurrentExam" class="tw-button cut-current-exam" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cutExamPopover">시험 선택</button>
+          <div id="cutExamPopover" class="cut-exam-popover" role="dialog" aria-label="시험 목록" hidden></div>
+        </div>
         <button id="cutNextExam" class="tw-button is-ghost is-sm cut-exam-arrow" type="button" aria-label="다음 시험">›</button>
-        <select id="cutExamPicker" class="tw-select cut-exam-picker" aria-label="시험 목록"></select>
         <div id="yearChips" class="cut-chip-row" hidden></div>
         <div id="examChips" class="cut-chip-row" hidden></div>
       </div>
     </div>
 
     <main class="tw-page cut-page">
-      <form id="cutLookupForm" class="tw-sr-only" aria-label="시험 선택">
+      <form id="cutLookupForm" hidden>
         <label>과목<select id="subjectSelect" name="subject"><option value="한국지리">한국지리</option><option value="세계지리">세계지리</option></select></label>
         <label>학년도<select id="yearSelect" name="year"></select></label>
         <label>시험<select id="examSelect" name="exam"></select></label>
+        <label>시험 목록<select id="cutExamPicker" name="examPicker"></select></label>
       </form>
       <p class="cut-status" id="lookupStatus" role="status">불러오는 중…</p>
 
       <section class="tw-section cut-result-panel" aria-labelledby="resultTitle">
-        <div class="tw-section-head cut-result-heading">
-          <div><p class="cut-result-subject" id="resultSubject">-</p><h2 id="resultTitle">등급컷</h2></div>
-        </div>
+        <p id="resultSubject" hidden></p><h2 id="resultTitle" class="tw-sr-only">등급컷</h2>
         <div class="tw-card cut-result-card">
           <div class="tw-table-wrap cut-grade-wrap" id="cutGradeWrap">
             <table class="tw-table cut-grade-table">
@@ -124,7 +125,7 @@
 
       <section class="tw-section cut-history-panel" aria-labelledby="historyTitle">
         <details id="historyDisclosure" class="tw-disclosure cut-disclosure" open>
-          <summary><h2 id="historyTitle">오답률 분포</h2><span id="historyCount" aria-live="polite">0회</span></summary>
+          <summary><h2 id="historyTitle">오답률 분포</h2><span id="historyCount" hidden></span></summary>
           <div class="cut-disclosure-body">
             <div class="cut-history-legend"><span>진할수록 오답률 높음</span><span class="cut-history-hatch">하위 5문항</span></div>
             <div class="tw-table-wrap cut-table-wrap">
@@ -150,6 +151,6 @@
     </dialog>
     <script src="../../ds/motion.js?v=51"></script>
     <script src="../../ds/tooltip.js?v=43"></script>
-    <script src="./cut.js?v=53"></script>
+    <script src="./cut.js?v=55"></script>
   </body>
 </html>

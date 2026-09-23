@@ -16,6 +16,7 @@ const elements = {
   prevExam: document.querySelector("#cutPrevExam"),
   nextExam: document.querySelector("#cutNextExam"),
   currentExam: document.querySelector("#cutCurrentExam"),
+  examPopover: document.querySelector("#cutExamPopover"),
   scopeChips: document.querySelector("#scopeChips"),
   status: document.querySelector("#lookupStatus"),
   resultSubject: document.querySelector("#resultSubject"),
@@ -230,6 +231,7 @@ function renderExamNavigation(record) {
   elements.prevExam.disabled = activeIndex < 0 || activeIndex >= exams.length - 1;
   elements.nextExam.disabled = activeIndex <= 0;
   elements.examPicker.replaceChildren();
+  elements.examPopover.replaceChildren();
   const groups = new Map();
   for (const exam of exams) {
     const year = Number(exam.school_year);
@@ -239,16 +241,40 @@ function renderExamNavigation(record) {
   for (const [year, entries] of groups) {
     const group = document.createElement("optgroup");
     group.label = `${year}학년도`;
+    const section = document.createElement("section");
+    section.className = "cut-exam-group";
+    const heading = document.createElement("h3");
+    heading.className = "cut-exam-group-title";
+    heading.textContent = `${year}학년도`;
+    const options = document.createElement("div");
+    options.className = "cut-exam-options";
     for (const exam of entries) {
       const option = document.createElement("option");
       option.value = recordKey(exam);
       option.textContent = recordTitle(exam);
       group.appendChild(option);
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "cut-exam-option";
+      button.dataset.examKey = recordKey(exam);
+      button.textContent = `${monthLabel(exam.month)}${isEvaluation(exam) ? "" : " 학평"}`;
+      button.setAttribute("aria-label", `${recordTitle(exam)} 선택`);
+      if (record && recordKey(exam) === recordKey(record)) button.setAttribute("aria-current", "true");
+      options.appendChild(button);
     }
     elements.examPicker.appendChild(group);
+    section.append(heading, options);
+    elements.examPopover.appendChild(section);
   }
   if (record) elements.examPicker.value = recordKey(record);
   elements.examPicker.disabled = !exams.length;
+  elements.currentExam.disabled = !exams.length;
+}
+
+function closeExamPopover(restoreFocus = false) {
+  elements.examPopover.hidden = true;
+  elements.currentExam.setAttribute("aria-expanded", "false");
+  if (restoreFocus) elements.currentExam.focus();
 }
 
 function selectExamByKey(key) {
@@ -256,6 +282,7 @@ function selectExamByKey(key) {
   if (!record) return;
   populateYears(record.school_year);
   populateExams(key);
+  closeExamPopover();
   renderSelection();
 }
 
@@ -312,7 +339,7 @@ function renderGradeCards(record) {
 function renderResult(record) {
   if (!record) {
     elements.resultSubject.textContent = "-";
-    elements.resultTitle.textContent = "시험을 선택해 주세요";
+    elements.resultTitle.textContent = "등급컷";
     elements.gradeGrid.replaceChildren();
     elements.mean.textContent = "-";
     elements.standardDeviation.textContent = "-";
@@ -324,7 +351,7 @@ function renderResult(record) {
 
   const hasCuts = GRADE_KEYS.some((grade) => isFiniteNumber(record[`raw${grade}`]));
   elements.resultSubject.textContent = record.subject;
-  elements.resultTitle.textContent = recordTitle(record);
+  elements.resultTitle.textContent = "등급컷";
   elements.gradeWrap.hidden = !hasCuts;
   elements.gradeUnpublished.hidden = hasCuts;
   elements.examMeta.hidden = !hasCuts;
@@ -734,7 +761,7 @@ function setLoadingState(isLoading) {
   elements.form.querySelectorAll("select").forEach((select) => {
     select.disabled = isLoading;
   });
-  for (const control of [elements.examPicker, elements.prevExam, elements.nextExam]) control.disabled = isLoading;
+  for (const control of [elements.examPicker, elements.currentExam, elements.prevExam, elements.nextExam]) control.disabled = isLoading;
   if (!isLoading) renderExamNavigation(selectedRecord());
 }
 
@@ -871,6 +898,26 @@ elements.year.addEventListener("change", () => {
 });
 elements.exam.addEventListener("change", renderSelection);
 elements.examPicker.addEventListener("change", (event) => selectExamByKey(event.target.value));
+elements.currentExam.addEventListener("click", () => {
+  const expanded = elements.currentExam.getAttribute("aria-expanded") === "true";
+  elements.examPopover.hidden = expanded;
+  elements.currentExam.setAttribute("aria-expanded", String(!expanded));
+});
+elements.examPopover.addEventListener("click", (event) => {
+  const option = event.target.closest("[data-exam-key]");
+  if (!option) return;
+  selectExamByKey(option.dataset.examKey);
+  elements.currentExam.focus();
+});
+document.addEventListener("pointerdown", (event) => {
+  if (!elements.examPopover.hidden && !event.target.closest(".cut-exam-menu")) closeExamPopover();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !elements.examPopover.hidden) {
+    event.preventDefault();
+    closeExamPopover(true);
+  }
+});
 elements.prevExam.addEventListener("click", () => shiftExam(1));
 elements.nextExam.addEventListener("click", () => shiftExam(-1));
 document.addEventListener("keydown", (event) => {
