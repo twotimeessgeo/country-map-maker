@@ -150,8 +150,14 @@ a {
   animation: none;
 }
 
-@keyframes tw-page-out { to { opacity: 0; } }
-@keyframes tw-page-in { from { opacity: 0; } }
+@keyframes tw-page-out {
+  0% { opacity: 1; }
+  49%, 100% { opacity: 0; }
+}
+@keyframes tw-page-in {
+  0%, 50% { opacity: 0; }
+  100% { opacity: 1; }
+}
 
 .tw-hero-sequence > .tw-meta-line,
 .tw-hero-sequence > h1,
