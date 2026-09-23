@@ -31,19 +31,10 @@
 | korea-region-7-04 | 한국 region | 남북한 발전량과 발전 설비 용량 | KOSIS 북한통계 발전량·설비 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-region-7-06 | 한국 region | 수도권 주요 지역 토지 이용 비중 | KOSIS 수도권 시군구 토지 이용 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | korea-region-7-07 | 한국 region | 수도권 주요 지역 경지 현황 | KOSIS 수도권 시군구 경지 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-religion-3-01 | 세계 religion | 대륙별 종교 신자 비중 | Pew Research Center 2020 대륙별 종교 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-religion-3-02 | 세계 religion | 종교별 대륙 신자 비중 | Pew Research Center 2020 종교·대륙 교차 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-religion-3-03 | 세계 religion | 보편 종교별 신자 수 상위 국가 | Pew Research Center 2020 세계 전체 국가 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-population-3-08 | 세계 population | 대륙별 인구 구조 | UN WPP 대륙별 연령 인구 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-population-3-12 | 세계 population | 이주자 도착 지역 비율 | UN DESA International Migrant Stock 지역별 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-population-3-15 | 세계 population | 국가별 순이동률 변화 | World Bank 연도별 순이동률 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-population-3-17 | 세계 population | 국가별 유입 이주자 출신국 | UN DESA 국제이주 양자 행렬 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-food-3-23 | 세계 food | 3대 식량 작물 생산량과 재배 면적 | 같은 정의와 시점의 완전한 값을 확인하지 못함 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-food-3-24 | 세계 food | 3대 식량 작물 단위 면적 생산량과 수출 비중 | FAOSTAT 생산·수확면적·수출 동일 연도 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-food-3-26 | 세계 food | 3대 식량 작물 대륙별 생산 비율 | FAOSTAT 대륙별 생산량 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-food-3-27 | 세계 food | 3대 식량 작물 대륙별 수출입 | FAOSTAT 대륙별 교역 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-food-3-28 | 세계 food | 3대 식량 작물 수출입 상위 국가 | FAOSTAT 2024 교역 전체 국가 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
-| world-food-3-33 | 세계 food | 대륙별 소·돼지·양 사육 두수 | FAOSTAT 대륙별 가축 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-energy-3-36 | 세계 energy | 대륙별 1차 에너지 소비 비중 | Energy Institute 대륙별 소비 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-energy-3-37 | 세계 energy | 화석 에너지 생산과 소비 및 순수출입 | Energy Institute 석탄·석유·가스 생산·소비·교역 동일 연도 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |
 | world-energy-3-40 | 세계 energy | 신재생 에너지원별 발전 비율 상위 국가 | Energy Institute 국가별 재생 발전 전체 원표 | data/korea-stats.js, data/country-stats.js, data/supplemental-stats.json; data_downloads 카탈로그 |

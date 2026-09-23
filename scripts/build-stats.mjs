@@ -25,6 +25,7 @@ const supplemental = JSON.parse(fs.readFileSync(path.join(root, "data/supplement
 const local = Object.fromEntries([
   "kosis_age_sex_202412", "kosis_manufacturing_2024", "keei_regional_energy_2024",
   "knrec_regional_renewable_2024", "ei_energy_2024", "kosis_cultivated_area_2025",
+  "faostat_production_2024", "faostat_trade_2024",
 ].map((name) => [name, JSON.parse(fs.readFileSync(path.join(root, "data-sources/stats", name + ".json"), "utf8"))]));
 const regionSets = {
   monsoon: majorCountryRows.monsoon,
@@ -76,6 +77,26 @@ const kosisIndustrySource = source("국가데이터처 광업·제조업조사",
 const kosisAgeSource = source("행정안전부 주민등록인구통계", "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1B04005N");
 const eiNames = { USA: "US", KOR: "South Korea", IRN: "Iran", RUS: "Russian Federation", TUR: "Turkey", TWN: "Taiwan", VEN: "Venezuela", VNM: "Vietnam" };
 const eiRecord = (country, key) => local.ei_energy_2024[key][eiNames[country.iso3] || country.atlasName];
+const faCrop = [["Wheat","밀"],["Rice","쌀"],["Maize (corn)","옥수수"]];
+const faAnimal = [["Cattle","소"],["Swine / pigs","돼지"],["Sheep","양"]];
+const faArea = {Asia:"Asia",Europe:"Europe",Africa:"Africa","North America":"Northern America","South America":"Americas",Oceania:"Oceania"};
+const faRecord = (dataset,area,item,element) => local[dataset].find((r)=>r.area===area&&r.item===item&&r.element===element)?.value ?? null;
+const faContinent = (dataset,continent,item,element) => {
+  if(continent!=="South America") return faRecord(dataset,faArea[continent],item,element);
+  const americas=faRecord(dataset,"Americas",item,element),north=faRecord(dataset,"Northern America",item,element);
+  return f(americas)&&f(north)?americas-north:null;
+};
+const faSource = source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL");
+const religionKeys = [["christians","기독교"],["muslims","이슬람교"],["hindus","힌두교"],["buddhists","불교"],["jews","유대교"],["noReligion","무종교"],["other","기타"]];
+const religionByContinent = (continent) => {
+  const values = Object.fromEntries(religionKeys.map(([key])=>[key,0]));
+  let total=0;
+  for(const country of allCountries.filter((c)=>belongsToContinent(c,continent)&&c.religion2020?.counts)) {
+    total+=country.religion2020.totalPopulation;
+    for(const [key] of religionKeys)values[key]+=Number(country.religion2020.counts[key]||0);
+  }
+  return {total,values};
+};
 
 function provinceRows(metricKey) {
   const metric = km.provinces[metricKey];
@@ -244,6 +265,73 @@ function withContinentRows(built, kind) {
 function make(target) {
   const [kind, arg] = (target.kind || "").split(":");
   if (!kind) return null;
+  if (kind === "religion-continent") {
+    const rows=continentOrder.map((continent)=>{
+      const {total,values}=religionByContinent(continent);
+      return row(continentLabels[continent],[round(total/1e6,1),...religionKeys.map(([key])=>round(values[key]/total*100,1))]);
+    });
+    return table(target,"백만 명, %","2020",sourceFromCountry("religion"),["대륙",{label:"수록 인구",unit:"백만 명"},...religionKeys.map(([,label])=>({label,unit:"%"}))],rows,{note:"* 종교별 신자 수를 국가 단위로 합산; 수록 국가 범위"});
+  }
+  if (kind === "religion-distribution") {
+    const continents=continentOrder.map((name)=>religionByContinent(name));
+    const rows=religionKeys.map(([key,label])=>{
+      const total=continents.reduce((sum,c)=>sum+c.values[key],0);
+      return row(label,[round(total/1e6,1),...continents.map((c)=>round(c.values[key]/total*100,1))]);
+    });
+    return table(target,"백만 명, %","2020",sourceFromCountry("religion"),["종교",{label:"수록 신자",unit:"백만 명"},...continentOrder.map((name)=>({label:continentLabels[name],unit:"%"}))],rows,{note:"* 국가별 신자 수 합산; 수록 국가 범위"});
+  }
+  if (kind === "religion-rank") {
+    const keys=[["christians","기독교"],["muslims","이슬람교"],["hindus","힌두교"],["buddhists","불교"]];
+    const variants=keys.map(([key,label])=>({id:key,label,rows:allCountries.filter((c)=>c.religion2020?.counts?.[key]!=null)
+      .sort((a,b)=>b.religion2020.counts[key]-a.religion2020.counts[key]).slice(0,5)
+      .map((c,i)=>row(String(i+1)+"위",[{name:cName(c),value:round(c.religion2020.counts[key]/1e6,1)}]))}));
+    return table(target,"백만 명","2020",sourceFromCountry("religion"),["순위",{label:"국가 · 신자",unit:"백만 명"}],variants[0].rows,{variants,note:"Pew Research Center 수록 국가 중 상위 5개국"});
+  }
+  if (kind === "fa-world-crops") {
+    const rows=faCrop.map(([item,label])=>row(label,[round(faRecord("faostat_production_2024","World",item,"Production")/1e6,1),round(faRecord("faostat_production_2024","World",item,"Area harvested")/1e6,1)]));
+    return table(target,"백만 t, 백만 ha","2024",faSource,["작물",{label:"생산량",unit:"백만 t"},{label:"수확 면적",unit:"백만 ha"}],rows);
+  }
+  if (kind === "fa-world-yield-trade") {
+    const rows=faCrop.map(([item,label])=>{
+      const production=faRecord("faostat_production_2024","World",item,"Production");
+      const area=faRecord("faostat_production_2024","World",item,"Area harvested");
+      const exportItem=item==="Rice"?"Rice, paddy (rice milled equivalent)":item;
+      const exports=faRecord("faostat_trade_2024","World",exportItem,"Export quantity");
+      return row(label,[round(production/area,1),item==="Rice"||exports===null?null:round(exports/production*100,1)]);
+    });
+    return table(target,"t/ha, %","2024",faSource,["작물",{label:"단위 면적 생산",unit:"t/ha"},{label:"수출량/생산량",unit:"%"}],rows,{note:"쌀 수출량은 FAOSTAT 도정미 환산량이므로 생산량과 정의가 달라 직접 비교 불가; 해당 값은 미표시"});
+  }
+  if (kind === "fa-continent-crops") {
+    const rows=continentOrder.map((continent)=>{
+      const values=faCrop.map(([item])=>{
+        const part=faContinent("faostat_production_2024",continent,item,"Production");
+        const all=faRecord("faostat_production_2024","World",item,"Production");
+        return round(part/all*100,1);
+      });
+      return row(continentLabels[continent],values);
+    });
+    return table(target,"%","2024",faSource,["대륙",...faCrop.map(([,label])=>({label,unit:"%"}))],rows,{note:"중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"});
+  }
+  if (kind === "fa-continent-trade") {
+    const variants=faCrop.map(([item,label])=>({id:item.replace(/[^a-z]/gi,"").toLowerCase(),label,rows:continentOrder.map((continent)=>{
+      const exportItem=item==="Rice"?"Rice, paddy (rice milled equivalent)":item;
+      return row(continentLabels[continent],[round(faContinent("faostat_trade_2024",continent,exportItem,"Export quantity")/1e6,1),round(faContinent("faostat_trade_2024",continent,exportItem,"Import quantity")/1e6,1)]);
+    })}));
+    return table(target,"백만 t","2024",source("FAOSTAT","https://www.fao.org/faostat/en/#data/TCL"),["대륙",{label:"수출",unit:"백만 t"},{label:"수입",unit:"백만 t"}],variants[0].rows,{variants,note:"국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"});
+  }
+  if (kind === "fa-trade-rank") {
+    const variants=faCrop.flatMap(([item,label])=>["Export quantity","Import quantity"].map((element)=>{
+      const exportItem=item==="Rice"?"Rice, paddy (rice milled equivalent)":item;
+      const rows=local.faostat_trade_2024.filter((r)=>r.item===exportItem&&r.element===element&&Number(r.area_code)<5000)
+        .sort((a,b)=>b.value-a.value).slice(0,5).map((r,i)=>row(String(i+1)+"위",[{name:r.area,value:round(r.value/1e6,1)}]));
+      return {id:(item+element).replace(/[^a-z]/gi,"").toLowerCase(),label:label+" "+(element==="Export quantity"?"수출":"수입"),rows};
+    }));
+    return table(target,"백만 t","2024",source("FAOSTAT","https://www.fao.org/faostat/en/#data/TCL"),["순위",{label:"국가 · 물량",unit:"백만 t"}],variants[0].rows,{variants,note:"FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"});
+  }
+  if (kind === "fa-continent-livestock") {
+    const rows=continentOrder.map((continent)=>row(continentLabels[continent],faAnimal.map(([item])=>round(faContinent("faostat_production_2024",continent,item,"Stocks")/1e6,1))));
+    return table(target,"백만 마리","2024",faSource,["대륙",...faAnimal.map(([,label])=>({label,unit:"백만 마리"}))],rows,{note:"중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"});
+  }
   if (kind === "kosis-age" || kind === "kosis-sex") {
     const rows = provinceOrder.map((name) => {
       const a = ageByProvince(name);

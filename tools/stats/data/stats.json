@@ -9,9 +9,9 @@
     ],
     "tableCount": {
       "korea": 17,
-      "world": 20
+      "world": 28
     },
-    "gapCount": 55
+    "gapCount": 46
   },
   "subjects": {
     "korea": {
@@ -4555,6 +4555,131 @@
               "comparison": true,
               "views": [
                 {
+                  "id": "대륙",
+                  "label": "대륙",
+                  "rowLabel": "대륙",
+                  "columns": [
+                    {
+                      "label": "수록 인구",
+                      "unit": "백만 명"
+                    },
+                    {
+                      "label": "기독교",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "이슬람교",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "힌두교",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "불교",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "유대교",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "무종교",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "기타",
+                      "unit": "%"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "아시아",
+                      "values": [
+                        4686.8,
+                        5.4,
+                        28.8,
+                        24.9,
+                        6.7,
+                        0.1,
+                        31.6,
+                        2.4
+                      ]
+                    },
+                    {
+                      "label": "유럽",
+                      "values": [
+                        748.5,
+                        67.1,
+                        5.8,
+                        0.3,
+                        0.3,
+                        0.2,
+                        25.4,
+                        0.8
+                      ]
+                    },
+                    {
+                      "label": "아프리카",
+                      "values": [
+                        1379.9,
+                        50.9,
+                        44.8,
+                        0.1,
+                        0,
+                        0,
+                        2.2,
+                        2
+                      ]
+                    },
+                    {
+                      "label": "앵글로아메리카",
+                      "values": [
+                        377.6,
+                        62.9,
+                        1.6,
+                        1,
+                        1.3,
+                        1.6,
+                        30.2,
+                        1.4
+                      ]
+                    },
+                    {
+                      "label": "라틴 아메리카",
+                      "values": [
+                        646.2,
+                        84.6,
+                        0.1,
+                        0.1,
+                        0,
+                        0.1,
+                        11.9,
+                        3.1
+                      ]
+                    },
+                    {
+                      "label": "오세아니아",
+                      "values": [
+                        43.9,
+                        60.6,
+                        2.4,
+                        2.6,
+                        1.7,
+                        0.3,
+                        31,
+                        1.5
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "Pew Research Center (Our World in Data)",
+                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                  },
+                  "year": "2020년",
+                  "note": "* 종교별 신자 수를 국가 단위로 합산; 수록 국가 범위"
+                },
+                {
                   "id": "아시아",
                   "label": "아시아",
                   "rowLabel": "국가",
@@ -4811,6 +4936,401 @@
                   },
                   "year": "2020년",
                   "note": "국가 합산"
+                }
+              ]
+            },
+            {
+              "id": "world-religion-distribution",
+              "title": "종교별 대륙 신자 비중",
+              "views": [
+                {
+                  "id": "default",
+                  "label": "기본",
+                  "rowLabel": "종교",
+                  "columns": [
+                    {
+                      "label": "수록 신자",
+                      "unit": "백만 명"
+                    },
+                    {
+                      "label": "아시아",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "유럽",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "아프리카",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "앵글로아메리카",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "라틴 아메리카",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "오세아니아",
+                      "unit": "%"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "기독교",
+                      "values": [
+                        2268,
+                        11.1,
+                        22.2,
+                        31,
+                        10.5,
+                        24.1,
+                        1.2
+                      ]
+                    },
+                    {
+                      "label": "이슬람교",
+                      "values": [
+                        2020.8,
+                        66.9,
+                        2.2,
+                        30.6,
+                        0.3,
+                        0,
+                        0.1
+                      ]
+                    },
+                    {
+                      "label": "힌두교",
+                      "values": [
+                        1177.8,
+                        99.2,
+                        0.2,
+                        0.1,
+                        0.3,
+                        0.1,
+                        0.1
+                      ]
+                    },
+                    {
+                      "label": "불교",
+                      "values": [
+                        324.1,
+                        97.3,
+                        0.8,
+                        0,
+                        1.6,
+                        0.1,
+                        0.2
+                      ]
+                    },
+                    {
+                      "label": "유대교",
+                      "values": [
+                        14.8,
+                        46.4,
+                        8.6,
+                        0.4,
+                        41.3,
+                        2.6,
+                        0.8
+                      ]
+                    },
+                    {
+                      "label": "무종교",
+                      "values": [
+                        1905.1,
+                        77.7,
+                        10,
+                        1.6,
+                        6,
+                        4,
+                        0.7
+                      ]
+                    },
+                    {
+                      "label": "기타",
+                      "values": [
+                        172,
+                        65.4,
+                        3.5,
+                        16.1,
+                        3,
+                        11.6,
+                        0.4
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "Pew Research Center (Our World in Data)",
+                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                  },
+                  "year": "2020년",
+                  "note": "* 국가별 신자 수 합산; 수록 국가 범위"
+                }
+              ]
+            },
+            {
+              "id": "world-religion-rank",
+              "title": "보편 종교별 신자 수 상위 국가",
+              "views": [
+                {
+                  "id": "christians",
+                  "label": "기독교",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 신자",
+                      "unit": "백만 명"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "미국",
+                          "value": 217.3
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "브라질",
+                          "value": 168.3
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "멕시코",
+                          "value": 113.1
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "필리핀",
+                          "value": 102.5
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "러시아",
+                          "value": 102.4
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "Pew Research Center (Our World in Data)",
+                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                  },
+                  "year": "2020년",
+                  "note": "Pew Research Center 수록 국가 중 상위 5개국"
+                },
+                {
+                  "id": "muslims",
+                  "label": "이슬람교",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 신자",
+                      "unit": "백만 명"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "인도네시아",
+                          "value": 239
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "파키스탄",
+                          "value": 226.9
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "인도",
+                          "value": 213.1
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "방글라데시",
+                          "value": 151.4
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "나이지리아",
+                          "value": 120
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "Pew Research Center (Our World in Data)",
+                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                  },
+                  "year": "2020년",
+                  "note": "Pew Research Center 수록 국가 중 상위 5개국"
+                },
+                {
+                  "id": "hindus",
+                  "label": "힌두교",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 신자",
+                      "unit": "백만 명"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "인도",
+                          "value": 1113.3
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "네팔",
+                          "value": 23.5
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "방글라데시",
+                          "value": 13.1
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "파키스탄",
+                          "value": 5
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "인도네시아",
+                          "value": 4.3
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "Pew Research Center (Our World in Data)",
+                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                  },
+                  "year": "2020년",
+                  "note": "Pew Research Center 수록 국가 중 상위 5개국"
+                },
+                {
+                  "id": "buddhists",
+                  "label": "불교",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 신자",
+                      "unit": "백만 명"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "타이",
+                          "value": 67.6
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "중국",
+                          "value": 53.3
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "미얀마",
+                          "value": 47.2
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "일본",
+                          "value": 47
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "베트남",
+                          "value": 22.6
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "Pew Research Center (Our World in Data)",
+                    "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
+                  },
+                  "year": "2020년",
+                  "note": "Pew Research Center 수록 국가 중 상위 5개국"
                 }
               ]
             }
@@ -6569,6 +7089,105 @@
               ]
             },
             {
+              "id": "world-world-crops",
+              "title": "3대 식량 작물 생산량과 재배 면적",
+              "views": [
+                {
+                  "id": "default",
+                  "label": "기본",
+                  "rowLabel": "작물",
+                  "columns": [
+                    {
+                      "label": "생산량",
+                      "unit": "백만 t"
+                    },
+                    {
+                      "label": "수확 면적",
+                      "unit": "백만 ha"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "밀",
+                      "values": [
+                        798.5,
+                        219.5
+                      ]
+                    },
+                    {
+                      "label": "쌀",
+                      "values": [
+                        820.2,
+                        172.4
+                      ]
+                    },
+                    {
+                      "label": "옥수수",
+                      "values": [
+                        1218.2,
+                        210
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/QCL"
+                  },
+                  "year": "2024년"
+                }
+              ]
+            },
+            {
+              "id": "world-crop-yield-trade",
+              "title": "3대 식량 작물 단위 면적 생산량과 수출 비중",
+              "views": [
+                {
+                  "id": "default",
+                  "label": "기본",
+                  "rowLabel": "작물",
+                  "columns": [
+                    {
+                      "label": "단위 면적 생산",
+                      "unit": "t/ha"
+                    },
+                    {
+                      "label": "수출량/생산량",
+                      "unit": "%"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "밀",
+                      "values": [
+                        3.6,
+                        25.4
+                      ]
+                    },
+                    {
+                      "label": "쌀",
+                      "values": [
+                        4.8,
+                        null
+                      ]
+                    },
+                    {
+                      "label": "옥수수",
+                      "values": [
+                        5.8,
+                        16.6
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/QCL"
+                  },
+                  "year": "2024년",
+                  "note": "쌀 수출량은 FAOSTAT 도정미 환산량이므로 생산량과 정의가 달라 직접 비교 불가; 해당 값은 미표시"
+                }
+              ]
+            },
+            {
               "id": "world-crop-use",
               "title": "3대 식량 작물 용도별 소비 구조",
               "views": [
@@ -6628,6 +7247,678 @@
                     "url": "https://fenixservices.fao.org/faostat/static/bulkdownloads/FoodBalanceSheets_E_All_Data_(Normalized).zip"
                   },
                   "year": "2023년"
+                }
+              ]
+            },
+            {
+              "id": "world-crop-continents",
+              "title": "3대 식량 작물 대륙별 생산 비율",
+              "views": [
+                {
+                  "id": "default",
+                  "label": "기본",
+                  "rowLabel": "대륙",
+                  "columns": [
+                    {
+                      "label": "밀",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "쌀",
+                      "unit": "%"
+                    },
+                    {
+                      "label": "옥수수",
+                      "unit": "%"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "아시아",
+                      "values": [
+                        46.6,
+                        89.4,
+                        33.2
+                      ]
+                    },
+                    {
+                      "label": "유럽",
+                      "values": [
+                        30.5,
+                        0.5,
+                        8.9
+                      ]
+                    },
+                    {
+                      "label": "아프리카",
+                      "values": [
+                        3.3,
+                        5.5,
+                        7.9
+                      ]
+                    },
+                    {
+                      "label": "앵글로아메리카",
+                      "values": [
+                        11.2,
+                        1.2,
+                        32.3
+                      ]
+                    },
+                    {
+                      "label": "라틴 아메리카",
+                      "values": [
+                        4.1,
+                        3.3,
+                        17.6
+                      ]
+                    },
+                    {
+                      "label": "오세아니아",
+                      "values": [
+                        4.3,
+                        0.1,
+                        0.1
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/QCL"
+                  },
+                  "year": "2024년",
+                  "note": "중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"
+                }
+              ]
+            },
+            {
+              "id": "world-crop-trade-continents",
+              "title": "3대 식량 작물 대륙별 수출입",
+              "views": [
+                {
+                  "id": "wheat",
+                  "label": "밀",
+                  "rowLabel": "대륙",
+                  "columns": [
+                    {
+                      "label": "수출",
+                      "unit": "백만 t"
+                    },
+                    {
+                      "label": "수입",
+                      "unit": "백만 t"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "아시아",
+                      "values": [
+                        8.6,
+                        87.3
+                      ]
+                    },
+                    {
+                      "label": "유럽",
+                      "values": [
+                        114.8,
+                        44.7
+                      ]
+                    },
+                    {
+                      "label": "아프리카",
+                      "values": [
+                        0.5,
+                        47.6
+                      ]
+                    },
+                    {
+                      "label": "앵글로아메리카",
+                      "values": [
+                        47.4,
+                        2.5
+                      ]
+                    },
+                    {
+                      "label": "라틴 아메리카",
+                      "values": [
+                        11.7,
+                        22
+                      ]
+                    },
+                    {
+                      "label": "오세아니아",
+                      "values": [
+                        19.7,
+                        1.1
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/TCL"
+                  },
+                  "year": "2024년",
+                  "note": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
+                },
+                {
+                  "id": "rice",
+                  "label": "쌀",
+                  "rowLabel": "대륙",
+                  "columns": [
+                    {
+                      "label": "수출",
+                      "unit": "백만 t"
+                    },
+                    {
+                      "label": "수입",
+                      "unit": "백만 t"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "아시아",
+                      "values": [
+                        50.1,
+                        26
+                      ]
+                    },
+                    {
+                      "label": "유럽",
+                      "values": [
+                        2.3,
+                        5.2
+                      ]
+                    },
+                    {
+                      "label": "아프리카",
+                      "values": [
+                        0.8,
+                        17.6
+                      ]
+                    },
+                    {
+                      "label": "앵글로아메리카",
+                      "values": [
+                        3.2,
+                        1.9
+                      ]
+                    },
+                    {
+                      "label": "라틴 아메리카",
+                      "values": [
+                        3.3,
+                        4.5
+                      ]
+                    },
+                    {
+                      "label": "오세아니아",
+                      "values": [
+                        0.2,
+                        0.7
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/TCL"
+                  },
+                  "year": "2024년",
+                  "note": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
+                },
+                {
+                  "id": "maizecorn",
+                  "label": "옥수수",
+                  "rowLabel": "대륙",
+                  "columns": [
+                    {
+                      "label": "수출",
+                      "unit": "백만 t"
+                    },
+                    {
+                      "label": "수입",
+                      "unit": "백만 t"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "아시아",
+                      "values": [
+                        6.4,
+                        86.9
+                      ]
+                    },
+                    {
+                      "label": "유럽",
+                      "values": [
+                        53,
+                        39.2
+                      ]
+                    },
+                    {
+                      "label": "아프리카",
+                      "values": [
+                        4.2,
+                        22.6
+                      ]
+                    },
+                    {
+                      "label": "앵글로아메리카",
+                      "values": [
+                        65,
+                        3
+                      ]
+                    },
+                    {
+                      "label": "라틴 아메리카",
+                      "values": [
+                        74,
+                        49.2
+                      ]
+                    },
+                    {
+                      "label": "오세아니아",
+                      "values": [
+                        0.1,
+                        0
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/TCL"
+                  },
+                  "year": "2024년",
+                  "note": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
+                }
+              ]
+            },
+            {
+              "id": "world-crop-trade-rank",
+              "title": "3대 식량 작물 수출입 상위 국가",
+              "views": [
+                {
+                  "id": "wheatexportquantity",
+                  "label": "밀 수출",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 물량",
+                      "unit": "백만 t"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "Russian Federation",
+                          "value": 32.7
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "Canada",
+                          "value": 25.5
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "United States of America",
+                          "value": 21.8
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "Ukraine",
+                          "value": 20.7
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "Australia",
+                          "value": 19.7
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/TCL"
+                  },
+                  "year": "2024년",
+                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                },
+                {
+                  "id": "wheatimportquantity",
+                  "label": "밀 수입",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 물량",
+                      "unit": "백만 t"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "Egypt",
+                          "value": 13.1
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "China",
+                          "value": 12.5
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "China (excluding intra-trade)",
+                          "value": 12.5
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "Indonesia",
+                          "value": 12.1
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "China, mainland",
+                          "value": 11
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/TCL"
+                  },
+                  "year": "2024년",
+                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                },
+                {
+                  "id": "riceexportquantity",
+                  "label": "쌀 수출",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 물량",
+                      "unit": "백만 t"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "India",
+                          "value": 17.9
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "Thailand",
+                          "value": 9.9
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "Viet Nam",
+                          "value": 7
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "Pakistan",
+                          "value": 6.5
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "Cambodia",
+                          "value": 3.9
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/TCL"
+                  },
+                  "year": "2024년",
+                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                },
+                {
+                  "id": "riceimportquantity",
+                  "label": "쌀 수입",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 물량",
+                      "unit": "백만 t"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "Philippines",
+                          "value": 4.8
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "Indonesia",
+                          "value": 4.5
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "Iraq",
+                          "value": 2.1
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "China",
+                          "value": 2.1
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "China (excluding intra-trade)",
+                          "value": 2
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/TCL"
+                  },
+                  "year": "2024년",
+                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                },
+                {
+                  "id": "maizecornexportquantity",
+                  "label": "옥수수 수출",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 물량",
+                      "unit": "백만 t"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "United States of America",
+                          "value": 62.6
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "Brazil",
+                          "value": 39.8
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "Argentina",
+                          "value": 32.1
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "Ukraine",
+                          "value": 29.6
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "France",
+                          "value": 4.1
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/TCL"
+                  },
+                  "year": "2024년",
+                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                },
+                {
+                  "id": "maizecornimportquantity",
+                  "label": "옥수수 수입",
+                  "rowLabel": "순위",
+                  "columns": [
+                    {
+                      "label": "국가 · 물량",
+                      "unit": "백만 t"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "1위",
+                      "values": [
+                        {
+                          "name": "Mexico",
+                          "value": 23.9
+                        }
+                      ]
+                    },
+                    {
+                      "label": "2위",
+                      "values": [
+                        {
+                          "name": "China",
+                          "value": 18.6
+                        }
+                      ]
+                    },
+                    {
+                      "label": "3위",
+                      "values": [
+                        {
+                          "name": "China (excluding intra-trade)",
+                          "value": 18.6
+                        }
+                      ]
+                    },
+                    {
+                      "label": "4위",
+                      "values": [
+                        {
+                          "name": "Japan",
+                          "value": 15.3
+                        }
+                      ]
+                    },
+                    {
+                      "label": "5위",
+                      "values": [
+                        {
+                          "name": "China, mainland",
+                          "value": 13.6
+                        }
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/TCL"
+                  },
+                  "year": "2024년",
+                  "note": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
                 }
               ]
             },
@@ -6982,6 +8273,87 @@
                     "url": "https://www.fao.org/faostat/en/#data/QCL"
                   },
                   "year": "2024년"
+                }
+              ]
+            },
+            {
+              "id": "world-livestock-continents",
+              "title": "소·돼지·양 사육 두수",
+              "views": [
+                {
+                  "id": "default",
+                  "label": "기본",
+                  "rowLabel": "대륙",
+                  "columns": [
+                    {
+                      "label": "소",
+                      "unit": "백만 마리"
+                    },
+                    {
+                      "label": "돼지",
+                      "unit": "백만 마리"
+                    },
+                    {
+                      "label": "양",
+                      "unit": "백만 마리"
+                    }
+                  ],
+                  "rows": [
+                    {
+                      "label": "아시아",
+                      "values": [
+                        484.4,
+                        532,
+                        624.9
+                      ]
+                    },
+                    {
+                      "label": "유럽",
+                      "values": [
+                        109,
+                        177.8,
+                        114.9
+                      ]
+                    },
+                    {
+                      "label": "아프리카",
+                      "values": [
+                        398.7,
+                        55.8,
+                        438.7
+                      ]
+                    },
+                    {
+                      "label": "앵글로아메리카",
+                      "values": [
+                        98.1,
+                        88.9,
+                        5.9
+                      ]
+                    },
+                    {
+                      "label": "라틴 아메리카",
+                      "values": [
+                        448.1,
+                        102.6,
+                        75.3
+                      ]
+                    },
+                    {
+                      "label": "오세아니아",
+                      "values": [
+                        40.3,
+                        5.4,
+                        103
+                      ]
+                    }
+                  ],
+                  "source": {
+                    "name": "FAOSTAT",
+                    "url": "https://www.fao.org/faostat/en/#data/QCL"
+                  },
+                  "year": "2024년",
+                  "note": "중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"
                 }
               ]
             }

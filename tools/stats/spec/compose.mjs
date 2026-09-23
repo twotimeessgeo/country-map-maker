@@ -13,6 +13,9 @@ const slugNames = {
   "k-5-06":"renewable-production-region","k-5-09":"cultivated-area","k-5-18":"manufacturing-shipments",
   "k-5-19":"manufacturing-region","k-5-20":"manufacturing-sectors","k-6-04":"age-structure-region","k-6-05":"sex-ratio",
   "w-3-34":"global-primary-energy","w-3-35":"primary-energy-rank",
+  "w-3-01":"religion-continents","w-3-02":"religion-distribution","w-3-03":"religion-rank",
+  "w-3-23":"world-crops","w-3-24":"crop-yield-trade","w-3-26":"crop-continents",
+  "w-3-27":"crop-trade-continents","w-3-28":"crop-trade-rank","w-3-33":"livestock-continents",
   "k-6-01":"population","k-6-03":"age-structure","k-6-06":"net-migration","k-6-07":"city-growth",
   "k-x-03":"births-deaths","k-6-08":"foreign-residents","k-6-09":"city-foreign-share","k-x-04":"foreign-types","k-7-05":"capital-share",
   "w-3-04":"religion-asia","w-3-05":"religion-africa","w-3-06":"population-history","w-3-07":"birth-death",
@@ -183,7 +186,7 @@ function combine(subject,topic,entries) {
   }
   if(subject==="korea"&&topic==="agriculture") add("korea-agriculture-compare","농업 비교",[["k-5-07","농가"],["k-5-09","경지"],["k-5-15","생산"]]);
   if(subject==="korea"&&topic==="energy") add("korea-energy-compare","에너지 비교",[["k-x-02","소비와 판매"],["k-5-02","공급"],["k-5-03","생산"]]);
-  if(subject==="world"&&topic==="religion") add("world-religion-compare","종교 비교",[["w-3-04","아시아"],["w-3-05","아프리카"]]);
+  if(subject==="world"&&topic==="religion") add("world-religion-compare","종교 비교",[["w-3-01","대륙"],["w-3-04","아시아"],["w-3-05","아프리카"]]);
   if(subject==="world"&&topic==="population") add("world-population-compare","인구와 이주 비교",[["w-3-13","규모"],["w-3-14","출생과 사망"],["w-3-16","이동"]]);
   if(subject==="world"&&topic==="urban") {
     add("world-urban-compare","도시화 비교",[["w-x-01","도시화율"],["w-3-19","도시와 촌락"],["w-3-20","도시 증가"],["w-3-21","촌락 증가"]]);

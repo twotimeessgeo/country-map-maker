@@ -97,9 +97,9 @@ export const subjects = {
       unit("II", "세계의 자연환경과 인간 생활", [], true),
       unit("III", "세계의 인문 환경과 인문 경관", [
         chapter("06", "주요 종교", [
-          t("w-3-01", "대륙별 종교 신자 비중", null, "Pew Research Center 2020 대륙별 종교 원표"),
-          t("w-3-02", "종교별 대륙 신자 비중", null, "Pew Research Center 2020 종교·대륙 교차 원표"),
-          t("w-3-03", "보편 종교별 신자 수 상위 국가", null, "Pew Research Center 2020 세계 전체 국가 원표"),
+          t("w-3-01", "대륙별 종교 신자 비중", "religion-continent", "Pew Research Center 2020 대륙별 종교 원표"),
+          t("w-3-02", "종교별 대륙 신자 비중", "religion-distribution", "Pew Research Center 2020 종교·대륙 교차 원표"),
+          t("w-3-03", "보편 종교별 신자 수 상위 국가", "religion-rank", "Pew Research Center 2020 세계 전체 국가 원표"),
           t("w-3-04", "남부와 동남아시아 주요국 종교", "religion-asia"),
           t("w-3-05", "아프리카 주요국 종교", "religion-africa"),
         ]),
@@ -126,17 +126,17 @@ export const subjects = {
           extra("w-x-01", "대륙과 주요국 도시화율", "extra-urban"),
         ]),
         chapter("09", "식량 자원과 국제 이동", [
-          t("w-3-23", "3대 식량 작물 생산량과 재배 면적", "crop-production"),
-          t("w-3-24", "3대 식량 작물 단위 면적 생산량과 수출 비중", null, "FAOSTAT 생산·수확면적·수출 동일 연도 원표"),
+          t("w-3-23", "3대 식량 작물 생산량과 재배 면적", "fa-world-crops"),
+          t("w-3-24", "3대 식량 작물 단위 면적 생산량과 수출 비중", "fa-world-yield-trade", "FAOSTAT 생산·수확면적·수출 동일 연도 원표"),
           t("w-3-25", "3대 식량 작물 용도별 소비 구조", "crop-use"),
-          t("w-3-26", "3대 식량 작물 대륙별 생산 비율", null, "FAOSTAT 대륙별 생산량 원표"),
-          t("w-3-27", "3대 식량 작물 대륙별 수출입", null, "FAOSTAT 대륙별 교역 원표"),
-          t("w-3-28", "3대 식량 작물 수출입 상위 국가", null, "FAOSTAT 2024 교역 전체 국가 원표"),
+          t("w-3-26", "3대 식량 작물 대륙별 생산 비율", "fa-continent-crops", "FAOSTAT 대륙별 생산량 원표"),
+          t("w-3-27", "3대 식량 작물 대륙별 수출입", "fa-continent-trade", "FAOSTAT 대륙별 교역 원표"),
+          t("w-3-28", "3대 식량 작물 수출입 상위 국가", "fa-trade-rank", "FAOSTAT 2024 교역 전체 국가 원표"),
           t("w-3-29", "작물별 생산 상위 국가", "crop-top3"),
           t("w-3-30", "주요국 식량 작물 생산", "crop-countries"),
           t("w-3-31", "주요 가축 사육 두수와 육류 생산량", "livestock-countries"),
           t("w-3-32", "가축별 사육 두수 상위 국가", "livestock-top3"),
-          t("w-3-33", "대륙별 소·돼지·양 사육 두수", null, "FAOSTAT 대륙별 가축 원표"),
+          t("w-3-33", "대륙별 소·돼지·양 사육 두수", "fa-continent-livestock", "FAOSTAT 대륙별 가축 원표"),
         ]),
         chapter("10", "에너지 자원과 국제 이동", [
           t("w-3-34", "세계 1차 에너지 소비 구조", "ei-world-mix", "Energy Institute 세계 1차 에너지 소비 원표"),
@@ -187,4 +187,3 @@ export const subjects = {
     ],
   },
 };
-
