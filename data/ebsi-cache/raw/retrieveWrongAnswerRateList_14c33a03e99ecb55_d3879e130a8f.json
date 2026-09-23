@@ -1,0 +1,9 @@
+{
+  "url": "https://www.ebsi.co.kr/ebs/xip/xipa/retrieveWrongAnswerRateList.ajax",
+  "request": {
+    "paperId": "27171693"
+  },
+  "retrieved_at": "2026-09-23T14:06:11+00:00",
+  "sha256": "d3879e130a8f86abbc3ab7b5939563b2f110ae7fd584dca535193cb42b9f53b0",
+  "last_checked_at": "2026-09-23T14:06:11+00:00"
+}

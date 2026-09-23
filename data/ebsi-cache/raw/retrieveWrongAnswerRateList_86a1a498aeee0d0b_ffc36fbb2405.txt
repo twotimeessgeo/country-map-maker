@@ -1,0 +1,338 @@
+<div class="table_head" style="display:none;">
+			<div class="txt_wrap">
+			    <p class="txt">* 오답률 TOP15 모두 풀기는 2019 ~ 전년도 주요과목만 제공합니다.</p>
+			</div>
+			</div>
+		
+		<div class="table_scroll2 table_fixed w_xxl">
+		<table summary="오답노트 표입니다.">
+			<caption>오답노트</caption>
+			<colgroup>
+				<col class="col_fixed">
+				<col class="col_fixed">
+				<col>
+				<col>
+				<col>
+				<col span="5" style="width:9%">
+				<col span="3" style="width:9%">
+			</colgroup>
+			<thead>
+				<tr>
+					<th rowspan="2" class="col_fixed">순위</th>
+					<th rowspan="2" class="col_fixed">문항<br>번호</th>
+					<th rowspan="2">오답률</th>
+					<th rowspan="2">배점</th>
+					<th rowspan="2">정답</th>
+					<th colspan="5">선택지별 비율</th>
+					<th rowspan="2">문제</th>
+					<th rowspan="2">해설강의</th>
+					<th rowspan="2">인공지능<br>문제추천
+					</th>
+				</tr>
+				<tr>
+					<th>①</th>
+					<th>②</th>
+					<th>③</th>
+					<th>④</th>
+					<th>⑤</th>
+				</tr>
+			</thead>
+			<tbody>
+			<tr>
+			  		<td class="col_fixed">4</td>
+			  		<td class="col_fixed">2</td>  
+			  		<td>41.8</td>
+			  		<td>
+			  		2</td>
+			  		
+			  		<td>2</td>
+			  		<td>15.6</td> 
+					  		<td>58.2</td>
+					  		<td>11.8</td> 
+					  		<td>4.2</td>
+					  		<td>10.3</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21527990);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21527990);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21527990, 2001096 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">12</td>
+			  		<td class="col_fixed">3</td>  
+			  		<td>27.0</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>5</td>
+			  		<td>4.9</td> 
+					  		<td>6.1</td>
+					  		<td>6.5</td> 
+					  		<td>9.5</td>
+					  		<td>73.0</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21527991);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21527991);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21527991, 2001064 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">6</td>
+			  		<td class="col_fixed">4</td>  
+			  		<td>40.7</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>2</td>
+			  		<td>12.2</td> 
+					  		<td>59.3</td>
+					  		<td>2.7</td> 
+					  		<td>11.0</td>
+					  		<td>14.8</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21527992);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21527992);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21527992, 2001092 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">13</td>
+			  		<td class="col_fixed">5</td>  
+			  		<td>26.2</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>4</td>
+			  		<td>2.3</td> 
+					  		<td>4.6</td>
+					  		<td>10.3</td> 
+					  		<td>73.8</td>
+					  		<td>9.1</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21527993);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21527993);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21527993, 2001102 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">2</td>
+			  		<td class="col_fixed">7</td>  
+			  		<td>53.6</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>3</td>
+			  		<td>10.6</td> 
+					  		<td>16.3</td>
+					  		<td>46.4</td> 
+					  		<td>17.5</td>
+					  		<td>9.1</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21527995);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21527995);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21527995, 2001095 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">10</td>
+			  		<td class="col_fixed">8</td>  
+			  		<td>28.5</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>4</td>
+			  		<td>3.8</td> 
+					  		<td>2.3</td>
+					  		<td>8.0</td> 
+					  		<td>71.5</td>
+					  		<td>14.4</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21527996);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21527996);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21527996, 2001057 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">9</td>
+			  		<td class="col_fixed">9</td>  
+			  		<td>35.0</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>3</td>
+			  		<td>16.0</td> 
+					  		<td>6.8</td>
+					  		<td>65.0</td> 
+					  		<td>8.0</td>
+					  		<td>4.2</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21527997);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21527997);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21527997, 2001090 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">15</td>
+			  		<td class="col_fixed">10</td>  
+			  		<td>21.3</td>
+			  		<td>
+			  		2</td>
+			  		
+			  		<td>4</td>
+			  		<td>6.1</td> 
+					  		<td>3.0</td>
+					  		<td>7.6</td> 
+					  		<td>78.7</td>
+					  		<td>4.6</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21527998);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21527998);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21527998, 2001059 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">8</td>
+			  		<td class="col_fixed">11</td>  
+			  		<td>35.7</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>3</td>
+			  		<td>12.5</td> 
+					  		<td>10.3</td>
+					  		<td>64.3</td> 
+					  		<td>2.7</td>
+					  		<td>10.3</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21527999);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21527999);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21527999, 2001114 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">11</td>
+			  		<td class="col_fixed">12</td>  
+			  		<td>27.8</td>
+			  		<td>
+			  		2</td>
+			  		
+			  		<td>2</td>
+			  		<td>9.5</td> 
+					  		<td>72.2</td>
+					  		<td>8.4</td> 
+					  		<td>6.5</td>
+					  		<td>3.4</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21528000);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21528000);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21528000, 2001063 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">3</td>
+			  		<td class="col_fixed">13</td>  
+			  		<td>45.6</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>3</td>
+			  		<td>5.3</td> 
+					  		<td>30.0</td>
+					  		<td>54.4</td> 
+					  		<td>4.9</td>
+					  		<td>5.3</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21528001);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21528001);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21528001, 2001101 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">14</td>
+			  		<td class="col_fixed">14</td>  
+			  		<td>22.1</td>
+			  		<td>
+			  		2</td>
+			  		
+			  		<td>1</td>
+			  		<td>77.9</td> 
+					  		<td>7.2</td>
+					  		<td>8.0</td> 
+					  		<td>4.6</td>
+					  		<td>2.3</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21528002);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21528002);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21528002, 2001046 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">1</td>
+			  		<td class="col_fixed">16</td>  
+			  		<td>55.5</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>2</td>
+			  		<td>11.8</td> 
+					  		<td>44.5</td>
+					  		<td>14.4</td> 
+					  		<td>13.7</td>
+					  		<td>15.6</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21528004);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21528004);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21528004, 2001066 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">7</td>
+			  		<td class="col_fixed">17</td>  
+			  		<td>38.4</td>
+			  		<td>
+			  		3</td>
+			  		
+			  		<td>5</td>
+			  		<td>2.7</td> 
+					  		<td>3.4</td>
+					  		<td>13.3</td> 
+					  		<td>19.0</td>
+					  		<td>61.6</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21528005);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21528005);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21528005, 2001112 );" class="btn_view">보기</a></td>
+			  	</tr>
+			<tr>
+			  		<td class="col_fixed">5</td>
+			  		<td class="col_fixed">18</td>  
+			  		<td>41.1</td>
+			  		<td>
+			  		2</td>
+			  		
+			  		<td>5</td>
+			  		<td>3.8</td> 
+					  		<td>8.0</td>
+					  		<td>17.5</td> 
+					  		<td>11.8</td>
+					  		<td>58.9</td>  
+				  		<td>
+			  			<a href="#" onclick="itemView(21528006);return false;"  class="btn_view">보기</a>
+						</td>
+			  		<td><a href="#none" onclick="fnVodSelect(26791420, 21528006);"  class="btn_view">보기</a></td>
+			  		<td><a href="#none" onclick="fnAi(21528006, 2001111 );" class="btn_view">보기</a></td>
+			  	</tr>
+			</tbody>
+		</table>
+		</div>
+	<div class="vodDiv"></div>
+<script>
+	$(function(){ 
+		tableFixedInit() 
+		
+		if($(location).attr('pathname').indexOf('retrievePastGrdCutWrongAnswerRate') > -1){
+			$('.table_head').show();
+		}
+	});
+</script>

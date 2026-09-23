@@ -217,6 +217,43 @@ const cutRecords = Array.isArray(cutData.records) ? cutData.records : [];
 if (cutRecords.length === 0) {
   errors.push("EBSi 등급컷 records가 비어 있습니다.");
 }
+if (Object.hasOwn(cutData, "easy_missing_rate_method")) {
+  errors.push("공개되지 않은 문항의 정답률 추정 설정이 남았습니다.");
+}
+const archiveHtml = fs.readFileSync(path.join(rootDir, "tools", "cut", "index.html"), "utf8");
+for (const required of ["scopeChips", "cutTrendChart", "questionUnpublished", "cutLightbox"]) {
+  if (!archiveHtml.includes(required)) errors.push("Archive 구조가 누락되었습니다: " + required);
+}
+for (const record of cutRecords) {
+  const published = new Map((record.wrong_top15 || []).map((item) => [Number(item.question), item]));
+  for (const item of record.items || []) {
+    if (item.source === "ebsi_not_in_top15" && (item.national_rate !== null || item.points !== null)) {
+      errors.push("미공개 문항에 추정 수치가 남았습니다: " + record.school_year + " " + record.subject + " " + item.question);
+    }
+    if (item.source === "ebsi_wrong_top15" && (item.national_rate == null || !Number.isFinite(Number(item.national_rate)))) {
+      errors.push("공개 문항 정답률이 비어 있습니다: " + record.school_year + " " + record.subject + " " + item.question);
+    }
+    if (item.source === "ebsi_wrong_top15" && !published.has(Number(item.question))) {
+      errors.push("공개 문항의 EBSi 상위 15행을 찾지 못했습니다.");
+    }
+  }
+  if (Number(record.school_year) === 2027) {
+    if ((record.wrong_top15 || []).length && new Set((record.wrong_top15 || []).map((item) => item.question)).size !== 15) {
+      errors.push("2027학년도 공개 오답률 15문항 수가 맞지 않습니다.");
+    }
+    if (record.source_cache?.grade === null && ["1", "2", "3"].some((grade) => record["raw" + grade] !== null)) {
+      errors.push("등급컷 원문 없이 2027학년도 컷 숫자가 들어갔습니다.");
+    }
+  }
+}
+for (const month of ["06", "07", "09"]) {
+  for (const subject of ["한국지리", "세계지리"]) {
+    if (!cutRecords.some((record) => Number(record.school_year) === 2027 &&
+      String(record.month).padStart(2, "0") === month && record.subject === subject)) {
+      errors.push("2027학년도 " + month + " " + subject + " 기록이 없습니다.");
+    }
+  }
+}
 
 const questionManifestPath = path.join(
   rootDir,

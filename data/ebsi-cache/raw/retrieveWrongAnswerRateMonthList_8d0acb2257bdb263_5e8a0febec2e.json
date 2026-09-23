@@ -1,0 +1,10 @@
+{
+  "url": "https://www.ebsi.co.kr/ebs/xip/xipa/retrieveWrongAnswerRateMonthList.ajax",
+  "request": {
+    "year": "2026",
+    "targetCd": "D300"
+  },
+  "retrieved_at": "2026-09-23T14:06:07+00:00",
+  "sha256": "5e8a0febec2e80ac165fd24da23acd4d7dd7af57b76160fb8844a175e34930a0",
+  "last_checked_at": "2026-09-23T14:06:07+00:00"
+}

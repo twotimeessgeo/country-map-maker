@@ -1,0 +1,1509 @@
+<!-- 학력평가 표 -->
+<div class="fullsv_tables">
+<div class="col_6">
+		<div class="title_wrap5">
+		<h3>생활과 윤리</h3>
+			<div class="academi_eval">
+						<em>평균: 23.04</em>
+						 <em>표준편차: 11.83</em>
+						  </div>
+				</div>
+		<div class="table_scroll2">
+		<table>
+					
+											<caption>응시과목</caption>
+											<colgroup>
+												<col span="4" style="width:25%">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">등급</th>
+													<!-- <th scope="col">작년컷</th> -->
+													<th scope="col">원점수</th>
+													<th scope="col">표준점수</th>
+													<th scope="col">백분위</th>
+												</tr>
+											</thead>
+					<tbody>
+	<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				최고점</td>
+				<td class="c_blue">50</td>
+				<td>
+					73</td>
+				<td>
+					99</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				1</td>
+				<td class="c_blue">47</td>
+				<td>
+					70</td>
+				<td>
+					96</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				2</td>
+				<td class="c_blue">41</td>
+				<td>
+					65</td>
+				<td>
+					89</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				3</td>
+				<td class="c_blue">32</td>
+				<td>
+					58</td>
+				<td>
+					76</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				4</td>
+				<td class="c_blue">25</td>
+				<td>
+					52</td>
+				<td>
+					61</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				5</td>
+				<td class="c_blue">17</td>
+				<td>
+					45</td>
+				<td>
+					39</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				6</td>
+				<td class="c_blue">13</td>
+				<td>
+					42</td>
+				<td>
+					26</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				7</td>
+				<td class="c_blue">10</td>
+				<td>
+					39</td>
+				<td>
+					10</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				8</td>
+				<td class="c_blue">6</td>
+				<td>
+					36</td>
+				<td>
+					3</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				9</td>
+				<td class="c_blue">0</td>
+				<td>
+					31</td>
+				<td>
+					0</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</tbody>
+			</table>
+		</div>
+					</div>
+<div class="col_6">
+		<div class="title_wrap5">
+		<h3>윤리와 사상</h3>
+			<div class="academi_eval">
+						<em>평균: 22.05</em>
+						 <em>표준편차: 13.21</em>
+						  </div>
+				</div>
+		<div class="table_scroll2">
+		<table>
+					
+											<caption>응시과목</caption>
+											<colgroup>
+												<col span="4" style="width:25%">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">등급</th>
+													<!-- <th scope="col">작년컷</th> -->
+													<th scope="col">원점수</th>
+													<th scope="col">표준점수</th>
+													<th scope="col">백분위</th>
+												</tr>
+											</thead>
+					<tbody>
+	<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				최고점</td>
+				<td class="c_blue">50</td>
+				<td>
+					71</td>
+				<td>
+					98</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				1</td>
+				<td class="c_blue">47</td>
+				<td>
+					69</td>
+				<td>
+					95</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				2</td>
+				<td class="c_blue">42</td>
+				<td>
+					65</td>
+				<td>
+					88</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				3</td>
+				<td class="c_blue">34</td>
+				<td>
+					59</td>
+				<td>
+					77</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				4</td>
+				<td class="c_blue">23</td>
+				<td>
+					51</td>
+				<td>
+					60</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				5</td>
+				<td class="c_blue">14</td>
+				<td>
+					44</td>
+				<td>
+					38</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				6</td>
+				<td class="c_blue">10</td>
+				<td>
+					41</td>
+				<td>
+					21</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				7</td>
+				<td class="c_blue">7</td>
+				<td>
+					39</td>
+				<td>
+					8</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				8</td>
+				<td class="c_blue">6</td>
+				<td>
+					38</td>
+				<td>
+					3</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				9</td>
+				<td class="c_blue">0</td>
+				<td>
+					33</td>
+				<td>
+					0</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</tbody>
+			</table>
+		</div>
+					</div>
+<div class="col_6">
+		<div class="title_wrap5">
+		<h3>한국지리</h3>
+			<div class="academi_eval">
+						<em>평균: 19.21</em>
+						 <em>표준편차: 10.92</em>
+						  </div>
+				</div>
+		<div class="table_scroll2">
+		<table>
+					
+											<caption>응시과목</caption>
+											<colgroup>
+												<col span="4" style="width:25%">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">등급</th>
+													<!-- <th scope="col">작년컷</th> -->
+													<th scope="col">원점수</th>
+													<th scope="col">표준점수</th>
+													<th scope="col">백분위</th>
+												</tr>
+											</thead>
+					<tbody>
+	<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				최고점</td>
+				<td class="c_blue">50</td>
+				<td>
+					78</td>
+				<td>
+					99</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				1</td>
+				<td class="c_blue">42</td>
+				<td>
+					71</td>
+				<td>
+					96</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				2</td>
+				<td class="c_blue">34</td>
+				<td>
+					64</td>
+				<td>
+					88</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				3</td>
+				<td class="c_blue">28</td>
+				<td>
+					58</td>
+				<td>
+					77</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				4</td>
+				<td class="c_blue">20</td>
+				<td>
+					51</td>
+				<td>
+					60</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				5</td>
+				<td class="c_blue">13</td>
+				<td>
+					44</td>
+				<td>
+					38</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				6</td>
+				<td class="c_blue">10</td>
+				<td>
+					42</td>
+				<td>
+					25</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				7</td>
+				<td class="c_blue">8</td>
+				<td>
+					40</td>
+				<td>
+					11</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				8</td>
+				<td class="c_blue">5</td>
+				<td>
+					37</td>
+				<td>
+					3</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				9</td>
+				<td class="c_blue">0</td>
+				<td>
+					32</td>
+				<td>
+					0</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</tbody>
+			</table>
+		</div>
+					</div>
+<div class="col_6">
+		<div class="title_wrap5">
+		<h3>세계사</h3>
+			<div class="academi_eval">
+						<em>평균: 24.21</em>
+						 <em>표준편차: 13.74</em>
+						  </div>
+				</div>
+		<div class="table_scroll2">
+		<table>
+					
+											<caption>응시과목</caption>
+											<colgroup>
+												<col span="4" style="width:25%">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">등급</th>
+													<!-- <th scope="col">작년컷</th> -->
+													<th scope="col">원점수</th>
+													<th scope="col">표준점수</th>
+													<th scope="col">백분위</th>
+												</tr>
+											</thead>
+					<tbody>
+	<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				최고점</td>
+				<td class="c_blue">50</td>
+				<td>
+					69</td>
+				<td>
+					97</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				1</td>
+				<td class="c_blue">50</td>
+				<td>
+					69</td>
+				<td>
+					97</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				2</td>
+				<td class="c_blue">45</td>
+				<td>
+					65</td>
+				<td>
+					89</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				3</td>
+				<td class="c_blue">36</td>
+				<td>
+					59</td>
+				<td>
+					76</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				4</td>
+				<td class="c_blue">27</td>
+				<td>
+					52</td>
+				<td>
+					60</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				5</td>
+				<td class="c_blue">17</td>
+				<td>
+					45</td>
+				<td>
+					40</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				6</td>
+				<td class="c_blue">12</td>
+				<td>
+					41</td>
+				<td>
+					24</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				7</td>
+				<td class="c_blue">8</td>
+				<td>
+					38</td>
+				<td>
+					9</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				8</td>
+				<td class="c_blue">6</td>
+				<td>
+					37</td>
+				<td>
+					4</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				9</td>
+				<td class="c_blue">0</td>
+				<td>
+					32</td>
+				<td>
+					0</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</tbody>
+			</table>
+		</div>
+					</div>
+<div class="col_6">
+		<div class="title_wrap5">
+		<h3>세계지리</h3>
+			<div class="academi_eval">
+						<em>평균: 21.19</em>
+						 <em>표준편차: 12.06</em>
+						  </div>
+				</div>
+		<div class="table_scroll2">
+		<table>
+					
+											<caption>응시과목</caption>
+											<colgroup>
+												<col span="4" style="width:25%">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">등급</th>
+													<!-- <th scope="col">작년컷</th> -->
+													<th scope="col">원점수</th>
+													<th scope="col">표준점수</th>
+													<th scope="col">백분위</th>
+												</tr>
+											</thead>
+					<tbody>
+	<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				최고점</td>
+				<td class="c_blue">50</td>
+				<td>
+					74</td>
+				<td>
+					99</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				1</td>
+				<td class="c_blue">45</td>
+				<td>
+					70</td>
+				<td>
+					95</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				2</td>
+				<td class="c_blue">40</td>
+				<td>
+					66</td>
+				<td>
+					90</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				3</td>
+				<td class="c_blue">31</td>
+				<td>
+					58</td>
+				<td>
+					77</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				4</td>
+				<td class="c_blue">22</td>
+				<td>
+					51</td>
+				<td>
+					60</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				5</td>
+				<td class="c_blue">15</td>
+				<td>
+					45</td>
+				<td>
+					40</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				6</td>
+				<td class="c_blue">11</td>
+				<td>
+					42</td>
+				<td>
+					24</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				7</td>
+				<td class="c_blue">9</td>
+				<td>
+					40</td>
+				<td>
+					11</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				8</td>
+				<td class="c_blue">6</td>
+				<td>
+					37</td>
+				<td>
+					3</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				9</td>
+				<td class="c_blue">0</td>
+				<td>
+					32</td>
+				<td>
+					0</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</tbody>
+			</table>
+		</div>
+					</div>
+<div class="col_6">
+		<div class="title_wrap5">
+		<h3>동아시아사</h3>
+			<div class="academi_eval">
+						<em>평균: 24.01</em>
+						 <em>표준편차: 13.49</em>
+						  </div>
+				</div>
+		<div class="table_scroll2">
+		<table>
+					
+											<caption>응시과목</caption>
+											<colgroup>
+												<col span="4" style="width:25%">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">등급</th>
+													<!-- <th scope="col">작년컷</th> -->
+													<th scope="col">원점수</th>
+													<th scope="col">표준점수</th>
+													<th scope="col">백분위</th>
+												</tr>
+											</thead>
+					<tbody>
+	<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				최고점</td>
+				<td class="c_blue">50</td>
+				<td>
+					69</td>
+				<td>
+					98</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				1</td>
+				<td class="c_blue">48</td>
+				<td>
+					68</td>
+				<td>
+					95</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				2</td>
+				<td class="c_blue">44</td>
+				<td>
+					65</td>
+				<td>
+					89</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				3</td>
+				<td class="c_blue">37</td>
+				<td>
+					60</td>
+				<td>
+					78</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				4</td>
+				<td class="c_blue">27</td>
+				<td>
+					52</td>
+				<td>
+					60</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				5</td>
+				<td class="c_blue">17</td>
+				<td>
+					45</td>
+				<td>
+					40</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				6</td>
+				<td class="c_blue">10</td>
+				<td>
+					40</td>
+				<td>
+					18</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				7</td>
+				<td class="c_blue">8</td>
+				<td>
+					38</td>
+				<td>
+					8</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				8</td>
+				<td class="c_blue">6</td>
+				<td>
+					37</td>
+				<td>
+					4</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				9</td>
+				<td class="c_blue">0</td>
+				<td>
+					32</td>
+				<td>
+					0</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</tbody>
+			</table>
+		</div>
+					</div>
+<div class="col_6">
+		<div class="title_wrap5">
+		<h3>정치와 법</h3>
+			<div class="academi_eval">
+						<em>평균: 22.53</em>
+						 <em>표준편차: 12.49</em>
+						  </div>
+				</div>
+		<div class="table_scroll2">
+		<table>
+					
+											<caption>응시과목</caption>
+											<colgroup>
+												<col span="4" style="width:25%">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">등급</th>
+													<!-- <th scope="col">작년컷</th> -->
+													<th scope="col">원점수</th>
+													<th scope="col">표준점수</th>
+													<th scope="col">백분위</th>
+												</tr>
+											</thead>
+					<tbody>
+	<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				최고점</td>
+				<td class="c_blue">50</td>
+				<td>
+					72</td>
+				<td>
+					98</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				1</td>
+				<td class="c_blue">47</td>
+				<td>
+					70</td>
+				<td>
+					96</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				2</td>
+				<td class="c_blue">42</td>
+				<td>
+					66</td>
+				<td>
+					90</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				3</td>
+				<td class="c_blue">32</td>
+				<td>
+					58</td>
+				<td>
+					75</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				4</td>
+				<td class="c_blue">24</td>
+				<td>
+					51</td>
+				<td>
+					60</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				5</td>
+				<td class="c_blue">16</td>
+				<td>
+					45</td>
+				<td>
+					40</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				6</td>
+				<td class="c_blue">12</td>
+				<td>
+					42</td>
+				<td>
+					26</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				7</td>
+				<td class="c_blue">9</td>
+				<td>
+					39</td>
+				<td>
+					11</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				8</td>
+				<td class="c_blue">6</td>
+				<td>
+					37</td>
+				<td>
+					3</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				9</td>
+				<td class="c_blue">0</td>
+				<td>
+					32</td>
+				<td>
+					0</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</tbody>
+			</table>
+		</div>
+					</div>
+<div class="col_6">
+		<div class="title_wrap5">
+		<h3>경제</h3>
+			<div class="academi_eval">
+						<em>평균: 19.10</em>
+						 <em>표준편차: 11.88</em>
+						  </div>
+				</div>
+		<div class="table_scroll2">
+		<table>
+					
+											<caption>응시과목</caption>
+											<colgroup>
+												<col span="4" style="width:25%">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">등급</th>
+													<!-- <th scope="col">작년컷</th> -->
+													<th scope="col">원점수</th>
+													<th scope="col">표준점수</th>
+													<th scope="col">백분위</th>
+												</tr>
+											</thead>
+					<tbody>
+	<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				최고점</td>
+				<td class="c_blue">50</td>
+				<td>
+					76</td>
+				<td>
+					98</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				1</td>
+				<td class="c_blue">46</td>
+				<td>
+					73</td>
+				<td>
+					96</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				2</td>
+				<td class="c_blue">38</td>
+				<td>
+					66</td>
+				<td>
+					89</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				3</td>
+				<td class="c_blue">27</td>
+				<td>
+					57</td>
+				<td>
+					77</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				4</td>
+				<td class="c_blue">18</td>
+				<td>
+					49</td>
+				<td>
+					60</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				5</td>
+				<td class="c_blue">12</td>
+				<td>
+					44</td>
+				<td>
+					36</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				6</td>
+				<td class="c_blue">10</td>
+				<td>
+					42</td>
+				<td>
+					19</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				7</td>
+				<td>-</td>
+				<td>-</td>
+				<td>-</td>
+			</tr>
+			<tr  >
+				<td scope="row">
+				8</td>
+				<td class="c_blue">6</td>
+				<td>
+					39</td>
+				<td>
+					4</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				9</td>
+				<td class="c_blue">0</td>
+				<td>
+					34</td>
+				<td>
+					0</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</tbody>
+			</table>
+		</div>
+					</div>
+<div class="col_6">
+		<div class="title_wrap5">
+		<h3>사회·문화</h3>
+			<div class="academi_eval">
+						<em>평균: 26.21</em>
+						 <em>표준편차: 12.09</em>
+						  </div>
+				</div>
+		<div class="table_scroll2">
+		<table>
+					
+											<caption>응시과목</caption>
+											<colgroup>
+												<col span="4" style="width:25%">
+											</colgroup>
+											<thead>
+												<tr>
+													<th scope="col">등급</th>
+													<!-- <th scope="col">작년컷</th> -->
+													<th scope="col">원점수</th>
+													<th scope="col">표준점수</th>
+													<th scope="col">백분위</th>
+												</tr>
+											</thead>
+					<tbody>
+	<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				최고점</td>
+				<td class="c_blue">50</td>
+				<td>
+					70</td>
+				<td>
+					99</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				1</td>
+				<td class="c_blue">45</td>
+				<td>
+					66</td>
+				<td>
+					95</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				2</td>
+				<td class="c_blue">42</td>
+				<td>
+					63</td>
+				<td>
+					89</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				3</td>
+				<td class="c_blue">37</td>
+				<td>
+					59</td>
+				<td>
+					76</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				4</td>
+				<td class="c_blue">31</td>
+				<td>
+					54</td>
+				<td>
+					60</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				5</td>
+				<td class="c_blue">22</td>
+				<td>
+					47</td>
+				<td>
+					40</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				6</td>
+				<td class="c_blue">15</td>
+				<td>
+					41</td>
+				<td>
+					23</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				7</td>
+				<td class="c_blue">10</td>
+				<td>
+					37</td>
+				<td>
+					12</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				8</td>
+				<td class="c_blue">8</td>
+				<td>
+					35</td>
+				<td>
+					4</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</div>
+<!-- 국어 -->
+		<!-- 수학 -->
+		<!-- 국어, 수학 외 과목 -->
+		<tr  >
+				<td scope="row">
+				9</td>
+				<td class="c_blue">0</td>
+				<td>
+					28</td>
+				<td>
+					0</td>
+			</tr>
+			<!-- 등급이 9등급까지 없을 경우 -->
+					</tbody>
+			</table>
+		</div>
+					</div>
+</div>
+<!-- //학력평가 표 -->

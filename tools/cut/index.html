@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Grade Cut Archive | Promenade Geography</title>
+    <title>Archive | Promenade Geography</title>
     <meta name="theme-color" content="#ffffff" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="../../ds/fonts.css?v=32" />
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="../../ds/base.css?v=32" />
     <link rel="stylesheet" href="../../ds/components.css?v=32" />
     <link rel="stylesheet" href="../../ds/patterns.css?v=32" />
-    <link rel="stylesheet" href="./cut.css?v=33" />
+    <link rel="stylesheet" href="./cut.css?v=34" />
   </head>
   <body>
     <header class="tw-nav is-static">
@@ -19,23 +19,27 @@
         <a class="tw-brand" href="../../index.html" aria-label="Promenade Geography home"><span lang="en">Promenade</span></a>
         <div class="tw-nav-links">
           <a class="tw-nav-link" lang="en" href="../climate/index.html">Climate Atlas</a>
-          <a class="tw-nav-link" lang="en" href="./index.html" aria-current="page">Grade Cut Archive</a>
+          <a class="tw-nav-link" lang="en" href="./index.html" aria-current="page">Archive</a>
         </div>
         <span class="tw-nav-spacer"></span>
         <details class="tw-nav-menu">
           <summary aria-label="메뉴"><span class="tw-nav-menu-icon" aria-hidden="true"></span></summary>
           <div class="tw-nav-menu-panel">
             <a lang="en" href="../climate/index.html">Climate Atlas</a>
-            <a lang="en" href="./index.html" aria-current="page">Grade Cut Archive</a>
+            <a lang="en" href="./index.html" aria-current="page">Archive</a>
           </div>
         </details>
       </nav>
     </header>
 
     <header class="tw-page tw-hero cut-hero">
-      <h1 class="tw-display" lang="en">Grade Cut Archive</h1>
+      <h1 class="tw-display" lang="en">Archive</h1>
       <div class="cut-hero-meta">
         <nav id="subjectChips" class="tw-segmented" aria-label="과목"></nav>
+        <nav id="scopeChips" class="tw-segmented" aria-label="시험 범위">
+          <button type="button" data-scope="evaluation" aria-pressed="true">평가원</button>
+          <button type="button" data-scope="all" aria-pressed="false">전체</button>
+        </nav>
         <span class="cut-record-count" id="recordCount" lang="en" aria-live="polite"></span>
       </div>
     </header>
@@ -54,6 +58,11 @@
         <label>시험<select id="examSelect" name="exam"></select></label>
       </form>
       <p class="tw-sr-only cut-status" id="lookupStatus" role="status">자료 준비 중</p>
+
+      <section class="tw-section cut-trend-panel" aria-labelledby="trendTitle">
+        <div class="tw-section-head"><h2 id="trendTitle">1등급 추이</h2></div>
+        <div id="cutTrendChart" class="tw-card cut-trend-card"></div>
+      </section>
 
       <section class="tw-section cut-result-panel" aria-labelledby="resultTitle">
         <div class="tw-section-head cut-result-heading">
@@ -77,20 +86,29 @@
       <section class="tw-section cut-question-panel" aria-labelledby="questionAnalysisTitle">
         <div class="tw-section-head cut-question-heading"><h2 id="questionAnalysisTitle">문항 분석</h2><span id="questionAnalysisCount" class="tw-meta-list" aria-live="polite">0문항</span></div>
         <div class="cut-question-grid" id="questionAnalysisGrid"></div>
+        <div id="questionUnpublished" class="cut-unpublished-items" hidden></div>
       </section>
 
       <section class="tw-section cut-history-panel" aria-labelledby="historyTitle">
         <div class="tw-section-head cut-history-heading"><h2 id="historyTitle">전체 기록</h2><span id="historyCount" aria-live="polite">0개 시험</span></div>
         <div class="tw-table-wrap cut-table-wrap">
           <table class="tw-table cut-history-table">
-            <thead><tr><th scope="col">시험</th><th scope="col">1등급</th><th scope="col">2등급</th><th scope="col">3등급</th><th scope="col">평균</th></tr></thead>
+            <thead><tr><th scope="col">시험</th><th scope="col">오답률</th></tr></thead>
             <tbody id="historyTableBody"></tbody>
           </table>
         </div>
       </section>
     </main>
 
-    <footer class="tw-footer"><div class="tw-footer-inner"><a id="sourceLink" href="https://www.ebsi.co.kr/ebs/xip/xipa/retrievePastGrdCutWrongAnswerRate.ebs?tab=1" target="_blank" rel="noreferrer" lang="en">EBSi</a></div></footer>
-    <script src="./cut.js?v=33"></script>
+    <footer class="tw-footer"><div class="tw-footer-inner tw-meta-list"><a id="sourceLink" href="https://www.ebsi.co.kr/ebs/xip/xipa/retrievePastGrdCutWrongAnswerRate.ebs?tab=1" target="_blank" rel="noreferrer" lang="en">EBSi</a><span id="collectionDate" lang="en"></span></div></footer>
+
+    <dialog id="cutLightbox" class="cut-lightbox" aria-label="문항 이미지">
+      <div class="cut-lightbox-shell">
+        <div class="cut-lightbox-head"><strong id="cutLightboxTitle"></strong><button id="cutLightboxClose" class="tw-button is-ghost is-sm" type="button" aria-label="닫기">닫기</button></div>
+        <div class="cut-lightbox-body"><div class="cut-lightbox-image-wrap"><img id="cutLightboxImage" alt="" /><span id="cutLightboxEmpty" hidden>이미지 없음</span></div><div class="cut-lightbox-side"><span id="cutLightboxRate"></span><span id="cutLightboxPoints"></span></div></div>
+        <div class="cut-lightbox-actions"><button id="cutLightboxPrev" class="tw-button" type="button" aria-label="이전 문항">←</button><button id="cutLightboxNext" class="tw-button" type="button" aria-label="다음 문항">→</button></div>
+      </div>
+    </dialog>
+    <script src="./cut.js?v=37"></script>
   </body>
 </html>

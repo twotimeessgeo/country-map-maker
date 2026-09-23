@@ -1,0 +1,12 @@
+{
+  "url": "https://www.ebsi.co.kr/ebs/xip/xipa/retrievePastGrdCutList.ajax",
+  "request": {
+    "year": "2027",
+    "stdntGrd": "3",
+    "month": "04",
+    "subjCd": "4210,4209,4208,4207,4201,4202,4204,4205,4206"
+  },
+  "retrieved_at": "2026-09-23T14:06:09+00:00",
+  "sha256": "42161d91ccd4350b99a57bb2834fa7141923057848bc4289224a03cad400a0cf",
+  "last_checked_at": "2026-09-23T14:06:09+00:00"
+}
