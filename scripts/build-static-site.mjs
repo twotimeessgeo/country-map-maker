@@ -1,3 +1,4 @@
+import "./build-notes.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,6 +13,7 @@ const publicEntries = [
   "data",
   "fonts",
   "tools",
+  "notes",
 ];
 const requiredOutputs = [
   "index.html",
@@ -29,6 +31,8 @@ const requiredOutputs = [
   "tools/climate/data/korea-climate-data.json",
   "tools/climate/data/exam-climate-statements.js",
   "tools/cut/index.html",
+  "notes/index.html",
+  "notes/2027-09-world/index.html",
   "tools/cut/data/ebsi_geo_data.json",
   "tools/cut/data/question-image-manifest.json",
   "tools/cut/question-images",
@@ -53,6 +57,7 @@ const forbiddenOutputs = [
   "data/world-lakes.js",
   "tools/stats",
   "tools/choices",
+  "notes/posts",
 ];
 const unpublishedToolRoots = ["tools/stats", "tools/choices"];
 const publicDataFiles = new Set([
@@ -106,6 +111,7 @@ function shouldPublish(sourcePath) {
   const relativePath = path.relative(rootDir, sourcePath).split(path.sep).join("/");
   if (!relativePath) return true;
   if (path.basename(sourcePath) === ".DS_Store") return false;
+  if (relativePath === "notes/posts" || relativePath.startsWith("notes/posts/")) return false;
   if (relativePath.startsWith("data/") && !publicDataFiles.has(relativePath)) return false;
   if (unpublishedToolRoots.some((root) => relativePath === root || relativePath.startsWith(`${root}/`))) {
     return false;
