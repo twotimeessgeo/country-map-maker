@@ -471,8 +471,8 @@
   background: var(--tw-surface-2);
 }
 
-/* app.js paints the ocean with an inline rect; soften it to the surface tone */
-.world-map-svg > rect:first-child {
+/* The ocean rect follows the SVG viewBox while zooming. */
+.world-map-svg .map-ocean {
   fill: var(--tw-surface-2);
 }
 
@@ -2016,11 +2016,12 @@ tfoot td {
   #worldMap {
     min-width: 0;
     max-width: 100%;
-    overflow-x: auto;
+    overflow-x: hidden;
   }
 
   .world-map-frame.is-natural:not(.is-korea) {
-    width: max(100%, 600px);
+    width: 100%;
+    max-width: 100%;
   }
 
   .atlas-select {

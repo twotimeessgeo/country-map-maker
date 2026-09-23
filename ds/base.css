@@ -171,13 +171,11 @@ a {
 .tw-hero-sequence > .tw-segmented { animation-delay: 120ms; }
 
 .tw-reveal {
-  opacity: 0;
-  transform: translateY(8px);
+  opacity: 1;
+  transform: none;
 }
 .tw-reveal.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-  transition: opacity var(--tw-dur-3) var(--tw-ease-out), transform var(--tw-dur-3) var(--tw-ease-out);
+  animation: tw-reveal-in var(--tw-dur-3) var(--tw-ease-out) both;
 }
 @keyframes tw-reveal-in {
   from { opacity: 0; transform: translateY(8px); }
@@ -211,5 +209,15 @@ details[open] > :not(summary) {
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root),
   ::view-transition-new(root) { animation: none !important; }
-  .tw-reveal { opacity: 1; transform: none; }
+  .tw-reveal, .tw-reveal.is-visible { opacity: 1; transform: none; animation: none; }
+}
+
+@media print {
+  .tw-reveal,
+  .tw-hero-sequence > * {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
 }

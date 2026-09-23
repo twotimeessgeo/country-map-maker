@@ -35,6 +35,13 @@
     const width = baseWidth / view.k;
     const height = baseHeight / view.k;
     svg.setAttribute("viewBox", `${view.x} ${view.y} ${width} ${height}`);
+    const ocean = svg.querySelector(".map-ocean");
+    if (ocean) {
+      ocean.setAttribute("x", String(view.x));
+      ocean.setAttribute("y", String(view.y));
+      ocean.setAttribute("width", String(width));
+      ocean.setAttribute("height", String(height));
+    }
     for (const marker of markers) {
       const x = ((marker._mapX - view.x) / width) * 100;
       const y = ((marker._mapY - view.y) / height) * 100;
@@ -155,7 +162,7 @@
   }
 
   function focusMarkerOnMobile(marker) {
-    if (!frame || !marker || !matchMedia("(max-width: 760px)").matches || view.k > 1.001) return false;
+    if (!frame || !marker || !matchMedia("(max-width: 760px)").matches || view.k > 1.51) return false;
     const rect = marker.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
@@ -185,6 +192,16 @@
     for (const marker of markers) {
       marker._mapX = parseFloat(marker.style.left) * baseWidth / 100;
       marker._mapY = parseFloat(marker.style.top) * baseHeight / 100;
+    }
+    if (!attach.mobileStarted && matchMedia("(max-width: 760px)").matches) {
+      attach.mobileStarted = true;
+      const selected = markers.filter((marker) => marker.classList.contains("is-selected"));
+      const targets = selected.length ? selected : markers;
+      const centerX = targets.length ? targets.reduce((sum, marker) => sum + marker._mapX, 0) / targets.length : baseWidth / 2;
+      const centerY = targets.length ? targets.reduce((sum, marker) => sum + marker._mapY, 0) / targets.length : baseHeight / 2;
+      view.k = 1.5;
+      view.x = centerX - baseWidth / (2 * view.k);
+      view.y = centerY - baseHeight / (2 * view.k);
     }
     const controls = document.createElement("div");
     controls.className = "map-zoom-controls";

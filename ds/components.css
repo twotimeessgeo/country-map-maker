@@ -332,6 +332,8 @@ a:hover .tw-arrow::after,
   transition: transform var(--tw-dur-2) var(--tw-ease-out), width var(--tw-dur-2) var(--tw-ease-out);
   pointer-events: none;
 }
+.tw-segmented.thumb-no-motion::before,
+.map-scope.thumb-no-motion::before { transition: none; }
 .tw-segmented.has-motion-thumb > *,
 .map-scope.has-motion-thumb > * {
   position: relative;

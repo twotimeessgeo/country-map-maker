@@ -5521,7 +5521,7 @@ function renderProjectedWorldMapBackground(projection) {
     <svg class="world-map-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(
       APP_CONFIG.mapAriaLabel
     )}">
-      <rect width="${width}" height="${height}" rx="0" fill="#d9d9d9" />
+      <rect class="map-ocean" width="${width}" height="${height}" />
       <path d="${sphere}" class="map-sphere" />
       <path d="${graticule}" class="map-graticule" />
       <path d="${land}" class="map-landmass" />

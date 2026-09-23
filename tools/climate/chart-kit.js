@@ -60,6 +60,11 @@
     return text.replace(/^-/, "−");
   }
 
+  function axisNum(value) {
+    return new Intl.NumberFormat("ko-KR", { maximumFractionDigits: Number.isInteger(value) ? 0 : 1 })
+      .format(value).replace(/^-/, "−");
+  }
+
   function barPath(x, y, w, h, r) {
     if (h <= 0) return "";
     const radius = Math.min(r, h, w / 2);
@@ -89,8 +94,8 @@
       const t = s.temperatureMin + s.temperatureStep * i;
       const p = s.precipitationStep * i;
       grid += `<line x1="${m.left}" y1="${y}" x2="${width - m.right}" y2="${y}" stroke="${i === 0 ? BASE : GRID}" />`;
-      grid += `<text x="${m.left - 10}" y="${y + 4}" text-anchor="end" fill="${INK_2}">${num(t)}</text>`;
-      grid += `<text x="${width - m.right + 10}" y="${y + 4}" text-anchor="start" fill="${INK_3}">${num(p)}</text>`;
+      grid += `<text x="${m.left - 10}" y="${y + 4}" text-anchor="end" fill="${INK_2}">${axisNum(t)}</text>`;
+      grid += `<text x="${width - m.right + 10}" y="${y + 4}" text-anchor="start" fill="${INK_3}">${axisNum(p)}</text>`;
     }
     if (s.temperatureMin < 0 && s.temperatureMax > 0) {
       const y0 = yT(0);

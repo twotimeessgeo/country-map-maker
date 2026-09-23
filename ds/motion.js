@@ -3,6 +3,7 @@
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   const seen = new Set();
   const thumbPositions = new Map();
+  const thumbIntent = new Map();
   const revealSelector = ".region-card, .kit-card, .kit-period, .map-card, .filter-bar";
   const revealObserver = "IntersectionObserver" in window
     ? new IntersectionObserver((entries) => {
@@ -36,32 +37,63 @@
     return `${element.classList[0]}:${title}:${index}`;
   }
 
+  function hashTarget() {
+    try { return document.getElementById(decodeURIComponent(window.location.hash.slice(1))); }
+    catch { return null; }
+  }
+
   function enhanceReveals(root = document) {
     for (const element of root.querySelectorAll(revealSelector)) {
       if (element.dataset.motionObserved) continue;
       element.dataset.motionObserved = "true";
       element.dataset.motionKey = motionKey(element);
+      const rect = element.getBoundingClientRect();
+      const inAnchor = hashTarget()?.contains(element);
+      if (inAnchor || (rect.top < innerHeight && rect.bottom > 0)) {
+        seen.add(element.dataset.motionKey);
+        element.classList.add("is-visible");
+        continue;
+      }
       if (reduced.matches || seen.has(element.dataset.motionKey) || !revealObserver) continue;
       element.classList.add("tw-reveal");
       revealObserver.observe(element);
     }
   }
 
-  function enhanceThumbs(root = document) {
-    for (const group of root.querySelectorAll(".tw-segmented, .map-scope")) {
-      if (group.dataset.motionThumb) continue;
-      const active = group.querySelector(":scope > .is-active, :scope > [aria-current='page'], :scope > [aria-pressed='true']");
-      if (!active) continue;
-      const key = group.getAttribute("aria-label") || group.id || group.className;
-      const next = { x: active.offsetLeft, width: active.offsetWidth };
-      const previous = thumbPositions.get(key) || (group.classList.contains("app-switch")
-        ? JSON.parse(sessionStorage.getItem("tw-motion-app-switch") || "null")
-        : null);
+  function revealAnchored() {
+    const target = hashTarget();
+    if (!target) return;
+    for (const element of target.querySelectorAll(revealSelector)) {
+      element.classList.remove("tw-reveal");
+      element.classList.add("is-visible");
+      revealObserver?.unobserve(element);
+    }
+  }
+
+  function thumbKey(group) {
+    return group.id || group.getAttribute("aria-label") || group.className.replace(/\s*(?:has-motion-thumb|thumb-no-motion)\b/g, "");
+  }
+
+  function markThumbIntent(group) {
+    const key = thumbKey(group);
+    thumbIntent.set(key, true);
+    requestAnimationFrame(() => requestAnimationFrame(() => thumbIntent.delete(key)));
+  }
+
+  function syncThumb(group) {
+    const active = group.querySelector(":scope > .is-active, :scope > [aria-current='page'], :scope > [aria-pressed='true']");
+    if (!active) return;
+    const key = thumbKey(group);
+    const next = { x: active.offsetLeft, width: active.offsetWidth };
+    const previous = thumbPositions.get(key);
+    const first = !group.dataset.motionThumb;
+    const animate = !reduced.matches && thumbIntent.has(key) && previous && (previous.x !== next.x || previous.width !== next.width);
+    if (first) {
       group.dataset.motionThumb = "true";
       group.classList.add("has-motion-thumb");
-      group.style.setProperty("--seg-x", `${previous?.x ?? next.x}px`);
-      group.style.setProperty("--seg-width", `${previous?.width ?? next.width}px`);
-      if (previous && !reduced.matches && previous.x !== next.x) {
+      if (animate) {
+        group.style.setProperty("--seg-x", `${previous.x}px`);
+        group.style.setProperty("--seg-width", `${previous.width}px`);
         requestAnimationFrame(() => {
           group.style.setProperty("--seg-x", `${next.x}px`);
           group.style.setProperty("--seg-width", `${next.width}px`);
@@ -70,11 +102,18 @@
         group.style.setProperty("--seg-x", `${next.x}px`);
         group.style.setProperty("--seg-width", `${next.width}px`);
       }
-      thumbPositions.set(key, next);
-      if (group.classList.contains("app-switch")) {
-        sessionStorage.setItem("tw-motion-app-switch", JSON.stringify(next));
-      }
+    } else if (group.style.getPropertyValue("--seg-x") !== `${next.x}px` || group.style.getPropertyValue("--seg-width") !== `${next.width}px`) {
+      if (!animate) group.classList.add("thumb-no-motion");
+      group.style.setProperty("--seg-x", `${next.x}px`);
+      group.style.setProperty("--seg-width", `${next.width}px`);
+      if (!animate) requestAnimationFrame(() => group.classList.remove("thumb-no-motion"));
     }
+    thumbPositions.set(key, next);
+    if (animate) thumbIntent.delete(key);
+  }
+
+  function enhanceThumbs(root = document) {
+    for (const group of root.querySelectorAll(".tw-segmented, .map-scope")) syncThumb(group);
   }
 
   function enhance(root = document) {
@@ -154,6 +193,16 @@
       for (const hero of document.querySelectorAll(".tw-hero")) hero.classList.add("tw-hero-sequence");
     }
     enhance();
+    window.addEventListener("hashchange", revealAnchored);
+    document.addEventListener("pointerdown", (event) => {
+      const group = event.target.closest?.(".tw-segmented, .map-scope");
+      if (group) markThumbIntent(group);
+    }, true);
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const group = event.target.closest?.(".tw-segmented, .map-scope");
+      if (group) markThumbIntent(group);
+    }, true);
     syncToolbarMenu();
     window.addEventListener("resize", syncToolbarMenu);
     for (const menu of document.querySelectorAll(".atlas-more")) {
@@ -170,7 +219,13 @@
         enhance();
       });
     });
-    if (document.body) motionObserver.observe(document.body, { childList: true, subtree: true });
+    if (document.body) motionObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["aria-pressed", "class", "aria-current"],
+    });
+    window.addEventListener("resize", () => requestAnimationFrame(() => enhanceThumbs()));
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
   else start();
