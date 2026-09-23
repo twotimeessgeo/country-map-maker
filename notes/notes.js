@@ -46,7 +46,12 @@
     if (desktopCurrent && indicator) {
       indicator.style.transform = `translateY(${desktopCurrent.offsetTop}px)`;
       indicator.style.height = `${desktopCurrent.offsetHeight}px`;
-      desktopCurrent.scrollIntoView({ block: "nearest" });
+      if (desktopToc.scrollHeight > desktopToc.clientHeight) {
+        const container = desktopToc.getBoundingClientRect();
+        const item = desktopCurrent.getBoundingClientRect();
+        if (item.top < container.top) desktopToc.scrollTop += item.top - container.top;
+        else if (item.bottom > container.bottom) desktopToc.scrollTop += item.bottom - container.bottom;
+      }
     }
     const mobileCurrent = mobileLinks.find((link) => link.getAttribute("href") === `#${current}`);
     if (mobileCurrent && mobileStrip && getComputedStyle(mobileStrip).display !== "none") {

@@ -1,3 +1,5 @@
+html { scroll-behavior: auto; }
+
 .notes-index {
   padding-top: clamp(56px, 8vw, 112px);
   padding-bottom: 120px;
@@ -164,7 +166,7 @@
 }
 .notes-image-button:hover { background: var(--tw-surface-2); }
 .notes-image-button:focus-visible { outline: none; box-shadow: var(--tw-focus); }
-.notes-image-button img { display: block; width: auto; max-width: 100%; height: auto; max-height: 560px; margin: 0 auto; border: 0; border-radius: 3px; object-fit: contain; }
+.notes-image-button img { display: block; width: 100%; max-width: 100%; height: auto; max-height: 560px; margin: 0 auto; border: 0; border-radius: 3px; object-fit: contain; }
 .notes-figure figcaption { margin-top: 12px; color: var(--tw-ink-2); text-align: left; font-size: 13px; line-height: 1.5; }
 .notes-figures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 20px; margin: 40px 0 48px; }
 .notes-figures .notes-figure { width: auto; left: auto; transform: none; margin: 0; }
