@@ -80,7 +80,7 @@
   font-weight: var(--tw-weight-latin);
   text-decoration: none;
   white-space: nowrap;
-  transition: background-color var(--tw-fast) var(--tw-ease), color var(--tw-fast) var(--tw-ease);
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), color var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .tw-nav-link:hover {
@@ -109,6 +109,7 @@
   border-radius: var(--tw-radius-pill);
   list-style: none;
   cursor: pointer;
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .tw-nav-menu > summary::-webkit-details-marker {
@@ -118,6 +119,7 @@
 .tw-nav-menu > summary:hover {
   background: var(--tw-surface);
 }
+.tw-nav-menu > summary:active { background: var(--tw-surface-2); }
 
 .tw-nav-menu-icon {
   position: relative;
@@ -266,7 +268,7 @@
   content: "→";
   display: inline-block;
   font-family: var(--tw-font-latin);
-  transition: transform var(--tw-fast) var(--tw-ease);
+  transition: transform var(--tw-dur-1) var(--tw-ease-out);
 }
 
 a:hover .tw-arrow::after,
@@ -364,7 +366,7 @@ a:hover .tw-arrow::after,
   line-height: 1;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--tw-fast) var(--tw-ease), color var(--tw-fast) var(--tw-ease);
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), color var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .tw-chip:hover {
@@ -410,7 +412,7 @@ a:hover .tw-arrow::after,
   background: var(--tw-surface);
   color: var(--tw-ink);
   font-size: var(--tw-text-md);
-  transition: background-color var(--tw-fast) var(--tw-ease), box-shadow var(--tw-fast) var(--tw-ease);
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), box-shadow var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .tw-input::placeholder {
@@ -421,6 +423,7 @@ a:hover .tw-arrow::after,
 .tw-select:hover {
   background: var(--tw-surface-2);
 }
+.tw-select:active { background: var(--tw-surface-3); }
 
 .tw-input:focus,
 .tw-select:focus {
@@ -472,7 +475,7 @@ a:hover .tw-arrow::after,
   background: var(--tw-bg);
   box-shadow: inset 0 0 0 1.5px var(--tw-ink-4);
   cursor: pointer;
-  transition: background-color var(--tw-fast) var(--tw-ease), box-shadow var(--tw-fast) var(--tw-ease);
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), box-shadow var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .tw-check:checked {
@@ -595,7 +598,9 @@ a:hover .tw-arrow::after,
   font-weight: var(--tw-weight-medium);
   list-style: none;
   cursor: pointer;
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), color var(--tw-dur-1) var(--tw-ease-out);
 }
+.tw-disclosure > summary:active { background: var(--tw-surface); }
 
 .tw-disclosure > summary::-webkit-details-marker {
   display: none;
@@ -609,7 +614,7 @@ a:hover .tw-arrow::after,
   border-right: 1.5px solid currentColor;
   border-bottom: 1.5px solid currentColor;
   transform: translateY(-2px) rotate(45deg);
-  transition: transform var(--tw-fast) var(--tw-ease);
+  transition: transform var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .tw-disclosure[open] > summary::after {
@@ -672,7 +677,7 @@ a:hover .tw-arrow::after,
   font-weight: var(--tw-weight-medium);
   box-shadow: var(--tw-shadow-pop);
   transform: translateX(-50%);
-  animation: tw-toast-in var(--tw-base) var(--tw-ease);
+  animation: tw-toast-in var(--tw-dur-2) var(--tw-ease-out);
 }
 
 .tw-toast:empty {

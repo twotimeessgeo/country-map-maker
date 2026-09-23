@@ -5,6 +5,13 @@
   const thumbPositions = new Map();
   const thumbIntent = new Map();
   const revealSelector = ".region-card, .kit-card, .kit-period, .map-card, .filter-bar";
+  function motionTiming(token) {
+    const css = getComputedStyle(document.documentElement);
+    return {
+      duration: parseFloat(css.getPropertyValue(token)) || 0,
+      easing: css.getPropertyValue("--tw-ease-out").trim() || "linear",
+    };
+  }
   const revealObserver = "IntersectionObserver" in window
     ? new IntersectionObserver((entries) => {
         for (const entry of entries) {
@@ -19,7 +26,7 @@
               }
             }
             svg.classList.add("tw-chart-enter");
-            setTimeout(() => svg.classList.remove("tw-chart-enter"), 400);
+            setTimeout(() => svg.classList.remove("tw-chart-enter"), motionTiming("--tw-dur-3").duration);
           }
           revealObserver.unobserve(element);
         }
@@ -129,21 +136,18 @@
 
   function animateTray(container, previous) {
     if (!container || !previous || reduced.matches) return;
+    const timing = motionTiming("--tw-dur-2");
     for (const chip of container.querySelectorAll("[data-tray-remove-id]")) {
       const old = previous.get(chip.dataset.trayRemoveId);
       if (!old) {
-        chip.animate([{ opacity: 0, transform: "scale(0.96)" }, { opacity: 1, transform: "scale(1)" }], {
-          duration: 200, easing: "cubic-bezier(0.16, 1, 0.3, 1)"
-        });
+        chip.animate([{ opacity: 0, transform: "scale(0.96)" }, { opacity: 1, transform: "scale(1)" }], timing);
         continue;
       }
       const next = chip.getBoundingClientRect();
       const dx = old.left - next.left;
       const dy = old.top - next.top;
       if (Math.abs(dx) + Math.abs(dy) < 0.5) continue;
-      chip.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "translate(0, 0)" }], {
-        duration: 200, easing: "cubic-bezier(0.16, 1, 0.3, 1)"
-      });
+      chip.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "translate(0, 0)" }], timing);
     }
   }
 
@@ -159,6 +163,7 @@
 
   function animateCharts(container, previous) {
     if (!container || !previous || reduced.matches) return;
+    const timing = motionTiming("--tw-dur-2");
     [...container.querySelectorAll(".kit-chart")].forEach((svg, chartIndex) => {
       const shapes = [...svg.querySelectorAll(".tw-value-shape")];
       const oldShapes = previous[chartIndex];
@@ -174,7 +179,7 @@
         shape.animate([
           { transform: `translate(${dx}px, ${dy}px) scale(${sx}, ${sy})` },
           { transform: "none" }
-        ], { duration: 240, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+        ], timing);
       });
     });
   }
@@ -187,18 +192,16 @@
 
   function animateChartTicks(container, previous) {
     if (!container || !previous || reduced.matches) return;
-    const css = getComputedStyle(document.documentElement);
-    const duration = parseFloat(css.getPropertyValue("--tw-dur-1")) || 120;
-    const easing = css.getPropertyValue("--tw-ease-out").trim() || "ease-out";
+    const timing = motionTiming("--tw-dur-1");
     [...container.querySelectorAll(".kit-chart")].forEach((svg, index) => {
       const oldTicks = previous[index] || [];
       const newTicks = [...svg.querySelectorAll(".tw-axis-tick:not(.tw-axis-tick-old)")];
       if (!oldTicks.length || !newTicks.length) return;
-      newTicks.forEach((tick) => tick.animate([{ opacity: 0 }, { opacity: 1 }], { duration, easing }));
+      newTicks.forEach((tick) => tick.animate([{ opacity: 0 }, { opacity: 1 }], timing));
       oldTicks.forEach((tick) => {
         tick.classList.add("tw-axis-tick-old");
         svg.appendChild(tick);
-        const animation = tick.animate([{ opacity: 1 }, { opacity: 0 }], { duration, easing });
+        const animation = tick.animate([{ opacity: 1 }, { opacity: 0 }], timing);
         animation.finished.then(() => tick.remove(), () => tick.remove());
       });
     });
@@ -214,7 +217,12 @@
     }
   }
   function start() {
-    if (!reduced.matches) {
+    let firstVisit = false;
+    try {
+      firstVisit = !sessionStorage.getItem("tw-motion-hero-seen");
+      sessionStorage.setItem("tw-motion-hero-seen", "true");
+    } catch { /* Navigation still works without session storage. */ }
+    if (firstVisit && !reduced.matches) {
       for (const hero of document.querySelectorAll(".tw-hero")) hero.classList.add("tw-hero-sequence");
     }
     enhance();

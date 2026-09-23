@@ -68,18 +68,35 @@
     animation = 0;
   }
 
+  function easeFromToken(progress, controls) {
+    if (!controls || controls.length !== 4 || controls.some((value) => !Number.isFinite(value))) return progress;
+    const [x1, y1, x2, y2] = controls;
+    const curve = (t, a, b) => 3 * (1 - t) ** 2 * t * a + 3 * (1 - t) * t ** 2 * b + t ** 3;
+    let low = 0, high = 1;
+    for (let step = 0; step < 12; step += 1) {
+      const middle = (low + high) / 2;
+      if (curve(middle, x1, x2) < progress) low = middle;
+      else high = middle;
+    }
+    return curve((low + high) / 2, y1, y2);
+  }
+
   function setView(next, animate = false) {
     cancelAnimation();
-    if (!animate || matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const css = getComputedStyle(document.documentElement);
+    const duration = parseFloat(css.getPropertyValue("--tw-dur-2")) || 0;
+    if (!animate || matchMedia("(prefers-reduced-motion: reduce)").matches || !duration) {
       Object.assign(view, next);
       apply();
       return;
     }
+    const controls = css.getPropertyValue("--tw-ease-out")
+      .match(/cubic-bezier\(([^)]+)\)/)?.[1].split(",").map(Number);
     const start = { ...view };
     const begun = performance.now();
     function tick(now) {
-      const progress = Math.min(1, (now - begun) / 280);
-      const t = 1 - (1 - progress) ** 3;
+      const progress = Math.min(1, (now - begun) / duration);
+      const t = easeFromToken(progress, controls);
       for (const key of ["k", "x", "y"]) view[key] = start[key] + (next[key] - start[key]) * t;
       apply();
       animation = progress < 1 ? requestAnimationFrame(tick) : 0;

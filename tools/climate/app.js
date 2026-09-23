@@ -4257,7 +4257,7 @@ function renderMonthPanel(selectedRegions, monthIndex, panelIndex, baseline) {
   const cumulativePrecipitationValuesByMonth = rows.map((row) => row.cumulativePrecipitation);
 
   return `
-    <article class="month-panel world-month-panel" style="animation-delay: ${panelIndex * 70}ms">
+    <article class="month-panel world-month-panel">
       <h3>${escapeHtml(monthLabel)} 비교</h3>
       <div class="stats-row">
         <span class="stat-pill">평균 기온 ${formatTemp(meanTemperature)}</span>

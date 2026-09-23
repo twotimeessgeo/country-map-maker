@@ -201,13 +201,13 @@
   overflow: hidden;
   border-radius: var(--tw-radius-lg);
   background: var(--tw-surface);
-  transition: background-color var(--tw-base) var(--tw-ease);
+  transition: background-color var(--tw-dur-2) var(--tw-ease-out);
 }
 
 .tw-index-media svg {
   width: 64%;
   height: auto;
-  transition: transform 480ms var(--tw-ease);
+  transition: transform var(--tw-dur-3) var(--tw-ease-out);
 }
 
 .tw-index-card:hover .tw-index-media {

@@ -124,9 +124,8 @@ a {
   *,
   *::before,
   *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    transition: none !important;
+    animation: none !important;
   }
 }
 
@@ -143,11 +142,11 @@ a {
 }
 
 ::view-transition-old(root) {
-  animation: 180ms ease-out both tw-page-out;
+  animation: var(--tw-dur-1) var(--tw-ease-out) both tw-page-out;
 }
 
 ::view-transition-new(root) {
-  animation: 180ms ease-out both tw-page-in;
+  animation: var(--tw-dur-1) var(--tw-ease-out) both tw-page-in;
 }
 
 ::view-transition-old(site-nav),
@@ -166,9 +165,9 @@ a {
 .tw-hero-sequence > .tw-segmented {
   animation: tw-reveal-in var(--tw-dur-3) var(--tw-ease-out) both;
 }
-.tw-hero-sequence > h1 { animation-delay: 60ms; }
+.tw-hero-sequence > h1 { animation-delay: var(--tw-dur-1); }
 .tw-hero-sequence > .tw-hero-actions,
-.tw-hero-sequence > .tw-segmented { animation-delay: 120ms; }
+.tw-hero-sequence > .tw-segmented { animation-delay: var(--tw-dur-2); }
 
 .tw-reveal {
   opacity: 1;
@@ -193,22 +192,22 @@ details[open] > :not(summary) {
 .tw-chart-enter .tw-chart-bar {
   transform-box: fill-box;
   transform-origin: bottom center;
-  animation: tw-chart-bar-in 360ms var(--tw-ease-out) both;
+  animation: tw-chart-bar-in var(--tw-dur-3) var(--tw-ease-out) both;
 }
 .tw-chart-enter .tw-chart-line {
   stroke-dasharray: var(--chart-line-length, 1200);
-  animation: tw-chart-line-in 360ms var(--tw-ease-out) both;
+  animation: tw-chart-line-in var(--tw-dur-3) var(--tw-ease-out) both;
 }
 .tw-chart-enter .tw-chart-dot {
-  animation: tw-chart-dot-in 160ms ease-out 240ms both;
+  animation: tw-chart-dot-in var(--tw-dur-1) var(--tw-ease-out) var(--tw-dur-2) both;
 }
 @keyframes tw-chart-bar-in { from { transform: scaleY(0); } }
 @keyframes tw-chart-line-in { from { stroke-dashoffset: var(--chart-line-length, 1200); } to { stroke-dashoffset: 0; } }
 @keyframes tw-chart-dot-in { from { opacity: 0; } to { opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) { animation: none !important; }
+  ::view-transition-old(*),
+  ::view-transition-new(*) { animation: none !important; }
   .tw-reveal, .tw-reveal.is-visible { opacity: 1; transform: none; animation: none; }
 }
 
