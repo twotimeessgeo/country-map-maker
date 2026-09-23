@@ -215,7 +215,7 @@ function validateClimateStatements(statements, appText) {
     "isExamFeatureAutomatable",
     "renderExamNormalizationBadges",
     "formatExamStatementSource",
-    "참조 전용 선지",
+    "자동 판정 제외",
     "examSourcePanelWasOpen",
     "withSubjectParticle",
     "withObjectParticle",

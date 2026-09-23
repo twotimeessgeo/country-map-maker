@@ -56,7 +56,7 @@
 
   function num(value) {
     const rounded = Math.round(value * 10) / 10;
-    const text = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+    const text = rounded.toFixed(1);
     return text.replace(/^-/, "−");
   }
 
@@ -105,7 +105,7 @@
       const t = temps[i];
       const p = precs[i];
       const month = months[i] ?? `${i + 1}월`;
-      const tip = `${month}  기온 ${Number.isFinite(t) ? num(t) + "°C" : "–"}  강수량 ${Number.isFinite(p) ? num(p) + "mm" : "–"}`;
+      const tip = `${month}  월평균 기온 ${Number.isFinite(t) ? num(t) + "°C" : "–"}  월강수량 ${Number.isFinite(p) ? num(p) + " mm" : "–"}`;
       hits += `<rect class="chart-hit" x="${m.left + stepX * i}" y="${m.top}" width="${stepX}" height="${plotH}" fill="transparent"><title>${esc(tip)}</title></rect>`;
       if (Number.isFinite(p)) {
         const y = yP(p);
@@ -135,7 +135,7 @@
     return `
       <svg class="svg-chart climograph" viewBox="0 0 ${width} ${height}" role="img" font-size="11"
         font-family="TWK Lausanne, Pretendard Variable, Pretendard, sans-serif"
-        aria-label="${esc(region.name)} 월별 기온·강수량">
+        aria-label="${esc(region.name)} 월평균 기온과 월강수량">
         ${grid}
         <text x="${m.left - 10}" y="18" text-anchor="end" fill="${INK_2}">°C</text>
         <text x="${width - m.right + 10}" y="18" text-anchor="start" fill="${INK_3}">mm</text>

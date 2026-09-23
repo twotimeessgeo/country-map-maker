@@ -20,8 +20,8 @@ const CLIMATE_FILTER_ORDER = [
 ];
 const MAP_SCOPE_ORDER = ["all", "selected"];
 const MAP_SCOPE_LABELS = {
-  all: "전체 지역",
-  selected: "선택 지역만",
+  all: "전체",
+  selected: "선택한 곳",
 };
 const CUSTOM_REGIONS_STORAGE_KEY = "climate-atlas-custom-regions-v1";
 const URL_STATE_KEYS = [
@@ -105,7 +105,7 @@ const EXAM_COMPARISON_TEMPLATES = [
       "2025-suneung-q13-opt-02",
     ],
     categoryKey: "monthlyPrecipitation",
-    title: "월 강수량 비교",
+    title: "월강수량",
     label: (context) => `${context.monthLabel} 강수량`,
     pattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 강수량이 많다.`,
     reversePattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 강수량이 적다.`,
@@ -127,7 +127,7 @@ const EXAM_COMPARISON_TEMPLATES = [
   {
     sourceIds: ["2021-06-q03-opt-01", "2021-09-q04-opt-03", "2022-06-q18-opt-03"],
     categoryKey: "monthlyTemperature",
-    title: "월 평균 기온 비교",
+    title: "월평균 기온",
     label: (context) => `${context.monthLabel} 평균 기온`,
     pattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 평균 기온이 높다.`,
     reversePattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 평균 기온이 낮다.`,
@@ -149,20 +149,20 @@ const EXAM_COMPARISON_TEMPLATES = [
   {
     sourceIds: ["2021-09-q04-opt-04"],
     categoryKey: "annualPrecipitation",
-    title: "연 강수량 비교",
-    label: "연 강수량",
-    pattern: "한 지역은 다른 지역보다 연 강수량이 많다.",
-    reversePattern: "한 지역은 다른 지역보다 연 강수량이 적다.",
+    title: "연강수량 비교",
+    label: "연강수량",
+    pattern: "한 지역은 다른 지역보다 연강수량이 많다.",
+    reversePattern: "한 지역은 다른 지역보다 연강수량이 적다.",
     unit: "mm",
     minDifference: 150,
     getValue: (region) => region.annualPrecipitationMm,
-    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연 강수량이 많다.`,
-    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 연 강수량이 적다.`,
-    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연 강수량이 적다.`,
+    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연강수량이 많다.`,
+    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 연강수량이 적다.`,
+    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연강수량이 적다.`,
     renderSuperlativePositive: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 연 강수량이 가장 많은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 연강수량이 가장 많은 곳은 ${region.name}이다.`,
     renderSuperlativeReverse: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 연 강수량이 가장 적은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 연강수량이 가장 적은 곳은 ${region.name}이다.`,
   },
   {
     sourceIds: [
@@ -171,8 +171,8 @@ const EXAM_COMPARISON_TEMPLATES = [
       "2022-suneung-q19-opt-03",
     ],
     categoryKey: "janJulPrecipitationRange",
-    title: "1월·7월 강수량 차이",
-    label: "1월·7월 강수량 차이",
+    title: "1월과 7월 월강수량 차이",
+    label: "1월과 7월 월강수량 차이",
     pattern: "한 지역은 다른 지역보다 1월과 7월의 강수량 차이가 크다.",
     reversePattern: "한 지역은 다른 지역보다 1월과 7월의 강수량 차이가 작다.",
     unit: "mm",
@@ -192,23 +192,23 @@ const EXAM_COMPARISON_TEMPLATES = [
   {
     sourceIds: ["2021-09-q07-opt-04"],
     categoryKey: "monthlyPrecipitationRange",
-    title: "강수의 계절 차",
-    label: "월 강수량의 연중 범위",
-    pattern: "한 지역은 다른 지역보다 월 강수량의 연중 범위가 크다.",
-    reversePattern: "한 지역은 다른 지역보다 월 강수량의 연중 범위가 작다.",
+    title: "월강수량 최대·최소 차",
+    label: "월강수량 최대·최소 차",
+    pattern: "한 지역은 다른 지역보다 월강수량 최대·최소 차가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 월강수량 최대·최소 차가 작다.",
     unit: "mm",
     minDifference: 30,
     getValue: getMonthlyPrecipitationRange,
     renderPositive: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 월 강수량의 연중 범위가 크다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 월강수량 최대·최소 차가 크다.`,
     renderReverse: (higher, lower) =>
-      `${withTopicParticle(lower.name)} ${higher.name}보다 월 강수량의 연중 범위가 작다.`,
+      `${withTopicParticle(lower.name)} ${higher.name}보다 월강수량 최대·최소 차가 작다.`,
     renderFalse: (higher, lower) =>
-      `${withTopicParticle(higher.name)} ${lower.name}보다 월 강수량의 연중 범위가 작다.`,
+      `${withTopicParticle(higher.name)} ${lower.name}보다 월강수량 최대·최소 차가 작다.`,
     renderSuperlativePositive: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 월 강수량의 연중 범위가 가장 큰 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 월강수량 최대·최소 차가 가장 큰 곳은 ${region.name}이다.`,
     renderSuperlativeReverse: (region, context, scopeLabel) =>
-      `${scopeLabel} 중에서 월 강수량의 연중 범위가 가장 작은 곳은 ${region.name}이다.`,
+      `${scopeLabel} 중에서 월강수량 최대·최소 차가 가장 작은 곳은 ${region.name}이다.`,
   },
   {
     sourceIds: ["2022-09-q13-opt-02", "2024-09-q06-opt-01"],
@@ -276,8 +276,8 @@ const EXAM_COMPARISON_TEMPLATES = [
   {
     sourceIds: ["2021-06-q03-opt-04"],
     categoryKey: "janJulTemperatureRange",
-    title: "1월·7월 기온 차이",
-    label: "1월·7월 평균 기온 차이",
+    title: "1월과 7월 기온 차이",
+    label: "1월과 7월 월평균 기온 차이",
     pattern: "한 지역은 다른 지역보다 1월과 7월의 평균 기온 차이가 크다.",
     reversePattern: "한 지역은 다른 지역보다 1월과 7월의 평균 기온 차이가 작다.",
     unit: "°C",
@@ -345,7 +345,7 @@ const EXAM_COMPARISON_TEMPLATES = [
       "2025-suneung-q19-opt-01",
     ],
     categoryKey: "coldestMonthTemperature",
-    title: "최한월 평균 기온 비교",
+    title: "최한월 평균 기온",
     label: "최한월 평균 기온",
     pattern: "한 지역은 다른 지역보다 최한월 평균 기온이 높다.",
     reversePattern: "한 지역은 다른 지역보다 최한월 평균 기온이 낮다.",
@@ -405,8 +405,8 @@ const EXAM_COMPARISON_TEMPLATES = [
       "2025-suneung-q19-opt-03",
     ],
     categoryKey: "solarNoonAltitude",
-    title: "태양 고도각 비교",
-    label: (context) => `${context.monthLabel} 정오 태양 고도각`,
+    title: "정오 태양 고도",
+    label: (context) => `${context.monthLabel} 정오 태양 고도`,
     pattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 정오의 태양 고도가 높다.`,
     reversePattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 정오의 태양 고도가 낮다.`,
     unit: "°",
@@ -428,7 +428,7 @@ const EXAM_COMPARISON_TEMPLATES = [
     sourceIds: ["2022-09-q13-opt-04", "2023-06-q16-opt-04", "2023-09-q15-opt-02"],
     categoryKey: "equatorDistance",
     title: "적도 거리 비교",
-    label: "적도까지의 거리",
+    label: "적도와의 거리",
     pattern: "한 지역은 다른 지역보다 적도에서 멀다.",
     reversePattern: "한 지역은 다른 지역보다 적도에 가깝다.",
     unit: "°",
@@ -446,7 +446,7 @@ const EXAM_COMPARISON_TEMPLATES = [
     sourceIds: ["2024-09-q06-opt-02", "2025-06-q07-opt-05"],
     categoryKey: "tropicOfCancerDistance",
     title: "북회귀선 거리 비교",
-    label: "북회귀선까지의 위도 차",
+    label: "북회귀선과의 위도 차",
     pattern: "한 지역은 다른 지역보다 북회귀선에서 멀다.",
     reversePattern: "한 지역은 다른 지역보다 북회귀선에 가깝다.",
     unit: "°",
@@ -689,6 +689,10 @@ const numberFormatter = new Intl.NumberFormat("ko-KR", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 1,
 });
+const climateNumberFormatter = new Intl.NumberFormat("ko-KR", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
 const coordinateFormatter = new Intl.NumberFormat("ko-KR", {
   minimumFractionDigits: 0,
   maximumFractionDigits: 2,
@@ -763,8 +767,7 @@ async function init() {
     try {
       state.worldMapData = await loadWorldMapData();
     } catch (error) {
-      state.mapLoadError =
-        error instanceof Error ? error.message : "세계 지도 데이터를 불러오지 못했습니다.";
+      state.mapLoadError = "지도를 불러오지 못했습니다";
       state.worldMapData = null;
       console.warn("Failed to load projected world map data:", error);
     }
@@ -773,10 +776,10 @@ async function init() {
     bindEvents();
     render();
   } catch (error) {
-    const message = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+    console.warn("Climate data load failed:", error);
     elements.selectedRegionsContent.innerHTML = renderEmptyState(
-      "데이터를 불러오지 못했습니다.",
-      message
+      "자료를 불러오지 못했습니다",
+      ""
     );
     elements.comparisonContent.innerHTML = "";
   }
@@ -785,7 +788,7 @@ async function init() {
 async function loadDataset() {
   const response = await fetch(APP_CONFIG.datasetPath);
   if (!response.ok) {
-    throw new Error(`데이터를 불러오지 못했습니다. (${response.status})`);
+    throw new Error(`Climate data: ${response.status}`);
   }
   return response.json();
 }
@@ -1322,7 +1325,7 @@ function renderMetaList(parts) {
 
 function renderSelectedTray(selectedRegions) {
   if (selectedRegions.length === 0) {
-    return `<span class="selected-tray-empty">선택한 지역 없음</span>`;
+    return `<span class="selected-tray-empty">선택한 곳이 없습니다</span>`;
   }
 
   return selectedRegions
@@ -1377,7 +1380,7 @@ function removeCustomRegion(regionId) {
     elements.searchInput.value = "";
   }
   persistCustomRegions();
-  state.apiMessage = `${withObjectParticle(region.name)} 이 기기의 추가 지역에서 삭제했습니다.`;
+  state.apiMessage = `${withObjectParticle(region.name)} 지웠습니다`;
   pushUrlStateOnNextRender();
   render();
 }
@@ -1387,7 +1390,7 @@ function resetAllCustomRegions() {
   if (customRegions.length === 0) return;
 
   const shouldReset = window.confirm(
-    `사용자가 추가한 ${customRegions.length}개 지역을 이 기기에서 모두 삭제할까요? 기본 JMA 자료는 유지됩니다.`
+    `직접 추가한 도시 ${customRegions.length}곳을 지울까요?`
   );
   if (!shouldReset) return;
 
@@ -1398,7 +1401,7 @@ function resetAllCustomRegions() {
   state.query = "";
   elements.searchInput.value = "";
   persistCustomRegions();
-  state.apiMessage = `사용자 추가 지역 ${customRegions.length}개를 초기화했습니다.`;
+  state.apiMessage = "추가한 도시를 지웠습니다";
   pushUrlStateOnNextRender();
   render();
 }
@@ -1601,13 +1604,13 @@ function downloadClimateCsvPayload(payload) {
 function downloadSelectedRegionsCsv() {
   const selectedRegions = sortDisplayedRegions(getSelectedRegions());
   if (selectedRegions.length === 0) {
-    setSelectionUtilityStatus("지역을 선택하세요", "warning");
+    setSelectionUtilityStatus("지도나 목록에서 지역을 선택해 주세요", "warning");
     return;
   }
 
   const headers = [
     "지역 ID", "지역", "영문명", "대륙", "국가", "반구", "기후", "월", "월 번호",
-    "평균 기온(°C)", "강수량(mm)", "연평균 기온(°C)", "연 강수량(mm)", "위도", "경도",
+    "평균 기온(°C)", "강수량(mm)", "연평균 기온(°C)", "연강수량(mm)", "위도", "경도",
     "관측 지점", "평년 기간", "출처", "원자료 URL",
   ];
   const rows = selectedRegions.flatMap((region) =>
@@ -1635,11 +1638,11 @@ function downloadSelectedRegionsCsv() {
   );
 
   downloadClimateCsvPayload({
-    filename: `세계기후-선택지역-${selectedRegions.length}개`,
+    filename: `세계기후-선택지역-${selectedRegions.length}곳`,
     headers,
     rows,
   });
-  setSelectionUtilityStatus(`${selectedRegions.length}개 지역 CSV 저장 완료`);
+  setSelectionUtilityStatus("CSV를 저장했습니다");
 }
 
 async function copyCurrentViewLink() {
@@ -1653,13 +1656,13 @@ async function copyCurrentViewLink() {
     );
     setSelectionUtilityStatus(
       hasCustomSelection
-        ? "링크 복사 완료 · 추가 지역은 이 기기에만 저장됨"
-        : "링크 복사 완료",
+        ? "링크를 복사했습니다. 직접 추가한 도시는 이 기기에서만 보입니다."
+        : "링크를 복사했습니다",
       hasCustomSelection ? "warning" : "success"
     );
   } catch (error) {
     console.warn("기후 비교 링크 복사 실패:", error);
-    setSelectionUtilityStatus("복사 실패 · 주소창 URL을 복사하세요", "error");
+    setSelectionUtilityStatus("복사하지 못했습니다. 주소창의 주소를 복사해 주세요.", "error");
   }
 }
 
@@ -1764,15 +1767,14 @@ function renderSelection() {
   const trayMotion = window.TwMotion?.snapshotTray(elements.selectedTray);
   const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
   resetClimateCsvExports();
-  elements.selectionSummary.textContent = `${selectedRegions.length}개 선택됨`;
+  elements.selectionSummary.textContent = `${selectedRegions.length}곳 선택`;
   if (elements.selectedTray) {
     elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
     window.TwMotion?.animateTray(elements.selectedTray, trayMotion);
   }
   if (elements.downloadSelectedCsvButton) {
     elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
-    elements.downloadSelectedCsvButton.textContent = selectedRegions.length
-      ? `선택 ${selectedRegions.length}개 CSV` : "선택 데이터 CSV";
+    elements.downloadSelectedCsvButton.textContent = "CSV";
   }
   if (state.mapScope === "selected") {
     const mappableRegions = getMapRegions([], selectedRegions);
@@ -1812,9 +1814,9 @@ function render() {
   normalizeComparisonBaseline(selectedRegions);
   const mappableRegions = getMapRegions(visibleRegions, selectedRegions);
 
-  elements.heroCount.textContent = `${state.regions.length}개 지역`;
+  elements.heroCount.textContent = `${state.regions.length}곳`;
   elements.heroCaption.textContent = buildHeroCaption();
-  elements.selectionSummary.textContent = `${selectedRegions.length}개 선택됨`;
+  elements.selectionSummary.textContent = `${selectedRegions.length}곳 선택`;
   if (elements.selectedTray) {
     elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
     window.TwMotion?.animateTray(elements.selectedTray, trayMotion);
@@ -1834,15 +1836,12 @@ function render() {
   elements.apiSearchButton.disabled =
     state.apiLoading || elements.apiSearchInput.value.trim().length < 2;
   const customRegionCount = getCustomRegions().length;
-  elements.resetCustomRegionsButton.textContent = customRegionCount
-    ? `추가 지역 ${customRegionCount}개 초기화`
-    : "추가 지역 없음";
+  elements.resetCustomRegionsButton.textContent = "추가한 도시 지우기";
+  elements.resetCustomRegionsButton.hidden = customRegionCount === 0;
   elements.resetCustomRegionsButton.disabled = state.apiLoading || customRegionCount === 0;
   if (elements.downloadSelectedCsvButton) {
     elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
-    elements.downloadSelectedCsvButton.textContent = selectedRegions.length
-      ? `선택 ${selectedRegions.length}개 CSV`
-      : "선택 데이터 CSV";
+    elements.downloadSelectedCsvButton.textContent = "CSV";
   }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
@@ -1929,19 +1928,19 @@ function buildHeroCaption() {
   const period = String(summary.period ?? API_NORMAL_PERIOD.label).replace("-", "–");
   const liveApiCount = state.regions.filter((region) => region.source?.type === "open-meteo-live").length;
 
-  const parts = [`JMA · ${period}`];
+  const parts = [`JMA ${period}`];
   if (openMeteoFallback > 0) parts.push(`보완 ${openMeteoFallback}`);
   if (liveApiCount > 0) parts.push(`추가 ${liveApiCount}`);
-  return parts.join(" · ");
+  return parts.join(" ");
 }
 
 function buildMapSummary(mappableRegions, selectedRegions) {
   if (state.mapScope === "selected") {
-    return `${mappableRegions.length}/${selectedRegions.length}개`;
+    return `${mappableRegions.length}/${selectedRegions.length}곳`;
   }
 
   const totalMappable = state.regions.filter(hasCoordinates).length;
-  return `${mappableRegions.length}/${totalMappable}개`;
+  return `${mappableRegions.length}/${totalMappable}곳`;
 }
 
 function formatSourceLabel(region) {
@@ -1950,7 +1949,7 @@ function formatSourceLabel(region) {
   if (source.type === "jma") {
     const isTemperatureOnly = source.variableSources?.precipitation === "open-meteo";
     return isTemperatureOnly
-      ? `JMA 기온 · Open-Meteo 강수 ${source.period ?? ""}`.trim()
+      ? `JMA 기온 / Open-Meteo 강수 ${source.period ?? ""}`.trim()
       : `JMA 평년값 ${source.period ?? ""}`.trim();
   }
 
@@ -1959,7 +1958,7 @@ function formatSourceLabel(region) {
   }
 
   if (source.type === "open-meteo-live") {
-    return `Open-Meteo API ${source.period ?? ""}`.trim();
+    return `Open-Meteo ${source.period ?? ""}`.trim();
   }
 
   return source.label ?? "출처 정보 확인 필요";
@@ -2083,7 +2082,7 @@ function renderClimateChips() {
 
 function renderRegionOptions(regions) {
   if (regions.length === 0) {
-    return renderEmptyState("검색 결과 없음", "");
+    return renderEmptyState("검색 결과가 없습니다", "");
   }
 
   return regions
@@ -2114,7 +2113,7 @@ function renderRegionOptions(regions) {
 
 function renderSelectedRegions(selectedRegions) {
   if (selectedRegions.length === 0) {
-    return renderEmptyState("지역을 선택하세요", "");
+    return renderEmptyState("지도나 목록에서 지역을 선택해 주세요", "");
   }
 
   const sharedChartScale = buildClimateChartScale(selectedRegions);
@@ -2142,12 +2141,12 @@ function renderSelectedRegions(selectedRegions) {
                 region.climateCode,
                 region.source?.type === "open-meteo-live" ? "Open-Meteo" : "",
                 region.classificationReview?.status === "review-required"
-                  ? `분류 재검토 ${region.classificationReview.appDerivedGroup}`
+                  ? `자료상 ${region.classificationReview.appDerivedGroup}`
                   : "",
               ])}</p>
             </div>
             <dl class="region-card-stats">
-              <div><dt>연평균</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
+              <div><dt>연평균 기온</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
               <div><dt>연강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
             </dl>
             ${
@@ -2187,13 +2186,13 @@ function renderSelectedRegions(selectedRegions) {
                 <tbody>
                   <tr>
                     <th scope="row">기온 °C</th>
-                    ${region.monthlyTemperatureC.map((value) => `<td>${formatPlainNumber(value)}</td>`).join("")}
-                    <td>${formatPlainNumber(region.annualMeanTemperatureC)}</td>
+                    ${region.monthlyTemperatureC.map((value) => `<td>${climateNumberFormatter.format(round(value))}</td>`).join("")}
+                    <td>${climateNumberFormatter.format(round(region.annualMeanTemperatureC))}</td>
                   </tr>
                   <tr>
                     <th scope="row">강수량 mm</th>
-                    ${region.monthlyPrecipitationMm.map((value) => `<td>${formatPlainNumber(value)}</td>`).join("")}
-                    <td>${formatPlainNumber(region.annualPrecipitationMm)}</td>
+                    ${region.monthlyPrecipitationMm.map((value) => `<td>${climateNumberFormatter.format(round(value))}</td>`).join("")}
+                    <td>${climateNumberFormatter.format(round(region.annualPrecipitationMm))}</td>
                   </tr>
                 </tbody>
               </table>
@@ -2211,12 +2210,12 @@ function buildClimateChartScale(regions) {
 
 function buildApiStatusSummary() {
   if (state.apiLoading) {
-    return "검색 중";
+    return "찾는 중…";
   }
 
   const resultCount = state.apiResults.length;
   const liveApiCount = state.regions.filter((region) => region.source?.type === "open-meteo-live").length;
-  return `결과 ${resultCount} · 추가 ${liveApiCount}`;
+  return `결과 ${resultCount}곳, 추가 ${liveApiCount}곳`;
 }
 
 function buildApiStatusText() {
@@ -2229,7 +2228,7 @@ function buildApiStatusText() {
 
 function renderApiResults() {
   if (state.apiResults.length === 0) {
-    return renderEmptyState("검색 결과 없음", "");
+    return "";
   }
 
   return state.apiResults
@@ -2237,14 +2236,14 @@ function renderApiResults() {
       const existingRegion = findExistingRegionForApiResult(result);
       const resultKey = getApiResultKey(result);
       const isBusy = state.apiBusyKey === resultKey;
-      const locationMeta = [result.country, result.admin1, result.timezone].filter(Boolean).join(" · ");
+      const locationMeta = [result.country, result.admin1, result.timezone].filter(Boolean);
 
       return `
         <article class="api-result-card">
           <div class="api-result-card-head">
             <div>
               <h3>${escapeHtml(result.name)}</h3>
-              <p class="api-result-meta">${escapeHtml(locationMeta)}</p>
+              <p class="api-result-meta">${renderMetaList(locationMeta)}</p>
             </div>
             ${
               existingRegion
@@ -2265,7 +2264,7 @@ function renderApiResults() {
                     data-api-result-index="${index}"
                     ${isBusy ? "disabled" : ""}
                   >
-                    ${isBusy ? "기후 불러오는 중..." : "기후 불러와 추가"}
+                    ${isBusy ? "추가하는 중…" : "추가"}
                   </button>
                 `
             }
@@ -2297,7 +2296,7 @@ async function searchApiRegions() {
 
   state.apiLoading = true;
   state.apiBusyKey = "";
-  state.apiMessage = `"${query}" 위치 후보를 찾는 중입니다...`;
+  state.apiMessage = "찾는 중…";
   render();
 
   try {
@@ -2317,16 +2316,13 @@ async function searchApiRegions() {
 
     const payload = await response.json();
     state.apiResults = (payload.results ?? []).map(normalizeApiSearchResult);
-    state.apiMessage =
-      state.apiResults.length > 0
-        ? `"${query}" 검색 결과 ${state.apiResults.length}개를 찾았습니다.`
-        : `"${query}"에 해당하는 위치를 찾지 못했습니다.`;
+    state.apiMessage = state.apiResults.length > 0
+      ? ""
+      : `'${query}'${hasFinalConsonant(query) ? "을" : "를"} 찾지 못했습니다`;
   } catch (error) {
     state.apiResults = [];
-    state.apiMessage =
-      error instanceof Error
-        ? error.message
-        : "Open-Meteo API 검색 중 알 수 없는 오류가 발생했습니다.";
+    console.warn("Climate location search failed:", error);
+    state.apiMessage = "지금은 검색할 수 없습니다. 잠시 후 다시 시도해 주세요.";
   } finally {
     state.apiLoading = false;
     render();
@@ -2342,7 +2338,7 @@ async function addRegionFromApiResult(resultIndex) {
   const existingRegion = findExistingRegionForApiResult(result);
   if (existingRegion) {
     toggleRegion(existingRegion.id, true);
-    state.apiMessage = `${withTopicParticle(existingRegion.name)} 이미 데이터셋에 있어 바로 선택했습니다.`;
+    state.apiMessage = `${withTopicParticle(existingRegion.name)} 이미 목록에 있어 바로 선택했습니다`;
     pushUrlStateOnNextRender();
     render();
     return;
@@ -2351,7 +2347,7 @@ async function addRegionFromApiResult(resultIndex) {
   const resultKey = getApiResultKey(result);
   state.apiLoading = true;
   state.apiBusyKey = resultKey;
-  state.apiMessage = `${result.name}의 1991-2020 월별 기후를 계산하고 있습니다...`;
+  state.apiMessage = `${result.name} 평년값 계산 중…`;
   render();
 
   try {
@@ -2366,13 +2362,13 @@ async function addRegionFromApiResult(resultIndex) {
     state.climateGroup = "전체";
     state.query = region.name;
     elements.searchInput.value = region.name;
-    state.apiMessage = `${withObjectParticle(region.name)} 데이터셋에 추가했습니다.`;
+    state.apiMessage = `${withObjectParticle(region.name)} 추가했습니다`;
     pushUrlStateOnNextRender();
   } catch (error) {
-    state.apiMessage =
-      error instanceof Error
-        ? error.message
-        : `${result.name}의 기후 정보를 가져오는 중 오류가 발생했습니다.`;
+    console.warn("Climate normals fetch failed:", error);
+    state.apiMessage = error instanceof Error && error.message === "일별 자료가 부족해 계산할 수 없습니다"
+      ? error.message
+      : "지금은 검색할 수 없습니다. 잠시 후 다시 시도해 주세요.";
   } finally {
     state.apiLoading = false;
     state.apiBusyKey = "";
@@ -2411,7 +2407,7 @@ async function fetchApiClimateNormals(location) {
   const precipitations = daily.precipitation_sum ?? [];
 
   if (time.length === 0 || temperatures.length !== time.length || precipitations.length !== time.length) {
-    throw new Error("월별 기후를 계산하기 위한 일별 자료가 충분하지 않습니다.");
+    throw new Error("일별 자료가 부족해 계산할 수 없습니다");
   }
 
   return {
@@ -2516,12 +2512,11 @@ function createRegionFromApiResult(result, climate) {
     hemisphere: result.latitude >= 0 ? "북반구" : "남반구",
     source: {
       type: "open-meteo-live",
-      label: "Open-Meteo API",
+      label: "Open-Meteo",
       period: API_NORMAL_PERIOD.label,
       geocodingUrl: "https://open-meteo.com/en/docs/geocoding-api",
       weatherUrl: "https://open-meteo.com/en/docs/historical-weather-api",
       apiUrl: climate.apiUrl,
-      note: "Open-Meteo Geocoding API와 Historical Weather API(ERA5) 일별 자료를 이용해 월평년값을 계산했습니다.",
     },
   };
 }
@@ -2650,7 +2645,7 @@ function isValidPersistedRegion(region) {
 
 function renderComparison(selectedRegions) {
   if (selectedRegions.length < 2) {
-    return renderEmptyState("2곳 이상 선택하세요", "");
+    return renderEmptyState("두 곳 이상 선택하면 비교할 수 있습니다", "");
   }
 
   return (
@@ -2709,7 +2704,7 @@ function renderExamClimateSourcePanel(selectedRegions) {
                 ? `<div class="exam-generated-list">${generatedGroups
                     .map(renderExamGeneratedGroup)
                     .join("")}</div>`
-                : renderExamMiniEmptyState("비교 선지 없음")
+                : renderExamMiniEmptyState("해당하는 선지가 없습니다")
             }
           </section>
           <section class="exam-source-block">
@@ -2719,18 +2714,18 @@ function renderExamClimateSourcePanel(selectedRegions) {
                 ? `<div class="exam-statement-list">${matchedFeatureGroups
                     .map(renderExamFeatureItem)
                     .join("")}</div>`
-                : renderExamMiniEmptyState("지역 선지 없음")
+                : renderExamMiniEmptyState("해당하는 선지가 없습니다")
             }
           </section>
         </div>
         <details class="exam-source-details">
-          <summary>전체 카테고리</summary>
+          <summary>전체 유형</summary>
           <div class="exam-statement-list compact">
             ${comparisonCatalog.map(renderExamComparisonCatalogItem).join("")}
           </div>
         </details>
         <details class="exam-source-details">
-          <summary>참조 전용 선지</summary>
+          <summary>자동 판정 제외</summary>
           <div class="exam-statement-list compact">
             ${statementInventory.referenceOnly.map(renderExamReferenceStatementItem).join("")}
           </div>
@@ -3212,7 +3207,7 @@ function buildComparisonChoiceCandidate(group, example, isTrue, seed) {
     badges: group.badges ?? [],
     explanation: `${group.title}: ${example.higherName} ${higherValue}, ${example.lowerName} ${lowerValue}`,
     evidence: {
-      title: "실제 데이터",
+      title: "근거",
       rows: [
         { label: example.higherName, value: higherValue },
         { label: example.lowerName, value: lowerValue },
@@ -3272,7 +3267,7 @@ function buildSuperlativeChoiceCandidate(group, monthContext, isTrue, seed) {
     badges: group.badges ?? [],
     explanation: `${group.title}: ${correctEntry.region.name} ${correctValue} (${scopeLabel} 중 ${correctDirectionLabel})`,
     evidence: {
-      title: "실제 데이터",
+      title: "근거",
       rows: rankedValues.map((entry) => ({
         label: entry.region.name,
         value: formatExamMetricValue(entry.value, group.unit),
@@ -3317,7 +3312,7 @@ function buildFeatureChoiceEvidence(statement, region, isTrue) {
       ? { label: "연평균 기온", value: formatTemp(region.annualMeanTemperatureC) }
       : null,
     Number.isFinite(region.annualPrecipitationMm)
-      ? { label: "연 강수량", value: formatMm(region.annualPrecipitationMm) }
+      ? { label: "연강수량", value: formatMm(region.annualPrecipitationMm) }
       : null,
     Number.isFinite(region.elevationM) ? { label: "해발", value: formatMeters(region.elevationM) } : null,
   ].filter(Boolean);
@@ -3326,8 +3321,8 @@ function buildFeatureChoiceEvidence(statement, region, isTrue) {
     title: "지역 데이터",
     rows,
     summary: isTrue
-      ? `${withTopicParticle(region.name)} 기출 원문 조건에 해당합니다.`
-      : `${withTopicParticle(region.name)} 기출 원문 조건에 해당하지 않습니다.`,
+      ? `${region.name}: 해당`
+      : `${region.name}: 해당 없음`,
   };
 }
 
@@ -3338,22 +3333,20 @@ function buildComputedFeatureChoiceEvidence(statement, region, isTrue) {
       title: "좌표 판정",
       rows: [{ label: region.name, value: Number.isFinite(latitude) ? formatLatitude(latitude) : "좌표 없음" }],
       summary: isTrue
-        ? `${withTopicParticle(region.name)} 남반구에 위치합니다.`
-        : `${withTopicParticle(region.name)} 남반구에 위치하지 않습니다.`,
+        ? `${region.name}: 남반구`
+        : `${region.name}: 북반구`,
     };
   }
 
   const coldestMonthTemperature = getColdestMonthTemperature(region);
-  const thresholdRelation = statement.predicateKey === "coldestMonthAtLeast18" ? "18℃ 이상" : "18℃ 미만";
+  const thresholdRelation = statement.predicateKey === "coldestMonthAtLeast18" ? "18°C 이상" : "18°C 미만";
   return {
     title: "월별 평년값 판정",
     rows: [
       { label: region.name, value: `최한월 ${formatTemp(coldestMonthTemperature)}` },
       { label: "판정 기준", value: thresholdRelation },
     ],
-    summary: isTrue
-      ? `${region.name}의 최한월 평균 기온은 ${thresholdRelation}입니다.`
-      : `${region.name}의 최한월 평균 기온은 ${thresholdRelation}이 아닙니다.`,
+    summary: `${region.name} 최한월 평균 기온 ${formatTemp(coldestMonthTemperature)} (${coldestMonthTemperature >= 18 ? "18°C 이상" : "18°C 미만"})`,
   };
 }
 
@@ -3589,13 +3582,13 @@ function renderExamMultipleChoiceQuestion(question) {
           <div class="exam-question-actions">
             <label class="exam-toggle-option">
               <input type="checkbox" data-exam-variable-toggle ${state.examUseVariableLabels ? "checked" : ""} />
-              <span>지역명 변수 처리</span>
+              <span>지역명 (가)(나)로</span>
             </label>
-            <button type="button" class="ghost-button" data-exam-question-refresh>다른 조합</button>
-            <button type="button" class="ghost-button" data-exam-region-random>지역 랜덤 조합</button>
+            <button type="button" class="ghost-button" data-exam-question-refresh>다시 만들기</button>
+            <button type="button" class="ghost-button" data-exam-region-random>지역 바꿔 만들기</button>
           </div>
         </div>
-        ${renderExamMiniEmptyState("참 1개와 거짓 4개를 만들 후보가 아직 부족합니다. 서로 다른 기후 지역을 3개 이상 선택하면 조합이 안정적입니다.")}
+        ${renderExamMiniEmptyState("선지를 만들 지역이 부족합니다. 기후가 다른 곳을 세 곳 이상 선택해 주세요.")}
       </section>
     `;
   }
@@ -3610,10 +3603,10 @@ function renderExamMultipleChoiceQuestion(question) {
         <div class="exam-question-actions">
           <label class="exam-toggle-option">
             <input type="checkbox" data-exam-variable-toggle ${state.examUseVariableLabels ? "checked" : ""} />
-            <span>지역명 변수 처리</span>
+            <span>지역명 (가)(나)로</span>
           </label>
-          <button type="button" class="ghost-button" data-exam-question-refresh>다른 조합</button>
-          <button type="button" class="ghost-button" data-exam-region-random>지역 랜덤 조합</button>
+          <button type="button" class="ghost-button" data-exam-question-refresh>다시 만들기</button>
+          <button type="button" class="ghost-button" data-exam-region-random>지역 바꿔 만들기</button>
         </div>
       </div>
       ${renderExamQuestionMap(question)}
@@ -3672,7 +3665,7 @@ function renderExamChoiceEvidence(choice, variables) {
 
   return `
     <div class="exam-answer-evidence">
-      <strong>${escapeHtml(evidence.title ?? "실제 데이터")}</strong>
+      <strong>${escapeHtml(evidence.title ?? "근거")}</strong>
       <dl>
         ${evidence.rows
           .map(
@@ -3849,7 +3842,7 @@ function renderExamGroupTransformControls(group, isReversed) {
     controls.push(`
       <label class="exam-toggle-option">
         <input type="checkbox" data-exam-month-toggle ${state.examMonthIndex === 6 ? "checked" : ""} />
-        <span>7월 기준</span>
+        <span>7월로</span>
       </label>
     `);
   }
@@ -3857,14 +3850,14 @@ function renderExamGroupTransformControls(group, isReversed) {
     controls.push(`
       <label class="exam-toggle-option">
         <input type="checkbox" data-exam-night-toggle ${state.examUseNightLength ? "checked" : ""} />
-        <span>밤 길이 기준</span>
+        <span>밤 길이로</span>
       </label>
     `);
   }
   controls.push(`
     <label class="exam-toggle-option">
       <input type="checkbox" data-exam-reverse-toggle="${escapeHtml(group.id)}" ${isReversed ? "checked" : ""} />
-      <span>반대 방향</span>
+      <span>반대로</span>
     </label>
   `);
 
@@ -3896,7 +3889,7 @@ function renderExamFeatureItem(group) {
 }
 
 function renderExamReferenceStatementItem(statement) {
-  const statusLabel = statement.automation === "reference-only" ? "참조 전용" : "평가 규칙 미연결";
+  const statusLabel = "판정 제외";
   return `
     <article class="exam-statement-item is-reference-only">
       <div class="exam-category-heading">
@@ -3970,6 +3963,7 @@ function getExamFeatureTitle(statement) {
 
 function normalizeExamFeatureStatementText(text, periodLabels = {}) {
   return text
+    .replaceAll("\u2103", "°C")
     .replace(/[A-D]\s*～\s*[A-D]\s*중/g, "선택 지역 중")
     .replace(/[A-D]\s*와\s*[A-D]\s*에는/g, "해당 지역들에는")
     .replace(/[A-D]\s*와\s*[A-D]\s*는/g, "해당 지역들은")
@@ -4330,10 +4324,10 @@ function renderMonthPanel(selectedRegions, monthIndex, panelIndex, baseline) {
           `
           : `
             <article class="chart-card">
-              <h4>${escapeHtml(monthLabel)} 월 평균 기온</h4>
+              <h4>${escapeHtml(monthLabel)} 월평균 기온</h4>
               ${renderActualTemperaturePanelChart(rows)}
               ${renderChartDataBlock({
-                tableLabel: `${monthLabel} 월 평균 기온 원 데이터`,
+                tableLabel: `${monthLabel} 월평균 기온 원 데이터`,
                 headers: ["지역", "평균 기온(°C)"],
                 rows: monthTemperatureRows,
                 displayRows: monthTemperatureRows.map((row) => [
@@ -4341,7 +4335,7 @@ function renderMonthPanel(selectedRegions, monthIndex, panelIndex, baseline) {
                   formatTemp(row[1]),
                 ]),
                 csvContext: `world-comparison-${monthIndex + 1}-${monthLabel}-monthly-temperature`,
-                csvFilename: `${monthLabel}-월 평균 기온`
+                csvFilename: `${monthLabel}-월평균 기온`
               })}
             </article>
             <article class="chart-card">
@@ -4421,7 +4415,7 @@ function renderMonthlyTemperatureTrendChart(selectedRegions, baseline) {
   const zeroY = scaleY(0, axis.yMin, axis.yMax, margin.top, margin.top + chartHeight);
 
   return `
-    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 월 평균 기온 편차 그래프">
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 월평균 기온 편차 그래프">
       <rect
         x="${plotLeft}"
         y="${margin.top}"
@@ -5115,7 +5109,7 @@ function renderJanJulyRainfallPanelChart(selectedRegions) {
   const stepX = chartWidth > 0 ? chartWidth / Math.max(focusMonthIndexes.length - 1, 1) : 0;
 
   return `
-    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 1월·7월 강수량 그래프">
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지역 1월과 7월 월강수량 그래프">
       <rect
         x="${plotLeft}"
         y="${margin.top}"
@@ -5398,7 +5392,7 @@ function renderDeviationPrecipitationChart(rows) {
 function renderWorldMap(regions) {
   if (regions.length === 0) {
     return renderEmptyState(
-      state.mapScope === "selected" ? "선택 지역 없음" : "표시 지역 없음",
+      state.mapScope === "selected" ? "선택한 곳이 없습니다" : "표시할 곳이 없습니다",
       ""
     );
   }
@@ -5406,8 +5400,8 @@ function renderWorldMap(regions) {
   const projection = buildMapProjection();
   if (!projection) {
     return renderEmptyState(
-      "투영 지도를 불러오지 못했습니다.",
-      state.mapLoadError ?? "세계 지도 데이터를 다시 확인해 주세요."
+      "지도를 불러오지 못했습니다",
+      ""
     );
   }
 
@@ -5667,16 +5661,10 @@ function renderMapCandidatePicker() {
     return;
   }
 
-  const hiddenCount = Math.max(0, picker.total - regions.length);
   elements.mapCandidatePicker.innerHTML = `
     <div class="map-candidate-picker-header">
       <div class="map-candidate-picker-copy">
-        <strong>주변 지점 ${regions.length}개 · 가까운 순</strong>
-        <span>${
-          hiddenCount > 0
-            ? `가까운 ${regions.length}개를 표시함 · 나머지 ${hiddenCount}개는 지역 목록에서 검색 가능`
-            : "이름을 눌러 선택하거나 선택을 해제하세요."
-        }</span>
+        <strong>주변 지점 ${regions.length}곳</strong>
       </div>
       <button type="button" class="map-candidate-close" data-map-candidate-close>닫기</button>
     </div>
@@ -5689,7 +5677,7 @@ function renderMapCandidatePicker() {
 
 function renderMapCandidateOption(region) {
   const isSelected = state.selectedIds.has(region.id);
-  const meta = [region.englishName, region.climateGroup].filter(Boolean).join(" · ");
+  const meta = [region.englishName, region.climateGroup].filter(Boolean);
   return `
     <button
       type="button"
@@ -5700,9 +5688,9 @@ function renderMapCandidateOption(region) {
     >
       <span class="map-candidate-option-copy">
         <strong>${escapeHtml(region.name)}</strong>
-        <span>${escapeHtml(meta)}</span>
+        ${renderMetaList(meta)}
       </span>
-      <span class="map-candidate-option-state">${isSelected ? "선택됨" : "선택"}</span>
+      <span class="map-candidate-option-state">${isSelected ? "선택 중" : "선택"}</span>
     </button>
   `;
 }
@@ -6294,15 +6282,15 @@ function formatPlainNumber(value) {
 }
 
 function formatTemp(value) {
-  return `${numberFormatter.format(round(value))}°C`;
+  return `${climateNumberFormatter.format(round(value))}°C`;
 }
 
 function formatMm(value) {
-  return `${numberFormatter.format(round(value))} mm`;
+  return `${climateNumberFormatter.format(round(value))} mm`;
 }
 
 function formatSigned(value, unit) {
-  return `${value > 0 ? "+" : ""}${numberFormatter.format(round(value))}${unit}`;
+  return `${value > 0 ? "+" : ""}${climateNumberFormatter.format(round(value))}${unit}`;
 }
 
 function formatSignedPlain(value) {

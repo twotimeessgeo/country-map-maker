@@ -133,3 +133,8 @@
   .cut-lightbox-body { grid-template-columns: minmax(0,1fr); }
   .cut-lightbox-side { display: flex; }
 }
+.cut-status {
+  margin: var(--tw-space-4) 0;
+  color: var(--tw-ink-2);
+  font-size: var(--tw-text-sm);
+}

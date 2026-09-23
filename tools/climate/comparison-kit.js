@@ -28,7 +28,7 @@
     if (!Number.isFinite(value)) return "–";
     const rounded = round1(value);
     const abs = Math.abs(rounded);
-    const body = (Number.isInteger(abs) ? String(abs) : abs.toFixed(1)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    const body = abs.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     if (rounded < 0) return `−${body}`;
     return signed && rounded > 0 ? `+${body}` : body;
   }
@@ -113,7 +113,7 @@
       const points = item.values.map((value, i) => [x(i), axis.y(value), value]).filter((point) => Number.isFinite(point[2]));
       body += `<g class="kit-line-series" data-series-index="${index}"><polyline class="tw-chart-line tw-value-shape" points="${points.map((p) => `${p[0]},${p[1]}`).join(" ")}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" stroke-linejoin="round" />`;
       body += points
-        .map((p, i) => `<g>${marker(style.marker, p[0], p[1])}<title>${esc(`${item.name}  ${i + 1}월  ${num(p[2], signed)}${unit}`)}</title></g>`)
+        .map((p, i) => `<g>${marker(style.marker, p[0], p[1])}<title>${esc(`${item.name}  ${i + 1}월  ${num(p[2], signed)}${unit === "mm" ? " mm" : unit}`)}</title></g>`)
         .join("");
       body += "</g>";
     });
@@ -140,7 +140,7 @@
       const short = name.length > maxChars + 1 ? `${name.slice(0, maxChars)}…` : name;
       body += `<text x="${cx}" y="${height - 9}" text-anchor="middle" font-size="11" fill="${INK_2}">${esc(short)}</text>`;
       if (!Number.isFinite(value)) return;
-      const tip = `<title>${esc(`${name}  ${num(value, signed)}${unit}`)}</title>`;
+      const tip = `<title>${esc(`${name}  ${num(value, signed)}${unit === "mm" ? " mm" : unit}`)}</title>`;
       if (kind === "bar") {
         const y0 = axis.y(0);
         const y1 = axis.y(value);
@@ -171,7 +171,7 @@
       const value = values[i];
       body += `<text x="${m.left - 10}" y="${cy + 4}" text-anchor="end" font-size="11" fill="${INK_2}">${esc(name)}</text>`;
       if (!Number.isFinite(value)) return;
-      const tip = `<title>${esc(`${name}  ${num(value, signed)}${unit}`)}</title>`;
+      const tip = `<title>${esc(`${name}  ${num(value, signed)}${unit === "mm" ? " mm" : unit}`)}</title>`;
       if (kind === "bar") {
         const x0 = x(0);
         const x1 = x(value);
@@ -242,7 +242,7 @@
         const p = adjust((region) => period.pick(region).precipitation);
         const tv = shown.map(t);
         const pv = shown.map(p);
-        const headers = ["지역", `기온${suffix}(°C)`, `강수량${suffix}(mm)`];
+        const headers = ["지역", `월평균 기온${suffix}(°C)`, `월강수량${suffix}(mm)`];
         const rows = shown.map((region, i) => [region.name, num(tv[i], deviation), num(pv[i], deviation)]);
         const key = csv?.(`cmp-${period.label}-${mode}`, headers, shown.map((region, i) => [region.name, tv[i], pv[i]]), `${period.label}-${deviation ? "편차" : "값"}`);
         return `
@@ -250,7 +250,7 @@
             <h3>${esc(period.label)}</h3>
             <div class="kit-pair">
               <div><h4>기온${suffix}</h4>${categoryChart({ categories: names, values: tv, kind: "dot", unit: "°C", signed: deviation, label: `${period.label} 기온${suffix}` })}</div>
-              <div><h4>강수량${suffix}</h4>${categoryChart({ categories: names, values: pv, kind: "bar", unit: "mm", signed: deviation, label: `${period.label} 강수량${suffix}` })}</div>
+              <div><h4>월강수량${suffix}</h4>${categoryChart({ categories: names, values: pv, kind: "bar", unit: "mm", signed: deviation, label: `${period.label} 월강수량${suffix}` })}</div>
             </div>
             ${dataBlock(key, headers, rows)}
           </article>`;
@@ -290,7 +290,7 @@
       ${controls}
       <div class="comparison-grid kit-periods">${periodCards}</div>
       <div class="charts-grid kit-trends">
-        ${trend("월별 기온", "°C", (region) => region.temps)}
+        ${trend("월평균 기온", "°C", (region) => region.temps)}
         ${trend("누적 강수량", "mm", cumulative)}
         ${extras}
       </div>`;

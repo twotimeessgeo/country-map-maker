@@ -21,7 +21,6 @@ const elements = {
   gradeGrid: document.querySelector("#gradeCutGrid"),
   mean: document.querySelector("#meanValue"),
   standardDeviation: document.querySelector("#sdValue"),
-  examYear: document.querySelector("#examYearValue"),
   sourceLink: document.querySelector("#sourceLink"),
   questionCount: document.querySelector("#questionAnalysisCount"),
   questionGrid: document.querySelector("#questionAnalysisGrid"),
@@ -227,11 +226,10 @@ function renderGradeCards(record) {
 function renderResult(record) {
   if (!record) {
     elements.resultSubject.textContent = "-";
-    elements.resultTitle.textContent = "선택 없음";
+    elements.resultTitle.textContent = "시험을 선택해 주세요";
     elements.gradeGrid.replaceChildren();
     elements.mean.textContent = "-";
     elements.standardDeviation.textContent = "-";
-    elements.examYear.textContent = "-";
     return;
   }
 
@@ -239,7 +237,6 @@ function renderResult(record) {
   elements.resultTitle.textContent = recordTitle(record);
   elements.mean.textContent = isFiniteNumber(record.national_mean) ? formatNumber(record.national_mean) : "미발표";
   elements.standardDeviation.textContent = isFiniteNumber(record.national_sd) ? formatNumber(record.national_sd) : "미발표";
-  elements.examYear.textContent = `${record.exam_year}년`;
   renderGradeCards(record);
 }
 
@@ -295,7 +292,7 @@ function createChoiceDistribution(rates, answer) {
     if (isAnswer) item.classList.add("is-answer");
     item.setAttribute(
       "aria-label",
-      `${choice}번 선택지 선택률 ${formatPercent(rate)}${isAnswer ? ", 정답" : ""}`,
+      `${choice}번 ${formatPercent(rate)}${isAnswer ? ", 정답" : ""}`,
     );
 
     const symbol = document.createElement("span");
@@ -325,7 +322,7 @@ function createEmptyQuestionImage() {
   const empty = document.createElement("div");
   empty.className = "cut-question-image-frame is-empty";
   const label = document.createElement("span");
-  label.textContent = "문항 이미지 없음";
+  label.textContent = "문항 이미지가 없습니다";
   empty.appendChild(label);
   return empty;
 }
@@ -343,7 +340,7 @@ function createQuestionImage(record, question, imageData) {
   });
   link.setAttribute(
     "aria-label",
-    `${recordTitle(record)} ${record.subject} ${question}번 문항 원본 보기`,
+    `${question}번 문항 크게 보기`,
   );
 
   const image = document.createElement("img");
@@ -363,7 +360,7 @@ function renderQuestionAnalysis(record) {
   elements.unpublished.replaceChildren();
   elements.unpublished.hidden = true;
   if (!record) {
-    elements.questionCount.textContent = "0문항";
+    elements.questionCount.textContent = "";
     return;
   }
 
@@ -386,8 +383,9 @@ function renderQuestionAnalysis(record) {
     );
     const card = document.createElement("article");
     card.className = "cut-question-card";
-    card.setAttribute("aria-label", question + "번 " + formatNumber(item.points, 0) +
-      "점, 오답률 " + formatPercent(wrongRate));
+    card.setAttribute("aria-label", question + "번" +
+      (isFiniteNumber(item.points) ? " " + formatNumber(item.points, 0) + "점" : "") +
+      ", 오답률 " + formatPercent(wrongRate));
 
     if (imageData?.url) {
       card.appendChild(createQuestionImage(record, question, imageData));
@@ -403,8 +401,12 @@ function renderQuestionAnalysis(record) {
     const number = document.createElement("strong");
     number.textContent = question + "번";
     const points = document.createElement("span");
-    points.textContent = formatNumber(item.points, 0) + "점";
-    heading.append(number, points);
+    if (isFiniteNumber(item.points)) {
+      points.textContent = formatNumber(item.points, 0) + "점";
+      heading.append(number, points);
+    } else {
+      heading.append(number);
+    }
 
     const rates = document.createElement("div");
     rates.className = "cut-question-rates";
@@ -434,7 +436,7 @@ function renderQuestionAnalysis(record) {
   if (!observed.length) {
     const empty = document.createElement("div");
     empty.className = "tw-empty";
-    empty.textContent = "오답률 미발표";
+    empty.textContent = "오답률이 발표되지 않았습니다";
     fragment.appendChild(empty);
   }
   elements.questionGrid.classList.toggle("is-rate-only", imageCount === 0);
@@ -456,13 +458,7 @@ function renderQuestionAnalysis(record) {
     elements.unpublished.hidden = false;
   }
 
-  const summary = [observed.length + "문항"];
-  if (imageCount) summary.push("이미지 " + imageCount + "장");
-  elements.questionCount.replaceChildren(...summary.map((label) => {
-    const node = document.createElement("span");
-    node.textContent = label;
-    return node;
-  }));
+  elements.questionCount.textContent = "";
 }
 
 function renderTrend(activeRecord) {
@@ -636,7 +632,7 @@ function renderHistory(activeRecord) {
     fragment.appendChild(row);
   }
   elements.historyBody.replaceChildren(fragment);
-  elements.historyCount.textContent = exams.length + "개 시험";
+  elements.historyCount.textContent = exams.length + "회";
 }
 
 function syncUrl(record) {
@@ -657,7 +653,7 @@ function renderSelection() {
   renderTrend(record);
   renderQuestionAnalysis(record);
   renderHistory(record);
-  elements.recordCount.textContent = scopeRecords().length + " records";
+  elements.recordCount.textContent = new Set(scopeRecords().map(recordKey)).size + "회";
   syncUrl(record);
 }
 
@@ -680,7 +676,7 @@ function setLoadingState(isLoading) {
 
 async function loadData() {
   const response = await fetch(EBSI_URL);
-  if (!response.ok) throw new Error("자료를 불러오지 못했습니다. (" + response.status + ")");
+  if (!response.ok) throw new Error("Archive data: " + response.status);
   return response.json();
 }
 
@@ -718,8 +714,8 @@ function updateLightbox() {
   const rate = isFiniteNumber(item?.national_rate)
     ? 100 - Number(item.national_rate) : null;
   elements.lightboxRate.textContent = "오답률 " + (rate === null ? "-" : formatPercent(rate));
-  elements.lightboxPoints.textContent = "배점 " + (isFiniteNumber(item?.points)
-    ? formatNumber(item.points, 0) + "점" : "-");
+  elements.lightboxPoints.textContent = isFiniteNumber(item?.points)
+    ? "배점 " + formatNumber(item.points, 0) + "점" : "";
   elements.lightboxPrev.disabled = question <= 1;
   elements.lightboxNext.disabled = question >= 20;
 }
@@ -749,15 +745,18 @@ async function initialize() {
     const requestedYear = Number(String(initial.exam).split("-")[0]) || undefined;
     populateYears(requestedYear);
     populateExams(initial.exam);
-    elements.status.textContent = "자료 준비됨";
+    elements.status.textContent = "";
+    elements.status.hidden = true;
     if (payload.source_url) elements.sourceLink.href = payload.source_url;
     if (payload.fetched_at) {
       elements.collectionDate.textContent = String(payload.fetched_at).slice(0, 10).replaceAll("-", ".");
     }
     renderSelection();
   } catch (error) {
-    elements.recordCount.textContent = "Load failed";
-    elements.status.textContent = error instanceof Error ? error.message : "자료를 불러오지 못했습니다.";
+    elements.recordCount.textContent = "";
+    console.warn("Archive data load failed:", error);
+    elements.status.textContent = "자료를 불러오지 못했습니다";
+    elements.status.hidden = false;
     renderResult(null);
     renderTrend(null);
     renderQuestionAnalysis(null);

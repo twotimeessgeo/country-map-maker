@@ -13,7 +13,7 @@ const KOREA_MAP_PADDING = {
 const COMPARISON_PAIR_CONFIGS = [
   {
     id: "jan-aug",
-    title: "1월 / 8월",
+    title: "1월과 8월",
     leftPeriodId: "jan",
     rightPeriodId: "aug",
     leftStyle: "dot-filled",
@@ -23,7 +23,7 @@ const COMPARISON_PAIR_CONFIGS = [
   },
   {
     id: "winter-summer",
-    title: "겨울 / 여름",
+    title: "겨울과 여름",
     leftPeriodId: "winter",
     rightPeriodId: "summer",
     leftStyle: "dot-filled",
@@ -59,6 +59,10 @@ const COMPARISON_LINE_STYLES = [
 
 const collator = new Intl.Collator("ko-KR", { numeric: true, sensitivity: "base" });
 const numberFormatter = new Intl.NumberFormat("ko-KR");
+const climateNumberFormatter = new Intl.NumberFormat("ko-KR", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
 const coordinateFormatter = new Intl.NumberFormat("ko-KR", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
@@ -110,15 +114,22 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function init() {
-  if (!state.dataset) {
-    const response = await fetch("./data/korea-climate-data.json");
-    state.dataset = await response.json();
+  try {
+    if (!state.dataset) {
+      const response = await fetch("./data/korea-climate-data.json");
+      if (!response.ok) throw new Error(`Korea climate data: ${response.status}`);
+      state.dataset = await response.json();
+    }
+    state.regions = [...state.dataset.regions].sort(sortRegions);
+    applyUrlStateFromLocation();
+    bindEvents();
+    render();
+  } catch (error) {
+    console.warn("Korea climate data load failed:", error);
+    elements.selectedRegionsContent.innerHTML = renderEmptyState("자료를 불러오지 못했습니다", "");
+    elements.comparisonContent.innerHTML = "";
+    elements.worldMap.innerHTML = renderEmptyState("지도를 불러오지 못했습니다", "");
   }
-
-  state.regions = [...state.dataset.regions].sort(sortRegions);
-  applyUrlStateFromLocation();
-  bindEvents();
-  render();
 }
 
 function resetClimateCsvExports() {
@@ -191,14 +202,14 @@ function downloadClimateCsvPayload(payload) {
 function downloadSelectedRegionsCsv() {
   const selectedRegions = sortDisplayedRegions(getSelectedRegions());
   if (selectedRegions.length === 0) {
-    setSelectionUtilityStatus("지역을 선택하세요", "warning");
+    setSelectionUtilityStatus("지도나 목록에서 지역을 선택해 주세요", "warning");
     return;
   }
 
   const headers = [
-    "지역 ID", "지점 번호", "지역", "공식 지점명", "국가", "권역", "월", "월 번호",
-    "평균 기온(°C)", "강수량(mm)", "일최저<0℃(일)", "일최저≥25℃(일)",
-    "연평균 기온(°C)", "연 강수량(mm)", "위도", "경도", "해발(m)", "평년 기간", "출처",
+    "지역 ID", "지점 번호", "지역", "지점명", "국가", "권역", "월", "월 번호",
+    "월평균 기온(°C)", "월강수량(mm)", "영하 일수", "열대야 일수",
+    "연평균 기온(°C)", "연강수량(mm)", "위도", "경도", "해발(m)", "평년 기간", "출처",
   ];
   const rows = selectedRegions.flatMap((region) =>
     region.months.map((month, monthIndex) => [
@@ -225,11 +236,11 @@ function downloadSelectedRegionsCsv() {
   );
 
   downloadClimateCsvPayload({
-    filename: `한국기후-선택지역-${selectedRegions.length}개`,
+    filename: `한국기후-선택지역-${selectedRegions.length}곳`,
     headers,
     rows,
   });
-  setSelectionUtilityStatus(`${selectedRegions.length}개 지역 CSV 저장 완료`);
+  setSelectionUtilityStatus("CSV를 저장했습니다");
 }
 
 async function copyCurrentViewLink() {
@@ -238,10 +249,10 @@ async function copyCurrentViewLink() {
 
   try {
     await writeClipboardText(shareUrl);
-    setSelectionUtilityStatus("링크 복사 완료");
+    setSelectionUtilityStatus("링크를 복사했습니다");
   } catch (error) {
     console.warn("기후 비교 링크 복사 실패:", error);
-    setSelectionUtilityStatus("복사 실패 · 주소창 URL을 복사하세요", "error");
+    setSelectionUtilityStatus("복사하지 못했습니다. 주소창의 주소를 복사해 주세요.", "error");
   }
 }
 
@@ -544,7 +555,7 @@ function renderMetaList(parts) {
 
 function renderSelectedTray(selectedRegions) {
   if (selectedRegions.length === 0) {
-    return `<span class="selected-tray-empty">선택한 지역 없음</span>`;
+    return `<span class="selected-tray-empty">선택한 곳이 없습니다</span>`;
   }
 
   return selectedRegions
@@ -682,7 +693,7 @@ function renderBrowse() {
   const mapRegions = getMapRegions(visibleRegions, selectedRegions);
   if (elements.mapSummary) {
     elements.mapSummary.textContent = state.mapScope === "selected"
-      ? `선택 ${mapRegions.length}개` : `${mapRegions.length}개`;
+      ? `선택 ${mapRegions.length}곳` : `${mapRegions.length}곳`;
   }
   elements.nationChips.innerHTML = renderNationChips();
   elements.zoneChips.innerHTML = renderZoneChips();
@@ -714,15 +725,14 @@ function renderSelection() {
   const trayMotion = window.TwMotion?.snapshotTray(elements.selectedTray);
   const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
   resetClimateCsvExports();
-  if (elements.selectionSummary) elements.selectionSummary.textContent = `${selectedRegions.length}개 선택됨`;
+  if (elements.selectionSummary) elements.selectionSummary.textContent = `${selectedRegions.length}곳 선택`;
   if (elements.selectedTray) {
     elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
     window.TwMotion?.animateTray(elements.selectedTray, trayMotion);
   }
   if (elements.downloadSelectedCsvButton) {
     elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
-    elements.downloadSelectedCsvButton.textContent = selectedRegions.length
-      ? `선택 ${selectedRegions.length}개 CSV` : "선택 데이터 CSV";
+    elements.downloadSelectedCsvButton.textContent = "CSV";
   }
   if (state.mapScope === "all") {
     syncSelectionControls();
@@ -730,7 +740,7 @@ function renderSelection() {
     const visibleRegions = sortDisplayedRegions(getVisibleRegions());
     const mapRegions = getMapRegions(visibleRegions, selectedRegions);
     if (elements.mapSummary) elements.mapSummary.textContent = state.mapScope === "selected"
-      ? `선택 ${mapRegions.length}개` : `${mapRegions.length}개`;
+      ? `선택 ${mapRegions.length}곳` : `${mapRegions.length}곳`;
     renderMap(visibleRegions, selectedRegions);
   }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
@@ -758,14 +768,14 @@ function render() {
   normalizeComparisonBaseline(selectedRegions);
 
   if (elements.heroCount) {
-    elements.heroCount.textContent = `${state.dataset.summary.regionCount}개 지역`;
+    elements.heroCount.textContent = `${state.dataset.summary.regionCount}곳`;
   }
   if (elements.heroCaption) {
     const period = String(state.dataset.summary.period ?? "1991-2020").replace("-", "–");
-    elements.heroCaption.textContent = `KMA · ${period}`;
+    elements.heroCaption.textContent = `KMA ${period}`;
   }
   if (elements.selectionSummary) {
-    elements.selectionSummary.textContent = `${selectedRegions.length}개 선택됨`;
+    elements.selectionSummary.textContent = `${selectedRegions.length}곳 선택`;
   }
   if (elements.selectedTray) {
     elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
@@ -775,8 +785,8 @@ function render() {
     const mapRegions = getMapRegions(visibleRegions, selectedRegions);
     elements.mapSummary.textContent =
       state.mapScope === "selected"
-        ? `선택 ${mapRegions.length}개`
-        : `${mapRegions.length}개`;
+        ? `선택 ${mapRegions.length}곳`
+        : `${mapRegions.length}곳`;
   }
 
   elements.nationChips.innerHTML = renderNationChips();
@@ -785,9 +795,7 @@ function render() {
   elements.regionList.innerHTML = renderRegionList(visibleRegions);
   if (elements.downloadSelectedCsvButton) {
     elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
-    elements.downloadSelectedCsvButton.textContent = selectedRegions.length
-      ? `선택 ${selectedRegions.length}개 CSV`
-      : "선택 데이터 CSV";
+    elements.downloadSelectedCsvButton.textContent = "CSV";
   }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
@@ -902,7 +910,7 @@ function renderMapScopeChips() {
   const items = [
     { id: "major", label: "주요 지점" },
     { id: "all", label: "전체" },
-    { id: "selected", label: "선택만" },
+    { id: "selected", label: "선택한 곳" },
   ];
   return items
     .map(
@@ -922,7 +930,7 @@ function renderMapScopeChips() {
 
 function renderRegionList(regions) {
   if (!regions.length) {
-    return renderEmptyState("검색 결과 없음", "");
+    return renderEmptyState("검색 결과가 없습니다", "");
   }
 
   return regions
@@ -951,7 +959,7 @@ function renderRegionList(regions) {
 
 function renderSelectedRegions(regions) {
   if (!regions.length) {
-    return renderEmptyState("지역을 선택하세요", "");
+    return renderEmptyState("지도나 목록에서 지역을 선택해 주세요", "");
   }
 
   const sharedChartScale = buildClimateChartScale(regions);
@@ -973,7 +981,7 @@ function renderRegionCard(region, sharedChartScale) {
   const annualRange = getAnnualTemperatureRange(region);
   const csvKey = registerClimateCsvExport(
     `korea-region-${region.id}-raw`,
-    ["월", "평균 기온(°C)", "강수량(mm)", "일최저<0℃(일)", "일최저≥25℃(일)"],
+    ["월", "월평균 기온(°C)", "월강수량(mm)", "영하 일수", "열대야 일수"],
     [
       ...monthlyRows.map((row) => [
         row.label,
@@ -1001,7 +1009,7 @@ function renderRegionCard(region, sharedChartScale) {
           <p class="region-card-sub">${renderMetaList([region.nation, region.zone])}</p>
         </div>
         <dl class="region-card-stats">
-          <div><dt>연평균</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
+          <div><dt>연평균 기온</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
           <div><dt>연강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
           <div><dt>연교차</dt><dd>${formatTemp(annualRange)}</dd></div>
         </dl>
@@ -1025,10 +1033,10 @@ function renderRegionCard(region, sharedChartScale) {
             <thead>
               <tr>
                 <th>월</th>
-                <th>평균 기온</th>
-                <th>강수량</th>
-                <th>일최저 &lt;0℃</th>
-                <th>일최저 ≥25℃</th>
+                <th>월평균 기온</th>
+                <th>월강수량</th>
+                <th title="일 최저기온 0°C 미만">영하 일수</th>
+                <th title="일 최저기온 25°C 이상">열대야 일수</th>
               </tr>
             </thead>
             <tbody>
@@ -1062,7 +1070,7 @@ function renderRegionCard(region, sharedChartScale) {
 
 function renderComparison(regions) {
   if (regions.length < 2) {
-    return renderEmptyState("2곳 이상 선택하세요", "");
+    return renderEmptyState("두 곳 이상 선택하면 비교할 수 있습니다", "");
   }
 
   return window.ComparisonKit.render({
@@ -1092,8 +1100,8 @@ function renderMap(visibleRegions, selectedRegions) {
 
   if (!d3 || !countries) {
     elements.worldMap.innerHTML = renderEmptyState(
-      "지도를 불러오지 못했습니다.",
-      "로컬 지도 데이터가 준비되지 않았습니다."
+      "지도를 불러오지 못했습니다",
+      ""
     );
     return;
   }
@@ -1236,16 +1244,10 @@ function renderMapCandidatePicker() {
     return;
   }
 
-  const hiddenCount = Math.max(0, picker.total - regions.length);
   elements.mapCandidatePicker.innerHTML = `
     <div class="map-candidate-picker-header">
       <div class="map-candidate-picker-copy">
-        <strong>주변 지점 ${regions.length}개 · 가까운 순</strong>
-        <span>${
-          hiddenCount > 0
-            ? `가까운 ${regions.length}개를 표시함 · 나머지 ${hiddenCount}개는 지역 목록에서 검색 가능`
-            : "이름을 눌러 선택하거나 선택을 해제하세요."
-        }</span>
+        <strong>주변 지점 ${regions.length}곳</strong>
       </div>
       <button type="button" class="map-candidate-close" data-map-candidate-close>닫기</button>
     </div>
@@ -1258,7 +1260,7 @@ function renderMapCandidatePicker() {
 
 function renderMapCandidateOption(region) {
   const isSelected = state.selectedIds.has(region.id);
-  const meta = [region.officialName, region.nation, region.zone].filter(Boolean).join(" · ");
+  const meta = [region.officialName, region.nation, region.zone].filter(Boolean);
   return `
     <button
       type="button"
@@ -1269,9 +1271,9 @@ function renderMapCandidateOption(region) {
     >
       <span class="map-candidate-option-copy">
         <strong>${escapeHtml(region.name)}</strong>
-        <span>${escapeHtml(meta)}</span>
+        ${renderMetaList(meta)}
       </span>
-      <span class="map-candidate-option-state">${isSelected ? "선택됨" : "선택"}</span>
+      <span class="map-candidate-option-state">${isSelected ? "선택 중" : "선택"}</span>
     </button>
   `;
 }
@@ -1519,7 +1521,7 @@ function renderMonthlyTemperatureTrendChart(rows, baseline) {
   const zeroY = scaleY(0, axis.yMin, axis.yMax, margin.top, margin.top + chartHeight);
 
   return `
-    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지점 월 평균 기온 편차 그래프">
+    <svg class="svg-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="선택 지점 월평균 기온 편차 그래프">
       <rect x="${margin.left}" y="${margin.top}" width="${chartWidth}" height="${chartHeight}" fill="#ffffff" stroke="#d7d7d7"></rect>
       ${ticks
         .map((tick) => {
@@ -2039,11 +2041,11 @@ function renderEmptyState(title, description) {
 }
 
 function formatTemp(value) {
-  return `${numberFormatter.format(round(value))}°C`;
+  return `${climateNumberFormatter.format(round(value))}°C`;
 }
 
 function formatMm(value) {
-  return `${numberFormatter.format(round(value))} mm`;
+  return `${climateNumberFormatter.format(round(value))} mm`;
 }
 
 function formatDays(value) {

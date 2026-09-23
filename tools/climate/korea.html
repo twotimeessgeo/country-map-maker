@@ -43,8 +43,8 @@
 
     <header class="tw-page tw-hero atlas-hero">
       <p class="tw-sr-only">
-        <span id="heroCount">246개 지역</span>
-        <span id="heroCaption" lang="en">KMA · 1991–2020</span>
+        <span id="heroCount">246곳</span>
+        <span id="heroCaption" lang="en">KMA 1991–2020</span>
       </p>
       <h1 class="tw-display" lang="en">Climate Atlas</h1>
       <nav class="tw-segmented app-switch" aria-label="지역 범위">
@@ -55,18 +55,18 @@
 
     <div class="tw-subnav atlas-toolbar">
       <div class="tw-subnav-inner">
-        <nav class="tw-subnav-links" aria-label="페이지 구역">
+        <nav class="tw-subnav-links" aria-label="구역">
           <a href="#select">지역 선택</a>
           <a href="#selectedPanel">기후 그래프</a>
           <a href="#comparisonPanel">비교</a>
         </nav>
-        <div class="tw-subnav-actions atlas-actions" aria-label="선택 도구">
-          <span class="atlas-count" id="selectionSummary" role="status" aria-live="polite" aria-atomic="true">0개 선택됨</span>
+        <div class="tw-subnav-actions atlas-actions" aria-label="도구">
+          <span class="atlas-count" id="selectionSummary" role="status" aria-live="polite" aria-atomic="true">0곳 선택</span>
           <details class="tw-nav-menu atlas-more" open>
             <summary aria-label="더 보기">…</summary>
             <div class="tw-nav-menu-panel atlas-more-panel">
-              <button type="button" class="tw-button is-ghost is-sm" id="randomSpacedSelectionButton">4곳 랜덤</button>
-              <button type="button" class="tw-button is-ghost is-sm" id="clearSelectionButton">선택 해제</button>
+              <button type="button" class="tw-button is-ghost is-sm" id="randomSpacedSelectionButton">무작위 4곳</button>
+              <button type="button" class="tw-button is-ghost is-sm" id="clearSelectionButton">모두 해제</button>
               <button type="button" class="tw-button is-sm" id="downloadSelectedCsvButton" disabled>CSV</button>
             </div>
           </details>
@@ -79,7 +79,7 @@
       <section class="tw-section atlas-select" id="select" aria-labelledby="selectTitle">
         <h2 class="tw-sr-only" id="selectTitle">지역 선택</h2>
         <div class="tw-workspace">
-          <aside class="tw-sidebar picker" aria-label="지역 찾기">
+          <aside class="tw-sidebar picker" aria-label="검색">
             <div class="picker-search">
               <label class="tw-field" for="searchInput">
                 <span class="tw-sr-only">지역 검색</span>
@@ -96,9 +96,9 @@
               <label class="tw-field" for="regionSortSelect">
                 <span class="tw-sr-only">정렬</span>
                 <select class="tw-select" id="regionSortSelect">
-                  <option value="default">기본순</option>
+                  <option value="default">기본</option>
                   <option value="name">가나다순</option>
-                  <option value="annualPrecipitationDesc">연 강수량 많은 순</option>
+                  <option value="annualPrecipitationDesc">연강수량 많은 순</option>
                   <option value="annualRangeDesc">연교차 큰 순</option>
                   <option value="warmestMonthDesc">최난월 기온 높은 순</option>
                   <option value="coldestMonthAsc">최한월 기온 낮은 순</option>
@@ -113,7 +113,7 @@
 
           <div class="tw-canvas">
             <div class="selected-tray-wrap">
-              <div class="selected-tray" id="selectedTray" aria-label="선택한 지역"></div>
+              <div class="selected-tray" id="selectedTray" aria-label="선택한 곳"></div>
             </div>
 
             <div class="filter-bar" role="group" aria-label="필터">
@@ -130,7 +130,7 @@
             <article class="world-stage map-card">
               <div class="map-card-head">
                 <span class="map-summary" id="mapSummary" role="status" aria-live="polite" aria-atomic="true" hidden>지도 준비 중</span>
-                <div class="map-scope" id="mapScopeChips" role="group" aria-label="지도 표시 범위"></div>
+                <div class="map-scope" id="mapScopeChips" role="group" aria-label="지도 범위"></div>
               </div>
               <a class="tw-sr-only map-skip-link" href="#regionList">목록으로 건너뛰기</a>
               <div id="worldMap"></div>
@@ -178,10 +178,10 @@
     <script src="data/korea-climate-data.js?v=20260716"></script>
     <script src="data/korea-peninsula-geo.js"></script>
     <script src="data/vendor-d3.min.js"></script>
-    <script src="chart-kit.js?v=40"></script>
-    <script src="comparison-kit.js?v=41"></script>
+    <script src="chart-kit.js?v=42"></script>
+    <script src="comparison-kit.js?v=42"></script>
     <script src="map-zoom.js?v=41"></script>
     <script src="../../ds/motion.js?v=41"></script>
-    <script src="korea-app.js?v=41"></script>
+    <script src="korea-app.js?v=42"></script>
   </body>
 </html>
