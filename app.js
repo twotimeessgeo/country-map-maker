@@ -6,11 +6,11 @@ if (!d3 || !topojson || !window.WORLD_ATLAS_TOPOLOGY || !window.WORLD_COUNTRY_NA
 }
 
 const latitudeGuideDefinitions = [
-  { key: "equator", label: "적도", latitudes: [0], color: "#5c6f82" },
+  { key: "equator", label: "적도", latitudes: [0], color: "#5d5d5d" },
   { key: "lat30", label: "30°", latitudes: [30, -30], color: "#6a6a6a" },
   { key: "lat60", label: "60°", latitudes: [60, -60], color: "#7b7b7b" },
-  { key: "tropicCancer", label: "북회귀선", latitudes: [23.4366], color: "#8d6130" },
-  { key: "tropicCapricorn", label: "남회귀선", latitudes: [-23.4366], color: "#8d6130" },
+  { key: "tropicCancer", label: "북회귀선", latitudes: [23.4366], color: "#8f8f8f" },
+  { key: "tropicCapricorn", label: "남회귀선", latitudes: [-23.4366], color: "#8f8f8f" },
 ];
 
 const markerStyleOptions = [
@@ -3010,8 +3010,8 @@ function markWorkspaceDirty({ force = false } = {}) {
       workspacePersistence.isDirty = false;
       updateWorkspaceSaveStatus(
         workspacePersistence.lastSavedAt
-          ? `저장됨 · ${formatWorkspaceSavedAt(workspacePersistence.lastSavedAt)}`
-          : "새 작업 · 자동 저장 켜짐",
+          ? "저장됨"
+          : "새 작업",
       );
     }
     return;
@@ -3053,16 +3053,16 @@ function persistWorkspaceNow() {
     workspacePersistence.isDirty = false;
     workspacePersistence.lastSavedAt = payload.savedAt;
     workspacePersistence.lastEditorSerialized = editorSerialized;
-    updateWorkspaceSaveStatus(`저장됨 · ${formatWorkspaceSavedAt(payload.savedAt)}`);
+    updateWorkspaceSaveStatus("저장됨");
   } catch (error) {
     console.warn("로컬 작업공간을 저장하지 못했습니다.", error);
-    updateWorkspaceSaveStatus("자동 저장 실패 · 브라우저 저장소 확인 필요", "error");
+    updateWorkspaceSaveStatus("저장 실패", "error");
   }
 }
 
 async function finishInitialWorkspaceRestore(result) {
   if (!result.restored) {
-    updateWorkspaceSaveStatus(result.error ?? "새 작업 · 자동 저장 켜짐", result.error ? "error" : "");
+    updateWorkspaceSaveStatus(result.error ?? "새 작업", result.error ? "error" : "");
     return;
   }
 
@@ -3093,7 +3093,7 @@ async function finishInitialWorkspaceRestore(result) {
     setStatus("저장된 대한민국 지도 작업공간을 복원했습니다.");
   }
 
-  updateWorkspaceSaveStatus(`복원됨 · ${formatWorkspaceSavedAt(result.savedAt)}`);
+  updateWorkspaceSaveStatus("복원됨");
 }
 
 function resetLocalWorkspace() {
@@ -3133,10 +3133,10 @@ function resetLocalWorkspace() {
 
   try {
     window.localStorage.removeItem(WORKSPACE_STORAGE_KEY);
-    updateWorkspaceSaveStatus("초기화됨 · 새 편집부터 자동 저장");
+    updateWorkspaceSaveStatus("초기화됨");
   } catch (error) {
     console.warn("로컬 작업공간 기록을 지우지 못했습니다.", error);
-    updateWorkspaceSaveStatus("화면은 초기화됨 · 저장 기록 삭제 실패", "error");
+    updateWorkspaceSaveStatus("저장 기록 삭제 실패", "error");
   }
   setStatus("지도 작업공간을 초기 상태로 되돌렸습니다.");
 }
@@ -7299,8 +7299,8 @@ function buildKoreaGeoStatsAgeStructureCard(
     totalLabel: `${youthRow.periodLabel} 기준`,
     segments: [
       { label: "유소년층", share: youth, color: countryStatsChartColors.population },
-      { label: "생산연령층", share: working, color: "#7d8792" },
-      { label: "고령층", share: elderly, color: "#1f6aa5" },
+      { label: "생산연령층", share: working, color: "#8f8f8f" },
+      { label: "고령층", share: elderly, color: "#5d5d5d" },
     ],
   });
 }
@@ -7585,7 +7585,7 @@ function buildKoreaGeoStatsCommuteStructureCard(
     totalLabel: `${localRow.periodLabel} 기준`,
     segments: [
       { label: "거주지내 취업", share: Number(localRow.value), color: countryStatsChartColors.population },
-      { label: "타지역 통근", share: Number(outboundRow.value), color: "#7d8792" },
+      { label: "타지역 통근", share: Number(outboundRow.value), color: "#8f8f8f" },
     ],
   });
 }
@@ -7630,7 +7630,7 @@ function buildKoreaGeoStatsEmploymentStructureCard(
       {
         label: "기타",
         share: (other / total) * 100,
-        color: "#7d8792",
+        color: "#8f8f8f",
         amountLabel: formatKoreaGeoStatsValue(metricsByKey["employees-total"], other),
       },
     ],
@@ -19503,7 +19503,7 @@ function buildExamGraphAnswerCard(model) {
   const downloadButton = document.createElement("button");
   downloadButton.type = "button";
   downloadButton.className = "exam-graph-download-button";
-  downloadButton.textContent = "실제명·ISO3 CSV";
+  downloadButton.textContent = "제작자용 CSV";
   downloadButton.addEventListener("click", () => downloadExamGraphAuthorMappingCsv(model));
   head.append(title, downloadButton);
   card.appendChild(head);
@@ -20933,7 +20933,7 @@ function renderMarkerList() {
   elements.markerList.innerHTML = "";
 
   if (!state.markers.length) {
-    elements.markerList.appendChild(createEmptyState("3번 마커 모드에서 지도 위를 클릭하거나 드래그하면 조절 카드가 바로 생깁니다."));
+    elements.markerList.appendChild(createEmptyState("마커 없음"));
     return;
   }
 
@@ -21083,7 +21083,7 @@ function renderInsetList() {
   elements.insetList.innerHTML = "";
 
   if (!state.insets.length) {
-    elements.insetList.appendChild(createEmptyState("4번 인셋 모드에서 확대할 영역을 드래그하면 조절 카드가 바로 생깁니다."));
+    elements.insetList.appendChild(createEmptyState("인셋 없음"));
     return;
   }
 

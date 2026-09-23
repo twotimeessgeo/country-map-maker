@@ -8,56 +8,62 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
     />
-    <link rel="stylesheet" href="./tokens.css?v=20260710h" />
-    <link rel="stylesheet" href="./base.css?v=20260710h" />
-    <link rel="stylesheet" href="./components.css?v=20260710h" />
-    <link rel="stylesheet" href="./patterns.css?v=20260710h" />
-    <link rel="stylesheet" href="./styles.css?v=20260717d" />
+    <link rel="stylesheet" href="./ds/fonts.css?v=32" />
+    <link rel="stylesheet" href="./ds/tokens.css?v=32" />
+    <link rel="stylesheet" href="./ds/base.css?v=32" />
+    <link rel="stylesheet" href="./ds/components.css?v=32" />
+    <link rel="stylesheet" href="./ds/patterns.css?v=32" />
+    <link rel="stylesheet" href="./styles.css?v=34" />
   </head>
   <body>
-    <div class="tw-page tw-stack app-page">
-      <nav class="app-context-bar" aria-label="Promenade Geography">
-        <a class="app-context-brand" href="./index.html" aria-label="Promenade Geography home">
-          <span>Promenade</span>
-        </a>
-        <details class="app-context-menu">
-          <summary>
-            <span class="app-menu-mark" aria-hidden="true"></span>
-            <span>Menu</span>
-          </summary>
-          <div class="app-context-menu-panel">
-            <a class="is-active" href="./map.html" aria-current="page">Map Editor</a>
-            <a href="./tools/climate/index.html">Climate Atlas</a>
-            <a href="./tools/cut/index.html">Grade Cut Archive</a>
+    <header class="tw-nav is-static">
+      <nav class="tw-nav-inner" aria-label="Promenade Geography">
+        <a class="tw-brand" href="./index.html" aria-label="Promenade Geography home"><span lang="en">Promenade</span></a>
+        <div class="tw-nav-links">
+          <a class="tw-nav-link" lang="en" href="./map.html" aria-current="page">Map Editor</a>
+          <a class="tw-nav-link" lang="en" href="./tools/climate/index.html">Climate Atlas</a>
+          <a class="tw-nav-link" lang="en" href="./tools/cut/index.html">Grade Cut Archive</a>
+        </div>
+        <span class="tw-nav-spacer"></span>
+        <details class="tw-nav-menu">
+          <summary aria-label="메뉴"><span class="tw-nav-menu-icon" aria-hidden="true"></span></summary>
+          <div class="tw-nav-menu-panel">
+            <a lang="en" href="./map.html" aria-current="page">Map Editor</a>
+            <a lang="en" href="./tools/climate/index.html">Climate Atlas</a>
+            <a lang="en" href="./tools/cut/index.html">Grade Cut Archive</a>
           </div>
         </details>
       </nav>
+    </header>
+    <div class="tw-page">
       <header class="tw-hero app-hero">
         <div class="tw-hero-copy">
-          <nav class="tw-switch" aria-label="Map dataset">
+          <nav class="tw-segmented tw-switch" aria-label="Map dataset">
             <button class="map-version-button tw-switch-item" lang="en" type="button" data-map-version="world" aria-pressed="true">World</button>
             <button class="map-version-button tw-switch-item" lang="en" type="button" data-map-version="korea" aria-pressed="false">Korea</button>
           </nav>
-          <h1 class="tw-hero-title" lang="en">Map Editor</h1>
+          <h1 class="tw-display tw-hero-title" lang="en">Map Editor</h1>
         </div>
-        <aside class="tw-hero-note app-hero-note" aria-label="Selection count">
-          <p class="tw-kicker" lang="en">Selection</p>
-          <strong id="selectionSummary" lang="en">0 selected</strong>
-        </aside>
+        <p class="tw-meta-list app-hero-note" aria-label="Selection count"><span lang="en">Selection</span><strong id="selectionSummary" lang="en">0 selected</strong></p>
       </header>
-
-      <section class="tw-panel workspace-panel">
-        <div class="tw-section-heading">
-          <h2 class="tw-section-title" lang="en">Canvas</h2>
-          <div class="workspace-export-actions">
-            <a class="tw-button workspace-jump-button" href="#statisticsSection" lang="en">Data</a>
-            <button id="downloadSvgButton" class="tw-button export-button" lang="en" type="button">SVG</button>
-            <button id="downloadPngButton" class="tw-button export-button ghost-button" lang="en" type="button">PNG</button>
-          </div>
+    </div>
+    <div class="tw-subnav app-subnav">
+      <div class="tw-subnav-inner">
+        <nav class="tw-subnav-links" aria-label="페이지 구역"><a href="#canvasSection" lang="en">Canvas</a><a href="#statisticsSection" lang="en">Data</a></nav>
+        <div class="tw-subnav-actions workspace-export-actions">
+          <button id="undoButton" class="tw-button is-ghost is-sm" type="button">실행 취소</button>
+          <button id="redoButton" class="tw-button is-ghost is-sm" type="button">다시 실행</button>
+          <button id="downloadPngButton" class="tw-button is-sm export-button ghost-button" lang="en" type="button">PNG</button>
+          <button id="downloadSvgButton" class="tw-button is-primary is-sm export-button" lang="en" type="button">SVG 내보내기</button>
         </div>
+      </div>
+    </div>
+    <main class="tw-page app-page">
+      <section id="canvasSection" class="tw-section workspace-panel">
+        <h2 class="tw-sr-only" lang="en">Canvas</h2>
 
-        <div class="workspace-shell">
-          <div class="workspace-controls-column">
+        <div class="tw-workspace workspace-shell">
+          <div class="tw-sidebar workspace-controls-column">
             <div class="workspace-controls-head">
               <h3 class="tw-card-title" lang="en">Settings</h3>
             </div>
@@ -73,7 +79,7 @@
             </div>
             <div class="workspace-projection-block world-only">
               <p class="app-mini-label" lang="en">Projection</p>
-              <nav id="projectionSwitch" class="tw-switch projection-switch" aria-label="지도 시점 선택">
+              <nav id="projectionSwitch" class="tw-segmented tw-switch projection-switch" aria-label="지도 시점 선택">
                 <button class="projection-button tw-switch-item" type="button" data-projection="rectangular">
                   평면
                 </button>
@@ -177,7 +183,7 @@
                 </div>
               </article>
 
-              <details class="tw-data-card app-control-card app-control-disclosure korea-only korea-route-card" hidden>
+              <details class="tw-card tw-disclosure app-control-card app-control-disclosure korea-only korea-route-card" hidden>
                 <summary>노선</summary>
                 <div class="app-control-disclosure__body guide-grid korea-route-grid">
                   <label class="guide-chip">
@@ -254,8 +260,8 @@
                 </div>
               </article>
 
-              <details class="tw-data-card app-control-card app-control-disclosure world-only" hidden>
-                <summary>중심 · 보기</summary>
+              <details class="tw-card tw-disclosure app-control-card app-control-disclosure world-only" hidden>
+                <summary>중심</summary>
                 <div class="app-control-disclosure__body">
                   <div class="chip-grid">
                   <button class="tw-chip center-button" type="button" data-center="0">그리니치</button>
@@ -280,7 +286,7 @@
                 </div>
               </details>
 
-              <details class="tw-data-card app-control-card app-control-disclosure world-only" hidden>
+              <details class="tw-card tw-disclosure app-control-card app-control-disclosure world-only" hidden>
                 <summary>기준선</summary>
                 <div class="app-control-disclosure__body">
                   <div class="guide-grid">
@@ -370,8 +376,8 @@
                 </label>
               </article>
 
-              <details class="tw-data-card app-control-card app-control-disclosure">
-                <summary lang="en">Labels &amp; Scale</summary>
+              <details class="tw-card tw-disclosure app-control-card app-control-disclosure">
+                <summary>표기</summary>
                 <div class="app-control-disclosure__body">
                   <label class="range-field">
                   <span>지도 글자 크기</span>
@@ -389,7 +395,7 @@
             </div>
           </div>
 
-          <div class="workspace-preview-column">
+          <div class="tw-canvas workspace-preview-column">
             <div class="workspace-preview-head">
               <h3 class="tw-card-title" lang="en">Preview</h3>
             </div>
@@ -438,8 +444,6 @@
 
                   <section class="preview-toolbox__section">
                     <div class="preview-quick-actions">
-                      <button id="undoButton" class="tw-chip preview-quick-button" type="button">실행 취소</button>
-                      <button id="redoButton" class="tw-chip preview-quick-button" type="button">다시 실행</button>
                       <button id="zoomOutButton" class="tw-chip preview-quick-button world-only" type="button" hidden>
                         줌 아웃
                       </button>
@@ -452,7 +456,7 @@
                   <section class="preview-toolbox__section preview-toolbox__section--annotations world-only" hidden>
                     <div class="annotation-dock-head">
                       <div>
-                        <strong class="preview-toolbox__title">마커 · 인셋</strong>
+                        <strong class="preview-toolbox__title">표시</strong>
                       </div>
                       <button id="clearAnnotationsButton" class="tw-button ghost-button ghost-button--compact" type="button">
                         표시 지우기
@@ -483,35 +487,6 @@
                     </div>
                   </section>
 
-                  <details class="preview-toolbox__section preview-shortcuts world-only" hidden>
-                    <summary>단축키</summary>
-                    <div class="shortcut-list">
-                      <div class="shortcut-item">
-                        <kbd lang="en">Wheel</kbd>
-                        <span>어디서든 확대/축소</span>
-                      </div>
-                      <div class="shortcut-item">
-                        <kbd lang="en">Space</kbd>
-                        <span>누르고 있는 동안 이동</span>
-                      </div>
-                      <div class="shortcut-item">
-                        <kbd>0</kbd>
-                        <span>전체 보기로 복귀</span>
-                      </div>
-                      <div class="shortcut-item">
-                        <kbd>1-4</kbd>
-                        <span>도구를 바로 전환</span>
-                      </div>
-                      <div class="shortcut-item">
-                        <kbd>⌘/Ctrl+Z</kbd>
-                        <span>최근 편집 실행 취소</span>
-                      </div>
-                      <div class="shortcut-item">
-                        <kbd>⇧⌘/Ctrl+Z</kbd>
-                        <span>되돌린 편집 다시 실행</span>
-                      </div>
-                    </div>
-                  </details>
                 </aside>
 
                 <div class="preview-stage-shell">
@@ -528,11 +503,11 @@
         </div>
       </section>
 
-      <section id="statisticsSection" class="tw-panel">
-        <div class="tw-section-heading">
+      <section id="statisticsSection" class="tw-section">
+        <div class="tw-section-head">
           <h2 id="detailSectionTitle" class="tw-section-title" lang="en">Statistics</h2>
           <div class="stats-section-meta">
-            <span id="detailSectionBadge" hidden>구성비 · 변화 · 국가 프로필</span>
+            <span id="detailSectionBadge" class="tw-meta-list" hidden><span>구성비</span><span>변화</span><span>국가 프로필</span></span>
           </div>
         </div>
 
@@ -546,7 +521,7 @@
             <summary>
               <span class="stats-module-summary-copy">
                 <strong lang="en">Graph Builder</strong>
-                <small>후보 → 자료 구조 → 통계 → 출력</small>
+                <small class="tw-meta-list"><span>후보</span><span>자료 구조</span><span>통계</span><span>출력</span></small>
               </span>
               <span class="tw-badge" lang="en">World</span>
             </summary>
@@ -606,7 +581,7 @@
           </aside>
         </div>
       </section>
-    </div>
+    </main>
 
     <script src="./vendor/d3.min.js"></script>
     <script src="./vendor/d3-geo-projection.min.js"></script>
