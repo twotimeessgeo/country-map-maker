@@ -24,7 +24,7 @@ const posts = fs.readdirSync(postsDir).filter((name) => name.endsWith(".md"))
 for (const post of posts) {
   const directory = path.join(notesDir, post.slug);
   if (!fs.existsSync(directory)) fs.mkdirSync(directory, { recursive: true });
-  const { html, headings, images } = renderMarkdown(post.body, post.slug);
+  const { html, headings, images } = renderMarkdown(post);
   const record = cutData.records.find((entry) => entry.subject === subjectName(post.subject)
     && `${entry.school_year}-${String(entry.month).padStart(2, "0")}` === post.exam);
   const article = renderArticle(post, html, headings, record);
@@ -62,8 +62,9 @@ function parseMetaValue(value) {
   return /^[{[]/.test(value) ? JSON.parse(value) : value;
 }
 
-function renderMarkdown(markdown, slug) {
-  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+function renderMarkdown(post) {
+  const { slug } = post;
+  const lines = post.body.replace(/\r\n/g, "\n").split("\n");
   const output = [];
   const headings = [];
   let imageCount = 0;
@@ -80,7 +81,7 @@ function renderMarkdown(markdown, slug) {
         if (lines[i].trim()) {
           const match = lines[i].trim().match(imagePattern);
           if (!match) throw new Error(`${slug}: 그림 묶음 형식 오류: ${lines[i]}`);
-          figures.push(renderFigure(match, slug, firstImage));
+          figures.push(renderFigure(match, slug, firstImage, currentQuestion, post.exam));
           firstImage = false; imageCount++;
         }
         i++;
@@ -92,7 +93,7 @@ function renderMarkdown(markdown, slug) {
     }
     const image = line.match(imagePattern);
     if (image) {
-      output.push(renderFigure(image, slug, firstImage));
+      output.push(renderFigure(image, slug, firstImage, currentQuestion, post.exam));
       firstImage = false; imageCount++; i++; continue;
     }
     const heading = line.match(/^(#{2,3})\s+(.+)$/);
@@ -104,7 +105,8 @@ function renderMarkdown(markdown, slug) {
         currentQuestion = question ? Number(question[1]) : null;
         const id = question ? `q${question[1]}` : title === "서두" ? "intro" : title === "맺음" ? "ending" : slugify(title);
         headings.push({ id, title });
-        output.push(`<section class="notes-section tw-reveal" id="${escapeHtml(id)}"><h2>${inline(title)}</h2>${currentQuestion ? `<!--QUESTION_META_${currentQuestion}-->` : ""}`);
+        const topic = post.q?.find((entry) => Number(entry.n) === currentQuestion)?.topic;
+        output.push(`<section class="notes-section tw-reveal" id="${escapeHtml(id)}">${currentQuestion ? `<span class="notes-question-number" aria-hidden="true">${String(currentQuestion).padStart(2, "0")}</span>` : ""}<h2>${inline(topic || title)}</h2>${currentQuestion ? `<!--QUESTION_META_${currentQuestion}--><!--LINEAGE_${currentQuestion}-->` : ""}`);
       } else output.push(`<h3>${inline(title)}</h3>`);
       // Close sections before opening the next section in the final pass.
       i++; continue;
@@ -143,13 +145,17 @@ function renderMarkdown(markdown, slug) {
   return { html, headings, images: imageCount };
 }
 
-function renderFigure(match, slug, first) {
+function renderFigure(match, slug, first, question, exam) {
   const [, caption, imagePath] = match;
   const fullPath = path.join(notesDir, slug, imagePath);
   if (!fs.existsSync(fullPath)) throw new Error(`그림을 찾지 못했습니다: ${fullPath}`);
   const { width, height } = webpDimensions(fullPath);
   const label = caption ? `${caption} 크게 보기` : "그림 크게 보기";
-  return `<figure class="notes-figure"><button class="notes-image-button" type="button" data-lightbox-src="${escapeHtml(imagePath)}" data-lightbox-caption="${escapeHtml(caption)}" aria-label="${escapeHtml(label)}"><img src="${escapeHtml(imagePath)}" alt="${escapeHtml(caption)}" width="${width}" height="${height}" loading="${first ? "eager" : "lazy"}" decoding="async"></button>${caption ? `<figcaption>${inline(caption)}</figcaption>` : ""}</figure>`;
+  const figureId = `fig-${path.basename(imagePath, ".webp").replace("figure-", "")}`;
+  const current = question && caption === `${exam.slice(0, 4)}학년도 ${Number(exam.slice(5))}월 ${question}번`;
+  const past = /^20\d{2}학년도 (?:6월|9월|수능)/.test(caption);
+  const pill = current ? "이번 문항" : past ? "기출" : "";
+  return `<figure class="notes-figure" id="${figureId}"${question ? ` data-question="${question}"` : ""}><div class="notes-image-plate"><button class="notes-image-button" type="button" data-lightbox-src="${escapeHtml(imagePath)}" data-lightbox-caption="${escapeHtml(caption)}" aria-label="${escapeHtml(label)}"><img src="${escapeHtml(imagePath)}" alt="${escapeHtml(caption)}" width="${width}" height="${height}" loading="${first ? "eager" : "lazy"}" decoding="async"></button>${pill ? `<span class="notes-figure-pill${current ? " is-current" : ""}">${pill}</span>` : ""}</div>${caption ? `<figcaption>${inline(caption)}</figcaption>` : ""}</figure>`;
 }
 
 function webpDimensions(filename) {
@@ -179,13 +185,36 @@ function slugify(value) { return value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu,
 function subjectName(value) { return value === "world" ? "세계지리" : value === "korea" ? "한국지리" : value; }
 function formatDate(value) { const [y, m, d] = value.split("-"); return `${y}. ${Number(m)}. ${Number(d)}.`; }
 function hasNumber(value) { return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)); }
-function questionMeta(record, number) {
+function questionMeta(post, record, number) {
+  const row = post.q?.find((entry) => Number(entry.n) === number);
   const item = record?.items?.find((entry) => Number(entry.question) === number);
-  if (!item) return "";
   const cells = [];
-  if (hasNumber(item.points)) cells.push(`<span>배점 ${escapeHtml(item.points)}점</span>`);
-  if (hasNumber(item.national_rate)) cells.push(`<span>정답률 ${escapeHtml(item.national_rate)}%</span>`);
+  if (row?.unit) cells.push(`<span>${escapeHtml(UNIT_NAMES[row.unit] || row.unit)}</span>`);
+  if (hasNumber(item?.points)) cells.push(`<span>배점 ${escapeHtml(item.points)}점</span>`);
+  if (hasNumber(item?.national_rate)) cells.push(`<span>오답률 ${+(100 - Number(item.national_rate)).toFixed(1)}%</span>`);
   return cells.length ? `<div class="tw-meta-list notes-question-meta">${cells.join("")}</div>` : "";
+}
+function renderLineage(post, number) {
+  const heading = new RegExp(`^## ${number}번$`, "m");
+  const start = post.body.search(heading);
+  if (start < 0) return "";
+  const afterHeading = post.body.slice(start).indexOf("\n") + start + 1;
+  const rest = post.body.slice(afterHeading);
+  const next = rest.search(/^## (?:\d+번|맺음)$/m);
+  const section = next < 0 ? rest : rest.slice(0, next);
+  const figures = [...section.matchAll(/^!\[([^\]]+)\]\(images\/(figure-\d+\.webp)\)$/gm)]
+    .map(([, caption, filename]) => ({ caption, filename, match: caption.match(/^(20\d{2})학년도 (6월|9월|수능) (\d+)번$/) }))
+    .filter((item) => item.match)
+    .sort((a, b) => Number(a.match[1]) - Number(b.match[1]) || ({"6월":6,"9월":9,"수능":11}[a.match[2]] - {"6월":6,"9월":9,"수능":11}[b.match[2]]));
+  const isCurrent = ({match}) => `${match[1]}-${match[2] === "수능" ? "11" : match[2] === "9월" ? "09" : "06"}` === post.exam && Number(match[3]) === number;
+  if (!figures.some((figure) => !isCurrent(figure))) return "";
+  const chips = figures.map((figure) => {
+    const { filename, match } = figure;
+    const current = isCurrent(figure);
+    const label = `${match[1]} ${match[2]} ${match[3]}`;
+    return `<a href="#fig-${filename.slice(7, -5)}" class="notes-lineage-chip${current ? " is-current" : ""}">${escapeHtml(label)}</a>`;
+  }).join("");
+  return `<nav class="notes-lineage" aria-label="${number}번 기출 계보">${chips}</nav>`;
 }
 function examSummary(record) {
   if (!record) return "";
@@ -249,11 +278,12 @@ function renderHeroChart(post, record) {
   return `<section class="notes-overview" aria-label="20문항 한눈에"><div class="notes-overview-stats">${stats.map(([label, value]) => `<div><strong>${escapeHtml(value)}</strong><span>${label}</span></div>`).join("")}</div><div class="notes-overview-bars">${bars}</div><div class="notes-overview-units" aria-label="대단원">${units}</div></section>`;
 }
 function renderArticle(post, rawHtml, headings, record) {
-  let article = rawHtml.replace(/<!--QUESTION_META_(\d+)-->/g, (_, number) => questionMeta(record, Number(number)));
+  let article = rawHtml.replace(/<!--QUESTION_META_(\d+)-->/g, (_, number) => questionMeta(post, record, Number(number)));
+  article = article.replace(/<!--LINEAGE_(\d+)-->/g, (_, number) => renderLineage(post, Number(number)));
   article = article.replace(/(<section class="notes-section tw-reveal" id="intro">[\s\S]*?<\/section>)/, (section) => section + examSummary(record));
   const toc = headings.map(({ id, title }) => `<a href="#${escapeHtml(id)}">${escapeHtml(title)}</a>`).join("");
   const sources = post.sources.map((url, index) => `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${index === 0 ? "상" : index === 1 ? "하" : `원문 ${index + 1}`}</a>`).join(" ");
-  return `${head(post.title, 2)}${nav(2, true)}<div class="notes-layout"><header class="notes-article-head"><div class="tw-meta-list notes-overline"><span>${subjectName(post.subject)}</span><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span>${readingMinutes(post.body)}분</span></div><h1>${escapeHtml(post.title)}</h1><p class="notes-summary">${escapeHtml(postSummary(post))}</p><span class="notes-author">twotimess</span></header>${renderHeroChart(post, record)}<aside class="notes-desktop-toc"><nav aria-label="목차">${toc}</nav></aside><main class="notes-article">${article}<footer class="notes-article-footer"><span>원문 ${sources}</span><span>문항 출처 한국교육과정평가원</span></footer></main></div><dialog id="notesLightbox" class="notes-lightbox" aria-label="그림 크게 보기"><div class="notes-lightbox-bar"><span id="notesLightboxCaption"></span><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxClose">닫기</button></div><img id="notesLightboxImage" alt=""></dialog><script src="../../ds/tooltip.js" defer></script><script src="../notes.js" defer></script></body></html>`;
+  return `${head(post.title, 2)}${nav(2, true)}<div class="notes-layout"><header class="notes-article-head"><div class="tw-meta-list notes-overline"><span>${subjectName(post.subject)}</span><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span>${readingMinutes(post.body)}분</span></div><h1>${escapeHtml(post.title)}</h1><p class="notes-summary">${escapeHtml(postSummary(post))}</p><span class="notes-author">twotimess</span></header>${renderHeroChart(post, record)}<aside class="notes-desktop-toc"><nav aria-label="목차">${toc}</nav></aside><main class="notes-article">${article}<footer class="notes-article-footer"><span>원문 ${sources}</span><span>문항 출처 한국교육과정평가원</span></footer></main></div><dialog id="notesLightbox" class="notes-lightbox" aria-label="그림 크게 보기"><div class="notes-lightbox-bar"><span id="notesLightboxCaption"></span><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxClose">닫기</button></div><img id="notesLightboxImage" alt=""><div class="notes-lightbox-actions"><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxPrev" aria-label="이전 그림">←</button><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxNext" aria-label="다음 그림">→</button></div></dialog><script src="../../ds/tooltip.js" defer></script><script src="../notes.js" defer></script></body></html>`;
 }
 function renderList(posts) {
   const subjects = [...new Set(posts.map((post) => post.subject))];

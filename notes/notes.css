@@ -111,23 +111,36 @@
 .notes-mobile-toc { display: none; text-align: left; }
 .notes-article { grid-column: 2; grid-row: 3; min-width: 0; font-size: 17px; line-height: 1.8; word-break: keep-all; }
 .notes-section { scroll-margin-top: 32px; }
-.notes-section + .notes-section { margin-top: 80px; }
+.notes-section + .notes-section { margin-top: 96px; }
+.notes-section[id^="q"] { padding-top: 32px; border-top: 1px solid var(--tw-hairline); }
+.notes-question-number { display: block; margin-bottom: 8px; color: var(--tw-ink-4); font-family: var(--tw-font-latin); font-size: 64px; font-weight: 200; line-height: 1; font-variant-numeric: tabular-nums; }
 .notes-article h2 { margin: 0 0 28px; font-size: 28px; line-height: 1.3; font-weight: 600; letter-spacing: -0.02em; }
 .notes-article h3 { margin: 44px 0 18px; font-size: 20px; line-height: 1.4; font-weight: 600; }
 .notes-article p { margin: 0 0 1.2em; word-break: keep-all; text-wrap: pretty; }
-.notes-article strong { font-weight: 600; }
+.notes-article strong { font-weight: 500; background: linear-gradient(transparent 62%, rgba(0,0,0,.08) 62%); }
+.notes-section[id^="q"] > p:first-of-type { color: var(--tw-ink); font-size: 18px; }
 .notes-article a { color: var(--tw-ink); text-decoration-color: var(--tw-ink-3); text-underline-offset: 3px; }
 .notes-article blockquote { margin: 28px 0; padding: 4px 0 4px 24px; border-left: 2px solid var(--tw-hairline-strong); color: var(--tw-ink-2); }
 .notes-article ul { padding-left: 1.5em; margin: 0 0 1.2em; }
 .notes-article .tw-table-wrap { margin: 32px 0; }
-.notes-question-meta { display: flex; gap: 18px; margin: -12px 0 28px; color: var(--tw-ink-2); font-size: var(--tw-text-sm); }
+.notes-question-meta { display: flex; flex-wrap: wrap; gap: 10px 18px; margin: -12px 0 20px; color: var(--tw-ink-2); font-size: var(--tw-text-sm); }
+.notes-lineage { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 32px; }
+.notes-lineage-chip { display: inline-flex; align-items: center; min-height: 30px; padding: 3px 12px; border-radius: var(--tw-radius-pill); background: var(--tw-surface); color: var(--tw-ink-2) !important; font-family: var(--tw-font-latin); font-size: 12px; text-decoration: none !important; }
+.notes-lineage-chip:hover { background: var(--tw-surface-2); }
+.notes-lineage-chip.is-current { background: var(--tw-ink); color: var(--tw-inverse) !important; }
+.notes-lineage-chip:focus-visible { outline: none; box-shadow: var(--tw-focus); }
 .notes-exam-summary { display: flex; gap: 18px; margin: 32px 0 0; color: var(--tw-ink-2); font-size: var(--tw-text-sm); }
 .notes-exam-summary a { color: var(--tw-ink); }
 .notes-figure, .notes-figures { width: min(880px, calc(100vw - 2 * var(--tw-gutter))); position: relative; left: 50%; transform: translateX(-50%); }
-.notes-figure { margin: 36px 0 44px; }
+.notes-figure { display: flex; flex-direction: column; margin: 36px 0 44px; scroll-margin-top: 40px; }
+.notes-image-plate { position: relative; display: flex; flex: 1; min-height: 0; }
+.notes-figure-pill { position: absolute; top: 12px; left: 12px; padding: 3px 10px; border-radius: var(--tw-radius-pill); background: var(--tw-surface-2); color: var(--tw-ink-2); font-size: 11px; line-height: 1.6; pointer-events: none; }
+.notes-figure-pill.is-current { background: var(--tw-ink); color: var(--tw-inverse); }
 .notes-image-button {
-  display: block;
+  display: grid;
+  place-items: start center;
   width: 100%;
+  height: 100%;
   padding: 24px;
   background: var(--tw-surface);
   border: 0;
@@ -136,9 +149,9 @@
 }
 .notes-image-button:hover { background: var(--tw-surface-2); }
 .notes-image-button:focus-visible { outline: none; box-shadow: var(--tw-focus); }
-.notes-image-button img { display: block; width: auto; max-width: 100%; height: auto; max-height: 720px; margin: 0 auto; border: 0; border-radius: 3px; }
-.notes-figure figcaption { margin-top: 12px; color: var(--tw-ink-2); text-align: center; font-size: 13px; line-height: 1.5; }
-.notes-figures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 20px; margin: 40px 0 48px; }
+.notes-image-button img { display: block; width: auto; max-width: 100%; height: auto; max-height: 560px; margin: 0 auto; border: 0; border-radius: 3px; object-fit: contain; }
+.notes-figure figcaption { margin-top: 12px; color: var(--tw-ink-2); text-align: left; font-size: 13px; line-height: 1.5; }
+.notes-figures { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 20px; margin: 40px 0 48px; }
 .notes-figures .notes-figure { width: auto; left: auto; transform: none; margin: 0; }
 .notes-figures .notes-image-button { min-height: 100%; }
 .notes-article-footer { display: flex; flex-wrap: wrap; gap: 10px 28px; padding-top: 28px; margin-top: 100px; border-top: 1px solid var(--tw-hairline); color: var(--tw-ink-2); font-size: 13px; }
@@ -146,7 +159,9 @@
 .notes-lightbox { width: min(1100px, calc(100vw - 32px)); max-width: none; max-height: calc(100vh - 32px); padding: 20px; border: 0; border-radius: var(--tw-radius-lg); box-shadow: var(--tw-shadow-pop); background: var(--tw-bg); }
 .notes-lightbox::backdrop { background: rgba(0, 0, 0, 0.72); }
 .notes-lightbox-bar { display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 36px; margin-bottom: 16px; color: var(--tw-ink-2); font-size: 13px; }
-.notes-lightbox img { display: block; max-width: 100%; max-height: calc(100vh - 120px); width: auto; height: auto; margin: 0 auto; object-fit: contain; }
+.notes-lightbox img { display: block; max-width: 100%; max-height: calc(100vh - 164px); width: auto; height: auto; margin: 0 auto; object-fit: contain; }
+.notes-lightbox-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.notes-lightbox-actions button:disabled { opacity: .35; cursor: default; }
 @media (max-width: 1199px) {
   .notes-layout { display: block; max-width: 760px; }
   .notes-desktop-toc { display: none; }
@@ -175,7 +190,7 @@
   .notes-mobile-toc nav { grid-template-columns: repeat(3, 1fr); }
   .notes-article { font-size: 17px; }
   .notes-article h2 { font-size: 26px; }
-  .notes-section + .notes-section { margin-top: 72px; }
+  .notes-section + .notes-section { margin-top: 80px; }
   .notes-figures { grid-template-columns: 1fr; }
   .notes-image-button { padding: 16px; }
 }
