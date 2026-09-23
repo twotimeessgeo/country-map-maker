@@ -97,6 +97,12 @@ const faContinent = (dataset,continent,item,element) => {
   return f(americas)&&f(north)?americas-north:null;
 };
 const faSource = source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL");
+const faName = (name) => {
+  const iso={"United States of America":"USA","Russian Federation":"RUS","Iran (Islamic Republic of)":"IRN","Viet Nam":"VNM","Republic of Korea":"KOR"}[name];
+  const country=allCountries.find((value)=>value.iso3===iso||value.atlasName===name);
+  return country?cName(country):name;
+};
+const faCountryRecord = (record) => Number(record.area_code)<5000 && !/^China,|^China \(/.test(record.area);
 const farmSource = source("국가데이터처 농림어업조사","https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3");
 const migrantStockSource = source("UN International Migrant Stock 2020","https://www.un.org/development/desa/pd/sites/www.un.org.development.desa.pd/files/undesa_pd_2020_ims_stock_by_sex_destination_and_origin.xlsx");
 const religionKeys = [["christians","크리스트교"],["muslims","이슬람교"],["hindus","힌두교"],["buddhists","불교"],["jews","유대교"],["noReligion","무종교"],["other","기타"]];
@@ -246,6 +252,7 @@ function continentValues(continent, kind) {
   return null;
 }
 function withContinentRows(built, kind) {
+  built.rowLabel = ["religion-asia","religion-africa"].includes(kind) ? "지역·국가" : "대륙·국가";
   const countryRows = (rows) => rows.map((value) => ({ ...value, group: "country",
     continent: continentLabelFor(countryByLabel.get(value.label)) })).sort((left, right) => {
     const a = countryByLabel.get(left.label);
@@ -514,8 +521,8 @@ function make(target) {
   if (kind === "fa-trade-rank") {
     const variants=faCrop.flatMap(([item,label])=>["Export quantity","Import quantity"].map((element)=>{
       const exportItem=item==="Rice"?"Rice, paddy (rice milled equivalent)":item;
-      const rows=local.faostat_trade_2024.filter((r)=>r.item===exportItem&&r.element===element&&Number(r.area_code)<5000)
-        .sort((a,b)=>b.value-a.value).slice(0,5).map((r,i)=>row(String(i+1)+"위",[{name:r.area,value:round(r.value/1e6,1)}]));
+      const rows=local.faostat_trade_2024.filter((r)=>r.item===exportItem&&r.element===element&&faCountryRecord(r))
+        .sort((a,b)=>b.value-a.value).slice(0,5).map((r,i)=>row(String(i+1)+"위",[{name:faName(r.area),value:round(r.value/1e6,1)}]));
       return {id:(item+element).replace(/[^a-z]/gi,"").toLowerCase(),label:label+" "+(element==="Export quantity"?"수출":"수입"),rows};
     }));
     return table(target,"백만 t","2024",source("FAOSTAT","https://www.fao.org/faostat/en/#data/TCL"),["순위",{label:"국가 · 물량",unit:"백만 t"}],variants[0].rows,{variants,note:"FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"});
@@ -830,14 +837,14 @@ function make(target) {
   }
   if (kind === "crop-top3") {
     const variants = Object.entries(cropNames).map(([key,label]) => {
-      const rows = allCountries.map((country) => ({country,value:country.agriculture?.crops?.production?.[key]?.latest}))
-        .filter(({value}) => value?.year === 2024 && f(value.value))
-        .sort((a,b) => b.value.value-a.value.value).slice(0,5)
-        .map(({country,value},index) => row(cName(country),[index+1,Math.round(value.value)]));
+      const item={wheat:"Wheat",rice:"Rice",maize:"Maize (corn)"}[key];
+      const rows = local.faostat_production_2024.filter((record)=>record.item===item&&record.element==="Production"&&faCountryRecord(record))
+        .sort((a,b)=>b.value-a.value).slice(0,5)
+        .map((record,index) => row(String(index+1)+"위",[{name:faName(record.area),value:round(record.value/1e6,1)}]));
       return {id:key,label,rows};
     });
-    return table(target,"t","2024",source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL"),
-      ["국가","순위","생산량"],variants[0].rows,{variants});
+    return table(target,"백만 t","2024",source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL"),
+      ["순위",{label:"국가 · 생산량",unit:"백만 t"}],variants[0].rows,{variants});
   }
   if (kind === "crop-countries" || kind === "region-crops") {
     const isos = kind === "region-crops" ? regionSets[arg] : majorCountryRows.crops;
@@ -863,14 +870,14 @@ function make(target) {
   }
   if (kind === "livestock-top3") {
     const variants = Object.entries(animalNames).map(([key,label]) => {
-      const rows = allCountries.map((country) => ({country,value:country.agriculture?.livestock?.stocks?.[key]?.latest}))
-        .filter(({value}) => value?.year === 2024 && f(value.value))
-        .sort((a,b) => b.value.value-a.value.value).slice(0,5)
-        .map(({country,value},index) => row(cName(country),[index+1,Math.round(value.value)]));
+      const item={cattle:"Cattle",pigs:"Swine / pigs",sheep:"Sheep"}[key];
+      const rows = local.faostat_production_2024.filter((record)=>record.item===item&&record.element==="Stocks"&&faCountryRecord(record))
+        .sort((a,b)=>b.value-a.value).slice(0,5)
+        .map((record,index) => row(String(index+1)+"위",[{name:faName(record.area),value:round(record.value/1e6,1)}]));
       return {id:key,label,rows};
     });
-    return table(target,"마리","2024",source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL"),
-      ["국가","순위","사육 두수"],variants[0].rows,{variants});
+    return table(target,"백만 마리","2024",source("FAOSTAT","https://www.fao.org/faostat/en/#data/QCL"),
+      ["순위",{label:"국가 · 사육 두수",unit:"백만 마리"}],variants[0].rows,{variants});
   }
   if (kind === "nuclear-countries") {
     const rows = worldRows(majorCountryRows.energy, (c) => c.energy?.electricity?.latest)

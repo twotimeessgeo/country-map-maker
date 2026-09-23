@@ -199,7 +199,21 @@ function combine(subject,topic,entries) {
   const out=[];
   const get=(id,label)=>{const t=map.get(id);map.delete(id);return t?{...t.views[0],id:label,label}:null;};
   const add=(id,title,pairs)=>{const t=compare(id,title,pairs.map(p=>get(p[0],p[1])).filter(Boolean));if(t)out.push(t);};
-  if(subject==="korea"&&topic==="population") add("korea-population-compare","인구 비교",[["k-6-01","규모"],["k-6-03","연령"],["k-x-03","출생과 사망"],["k-6-06","이동"]]);
+  if(subject==="korea"&&topic==="population") {
+    const scale=get("k-6-01","규모"),density=get("k-6-02","밀도"),sex=get("k-6-05","성비");
+    if(scale&&density&&sex) {
+      const densityByName=new Map(density.rows.map((r)=>[r.label,r]));
+      const sexByName=new Map(sex.rows.map((r)=>[r.label,r]));
+      scale.columns=[{...scale.columns[0],year:scale.year},
+        {...density.columns[2],year:density.year},...sex.columns.map((column)=>({...column,year:sex.year}))];
+      scale.rows=scale.rows.map((record)=>({label:record.label,values:[...record.values,densityByName.get(record.label)?.values[2]??null,...(sexByName.get(record.label)?.values||[null,null])]}));
+      scale.source={name:"행정안전부 주민등록인구통계, 국토교통부 지적통계",url:scale.source.url};
+      scale.note=`인구는 ${scale.year}, 밀도와 성비는 ${density.year} 기준`;
+      delete scale.year;
+    }
+    const views=[scale,get("k-6-03","연령"),get("k-x-03","출생과 사망"),get("k-6-06","이동")].filter(Boolean);
+    const comparison=compare("korea-population-compare","인구 비교",views);if(comparison)out.push(comparison);
+  }
   if(subject==="korea"&&topic==="multicultural") {
     const scale=get("k-6-08","규모"),types=map.get("k-x-04");map.delete("k-x-04");
     const views=[scale,types&&{...types.views[0],id:"types",label:"유형",subviews:types.views}].filter(Boolean);

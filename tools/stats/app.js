@@ -255,7 +255,7 @@
   }
   function cellHtml(value,column,max) {
     if(value===null||value===undefined)return '<span class="stats-missing">–</span>';
-    if(typeof value==="object"&&value.name) return '<span class="stats-rank-cell"><strong>'+escapeHtml(value.name)+'</strong><small>'+escapeHtml(formatNumber(value.value,"명"))+'</small></span>';
+    if(typeof value==="object"&&value.name) return '<span class="stats-rank-cell"><strong>'+escapeHtml(value.name)+'</strong><small>'+escapeHtml(formatNumber(value.value,column.unit))+'</small></span>';
     const display=escapeHtml(formatNumber(value,column.unit));
     if(typeof value!=="number")return display;
     const bar=column.unit==="%"&&value>=0&&max>0?'<span class="stats-bar" style="--bar-width:'+Math.min(100,value/max*100).toFixed(1)+'%"></span>':"";
@@ -374,4 +374,3 @@
   }
 
 })();
-

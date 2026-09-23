@@ -31,7 +31,7 @@
 .stats-outlink { font-size: 15px; color: var(--tw-ink-3); }
 .stats-content { min-width: 0; }
 .stats-region-switch { width: fit-content; max-width: 100%; overflow-x: auto; margin: 0 0 32px; white-space: nowrap; }
-.stats-region-switch > button { font-size: var(--tw-text-xs); }
+.stats-region-switch > button { flex: 0 0 auto; white-space: nowrap; font-size: var(--tw-text-xs); }
 .stats-table-section { min-width: 0; scroll-margin-top: calc(var(--stats-subnav-h) + 16px); }
 .stats-table-section + .stats-table-section { margin-top: 56px; }
 .stats-table-top { display: flex; align-items: start; justify-content: space-between; gap: 12px; max-width: 880px; margin-bottom: 14px; }

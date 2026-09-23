@@ -8,7 +8,7 @@
       "data-sources/stats"
     ],
     "tableCount": {
-      "korea": 28,
+      "korea": 26,
       "world": 37
     },
     "gapCount": 16
@@ -32,118 +32,185 @@
                   "columns": [
                     {
                       "label": "주민등록인구",
-                      "unit": "명"
+                      "unit": "명",
+                      "year": "2026년 6월"
+                    },
+                    {
+                      "label": "인구 밀도",
+                      "unit": "명/㎢",
+                      "year": "2024년 12월"
+                    },
+                    {
+                      "label": "성비",
+                      "unit": "여성 100명당 남성",
+                      "year": "2024년 12월"
+                    },
+                    {
+                      "label": "20~39세 성비",
+                      "unit": "여성 100명당 남성",
+                      "year": "2024년 12월"
                     }
                   ],
                   "rows": [
                     {
                       "label": "서울",
                       "values": [
-                        9289813
+                        9289813,
+                        15419.1,
+                        93.3,
+                        94.7
                       ]
                     },
                     {
                       "label": "부산",
                       "values": [
-                        3232370
+                        3232370,
+                        4235,
+                        94.8,
+                        105.7
                       ]
                     },
                     {
                       "label": "대구",
                       "values": [
-                        2348165
+                        2348165,
+                        1576.3,
+                        96.3,
+                        112.7
                       ]
                     },
                     {
                       "label": "인천",
                       "values": [
-                        3061002
+                        3061002,
+                        2824.7,
+                        99.8,
+                        108.2
                       ]
                     },
                     {
                       "label": "광주",
                       "values": [
-                        1385460
+                        1385460,
+                        2811.5,
+                        97.5,
+                        108.5
                       ]
                     },
                     {
                       "label": "대전",
                       "values": [
-                        1442034
+                        1442034,
+                        2666.3,
+                        99.4,
+                        111.2
                       ]
                     },
                     {
                       "label": "울산",
                       "values": [
-                        1087089
+                        1087089,
+                        1033.1,
+                        106,
+                        127.2
                       ]
                     },
                     {
                       "label": "세종",
                       "values": [
-                        390923
+                        390923,
+                        840.2,
+                        99.1,
+                        99.8
                       ]
                     },
                     {
                       "label": "경기",
                       "values": [
-                        13761783
+                        13761783,
+                        1342.5,
+                        101,
+                        109.9
                       ]
                     },
                     {
                       "label": "강원",
                       "values": [
-                        1507217
+                        1507217,
+                        90.2,
+                        101.1,
+                        121.1
                       ]
                     },
                     {
                       "label": "충북",
                       "values": [
-                        1600787
+                        1600787,
+                        214.8,
+                        103.7,
+                        122.8
                       ]
                     },
                     {
                       "label": "충남",
                       "values": [
-                        2138785
+                        2138785,
+                        259,
+                        105.4,
+                        122.4
                       ]
                     },
                     {
                       "label": "전북",
                       "values": [
-                        1718633
+                        1718633,
+                        215.3,
+                        99.2,
+                        114.4
                       ]
                     },
                     {
                       "label": "전남",
                       "values": [
-                        1773646
+                        1773646,
+                        144.7,
+                        101.8,
+                        119.5
                       ]
                     },
                     {
                       "label": "경북",
                       "values": [
-                        2495919
+                        2495919,
+                        137.4,
+                        102.4,
+                        127.5
                       ]
                     },
                     {
                       "label": "경남",
                       "values": [
-                        3195351
+                        3195351,
+                        306.2,
+                        101.6,
+                        121.2
                       ]
                     },
                     {
                       "label": "제주",
                       "values": [
-                        662792
+                        662792,
+                        362.3,
+                        100,
+                        108.7
                       ]
                     }
                   ],
                   "source": {
-                    "name": "행정안전부 주민등록인구통계",
+                    "name": "행정안전부 주민등록인구통계, 국토교통부 지적통계",
                     "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20651E&conn_path=ZF"
                   },
-                  "year": "2026년 6월"
+                  "note": "인구는 2026년 6월, 밀도와 성비는 2024년 12월 기준"
                 },
                 {
                   "id": "연령",
@@ -680,175 +747,6 @@
               ]
             },
             {
-              "id": "korea-population-density",
-              "title": "인구 밀도",
-              "views": [
-                {
-                  "id": "default",
-                  "label": "기본",
-                  "rowLabel": "시도",
-                  "columns": [
-                    {
-                      "label": "면적",
-                      "unit": "㎢"
-                    },
-                    {
-                      "label": "인구",
-                      "unit": "명"
-                    },
-                    {
-                      "label": "인구 밀도",
-                      "unit": "명/㎢"
-                    }
-                  ],
-                  "rows": [
-                    {
-                      "label": "서울",
-                      "values": [
-                        605.2,
-                        9331828,
-                        15419.1
-                      ]
-                    },
-                    {
-                      "label": "부산",
-                      "values": [
-                        771.3,
-                        3266598,
-                        4235
-                      ]
-                    },
-                    {
-                      "label": "대구",
-                      "values": [
-                        1499.5,
-                        2363629,
-                        1576.3
-                      ]
-                    },
-                    {
-                      "label": "인천",
-                      "values": [
-                        1069.5,
-                        3021010,
-                        2824.7
-                      ]
-                    },
-                    {
-                      "label": "광주",
-                      "values": [
-                        501,
-                        1408422,
-                        2811.5
-                      ]
-                    },
-                    {
-                      "label": "대전",
-                      "values": [
-                        539.8,
-                        1439157,
-                        2666.3
-                      ]
-                    },
-                    {
-                      "label": "울산",
-                      "values": [
-                        1062.9,
-                        1098049,
-                        1033.1
-                      ]
-                    },
-                    {
-                      "label": "세종",
-                      "values": [
-                        465,
-                        390685,
-                        840.2
-                      ]
-                    },
-                    {
-                      "label": "경기",
-                      "values": [
-                        10201.2,
-                        13694685,
-                        1342.5
-                      ]
-                    },
-                    {
-                      "label": "강원",
-                      "values": [
-                        16830.8,
-                        1517766,
-                        90.2
-                      ]
-                    },
-                    {
-                      "label": "충북",
-                      "values": [
-                        7406.9,
-                        1591177,
-                        214.8
-                      ]
-                    },
-                    {
-                      "label": "충남",
-                      "values": [
-                        8247.7,
-                        2136574,
-                        259
-                      ]
-                    },
-                    {
-                      "label": "전북",
-                      "values": [
-                        8075,
-                        1738690,
-                        215.3
-                      ]
-                    },
-                    {
-                      "label": "전남",
-                      "values": [
-                        12363.1,
-                        1788819,
-                        144.7
-                      ]
-                    },
-                    {
-                      "label": "경북",
-                      "values": [
-                        18428.1,
-                        2531384,
-                        137.4
-                      ]
-                    },
-                    {
-                      "label": "경남",
-                      "values": [
-                        10542.6,
-                        3228380,
-                        306.2
-                      ]
-                    },
-                    {
-                      "label": "제주",
-                      "values": [
-                        1850.2,
-                        670368,
-                        362.3
-                      ]
-                    }
-                  ],
-                  "source": {
-                    "name": "국토교통부 지적통계, 행정안전부 주민등록인구통계",
-                    "url": "https://stat.molit.go.kr/portal/cate/statMetaView.do?hRsId=24"
-                  },
-                  "year": "2024년 12월",
-                  "note": "2024년 12월 말 지적 면적과 주민등록인구로 계산"
-                }
-              ]
-            },
-            {
               "id": "korea-age-structure-region",
               "title": "권역별 인구 구조",
               "views": [
@@ -936,154 +834,6 @@
                   },
                   "year": "2024년 12월",
                   "note": "시도별 5세 구간 주민등록인구 합산"
-                }
-              ]
-            },
-            {
-              "id": "korea-sex-ratio",
-              "title": "성비와 청장년층 성비",
-              "views": [
-                {
-                  "id": "default",
-                  "label": "기본",
-                  "rowLabel": "시도",
-                  "columns": [
-                    {
-                      "label": "성비",
-                      "unit": "여성 100명당 남성"
-                    },
-                    {
-                      "label": "20~39세 성비",
-                      "unit": "여성 100명당 남성"
-                    }
-                  ],
-                  "rows": [
-                    {
-                      "label": "서울",
-                      "values": [
-                        93.3,
-                        94.7
-                      ]
-                    },
-                    {
-                      "label": "부산",
-                      "values": [
-                        94.8,
-                        105.7
-                      ]
-                    },
-                    {
-                      "label": "대구",
-                      "values": [
-                        96.3,
-                        112.7
-                      ]
-                    },
-                    {
-                      "label": "인천",
-                      "values": [
-                        99.8,
-                        108.2
-                      ]
-                    },
-                    {
-                      "label": "광주",
-                      "values": [
-                        97.5,
-                        108.5
-                      ]
-                    },
-                    {
-                      "label": "대전",
-                      "values": [
-                        99.4,
-                        111.2
-                      ]
-                    },
-                    {
-                      "label": "울산",
-                      "values": [
-                        106,
-                        127.2
-                      ]
-                    },
-                    {
-                      "label": "세종",
-                      "values": [
-                        99.1,
-                        99.8
-                      ]
-                    },
-                    {
-                      "label": "경기",
-                      "values": [
-                        101,
-                        109.9
-                      ]
-                    },
-                    {
-                      "label": "강원",
-                      "values": [
-                        101.1,
-                        121.1
-                      ]
-                    },
-                    {
-                      "label": "충북",
-                      "values": [
-                        103.7,
-                        122.8
-                      ]
-                    },
-                    {
-                      "label": "충남",
-                      "values": [
-                        105.4,
-                        122.4
-                      ]
-                    },
-                    {
-                      "label": "전북",
-                      "values": [
-                        99.2,
-                        114.4
-                      ]
-                    },
-                    {
-                      "label": "전남",
-                      "values": [
-                        101.8,
-                        119.5
-                      ]
-                    },
-                    {
-                      "label": "경북",
-                      "values": [
-                        102.4,
-                        127.5
-                      ]
-                    },
-                    {
-                      "label": "경남",
-                      "values": [
-                        101.6,
-                        121.2
-                      ]
-                    },
-                    {
-                      "label": "제주",
-                      "values": [
-                        100,
-                        108.7
-                      ]
-                    }
-                  ],
-                  "source": {
-                    "name": "행정안전부 주민등록인구통계",
-                    "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1B04005N"
-                  },
-                  "year": "2024년 12월",
-                  "note": "5세 구간 주민등록인구 원수로 계산"
                 }
               ]
             },
@@ -7679,7 +7429,7 @@
                 {
                   "id": "아시아",
                   "label": "아시아",
-                  "rowLabel": "국가",
+                  "rowLabel": "지역·국가",
                   "columns": [
                     {
                       "label": "크리스트교",
@@ -7808,7 +7558,7 @@
                 {
                   "id": "아프리카",
                   "label": "아프리카",
-                  "rowLabel": "국가",
+                  "rowLabel": "지역·국가",
                   "columns": [
                     {
                       "label": "크리스트교",
@@ -8345,7 +8095,7 @@
                 {
                   "id": "규모",
                   "label": "규모",
-                  "rowLabel": "국가",
+                  "rowLabel": "대륙·국가",
                   "columns": [
                     {
                       "label": "총인구",
@@ -8469,7 +8219,7 @@
                 {
                   "id": "출생과 사망",
                   "label": "출생과 사망",
-                  "rowLabel": "국가",
+                  "rowLabel": "대륙·국가",
                   "columns": [
                     {
                       "label": "출생률",
@@ -8611,7 +8361,7 @@
                 {
                   "id": "이동",
                   "label": "이동",
-                  "rowLabel": "국가",
+                  "rowLabel": "대륙·국가",
                   "columns": [
                     {
                       "label": "순이동",
@@ -10410,7 +10160,7 @@
                 {
                   "id": "작물",
                   "label": "작물",
-                  "rowLabel": "국가",
+                  "rowLabel": "대륙·국가",
                   "columns": [
                     {
                       "label": "밀",
@@ -10571,7 +10321,7 @@
                 {
                   "id": "가축",
                   "label": "가축",
-                  "rowLabel": "국가",
+                  "rowLabel": "대륙·국가",
                   "columns": [
                     {
                       "label": "소",
@@ -11201,7 +10951,7 @@
                       "label": "1위",
                       "values": [
                         {
-                          "name": "Russian Federation",
+                          "name": "러시아",
                           "value": 32.7
                         }
                       ]
@@ -11210,7 +10960,7 @@
                       "label": "2위",
                       "values": [
                         {
-                          "name": "Canada",
+                          "name": "캐나다",
                           "value": 25.5
                         }
                       ]
@@ -11219,7 +10969,7 @@
                       "label": "3위",
                       "values": [
                         {
-                          "name": "United States of America",
+                          "name": "미국",
                           "value": 21.8
                         }
                       ]
@@ -11228,7 +10978,7 @@
                       "label": "4위",
                       "values": [
                         {
-                          "name": "Ukraine",
+                          "name": "우크라이나",
                           "value": 20.7
                         }
                       ]
@@ -11237,7 +10987,7 @@
                       "label": "5위",
                       "values": [
                         {
-                          "name": "Australia",
+                          "name": "오스트레일리아",
                           "value": 19.7
                         }
                       ]
@@ -11265,7 +11015,7 @@
                       "label": "1위",
                       "values": [
                         {
-                          "name": "Egypt",
+                          "name": "이집트",
                           "value": 13.1
                         }
                       ]
@@ -11274,7 +11024,7 @@
                       "label": "2위",
                       "values": [
                         {
-                          "name": "China",
+                          "name": "중국",
                           "value": 12.5
                         }
                       ]
@@ -11283,8 +11033,8 @@
                       "label": "3위",
                       "values": [
                         {
-                          "name": "China (excluding intra-trade)",
-                          "value": 12.5
+                          "name": "인도네시아",
+                          "value": 12.1
                         }
                       ]
                     },
@@ -11292,8 +11042,8 @@
                       "label": "4위",
                       "values": [
                         {
-                          "name": "Indonesia",
-                          "value": 12.1
+                          "name": "이탈리아",
+                          "value": 9.4
                         }
                       ]
                     },
@@ -11301,8 +11051,8 @@
                       "label": "5위",
                       "values": [
                         {
-                          "name": "China, mainland",
-                          "value": 11
+                          "name": "에스파냐",
+                          "value": 7.9
                         }
                       ]
                     }
@@ -11329,7 +11079,7 @@
                       "label": "1위",
                       "values": [
                         {
-                          "name": "India",
+                          "name": "인도",
                           "value": 17.9
                         }
                       ]
@@ -11338,7 +11088,7 @@
                       "label": "2위",
                       "values": [
                         {
-                          "name": "Thailand",
+                          "name": "타이",
                           "value": 9.9
                         }
                       ]
@@ -11347,7 +11097,7 @@
                       "label": "3위",
                       "values": [
                         {
-                          "name": "Viet Nam",
+                          "name": "베트남",
                           "value": 7
                         }
                       ]
@@ -11356,7 +11106,7 @@
                       "label": "4위",
                       "values": [
                         {
-                          "name": "Pakistan",
+                          "name": "파키스탄",
                           "value": 6.5
                         }
                       ]
@@ -11365,7 +11115,7 @@
                       "label": "5위",
                       "values": [
                         {
-                          "name": "Cambodia",
+                          "name": "캄보디아",
                           "value": 3.9
                         }
                       ]
@@ -11393,7 +11143,7 @@
                       "label": "1위",
                       "values": [
                         {
-                          "name": "Philippines",
+                          "name": "필리핀",
                           "value": 4.8
                         }
                       ]
@@ -11402,7 +11152,7 @@
                       "label": "2위",
                       "values": [
                         {
-                          "name": "Indonesia",
+                          "name": "인도네시아",
                           "value": 4.5
                         }
                       ]
@@ -11411,7 +11161,7 @@
                       "label": "3위",
                       "values": [
                         {
-                          "name": "Iraq",
+                          "name": "이라크",
                           "value": 2.1
                         }
                       ]
@@ -11420,7 +11170,7 @@
                       "label": "4위",
                       "values": [
                         {
-                          "name": "China",
+                          "name": "중국",
                           "value": 2.1
                         }
                       ]
@@ -11429,8 +11179,8 @@
                       "label": "5위",
                       "values": [
                         {
-                          "name": "China (excluding intra-trade)",
-                          "value": 2
+                          "name": "사우디아라비아",
+                          "value": 1.8
                         }
                       ]
                     }
@@ -11457,7 +11207,7 @@
                       "label": "1위",
                       "values": [
                         {
-                          "name": "United States of America",
+                          "name": "미국",
                           "value": 62.6
                         }
                       ]
@@ -11466,7 +11216,7 @@
                       "label": "2위",
                       "values": [
                         {
-                          "name": "Brazil",
+                          "name": "브라질",
                           "value": 39.8
                         }
                       ]
@@ -11475,7 +11225,7 @@
                       "label": "3위",
                       "values": [
                         {
-                          "name": "Argentina",
+                          "name": "아르헨티나",
                           "value": 32.1
                         }
                       ]
@@ -11484,7 +11234,7 @@
                       "label": "4위",
                       "values": [
                         {
-                          "name": "Ukraine",
+                          "name": "우크라이나",
                           "value": 29.6
                         }
                       ]
@@ -11493,7 +11243,7 @@
                       "label": "5위",
                       "values": [
                         {
-                          "name": "France",
+                          "name": "프랑스",
                           "value": 4.1
                         }
                       ]
@@ -11521,7 +11271,7 @@
                       "label": "1위",
                       "values": [
                         {
-                          "name": "Mexico",
+                          "name": "멕시코",
                           "value": 23.9
                         }
                       ]
@@ -11530,7 +11280,7 @@
                       "label": "2위",
                       "values": [
                         {
-                          "name": "China",
+                          "name": "중국",
                           "value": 18.6
                         }
                       ]
@@ -11539,8 +11289,8 @@
                       "label": "3위",
                       "values": [
                         {
-                          "name": "China (excluding intra-trade)",
-                          "value": 18.6
+                          "name": "일본",
+                          "value": 15.3
                         }
                       ]
                     },
@@ -11548,8 +11298,8 @@
                       "label": "4위",
                       "values": [
                         {
-                          "name": "Japan",
-                          "value": 15.3
+                          "name": "대한민국",
+                          "value": 11.3
                         }
                       ]
                     },
@@ -11557,8 +11307,8 @@
                       "label": "5위",
                       "values": [
                         {
-                          "name": "China, mainland",
-                          "value": 13.6
+                          "name": "에스파냐",
+                          "value": 9.4
                         }
                       ]
                     }
@@ -11579,51 +11329,57 @@
                 {
                   "id": "wheat",
                   "label": "밀",
-                  "rowLabel": "국가",
+                  "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "순위",
-                      "unit": ""
-                    },
-                    {
-                      "label": "생산량",
-                      "unit": "t"
+                      "label": "국가 · 생산량",
+                      "unit": "백만 t"
                     }
                   ],
                   "rows": [
                     {
-                      "label": "중국",
+                      "label": "1위",
                       "values": [
-                        1,
-                        140100000
+                        {
+                          "name": "중국",
+                          "value": 140.1
+                        }
                       ]
                     },
                     {
-                      "label": "인도",
+                      "label": "2위",
                       "values": [
-                        2,
-                        113292368
+                        {
+                          "name": "인도",
+                          "value": 113.3
+                        }
                       ]
                     },
                     {
-                      "label": "러시아",
+                      "label": "3위",
                       "values": [
-                        3,
-                        82588000
+                        {
+                          "name": "러시아",
+                          "value": 82.6
+                        }
                       ]
                     },
                     {
-                      "label": "미국",
+                      "label": "4위",
                       "values": [
-                        4,
-                        53650020
+                        {
+                          "name": "미국",
+                          "value": 53.7
+                        }
                       ]
                     },
                     {
-                      "label": "캐나다",
+                      "label": "5위",
                       "values": [
-                        5,
-                        35938839
+                        {
+                          "name": "캐나다",
+                          "value": 35.9
+                        }
                       ]
                     }
                   ],
@@ -11636,51 +11392,57 @@
                 {
                   "id": "rice",
                   "label": "쌀",
-                  "rowLabel": "국가",
+                  "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "순위",
-                      "unit": ""
-                    },
-                    {
-                      "label": "생산량",
-                      "unit": "t"
+                      "label": "국가 · 생산량",
+                      "unit": "백만 t"
                     }
                   ],
                   "rows": [
                     {
-                      "label": "인도",
+                      "label": "1위",
                       "values": [
-                        1,
-                        217867864
+                        {
+                          "name": "인도",
+                          "value": 217.9
+                        }
                       ]
                     },
                     {
-                      "label": "중국",
+                      "label": "2위",
                       "values": [
-                        2,
-                        207530000
+                        {
+                          "name": "중국",
+                          "value": 209.2
+                        }
                       ]
                     },
                     {
-                      "label": "방글라데시",
+                      "label": "3위",
                       "values": [
-                        3,
-                        60570453
+                        {
+                          "name": "방글라데시",
+                          "value": 60.6
+                        }
                       ]
                     },
                     {
-                      "label": "인도네시아",
+                      "label": "4위",
                       "values": [
-                        4,
-                        53142727
+                        {
+                          "name": "인도네시아",
+                          "value": 53.1
+                        }
                       ]
                     },
                     {
-                      "label": "베트남",
+                      "label": "5위",
                       "values": [
-                        5,
-                        43450449
+                        {
+                          "name": "베트남",
+                          "value": 43.5
+                        }
                       ]
                     }
                   ],
@@ -11693,51 +11455,57 @@
                 {
                   "id": "maize",
                   "label": "옥수수",
-                  "rowLabel": "국가",
+                  "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "순위",
-                      "unit": ""
-                    },
-                    {
-                      "label": "생산량",
-                      "unit": "t"
+                      "label": "국가 · 생산량",
+                      "unit": "백만 t"
                     }
                   ],
                   "rows": [
                     {
-                      "label": "미국",
+                      "label": "1위",
                       "values": [
-                        1,
-                        377632690
+                        {
+                          "name": "미국",
+                          "value": 377.6
+                        }
                       ]
                     },
                     {
-                      "label": "중국",
+                      "label": "2위",
                       "values": [
-                        2,
-                        294920000
+                        {
+                          "name": "중국",
+                          "value": 295.1
+                        }
                       ]
                     },
                     {
-                      "label": "브라질",
+                      "label": "3위",
                       "values": [
-                        3,
-                        114953303
+                        {
+                          "name": "브라질",
+                          "value": 115
+                        }
                       ]
                     },
                     {
-                      "label": "아르헨티나",
+                      "label": "4위",
                       "values": [
-                        4,
-                        57494500
+                        {
+                          "name": "아르헨티나",
+                          "value": 57.5
+                        }
                       ]
                     },
                     {
-                      "label": "인도",
+                      "label": "5위",
                       "values": [
-                        5,
-                        40230573
+                        {
+                          "name": "인도",
+                          "value": 40.2
+                        }
                       ]
                     }
                   ],
@@ -11756,51 +11524,57 @@
                 {
                   "id": "cattle",
                   "label": "소",
-                  "rowLabel": "국가",
+                  "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "순위",
-                      "unit": ""
-                    },
-                    {
-                      "label": "사육 두수",
-                      "unit": "마리"
+                      "label": "국가 · 사육 두수",
+                      "unit": "백만 마리"
                     }
                   ],
                   "rows": [
                     {
-                      "label": "브라질",
+                      "label": "1위",
                       "values": [
-                        1,
-                        238180757
+                        {
+                          "name": "브라질",
+                          "value": 238.2
+                        }
                       ]
                     },
                     {
-                      "label": "인도",
+                      "label": "2위",
                       "values": [
-                        2,
-                        194753479
+                        {
+                          "name": "인도",
+                          "value": 194.8
+                        }
                       ]
                     },
                     {
-                      "label": "미국",
+                      "label": "3위",
                       "values": [
-                        3,
-                        87157400
+                        {
+                          "name": "미국",
+                          "value": 87.2
+                        }
                       ]
                     },
                     {
-                      "label": "에티오피아",
+                      "label": "4위",
                       "values": [
-                        4,
-                        71916930
+                        {
+                          "name": "에티오피아",
+                          "value": 71.9
+                        }
                       ]
                     },
                     {
-                      "label": "중국",
+                      "label": "5위",
                       "values": [
-                        5,
-                        70325500
+                        {
+                          "name": "중국",
+                          "value": 70.5
+                        }
                       ]
                     }
                   ],
@@ -11813,51 +11587,57 @@
                 {
                   "id": "pigs",
                   "label": "돼지",
-                  "rowLabel": "국가",
+                  "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "순위",
-                      "unit": ""
-                    },
-                    {
-                      "label": "사육 두수",
-                      "unit": "마리"
+                      "label": "국가 · 사육 두수",
+                      "unit": "백만 마리"
                     }
                   ],
                   "rows": [
                     {
-                      "label": "중국",
+                      "label": "1위",
                       "values": [
-                        1,
-                        427430000
+                        {
+                          "name": "중국",
+                          "value": 432.6
+                        }
                       ]
                     },
                     {
-                      "label": "미국",
+                      "label": "2위",
                       "values": [
-                        2,
-                        74905400
+                        {
+                          "name": "미국",
+                          "value": 74.9
+                        }
                       ]
                     },
                     {
-                      "label": "브라질",
+                      "label": "3위",
                       "values": [
-                        3,
-                        43914785
+                        {
+                          "name": "브라질",
+                          "value": 43.9
+                        }
                       ]
                     },
                     {
-                      "label": "에스파냐",
+                      "label": "4위",
                       "values": [
-                        4,
-                        34565280
+                        {
+                          "name": "에스파냐",
+                          "value": 34.6
+                        }
                       ]
                     },
                     {
-                      "label": "러시아",
+                      "label": "5위",
                       "values": [
-                        5,
-                        29015221
+                        {
+                          "name": "러시아",
+                          "value": 29
+                        }
                       ]
                     }
                   ],
@@ -11870,51 +11650,57 @@
                 {
                   "id": "sheep",
                   "label": "양",
-                  "rowLabel": "국가",
+                  "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "순위",
-                      "unit": ""
-                    },
-                    {
-                      "label": "사육 두수",
-                      "unit": "마리"
+                      "label": "국가 · 사육 두수",
+                      "unit": "백만 마리"
                     }
                   ],
                   "rows": [
                     {
-                      "label": "중국",
+                      "label": "1위",
                       "values": [
-                        1,
-                        182939000
+                        {
+                          "name": "중국",
+                          "value": 182.9
+                        }
                       ]
                     },
                     {
-                      "label": "인도",
+                      "label": "2위",
                       "values": [
-                        2,
-                        114623765
+                        {
+                          "name": "인도",
+                          "value": 114.6
+                        }
                       ]
                     },
                     {
-                      "label": "오스트레일리아",
+                      "label": "3위",
                       "values": [
-                        3,
-                        79330000
+                        {
+                          "name": "오스트레일리아",
+                          "value": 79.3
+                        }
                       ]
                     },
                     {
-                      "label": "이란",
+                      "label": "4위",
                       "values": [
-                        4,
-                        53820779
+                        {
+                          "name": "이란",
+                          "value": 53.8
+                        }
                       ]
                     },
                     {
-                      "label": "나이지리아",
+                      "label": "5위",
                       "values": [
-                        5,
-                        52136324
+                        {
+                          "name": "나이지리아",
+                          "value": 52.1
+                        }
                       ]
                     }
                   ],
@@ -12021,7 +11807,7 @@
                 {
                   "id": "1차 에너지",
                   "label": "1차 에너지",
-                  "rowLabel": "국가",
+                  "rowLabel": "대륙·국가",
                   "columns": [
                     {
                       "label": "총소비",
@@ -12469,7 +12255,7 @@
                 {
                   "id": "원자력",
                   "label": "원자력",
-                  "rowLabel": "국가",
+                  "rowLabel": "대륙·국가",
                   "columns": [
                     {
                       "label": "원자력 발전량",
