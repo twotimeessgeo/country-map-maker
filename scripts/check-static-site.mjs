@@ -12,6 +12,8 @@ const publicHtmlFiles = [
   path.join(rootDir, "tools", "climate", "index.html"),
   path.join(rootDir, "tools", "climate", "korea.html"),
   path.join(rootDir, "tools", "cut", "index.html"),
+  path.join(rootDir, "notes", "index.html"),
+  path.join(rootDir, "notes", "2027-09-world", "index.html"),
 ];
 const htmlFiles = isSourceCheck
   ? [
@@ -61,6 +63,26 @@ for (const htmlPath of htmlFiles) {
       );
     }
   }
+}
+
+const notesListHtml = fs.readFileSync(path.join(rootDir, "notes", "index.html"), "utf8");
+const notesArticleHtml = fs.readFileSync(path.join(rootDir, "notes", "2027-09-world", "index.html"), "utf8");
+const questionHeadings = [...notesArticleHtml.matchAll(/<section class="notes-section tw-reveal" id="q(\d+)"><h2>(\d+)번<\/h2>/g)];
+if (questionHeadings.length !== 20 || questionHeadings.some((match, index) => Number(match[1]) !== index + 1 || Number(match[2]) !== index + 1)) {
+  errors.push("Notes 첫 글의 1~20번 문항 머리말이 누락되었거나 순서가 틀렸습니다.");
+}
+const notesImages = [...notesArticleHtml.matchAll(/<img src="images\/[^"\s]+\.webp"[^>]*>/g)].map((match) => match[0]);
+if (notesImages.length !== 61 || notesImages.some((image) => !/\bwidth="\d+" height="\d+"/.test(image))) {
+  errors.push(`Notes 첫 글의 그림 수 또는 크기 속성이 틀렸습니다: ${notesImages.length} / 61`);
+}
+if (notesImages[0]?.includes('loading="eager"') !== true || notesImages.slice(1).some((image) => !image.includes('loading="lazy"'))) {
+  errors.push("Notes 첫 그림 eager 및 나머지 lazy 설정이 틀렸습니다.");
+}
+if (!notesListHtml.includes('2027-09-world/index.html') || !notesArticleHtml.includes('id="ending"') || /<figcaption>\d{6}<\/figcaption>/.test(notesArticleHtml)) {
+  errors.push("Notes 목록, 맺음 또는 캡션 표기를 확인해 주세요.");
+}
+if (!isSourceCheck && fs.existsSync(path.join(rootDir, "notes", "posts"))) {
+  errors.push("Notes 원천 마크다운이 정적 빌드에 포함되었습니다.");
 }
 
 const publicSurfaceText = [
