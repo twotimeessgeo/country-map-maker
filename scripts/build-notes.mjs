@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -304,13 +305,20 @@ function renderOgImage(post, record, directory) {
   const titleLine1 = escapeHtml(titleChars.slice(0, 11).join(""));
   const titleLine2 = escapeHtml(titleChars.slice(11).join(""));
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#fff"/><text x="128" y="80" font-family="TWK Lausanne,Pretendard,Arial,sans-serif" font-size="24" fill="#5d5d5d">Promenade Geography / Notes</text><text x="128" y="206" font-family="Pretendard,Apple SD Gothic Neo,sans-serif" font-size="62" font-weight="600" fill="#0d0d0d">${titleLine1}</text><text x="128" y="288" font-family="Pretendard,Apple SD Gothic Neo,sans-serif" font-size="62" font-weight="600" fill="#0d0d0d">${titleLine2}</text><text x="128" y="370" font-family="TWK Lausanne,Pretendard,Arial,sans-serif" font-size="24" fill="#5d5d5d">${formatDate(post.date)}   ${escapeHtml(subjectName(post.subject))}</text><line x1="128" x2="1080" y1="549" y2="549" stroke="#0d0d0d" stroke-width="2"/>${bars}<text x="128" y="590" font-family="TWK Lausanne,Pretendard,Arial,sans-serif" font-size="18" fill="#737373">01</text><text x="1040" y="590" font-family="TWK Lausanne,Pretendard,Arial,sans-serif" font-size="18" fill="#737373">20</text></svg>`;
-  const result = spawnSync("python3", [path.join(root, "scripts/render-notes-og.py"), output], { input: svg, encoding: "utf8", timeout: 30000 });
-  if (result.status !== 0) {
-    fs.rmSync(output, { force: true });
-    console.log(`${post.slug}: PNG 변환 도구가 없어 og:image 생략`);
+  const checksum = createHash("sha256").update(svg).digest("hex");
+  const checksumPath = path.join(postsDir, `${post.slug}.og.sha256`);
+  const rendered = process.env.NOTES_SKIP_OG_CONVERT !== "1"
+    ? spawnSync("python3", [path.join(root, "scripts/render-notes-og.py"), output], { input: svg, encoding: "utf8", timeout: 30000 }).status === 0
+    : false;
+  if (rendered) fs.writeFileSync(checksumPath, `${checksum}\n`);
+  const verified = fs.existsSync(output) && fs.existsSync(checksumPath)
+    && fs.readFileSync(checksumPath, "utf8").trim() === checksum;
+  if (!verified) {
+    console.log(`${post.slug}: PNG 변환 도구가 없거나 공유 이미지가 오래되어 og:image 생략`);
     return null;
   }
-  return "./og.png";
+  const siteOrigin = process.env.NOTES_SITE_ORIGIN || "https://twotimeessgeo.github.io/country-map-maker/";
+  return new URL(`notes/${encodeURIComponent(post.slug)}/og.png`, siteOrigin.endsWith("/") ? siteOrigin : `${siteOrigin}/`).href;
 }
 function renderArticle(post, rawHtml, headings, record, posts, ogImage) {
   let article = rawHtml.replace(/<!--QUESTION_META_(\d+)-->/g, (_, number) => questionMeta(post, record, Number(number)));
