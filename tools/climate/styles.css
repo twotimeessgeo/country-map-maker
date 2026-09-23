@@ -465,7 +465,7 @@
   fill: none;
   stroke: rgba(0, 0, 0, 0.1);
   stroke-width: 0.8;
-  stroke-dasharray: 3 6;
+  stroke-dasharray: var(--grid-dash, 3px) var(--grid-gap, 6px);
 }
 
 .map-equator {
@@ -531,9 +531,7 @@
   border-radius: 999px;
   background: var(--marker-color);
   cursor: pointer;
-  transform-origin: 0 0;
-  transform: scale(calc(1 / var(--map-k, 1)))
-    translate(
+  transform: translate(
       calc(-50% + var(--marker-dx, 0px) + var(--marker-auto-dx, 0px)),
       calc(-50% + var(--marker-dy, 0px) + var(--marker-auto-dy, 0px))
     );
@@ -552,7 +550,7 @@
 .map-marker::after {
   content: attr(data-label);
   position: absolute;
-  left: 50%;
+  left: calc(50% + var(--label-shift-x, 0px));
   bottom: calc(100% + 10px);
   padding: 6px 10px;
   border-radius: var(--tw-radius-pill);
@@ -2093,6 +2091,17 @@ tfoot td {
   vector-effect: non-scaling-stroke;
 }
 
+.world-map-svg .map-graticule,
+.world-map-svg .map-equator,
+.world-map-svg .map-landmass,
+.world-map-svg .map-country-borders {
+  vector-effect: non-scaling-stroke;
+}
+
+.world-map-frame {
+  touch-action: none;
+}
+
 .world-map-frame.is-zoomed {
   cursor: grab;
   touch-action: none;
@@ -2114,6 +2123,20 @@ tfoot td {
 
 .world-map-frame.is-zoomed .world-map-leaders {
   display: none;
+}
+
+.world-map-frame.is-zoomed .map-marker.is-selected::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.world-map-frame.is-zoomed .map-marker[data-zoom-label-hidden="true"]::after {
+  opacity: 0;
+}
+
+.world-map-frame.is-zoomed .map-marker.label-below::after {
+  top: calc(100% + 10px);
+  bottom: auto;
 }
 
 .map-zoom-controls {
