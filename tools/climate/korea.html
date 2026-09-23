@@ -11,14 +11,14 @@
     <meta name="theme-color" content="#ffffff" />
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css"
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
     <link rel="stylesheet" href="../../ds/fonts.css?v=32" />
-    <link rel="stylesheet" href="../../ds/tokens.css?v=38" />
+    <link rel="stylesheet" href="../../ds/tokens.css?v=39" />
     <link rel="stylesheet" href="../../ds/base.css?v=38" />
     <link rel="stylesheet" href="../../ds/components.css?v=38" />
     <link rel="stylesheet" href="../../ds/patterns.css?v=32" />
-    <link rel="stylesheet" href="styles.css?v=38" />
+    <link rel="stylesheet" href="styles.css?v=41" />
   </head>
   <body data-app-mode="korea">
     <header class="tw-nav is-static">
@@ -62,9 +62,14 @@
         </nav>
         <div class="tw-subnav-actions atlas-actions" aria-label="선택 도구">
           <span class="atlas-count" id="selectionSummary" role="status" aria-live="polite" aria-atomic="true">0개 선택됨</span>
-          <button type="button" class="tw-button is-ghost is-sm" id="randomSpacedSelectionButton">4곳 랜덤</button>
-          <button type="button" class="tw-button is-ghost is-sm" id="clearSelectionButton">선택 해제</button>
-          <button type="button" class="tw-button is-sm" id="downloadSelectedCsvButton" disabled>CSV</button>
+          <details class="tw-nav-menu atlas-more" open>
+            <summary aria-label="더 보기">…</summary>
+            <div class="tw-nav-menu-panel atlas-more-panel">
+              <button type="button" class="tw-button is-ghost is-sm" id="randomSpacedSelectionButton">4곳 랜덤</button>
+              <button type="button" class="tw-button is-ghost is-sm" id="clearSelectionButton">선택 해제</button>
+              <button type="button" class="tw-button is-sm" id="downloadSelectedCsvButton" disabled>CSV</button>
+            </div>
+          </details>
           <button type="button" class="tw-button is-primary is-sm" id="copyShareLinkButton">링크 복사</button>
         </div>
       </div>
@@ -102,7 +107,7 @@
             </div>
 
             <div class="picker-list">
-              <div class="region-list" id="regionList"></div>
+              <div class="region-list" id="regionList" tabindex="-1"></div>
             </div>
           </aside>
 
@@ -127,6 +132,7 @@
                 <span class="map-summary" id="mapSummary" role="status" aria-live="polite" aria-atomic="true" hidden>지도 준비 중</span>
                 <div class="map-scope" id="mapScopeChips" role="group" aria-label="지도 표시 범위"></div>
               </div>
+              <a class="tw-sr-only map-skip-link" href="#regionList">목록으로 건너뛰기</a>
               <div id="worldMap"></div>
               <div
                 class="map-candidate-picker"
@@ -172,10 +178,10 @@
     <script src="data/korea-climate-data.js?v=20260716"></script>
     <script src="data/korea-peninsula-geo.js"></script>
     <script src="data/vendor-d3.min.js"></script>
-    <script src="chart-kit.js?v=38"></script>
-    <script src="comparison-kit.js?v=38"></script>
-    <script src="map-zoom.js?v=38"></script>
-    <script src="../../ds/motion.js?v=38"></script>
-    <script src="korea-app.js?v=38"></script>
+    <script src="chart-kit.js?v=40"></script>
+    <script src="comparison-kit.js?v=41"></script>
+    <script src="map-zoom.js?v=41"></script>
+    <script src="../../ds/motion.js?v=41"></script>
+    <script src="korea-app.js?v=41"></script>
   </body>
 </html>

@@ -302,19 +302,22 @@ function setSelectionUtilityStatus(message, tone = "success") {
   }, 4200);
 }
 
+let searchRenderTimer = 0;
+
 function bindEvents() {
   elements.selectedRegionsContent?.addEventListener("click", handleClimateCsvDownload);
   elements.comparisonContent?.addEventListener("click", handleClimateCsvDownload);
 
   elements.searchInput?.addEventListener("input", (event) => {
     state.search = event.target.value ?? "";
-    render();
+    clearTimeout(searchRenderTimer);
+    searchRenderTimer = setTimeout(renderBrowse, 120);
   });
 
   elements.regionSortSelect?.addEventListener("change", (event) => {
     state.regionSort = event.target.value || "default";
     pushUrlStateOnNextRender();
-    render();
+    renderBrowse();
   });
 
   elements.randomSpacedSelectionButton?.addEventListener("click", () => {
@@ -325,7 +328,7 @@ function bindEvents() {
     state.selectedIds.clear();
     state.comparisonBaseline = "mean";
     pushUrlStateOnNextRender();
-    render();
+    renderSelection();
   });
 
   elements.copyShareLinkButton?.addEventListener("click", () => {
@@ -341,7 +344,7 @@ function bindEvents() {
     }
     state.nation = button.dataset.nation;
     pushUrlStateOnNextRender();
-    render();
+    renderBrowse();
     restoreFocusByDataAttribute("data-nation", button.dataset.nation);
   });
 
@@ -352,7 +355,7 @@ function bindEvents() {
     }
     state.zone = button.dataset.zone;
     pushUrlStateOnNextRender();
-    render();
+    renderBrowse();
     restoreFocusByDataAttribute("data-zone", button.dataset.zone);
   });
 
@@ -363,7 +366,7 @@ function bindEvents() {
     }
     state.mapScope = button.dataset.mapScope;
     pushUrlStateOnNextRender();
-    render();
+    renderBrowse();
     restoreFocusByDataAttribute("data-map-scope", button.dataset.mapScope);
   });
 
@@ -390,6 +393,8 @@ function bindEvents() {
       return;
     }
 
+    if (window.ClimateMapZoom?.focusMarkerOnMobile(marker)) return;
+
     // Direct selection; dense areas are handled by zoom (map-zoom.js) and the 주요 지점 scope.
     const regionId = marker.dataset.mapRegionId;
     closeMapCandidatePicker();
@@ -415,7 +420,7 @@ function bindEvents() {
     const modeButton = event.target.closest("[data-comparison-mode]");
     if (!modeButton) return;
     state.comparisonMode = modeButton.dataset.comparisonMode === "deviation" ? "deviation" : "value";
-    render();
+    renderComparisonOnly();
     restoreFocusByDataAttribute("data-comparison-mode", state.comparisonMode);
   });
 
@@ -426,7 +431,7 @@ function bindEvents() {
     }
     state.comparisonBaseline = select.value || "mean";
     pushUrlStateOnNextRender();
-    render();
+    renderComparisonOnly();
   });
 
   window.addEventListener("popstate", restoreUrlStateFromHistory);
@@ -573,7 +578,7 @@ function toggleSelection(regionId, focusAttribute = "") {
     state.selectedIds.add(regionId);
   }
   pushUrlStateOnNextRender();
-  render();
+  renderSelection();
   restoreFocusByDataAttribute(focusAttribute, regionId);
 }
 
@@ -595,7 +600,6 @@ function applyRandomSpacedSelection() {
   state.search = "";
   state.nation = "전체";
   state.zone = "전체";
-  state.mapScope = "selected";
   state.comparisonBaseline = "mean";
   state.selectedIds = new Set(pickedRegions.map((region) => region.id));
 
@@ -663,6 +667,85 @@ function normalizeComparisonBaseline(selectedRegions) {
   if (!selectedRegions.some((region) => region.id === state.comparisonBaseline)) {
     state.comparisonBaseline = "mean";
   }
+}
+
+function finishPartialRender() {
+  const urlSyncMode = nextUrlSyncMode;
+  nextUrlSyncMode = "replace";
+  syncUrlState(urlSyncMode);
+}
+
+function renderBrowse() {
+  clearTimeout(searchRenderTimer);
+  const visibleRegions = sortDisplayedRegions(getVisibleRegions());
+  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  const mapRegions = getMapRegions(visibleRegions, selectedRegions);
+  if (elements.mapSummary) {
+    elements.mapSummary.textContent = state.mapScope === "selected"
+      ? `선택 ${mapRegions.length}개` : `${mapRegions.length}개`;
+  }
+  elements.nationChips.innerHTML = renderNationChips();
+  elements.zoneChips.innerHTML = renderZoneChips();
+  elements.mapScopeChips.innerHTML = renderMapScopeChips();
+  elements.regionList.innerHTML = renderRegionList(visibleRegions);
+  renderMap(visibleRegions, selectedRegions);
+  renderMapCandidatePicker();
+  finishPartialRender();
+}
+
+function syncSelectionControls() {
+  for (const input of elements.regionList.querySelectorAll("input[data-region-checkbox]")) {
+    const selected = state.selectedIds.has(input.dataset.regionCheckbox);
+    input.checked = selected;
+    input.closest(".region-option")?.classList.toggle("is-selected", selected);
+  }
+  for (const marker of elements.worldMap.querySelectorAll("[data-map-region-id]")) {
+    const selected = state.selectedIds.has(marker.dataset.mapRegionId);
+    marker.classList.toggle("is-selected", selected);
+    marker.setAttribute("aria-pressed", String(selected));
+    marker.setAttribute("aria-label", `${marker.dataset.mobileLabel} ${selected ? "선택 해제" : "선택"}`);
+  }
+  elements.worldMap.dispatchEvent(new Event("climate-map-selection"));
+}
+
+function renderSelection() {
+  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  normalizeComparisonBaseline(selectedRegions);
+  const trayMotion = window.TwMotion?.snapshotTray(elements.selectedTray);
+  const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
+  resetClimateCsvExports();
+  if (elements.selectionSummary) elements.selectionSummary.textContent = `${selectedRegions.length}개 선택됨`;
+  if (elements.selectedTray) {
+    elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
+    window.TwMotion?.animateTray(elements.selectedTray, trayMotion);
+  }
+  if (elements.downloadSelectedCsvButton) {
+    elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
+    elements.downloadSelectedCsvButton.textContent = selectedRegions.length
+      ? `선택 ${selectedRegions.length}개 CSV` : "선택 데이터 CSV";
+  }
+  if (state.mapScope === "all") {
+    syncSelectionControls();
+  } else {
+    const visibleRegions = sortDisplayedRegions(getVisibleRegions());
+    const mapRegions = getMapRegions(visibleRegions, selectedRegions);
+    if (elements.mapSummary) elements.mapSummary.textContent = state.mapScope === "selected"
+      ? `선택 ${mapRegions.length}개` : `${mapRegions.length}개`;
+    renderMap(visibleRegions, selectedRegions);
+  }
+  elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
+  elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
+  finishPartialRender();
+}
+
+function renderComparisonOnly() {
+  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  normalizeComparisonBaseline(selectedRegions);
+  const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
+  elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
+  finishPartialRender();
 }
 
 function render() {
@@ -1001,6 +1084,8 @@ function renderComparison(regions) {
   });
 }
 
+let koreaMapGeometry = null;
+
 function renderMap(visibleRegions, selectedRegions) {
   const d3 = window.d3;
   const countries = window.KOREA_PENINSULA_GEOJSON;
@@ -1018,20 +1103,17 @@ function renderMap(visibleRegions, selectedRegions) {
   );
   const width = KOREA_MAP_VIEWBOX.width;
   const height = KOREA_MAP_VIEWBOX.height;
-  const projection = d3
-    .geoMercator()
-    .fitExtent(
-      [
-        [KOREA_MAP_PADDING.left, KOREA_MAP_PADDING.top],
-        [width - KOREA_MAP_PADDING.right, height - KOREA_MAP_PADDING.bottom],
-      ],
-      countries
-    )
-    .clipExtent([
-      [0, 0],
-      [width, height],
-    ]);
-  const path = d3.geoPath(projection);
+  if (!koreaMapGeometry) {
+    const projection = d3.geoMercator()
+      .fitExtent(
+        [[KOREA_MAP_PADDING.left, KOREA_MAP_PADDING.top],
+          [width - KOREA_MAP_PADDING.right, height - KOREA_MAP_PADDING.bottom]],
+        countries
+      )
+      .clipExtent([[0, 0], [width, height]]);
+    koreaMapGeometry = { projection, landPath: d3.geoPath(projection)(countries) };
+  }
+  const { projection, landPath } = koreaMapGeometry;
 
   const markers = regions
     .map((region) => {
@@ -1046,6 +1128,7 @@ function renderMap(visibleRegions, selectedRegions) {
           type="button"
           class="map-marker ${isSelected ? "is-selected" : ""}"
           data-map-region-id="${region.id}"
+          tabindex="-1"
           data-label="${escapeHtml(`${region.name} · ${region.nation}`)}"
           data-mobile-label="${escapeHtml(region.name)}"
           style="left:${((x / width) * 100).toFixed(3)}%; top:${((y / height) * 100).toFixed(3)}%; --marker-color: #111111;"
@@ -1061,8 +1144,8 @@ function renderMap(visibleRegions, selectedRegions) {
       <svg class="world-map-svg" viewBox="0 0 ${width} ${height}" aria-label="한국 기후 지도">
         <rect class="map-sphere" x="0" y="0" width="${width}" height="${height}"></rect>
         <g>
-          <path class="map-landmass" d="${path(countries)}"></path>
-          <path class="map-country-borders" d="${path(countries)}"></path>
+          <path class="map-landmass" d="${landPath}"></path>
+          <path class="map-country-borders" d="${landPath}"></path>
         </g>
       </svg>
       <div class="world-map-markers">${markers}</div>

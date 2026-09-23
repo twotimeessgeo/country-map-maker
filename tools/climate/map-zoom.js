@@ -154,6 +154,24 @@
     return [event.clientX - rect.left, event.clientY - rect.top];
   }
 
+  function focusMarkerOnMobile(marker) {
+    if (!frame || !marker || !matchMedia("(max-width: 760px)").matches || view.k > 1.001) return false;
+    const rect = marker.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const crowded = markers.some((other) => {
+      if (other === marker || other.hidden) return false;
+      const point = other.getBoundingClientRect();
+      return Math.hypot(point.left + point.width / 2 - centerX, point.top + point.height / 2 - centerY) < 20;
+    });
+    if (!crowded) return false;
+    const [x, y] = local({ clientX: centerX, clientY: centerY });
+    zoomAt(2, x, y, true);
+    return true;
+  }
+
+  window.ClimateMapZoom = { focusMarkerOnMobile };
+
   function attach() {
     const next = host.querySelector(".world-map-frame");
     if (!next || next === frame) return;
@@ -180,6 +198,7 @@
 
   new MutationObserver(attach).observe(host, { childList: true, subtree: true });
   attach();
+  host.addEventListener("climate-map-selection", apply);
 
   host.addEventListener("click", (event) => {
     const button = event.target.closest(".map-zoom-controls button");

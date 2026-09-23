@@ -6,7 +6,7 @@
 (function () {
   const INK = "#0d0d0d";
   const INK_2 = "#5d5d5d";
-  const INK_3 = "#8f8f8f";
+  const INK_3 = "#737373";
   const BAR = "#d4d4d4";
   const BAR_DARK = "#8f8f8f";
   const GRID = "rgba(0, 0, 0, 0.08)";
@@ -75,7 +75,7 @@
     return `<div class="chart-legend">${names
       .map((name, index) => {
         const style = seriesStyle(index);
-        return `<span><svg width="28" height="12" viewBox="0 0 28 12" aria-hidden="true"><line x1="1" y1="6" x2="27" y2="6" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" />${marker(style.marker, 14, 6, 3.2)}</svg>${esc(name)}</span>`;
+        return `<button type="button" class="chart-legend-item" data-chart-series="${index}" aria-pressed="false"><svg width="28" height="12" viewBox="0 0 28 12" aria-hidden="true"><line x1="1" y1="6" x2="27" y2="6" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" />${marker(style.marker, 14, 6, 3.2)}</svg>${esc(name)}</button>`;
       })
       .join("")}</div>`;
   }
@@ -111,22 +111,24 @@
     series.forEach((item, index) => {
       const style = seriesStyle(index);
       const points = item.values.map((value, i) => [x(i), axis.y(value), value]).filter((point) => Number.isFinite(point[2]));
-      body += `<polyline class="tw-chart-line tw-value-shape" points="${points.map((p) => `${p[0]},${p[1]}`).join(" ")}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" stroke-linejoin="round" />`;
+      body += `<g class="kit-line-series" data-series-index="${index}"><polyline class="tw-chart-line tw-value-shape" points="${points.map((p) => `${p[0]},${p[1]}`).join(" ")}" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="${style.dash}" stroke-linejoin="round" />`;
       body += points
         .map((p, i) => `<g>${marker(style.marker, p[0], p[1])}<title>${esc(`${item.name}  ${i + 1}월  ${num(p[2], signed)}${unit}`)}</title></g>`)
         .join("");
+      body += "</g>";
     });
-    return frame(width, height, body, label) + legend(series.map((item) => item.name));
+    return `<div class="kit-line-chart ${series.length >= 7 ? "is-many-series" : ""}">${frame(width, height, body, label)}${legend(series.map((item) => item.name))}</div>`;
   }
 
   /* One value per region: dots (temperature) or bars (precipitation) */
   function categoryChart({ categories, values, kind, unit, signed, label }) {
+    if (categories.length >= 7) return horizontalCategoryChart({ categories, values, kind, unit, signed, label });
     const width = 340;
     const height = 230;
     const m = { top: 30, right: 6, bottom: 30, left: 40 };
     const plotW = width - m.left - m.right;
     const plotH = height - m.top - m.bottom;
-    const s = scale(values, { includeZero: true });
+    const s = scale(values, { includeZero: kind !== "dot" || signed });
     const axis = yAxis(s, m, width, plotH, unit, signed);
     const step = plotW / Math.max(categories.length, 1);
     const barW = Math.min(28, step * 0.5);
@@ -150,6 +152,35 @@
       }
     });
     return frame(width, height, body, label);
+  }
+
+  function horizontalCategoryChart({ categories, values, kind, unit, signed, label }) {
+    const width = 600;
+    const height = Math.max(250, categories.length * 32 + 48);
+    const m = { top: 30, right: 34, bottom: 30, left: Math.min(260, Math.max(130, Math.max(...categories.map((name) => name.length)) * 12 + 18)) };
+    const plotW = width - m.left - m.right;
+    const s = scale(values, { includeZero: kind !== "dot" || signed });
+    const x = (value) => m.left + (value - s.lo) / (s.hi - s.lo) * plotW;
+    let body = `<text x="${width - m.right}" y="16" text-anchor="end" fill="${INK_3}">${esc(unit)}</text>`;
+    for (const tick of s.ticks) {
+      body += `<line x1="${x(tick)}" y1="${m.top}" x2="${x(tick)}" y2="${height - m.bottom}" stroke="${tick === 0 ? BASE : GRID}" />`;
+      body += `<text x="${x(tick)}" y="${height - 8}" text-anchor="middle" fill="${INK_2}">${num(tick, signed)}</text>`;
+    }
+    categories.forEach((name, i) => {
+      const cy = m.top + 16 + i * 32;
+      const value = values[i];
+      body += `<text x="${m.left - 10}" y="${cy + 4}" text-anchor="end" font-size="11" fill="${INK_2}">${esc(name)}</text>`;
+      if (!Number.isFinite(value)) return;
+      const tip = `<title>${esc(`${name}  ${num(value, signed)}${unit}`)}</title>`;
+      if (kind === "bar") {
+        const x0 = x(0);
+        const x1 = x(value);
+        body += `<g><rect class="tw-chart-bar tw-value-shape" x="${Math.min(x0, x1)}" y="${cy - 8}" width="${Math.max(Math.abs(x1 - x0), 0.5)}" height="16" rx="3" fill="${BAR}" />${tip}</g>`;
+      } else {
+        body += `<g><circle class="tw-chart-dot tw-value-shape" cx="${x(value)}" cy="${cy}" r="4.5" fill="${INK}" stroke="#ffffff" stroke-width="1.5" />${tip}</g>`;
+      }
+    });
+    return `<div class="kit-horizontal-scroll">${frame(width, height, body, label)}</div>`;
   }
 
   function table(headers, rows) {
@@ -264,6 +295,53 @@
         ${extras}
       </div>`;
   }
+
+  function applyLineHighlight(chart, index) {
+    if (!chart) return;
+    const selected = index === null ? "" : String(index);
+    for (const series of chart.querySelectorAll(".kit-line-series")) {
+      const active = selected !== "" && series.dataset.seriesIndex === selected;
+      series.classList.toggle("is-emphasized", active);
+      series.classList.toggle("is-muted", selected !== "" ? !active : chart.classList.contains("is-many-series"));
+    }
+    for (const item of chart.querySelectorAll(".chart-legend-item")) {
+      item.classList.toggle("is-emphasized", selected !== "" && item.dataset.chartSeries === selected);
+      item.setAttribute("aria-pressed", String(chart.dataset.lockedSeries === item.dataset.chartSeries));
+    }
+  }
+
+  function legendTarget(event) {
+    return event.target.closest?.(".chart-legend-item");
+  }
+
+  document.addEventListener("pointerover", (event) => {
+    const item = legendTarget(event);
+    if (item) applyLineHighlight(item.closest(".kit-line-chart"), item.dataset.chartSeries);
+  });
+  document.addEventListener("pointerout", (event) => {
+    const item = legendTarget(event);
+    if (!item || item.contains(event.relatedTarget)) return;
+    const chart = item.closest(".kit-line-chart");
+    applyLineHighlight(chart, chart.dataset.lockedSeries ?? null);
+  });
+  document.addEventListener("focusin", (event) => {
+    const item = legendTarget(event);
+    if (item) applyLineHighlight(item.closest(".kit-line-chart"), item.dataset.chartSeries);
+  });
+  document.addEventListener("focusout", (event) => {
+    const item = legendTarget(event);
+    if (!item || item.contains(event.relatedTarget)) return;
+    const chart = item.closest(".kit-line-chart");
+    applyLineHighlight(chart, chart.dataset.lockedSeries ?? null);
+  });
+  document.addEventListener("click", (event) => {
+    const item = legendTarget(event);
+    if (!item) return;
+    const chart = item.closest(".kit-line-chart");
+    if (chart.dataset.lockedSeries === item.dataset.chartSeries) delete chart.dataset.lockedSeries;
+    else chart.dataset.lockedSeries = item.dataset.chartSeries;
+    applyLineHighlight(chart, chart.dataset.lockedSeries ?? null);
+  });
 
   window.ComparisonKit = { render };
 })();

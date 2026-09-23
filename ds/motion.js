@@ -141,20 +141,36 @@
   }
 
   window.TwMotion = { snapshotTray, animateTray, snapshotCharts, animateCharts };
+  function syncToolbarMenu() {
+    const narrow = matchMedia("(max-width: 390px)").matches;
+    for (const menu of document.querySelectorAll(".atlas-more")) {
+      if (menu.dataset.toolbarNarrow === String(narrow)) continue;
+      menu.dataset.toolbarNarrow = String(narrow);
+      menu.open = !narrow;
+    }
+  }
   function start() {
     if (!reduced.matches) {
       for (const hero of document.querySelectorAll(".tw-hero")) hero.classList.add("tw-hero-sequence");
     }
     enhance();
+    syncToolbarMenu();
+    window.addEventListener("resize", syncToolbarMenu);
+    for (const menu of document.querySelectorAll(".atlas-more")) {
+      menu.addEventListener("click", (event) => {
+        if (matchMedia("(max-width: 390px)").matches && event.target.closest("button")) menu.open = false;
+      });
+    }
     let pending = false;
-    new MutationObserver(() => {
+    const motionObserver = new MutationObserver(() => {
       if (pending) return;
       pending = true;
       requestAnimationFrame(() => {
         pending = false;
         enhance();
       });
-    }).observe(document.body, { childList: true, subtree: true });
+    });
+    if (document.body) motionObserver.observe(document.body, { childList: true, subtree: true });
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start, { once: true });
   else start();

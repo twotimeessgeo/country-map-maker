@@ -53,6 +53,25 @@
   flex: 0 0 auto;
 }
 
+.atlas-more.tw-nav-menu {
+  display: block;
+}
+
+.atlas-more > summary {
+  display: none;
+}
+
+.atlas-more-panel.tw-nav-menu-panel {
+  position: static;
+  display: flex;
+  gap: 4px;
+  width: auto;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
 /* ───────── Selection workspace ───────── */
 
 .layout {
@@ -371,6 +390,20 @@
 .map-card {
   display: grid;
   gap: var(--tw-space-3);
+}
+
+.map-skip-link:focus-visible {
+  position: relative;
+  z-index: 6;
+  width: max-content;
+  height: auto;
+  margin: 0;
+  padding: 8px 14px;
+  overflow: visible;
+  clip: auto;
+  border-radius: var(--tw-radius-pill);
+  background: var(--tw-ink);
+  color: var(--tw-inverse);
 }
 
 .map-card-head {
@@ -1990,6 +2023,16 @@ tfoot td {
     display: none;
   }
 
+  #worldMap {
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .world-map-frame.is-natural:not(.is-korea) {
+    width: max(100%, 600px);
+  }
+
   .atlas-select {
     padding-top: var(--tw-space-6);
   }
@@ -2098,6 +2141,39 @@ tfoot td {
 
   table {
     min-width: 460px;
+  }
+}
+
+@media (max-width: 390px) {
+  .atlas-actions {
+    overflow: visible;
+    gap: 6px;
+  }
+  .atlas-count { order: 1; }
+  #copyShareLinkButton { order: 2; margin-left: auto; }
+  .atlas-more { order: 3; }
+  .atlas-more > summary {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    font-size: 20px;
+    line-height: 1;
+  }
+  .atlas-more-panel.tw-nav-menu-panel {
+    position: absolute;
+    z-index: 10;
+    top: calc(100% + 8px);
+    right: 0;
+    display: grid;
+    width: 160px;
+    padding: 6px;
+    border-radius: var(--tw-radius-md);
+    background: var(--tw-bg);
+    box-shadow: var(--tw-shadow-pop);
+  }
+  .atlas-more-panel .tw-button {
+    justify-content: flex-start;
   }
 }
 
@@ -2298,10 +2374,48 @@ tfoot td {
   font-size: var(--tw-text-xs);
 }
 
-.chart-legend span {
+.kit-horizontal-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.kit-horizontal-scroll .kit-chart {
+  width: 600px;
+  max-width: none;
+}
+
+.chart-legend-item {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  border: 0;
+  border-radius: var(--tw-radius-pill);
+  padding: 2px 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out);
+}
+
+.chart-legend-item:hover,
+.chart-legend-item:focus-visible,
+.chart-legend-item.is-emphasized {
+  background: var(--tw-surface);
+  color: var(--tw-ink);
+}
+
+.kit-line-series {
+  transition: opacity var(--tw-dur-1) var(--tw-ease-out);
+}
+
+.kit-line-chart.is-many-series .kit-line-series,
+.kit-line-series.is-muted {
+  opacity: 0.25;
+}
+
+.kit-line-chart .kit-line-series.is-emphasized {
+  opacity: 1;
 }
 
 .kit-chart g:hover circle,

@@ -844,6 +844,8 @@ async function fetchWorldTopologyWithFallback(urls) {
   throw lastError ?? new Error("세계 지도 데이터를 불러오지 못했습니다.");
 }
 
+let searchRenderTimer = 0;
+
 function bindEvents() {
   elements.selectedTray?.addEventListener("click", (event) => {
     const chip = event.target.closest("[data-tray-remove-id]");
@@ -852,7 +854,7 @@ function bindEvents() {
     const index = chips.indexOf(chip);
     toggleRegion(chip.dataset.trayRemoveId, false);
     pushUrlStateOnNextRender();
-    render();
+    renderSelection();
     focusSelectedTrayAfterRemoval(index);
   });
 
@@ -868,20 +870,21 @@ function bindEvents() {
 
   elements.searchInput.addEventListener("input", (event) => {
     state.query = event.target.value.trim();
-    render();
+    clearTimeout(searchRenderTimer);
+    searchRenderTimer = setTimeout(renderBrowse, 120);
   });
 
   elements.regionSortSelect?.addEventListener("change", (event) => {
     state.regionSort = event.target.value || "default";
     pushUrlStateOnNextRender();
-    render();
+    renderBrowse();
   });
 
   elements.clearSelectionButton.addEventListener("click", () => {
     state.selectedIds = new Set();
     state.comparisonBaseline = "mean";
     pushUrlStateOnNextRender();
-    render();
+    renderSelection();
   });
 
   elements.randomClimateSelectionButton.addEventListener("click", () => {
@@ -900,7 +903,7 @@ function bindEvents() {
     const modeButton = event.target.closest("[data-comparison-mode]");
     if (!modeButton) return;
     state.comparisonMode = modeButton.dataset.comparisonMode === "deviation" ? "deviation" : "value";
-    render();
+    renderComparisonOnly();
     restoreFocusByDataAttribute("data-comparison-mode", state.comparisonMode);
   });
 
@@ -909,7 +912,7 @@ function bindEvents() {
     if (baselineSelect) {
       state.comparisonBaseline = baselineSelect.value || "mean";
       pushUrlStateOnNextRender();
-      render();
+      renderComparisonOnly();
       return;
     }
 
@@ -998,7 +1001,7 @@ function bindEvents() {
 
     state.continent = button.dataset.continent;
     pushUrlStateOnNextRender();
-    render();
+    renderBrowse();
     restoreFocusByDataAttribute("data-continent", button.dataset.continent);
   });
 
@@ -1010,7 +1013,7 @@ function bindEvents() {
 
     state.hemisphere = button.dataset.hemisphere;
     pushUrlStateOnNextRender();
-    render();
+    renderBrowse();
     restoreFocusByDataAttribute("data-hemisphere", button.dataset.hemisphere);
   });
 
@@ -1022,7 +1025,7 @@ function bindEvents() {
 
     state.climateGroup = button.dataset.climateGroup;
     pushUrlStateOnNextRender();
-    render();
+    renderBrowse();
     restoreFocusByDataAttribute("data-climate-group", button.dataset.climateGroup);
   });
 
@@ -1034,7 +1037,7 @@ function bindEvents() {
 
     state.mapScope = button.dataset.mapScope;
     pushUrlStateOnNextRender();
-    render();
+    renderBrowse();
     restoreFocusByDataAttribute("data-map-scope", button.dataset.mapScope);
   });
 
@@ -1047,7 +1050,7 @@ function bindEvents() {
     const regionId = input.dataset.regionId;
     toggleRegion(regionId, input.checked);
     pushUrlStateOnNextRender();
-    render();
+    renderSelection();
     restoreFocusByDataAttribute("data-region-id", regionId);
   });
 
@@ -1057,12 +1060,14 @@ function bindEvents() {
       return;
     }
 
+    if (window.ClimateMapZoom?.focusMarkerOnMobile(button)) return;
+
     // Direct selection; dense areas are handled by zoom (map-zoom.js).
     const regionId = button.dataset.mapRegionId;
     closeMapCandidatePicker();
     toggleRegion(regionId, !state.selectedIds.has(regionId));
     pushUrlStateOnNextRender();
-    render();
+    renderSelection();
     restoreFocusByDataAttribute("data-map-region-id", regionId);
   });
 
@@ -1081,7 +1086,7 @@ function bindEvents() {
     const regionId = candidateButton.dataset.mapCandidateId;
     toggleRegion(regionId, !state.selectedIds.has(regionId));
     pushUrlStateOnNextRender();
-    render();
+    renderSelection();
     restoreFocusByDataAttribute("data-map-candidate-id", regionId);
   });
 
@@ -1274,7 +1279,6 @@ function applyRandomClimateSelection() {
   state.continent = "전체";
   state.hemisphere = "전체";
   state.climateGroup = "전체";
-  state.mapScope = "selected";
   state.comparisonBaseline = "mean";
 }
 
@@ -1714,6 +1718,85 @@ function setSelectionUtilityStatus(message, tone = "success") {
     elements.selectionUtilityStatus.textContent = "";
     elements.selectionUtilityStatus.classList.remove("is-warning", "is-error");
   }, 4200);
+}
+
+function finishPartialRender() {
+  const urlSyncMode = nextUrlSyncMode;
+  nextUrlSyncMode = "replace";
+  syncUrlState(urlSyncMode);
+}
+
+function renderBrowse() {
+  clearTimeout(searchRenderTimer);
+  const visibleRegions = sortDisplayedRegions(getVisibleRegions());
+  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  const mappableRegions = getMapRegions(visibleRegions, selectedRegions);
+  elements.mapSummary.textContent = buildMapSummary(mappableRegions, selectedRegions);
+  elements.continentChips.innerHTML = renderContinentChips();
+  elements.hemisphereChips.innerHTML = renderHemisphereChips();
+  elements.climateChips.innerHTML = renderClimateChips();
+  elements.mapScopeChips.innerHTML = renderMapScopeChips();
+  elements.regionList.innerHTML = renderRegionOptions(visibleRegions);
+  elements.worldMap.innerHTML = renderWorldMap(mappableRegions);
+  applyMapMarkerLayout();
+  renderMapCandidatePicker();
+  finishPartialRender();
+}
+
+function syncSelectionControls() {
+  for (const input of elements.regionList.querySelectorAll("input[data-region-id]")) {
+    const selected = state.selectedIds.has(input.dataset.regionId);
+    input.checked = selected;
+    input.closest(".region-option")?.classList.toggle("is-selected", selected);
+  }
+  for (const marker of elements.worldMap.querySelectorAll("[data-map-region-id]")) {
+    const selected = state.selectedIds.has(marker.dataset.mapRegionId);
+    marker.classList.toggle("is-selected", selected);
+    marker.setAttribute("aria-pressed", String(selected));
+    marker.setAttribute("aria-label", `${marker.dataset.label} ${selected ? "선택 해제" : "선택"}`);
+  }
+  elements.worldMap.dispatchEvent(new Event("climate-map-selection"));
+}
+
+function renderSelection() {
+  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  normalizeComparisonBaseline(selectedRegions);
+  const trayMotion = window.TwMotion?.snapshotTray(elements.selectedTray);
+  const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
+  resetClimateCsvExports();
+  elements.selectionSummary.textContent = `${selectedRegions.length}개 선택됨`;
+  if (elements.selectedTray) {
+    elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
+    window.TwMotion?.animateTray(elements.selectedTray, trayMotion);
+  }
+  if (elements.downloadSelectedCsvButton) {
+    elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
+    elements.downloadSelectedCsvButton.textContent = selectedRegions.length
+      ? `선택 ${selectedRegions.length}개 CSV` : "선택 데이터 CSV";
+  }
+  if (state.mapScope === "selected") {
+    const mappableRegions = getMapRegions([], selectedRegions);
+    elements.mapSummary.textContent = buildMapSummary(mappableRegions, selectedRegions);
+    elements.worldMap.innerHTML = renderWorldMap(mappableRegions);
+    applyMapMarkerLayout();
+  } else {
+    syncSelectionControls();
+  }
+  elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
+  elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
+  finishPartialRender();
+}
+
+function renderComparisonOnly() {
+  const selectedRegions = sortDisplayedRegions(getSelectedRegions());
+  normalizeComparisonBaseline(selectedRegions);
+  const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
+  const wasOpen = elements.comparisonContent.querySelector(".exam-source-panel")?.hasAttribute("open");
+  elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
+  if (wasOpen) elements.comparisonContent.querySelector(".exam-source-panel")?.setAttribute("open", "");
+  finishPartialRender();
 }
 
 function render() {
@@ -5340,14 +5423,18 @@ function renderWorldMap(regions) {
   `;
 }
 
+let cachedMapProjection = null;
+let cachedMapBackground = null;
+
 function buildMapProjection() {
   if (!state.worldMapData || !window.d3) {
     return null;
   }
+  if (cachedMapProjection) return cachedMapProjection;
 
   const projection = createMapProjection(window.d3, APP_CONFIG.mapProjection);
   const fitTarget = buildMapFitTarget() ?? state.worldMapData.land;
-  return projection.fitExtent(
+  cachedMapProjection = projection.fitExtent(
     [
       [MAP_PROJECTION_PADDING.left, MAP_PROJECTION_PADDING.top],
       [
@@ -5357,9 +5444,11 @@ function buildMapProjection() {
     ],
     fitTarget
   );
+  return cachedMapProjection;
 }
 
 function renderProjectedWorldMapBackground(projection) {
+  if (cachedMapBackground) return cachedMapBackground;
   const d3 = window.d3;
   const width = MAP_VIEWBOX.width;
   const height = MAP_VIEWBOX.height;
@@ -5381,7 +5470,7 @@ function renderProjectedWorldMapBackground(projection) {
   const equatorLabelPosition =
     shouldShowEquator && projection([174, 0]) ? projection([174, 0]) : [width - 32, height / 2];
 
-  return `
+  cachedMapBackground = `
     <svg class="world-map-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(
       APP_CONFIG.mapAriaLabel
     )}">
@@ -5407,6 +5496,7 @@ function renderProjectedWorldMapBackground(projection) {
       }
     </svg>
   `;
+  return cachedMapBackground;
 }
 
 function renderLegacyWorldMapBackground() {
@@ -5475,6 +5565,7 @@ function renderMapMarker(region, projection = null) {
       type="button"
       class="map-marker ${isSelected ? "is-selected" : ""}"
       data-map-region-id="${region.id}"
+      tabindex="-1"
       data-label="${escapeHtml(region.name)}"
       data-mobile-label="${escapeHtml(region.name)}"
       aria-pressed="${isSelected ? "true" : "false"}"

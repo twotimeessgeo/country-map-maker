@@ -7,7 +7,7 @@
 (function () {
   const INK = "#0d0d0d";
   const INK_2 = "#5d5d5d";
-  const INK_3 = "#8f8f8f";
+  const INK_3 = "#737373";
   const BAR = "#d4d4d4";
   const GRID = "rgba(0, 0, 0, 0.08)";
   const BASE = "rgba(0, 0, 0, 0.28)";
