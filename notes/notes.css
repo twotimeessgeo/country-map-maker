@@ -1,17 +1,17 @@
 html { scroll-behavior: auto; }
 
 .notes-index {
-  padding-top: clamp(56px, 8vw, 112px);
+  padding-top: clamp(40px, 5vw, 64px);
   padding-bottom: 120px;
 }
 .notes-index-head {
   display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 56px;
+  flex-direction: column;
+  align-items: start;
+  gap: var(--tw-space-4);
+  margin-bottom: var(--tw-space-8);
 }
-.notes-index-head h1 { margin: 0; }
+.notes-index-head h1 { margin: 0; font-size: clamp(2.65rem, 6vw, 4rem); }
 .notes-filters { flex: none; }
 .notes-list { border-top: 1px solid var(--tw-hairline); }
 .notes-list-row {
@@ -216,9 +216,9 @@ html { scroll-behavior: auto; }
   .notes-overview-units { display: none; }
 }
 @media (max-width: 600px) {
-  .notes-index { padding-top: 64px; }
-  .notes-index-head { display: block; margin-bottom: 32px; }
-  .notes-filters { margin-top: 28px; }
+  .notes-index { padding-top: 40px; }
+  .notes-index-head { margin-bottom: 32px; }
+  .notes-filters { margin-top: 0; }
   .notes-list-row { grid-template-columns: 1fr; gap: 14px; padding: 24px 0; }
   .notes-list-row time { padding: 0; }
   .notes-list-title { font-size: 24px; }
