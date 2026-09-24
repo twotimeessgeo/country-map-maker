@@ -19,6 +19,8 @@
   let animation = 0;
   let highResPromise = null;
   let highResTopology = null;
+  let highResRejected = false;
+  let highResPending = false;
   const pointers = new Map();
   let pinch = null;
   let suppressClick = false;
@@ -147,7 +149,7 @@
   }
 
   async function loadHighResolution() {
-    if (frame.dataset.mapResolution === "10m") return;
+    if (frame.dataset.mapResolution === "10m" || highResRejected || highResPending) return;
     if (!highResPromise) {
       highResPromise = fetch("./data/world-countries-10m.json")
         .then((response) => {
@@ -164,9 +166,27 @@
       const path = window.d3.geoPath(projection);
       const countries = highResTopology.objects.countries;
       const land = highResTopology.objects.land ?? countries;
-      svg.querySelector(".map-landmass")?.setAttribute("d", path(window.topojson.feature(highResTopology, land)));
-      svg.querySelector(".map-country-borders")?.setAttribute("d", path(window.topojson.mesh(highResTopology, countries, (a, b) => a !== b)));
-      frame.dataset.mapResolution = "10m";
+      const landFeature=window.topojson.feature(highResTopology,land);
+      const countryFeatures=window.topojson.feature(highResTopology,countries);
+      const features=countryFeatures.type==="FeatureCollection"?countryFeatures.features:[countryFeatures];
+      if(window.d3.geoArea(landFeature)>2*Math.PI||features.some(feature=>window.d3.geoArea(feature)>2*Math.PI)) {
+        highResRejected=true;
+        console.warn("High-resolution map has invalid polygon winding; keeping 50m map");
+        return;
+      }
+      const landPath=path(landFeature);
+      const borderPath=path(window.topojson.mesh(highResTopology,countries,(a,b)=>a!==b));
+      const nextFrame=frame,nextSvg=svg;
+      highResPending=true;
+      requestAnimationFrame(()=>{
+        highResPending=false;
+        if(frame!==nextFrame||svg!==nextSvg||view.k<3||nextFrame.classList.contains("is-korea"))return;
+        const landNode=nextSvg.querySelector(".map-landmass"),borderNode=nextSvg.querySelector(".map-country-borders");
+        if(!landNode||!borderNode)return;
+        landNode.setAttribute("d",landPath);
+        borderNode.setAttribute("d",borderPath);
+        nextFrame.dataset.mapResolution="10m";
+      });
     } catch (error) {
       highResPromise = null;
       console.warn("High-resolution map unavailable", error);

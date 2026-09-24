@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { execFileSync } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
+import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -25,6 +26,30 @@ const htmlFiles = isSourceCheck
     ]
   : publicHtmlFiles;
 const errors = [];
+try {
+  const geo=vm.createContext({window:{}});
+  for(const name of ["vendor-d3.min.js","vendor-topojson-client.min.js"])
+    vm.runInContext(fs.readFileSync(path.join(rootDir,"tools","climate","data",name),"utf8"),geo);
+  const halfSphere=2*Math.PI;
+  for(const resolution of ["110m","50m","10m"]) {
+    const topology=JSON.parse(fs.readFileSync(path.join(rootDir,"tools","climate","data",`world-countries-${resolution}.json`),"utf8"));
+    for(const [name,object] of Object.entries(topology.objects)) {
+      const geometries=object.type==="GeometryCollection"?object.geometries:[object];
+      for(const geometry of geometries) {
+        const polygons=geometry.type==="MultiPolygon"?geometry.arcs:geometry.type==="Polygon"?[geometry.arcs]:[];
+        for(const rings of polygons)if(geo.d3.geoArea(geo.topojson.feature(topology,{type:"Polygon",arcs:rings}))>halfSphere)
+          errors.push(`Climate ${resolution} ${name} 폴리곤 방향 오류`);
+      }
+    }
+  }
+  vm.runInContext(fs.readFileSync(path.join(rootDir,"tools","climate","data","korea-peninsula-geo.js"),"utf8"),geo);
+  for(const feature of geo.window.KOREA_PENINSULA_GEOJSON.features) {
+    const geometry=feature.geometry;
+    const polygons=geometry.type==="MultiPolygon"?geometry.coordinates:geometry.type==="Polygon"?[geometry.coordinates]:[];
+    for(const coordinates of polygons)if(geo.d3.geoArea({type:"Polygon",coordinates})>halfSphere)
+      errors.push("Climate 한반도 폴리곤 방향 오류");
+  }
+} catch(error) {errors.push(`Climate 지도 방향 검사 실패: ${error.message}`);}
 let localReferenceCount = 0;
 const unpublishedToolRoots = [
   "tools/choices", "map.html", "app.js", "styles.css", "vendor",
