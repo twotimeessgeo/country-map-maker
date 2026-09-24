@@ -1950,16 +1950,14 @@ function renderSelectedRegions(selectedRegions) {
         <article class="region-card world-region-card" data-region-id="${escapeHtml(region.id)}">
           <header class="region-card-head">
             <div class="region-card-title">
-              <h3>${escapeHtml(region.name)}</h3>
+              <div class="region-card-title-line"><h3>${escapeHtml(region.name)}</h3><span class="region-card-climate-pill">${escapeHtml(region.climateCode)}</span></div>
               <p class="region-card-sub">${renderMetaList([
                 countryDisplayName(region),
-                region.climateCode,
-                region.source?.type === "open-meteo-live" ? "Open-Meteo" : "",
-                region.classificationReview?.status === "review-required"
-                  ? `자료상 ${region.classificationReview.appDerivedGroup}`
-                  : "",
+                region.continent,
+                getHemisphere(region),
               ])}</p>
             </div>
+            ${window.ClimateChartKit.renderLocator(region)}
             <dl class="region-card-stats">
               <div><dt>연평균 기온</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
               <div><dt>연 강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>

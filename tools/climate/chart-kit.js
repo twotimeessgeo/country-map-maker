@@ -196,5 +196,18 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", startResizeTracking, { once: true });
   else startResizeTracking();
 
-  window.ClimateChartKit = { buildScale, render };
+  function renderLocator(region, isKorea = false) {
+    const coordinates = region.coordinates;
+    const map = isKorea ? window.KOREA_PENINSULA_GEOJSON : null;
+    const projection = isKorea
+      ? window.d3.geoMercator().fitExtent([[2, 2], [62, 32]], map)
+      : window.d3.geoEquirectangular().translate([32, 17]).scale(64 / (2 * Math.PI));
+    const point = coordinates && projection([coordinates.longitude, coordinates.latitude]);
+    const dot = point && point.every(Number.isFinite)
+      ? `<span class="region-card-locator-dot" style="left:${Math.max(0, Math.min(100, point[0] / 64 * 100)).toFixed(2)}%;top:${Math.max(0, Math.min(100, point[1] / 34 * 100)).toFixed(2)}%"></span>`
+      : "";
+    return `<span class="region-card-locator" aria-hidden="true"><img src="./data/${isKorea ? "korea" : "world"}-mini.svg" alt="" width="64" height="34">${dot}</span>`;
+  }
+
+  window.ClimateChartKit = { buildScale, render, renderLocator };
 })();

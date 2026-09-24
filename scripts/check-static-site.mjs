@@ -26,6 +26,18 @@ const htmlFiles = isSourceCheck
     ]
   : publicHtmlFiles;
 const errors = [];
+if (isSourceCheck) {
+  try {
+    execFileSync(process.execPath, [path.join(projectRoot, "scripts", "build-climate-mini-maps.mjs"), "--check"], { stdio: "pipe" });
+  } catch (error) {
+    errors.push(`Climate 위치 지도 생성본 검사 실패: ${error.message}`);
+  }
+}
+for (const name of ["world-mini.svg", "korea-mini.svg"]) {
+  if (!fs.existsSync(path.join(rootDir, "tools", "climate", "data", name))) {
+    errors.push(`Climate 위치 지도가 없습니다: ${name}`);
+  }
+}
 try {
   const geo=vm.createContext({window:{}});
   for(const name of ["vendor-d3.min.js","vendor-topojson-client.min.js"])

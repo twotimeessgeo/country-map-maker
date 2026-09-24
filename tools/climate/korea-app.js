@@ -1048,7 +1048,6 @@ function renderRegionCard(region, sharedChartScale) {
     coldDays: region.monthlyColdDaysBelowZero[monthIndex],
     hotDays: region.monthlyHotDaysAboveTwentyFiveMin[monthIndex],
   }));
-  const annualRange = getAnnualTemperatureRange(region);
   const csvKey = registerClimateCsvExport(
     `korea-region-${region.id}-raw`,
     ["월", "월평균 기온(°C)", "월 강수량(mm)", "영하 일수", "열대야 일수"],
@@ -1076,12 +1075,12 @@ function renderRegionCard(region, sharedChartScale) {
       <header class="region-card-head">
         <div class="region-card-title">
           <h3>${escapeHtml(region.name)}</h3>
-          <p class="region-card-sub">${renderMetaList([region.nation, region.zone])}</p>
+          <p class="region-card-sub">${renderMetaList([region.nation, "아시아", region.coordinates?.latitude < 0 ? "남반구" : "북반구"])}</p>
         </div>
+        ${window.ClimateChartKit.renderLocator(region, true)}
         <dl class="region-card-stats">
           <div><dt>연평균 기온</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
           <div><dt>연 강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
-          <div><dt>연교차</dt><dd>${formatTemp(annualRange)}</dd></div>
         </dl>
       </header>
       <div class="region-card-chart">

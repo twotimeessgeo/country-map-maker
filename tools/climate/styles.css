@@ -875,8 +875,13 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 400px); justify-self: c
   gap: var(--tw-space-4);
   padding: var(--tw-space-6);
   border-radius: var(--tw-radius-xl);
+  border: 1px solid var(--tw-hairline);
   background: var(--tw-bg);
-  box-shadow: inset 0 0 0 1px var(--tw-hairline);
+  transition: background-color 120ms var(--tw-ease-out);
+}
+
+.region-card:hover {
+  background: var(--tw-surface);
 }
 
 .region-card h3 {
@@ -906,30 +911,82 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 400px); justify-self: c
 }
 
 .region-card-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--tw-space-3) var(--tw-space-6);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: 34px auto;
+  gap: var(--tw-space-3) var(--tw-space-4);
 }
 
 .region-card-title {
   min-width: 0;
+  grid-row: 1 / 3;
 }
 
 .region-card-title h3 {
   margin: 0;
+  font-size: 22px;
+}
+
+.region-card-title-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.region-card-climate-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 2px 8px;
+  border: 1px solid var(--tw-hairline-strong);
+  border-radius: var(--tw-radius-pill);
+  color: var(--tw-ink-2);
+  font-family: var(--tw-font-latin);
+  font-size: 12px;
+  font-weight: 300;
+}
+
+.region-card-locator {
+  position: relative;
+  display: block;
+  width: 64px;
+  height: 34px;
+  justify-self: end;
+}
+
+.region-card-locator img {
+  display: block;
+  width: 64px;
+  height: 34px;
+}
+
+.region-card-locator-dot {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--tw-bg);
+  border-radius: 50%;
+  background: var(--tw-ink);
+  transform: translate(-50%, -50%);
 }
 
 .region-card-sub {
   margin-top: 2px;
   color: var(--tw-ink-3);
   font-size: var(--tw-text-sm);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.region-card-sub .tw-meta-list {
+  flex-wrap: nowrap;
 }
 
 .region-card-stats {
   display: flex;
-  gap: var(--tw-space-5);
+  justify-content: flex-end;
+  gap: var(--tw-space-4);
   margin: 0;
 }
 
@@ -941,14 +998,14 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 400px); justify-self: c
 
 .region-card-stats dt {
   color: var(--tw-ink-3);
-  font-size: var(--tw-text-xs);
+  font-size: 12px;
 }
 
 .region-card-stats dd {
   margin: 0;
   font-family: var(--tw-font-latin);
-  font-size: var(--tw-text-lg);
-  font-weight: var(--tw-weight-latin);
+  font-size: 32px;
+  font-weight: 200;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -996,7 +1053,8 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 400px); justify-self: c
 }
 
 .custom-region-delete-button {
-  flex: 0 0 auto;
+  grid-column: 2;
+  justify-self: end;
 }
 
 /* Raw-data disclosures */
@@ -2095,8 +2153,17 @@ tfoot td {
 }
 
 @media (max-width: 760px) {
+  .region-card-title {
+    grid-row: 1;
+  }
+
   .region-card-stats {
-    gap: var(--tw-space-4);
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+
+  .custom-region-delete-button {
+    grid-column: 1 / -1;
   }
 }
 
