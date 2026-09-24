@@ -49,6 +49,7 @@ const provinceShort = new Map(Object.entries({
 function cleanLabel(value) {
   return labels.get(value) || value;
 }
+function renewableText(value) {return value.replace(/신재생|(?<!신·)재생/g,"신·재생");}
 function polishView(table,view) {
   const originalNote=view.note || "";
   const aggregate=originalNote.includes("수록 국가 합산");
@@ -59,7 +60,7 @@ function polishView(table,view) {
     view.note="* 국가 합산";
   } else if (["종사자 10명 이상 사업체","2011년 = 100","잠정"].includes(originalNote)) view.note=originalNote;
 
-  view.label=cleanLabel(view.label);
+  view.label=renewableText(cleanLabel(view.label));
   if(view.label==="취업 구조")view.label="산업 구조";
   if(table.id==="korea-population-compare"&&view.label==="이동")view.label="순이동";
   if(table.id==="world-urban-compare"&&view.label==="도시 증가")view.label="도시 인구 증가율";
@@ -75,7 +76,7 @@ function polishView(table,view) {
       if(column.label==="2025년")column.label="2025";
       if(column.label==="2026년 1~5월")column.label="2026.1~5";
     }
-    column.label=cleanLabel(column.label);
+    column.label=renewableText(cleanLabel(column.label));
     if(noUnit.has(column.label))column.unit="";
   }
   if(table.id==="world-monsoon-compare"||table.id==="world-dry-compare"||table.id==="world-europe-america-compare"||table.id==="world-africa-latin-compare") {
@@ -110,7 +111,7 @@ function polishView(table,view) {
   }
   if(table.id==="world-africa-latin-compare"&&view.label==="자원")view.label="수출 구성";
   if(table.id==="korea-small-farms")for(const row of view.rows)row.label=provinceShort.get(row.label)||row.label;
-  for(const row of view.rows)row.label=industryNames.get(row.label)||row.label;
+  for(const row of view.rows)row.label=renewableText(industryNames.get(row.label)||row.label);
   for(const sub of view.subviews||[])polishView(table,sub);
 }
 export function polishStatisticsCopy(result) {
@@ -118,7 +119,7 @@ export function polishStatisticsCopy(result) {
   for(const subject of Object.values(result.subjects))for(const topic of subject.topics) {
     const tables=topic.regions?topic.regions.flatMap(region=>region.tables):topic.tables||[];
     for(const table of tables) {
-      table.title=titles[table.id]||table.title;
+      table.title=renewableText(titles[table.id]||table.title);
       if(table.id==="world-religion-rank")for(const view of table.views)view.columns[0].label="신자 수";
       if(table.id==="world-migrant-origins")for(const view of table.views)view.columns[0].label="이주민 수";
       if(table.id==="world-crop-trade-rank")for(const view of table.views)view.columns[0].label="물량";

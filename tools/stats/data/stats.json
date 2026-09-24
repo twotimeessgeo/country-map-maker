@@ -5497,7 +5497,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "신재생 등",
+                      "label": "신·재생 등",
                       "unit": "%"
                     }
                   ],
@@ -5739,7 +5739,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "신재생 등",
+                      "label": "신·재생 등",
                       "unit": "%"
                     }
                   ],
@@ -5953,7 +5953,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "신재생",
+                      "label": "신·재생",
                       "unit": "%"
                     },
                     {
@@ -6104,7 +6104,7 @@
             },
             {
               "id": "korea-renewable-production",
-              "title": "시도별 신재생 에너지 생산량",
+              "title": "시도별 신·재생 에너지 생산량",
               "views": [
                 {
                   "id": "default",
@@ -6258,7 +6258,7 @@
             },
             {
               "id": "korea-renewable-production-region",
-              "title": "권역별 신재생 에너지 생산량",
+              "title": "권역별 신·재생 에너지 생산량",
               "views": [
                 {
                   "id": "default",
@@ -12581,7 +12581,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "신재생",
+                      "label": "신·재생",
                       "unit": "%"
                     }
                   ],
@@ -12818,7 +12818,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "신재생",
+                      "label": "신·재생",
                       "unit": "%"
                     },
                     {
@@ -13270,7 +13270,7 @@
                       ]
                     },
                     {
-                      "label": "재생",
+                      "label": "신·재생",
                       "values": [
                         32.7,
                         5.5
@@ -13862,7 +13862,7 @@
             },
             {
               "id": "world-renewable-generation-rank",
-              "title": "신재생 발전 비율 상위 국가",
+              "title": "신·재생 발전 비율 상위 국가",
               "views": [
                 {
                   "id": "wind",
@@ -14064,7 +14064,7 @@
                 },
                 {
                   "id": "otherrenewables",
-                  "label": "기타 재생",
+                  "label": "기타 신·재생",
                   "rowLabel": "순위",
                   "columns": [
                     {

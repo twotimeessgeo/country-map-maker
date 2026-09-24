@@ -244,7 +244,7 @@ if (isSourceCheck) {
     fs.readFileSync(path.join(rootDir,"tools","stats","app.js"),"utf8"),
     fs.readFileSync(statsPath,"utf8"),
   ].join("\n");
-  for (const forbidden of ["수록", " · ", ";", "아님", "참고값", "재고량"]) {
+  for (const forbidden of ["수록", " · ", ";", "아님", "참고값", "재고량", "신재생"]) {
     if (fs.readFileSync(statsPath,"utf8").includes(forbidden)) errors.push("Statistics 공개 JSON 문구가 남았습니다: " + forbidden);
   }
   for (const forbidden of ["textbook", "교재", "수능특강", "textbook-stats.json", "기독교"]) {
