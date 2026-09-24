@@ -42,6 +42,12 @@
 .stats-chart-switch { margin: 0; width: fit-content; }
 .stats-chart-switch > button { min-width: 38px; padding: 5px 10px; font-size: 11px; }
 .stats-chart { width: 100%; min-width: 0; }
+.stats-small-multiples { display: grid; grid-template-columns: repeat(var(--stats-small-columns, 4), minmax(0, 1fr)); gap: 12px; }
+.stats-small-panel { min-width: 0; padding: 8px; border: 1px solid var(--tw-hairline); border-radius: var(--tw-radius-md); }
+.stats-small-heading { display: flex; justify-content: space-between; gap: 6px; min-width: 0; margin-bottom: 4px; font-size: 12px; white-space: nowrap; }
+.stats-small-heading strong { overflow: hidden; text-overflow: ellipsis; font-weight: var(--tw-weight-medium); }
+.stats-small-heading span { flex: none; font-family: var(--tw-font-latin); font-variant-numeric: tabular-nums; }
+.stats-small-heading small { margin-left: 2px; color: var(--tw-ink-3); font-size: 10px; }
 .stats-plot { display: block; width: 100%; height: auto; max-width: 100%; overflow: visible; font-family: var(--tw-font-latin), var(--tw-font-sans); }
 .stats-line-series.is-muted { opacity: .25; }
 .stats-line-series.is-muted.is-focused { opacity: 1; }

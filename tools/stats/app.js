@@ -312,6 +312,7 @@
     };
     const pinned=groups.ordinary.filter(row=>["national","region"].includes(row.group)||row.label==="전국"||row.label==="특·광역시");
     groups.ordinary=[...pinned,...groups.ordinary.filter(row=>!pinned.includes(row)).sort(compare)];
+    groups.continent=[...groups.continent].sort(compare);
     const order=[...new Set(groups.country.map(row=>row.continent||""))];
     groups.country=order.flatMap(name=>groups.country.filter(row=>(row.continent||"")===name).sort(compare));
     return groups;
@@ -330,10 +331,30 @@
     const digits=Number.isInteger(digitsOverride)?digitsOverride:["%","‰","지수"].includes(unit)?1:/^(명|개|가구|마리|t|천 명|MWh|천 toe)$/.test(unit)?0:1;
     return new Intl.NumberFormat("ko-KR",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(value).replaceAll("-","−");
   }
-  function cellHtml(value,column,digitsOverride) {
+  function displaySpec(unit,values) {
+    const max=Math.max(0,...values.map(value=>Math.abs(typeof value==="object"&&value?value.value:value)).filter(Number.isFinite));
+    if(unit==="명")return max>=1e6?{unit:"백만 명",divisor:1e6}:max>=1e3?{unit:"천 명",divisor:1e3}:{unit,divisor:1};
+    if(unit==="천 명"&&max>=1e3)return {unit:"백만 명",divisor:1e3};
+    if(unit==="t")return max>=1e6?{unit:"백만 t",divisor:1e6}:max>=1e3?{unit:"천 t",divisor:1e3}:{unit,divisor:1};
+    if(unit==="만 t"&&max>=100)return {unit:"백만 t",divisor:100};
+    return {unit,divisor:1};
+  }
+  function displayColumns(view) {
+    if(view.columns.length>=2&&view.columns.every(column=>/^(?:19|20)\d{2}(?:[.~-]\d+)*(?:년)?$/.test(column.label)&&column.unit===view.columns[0].unit)) {
+      const common=displaySpec(view.columns[0].unit||"",view.rows.flatMap(row=>row.values));
+      return view.columns.map(()=>common);
+    }
+    return view.columns.map((column,index)=>displaySpec(column.unit||"",view.rows.map(row=>row.values[index])));
+  }
+  function formatDisplayNumber(value,column,spec,digitsOverride) {
+    if(spec.divisor===1)return formatNumber(value,column.unit,digitsOverride);
+    if(typeof value!=="number")return formatNumber(value,column.unit,digitsOverride);
+    return new Intl.NumberFormat("ko-KR",{maximumFractionDigits:2}).format(value/spec.divisor).replaceAll("-","−");
+  }
+  function cellHtml(value,column,spec,digitsOverride) {
     if(value===null||value===undefined)return '<span class="stats-missing">–</span>';
-    if(typeof value==="object"&&value.name) return '<span class="stats-rank-cell"><strong>'+escapeHtml(value.name)+'</strong><small>'+escapeHtml(formatNumber(value.value,column.unit))+'</small></span>';
-    const display=escapeHtml(formatNumber(value,column.unit,digitsOverride));
+    if(typeof value==="object"&&value.name) return '<span class="stats-rank-cell"><strong>'+escapeHtml(value.name)+'</strong><small>'+escapeHtml(formatDisplayNumber(value.value,column,spec))+'</small></span>';
+    const display=escapeHtml(formatDisplayNumber(value,column,spec,digitsOverride));
     if(typeof value!=="number")return display;
     return '<span class="stats-value">'+display+'</span>';
   }
@@ -358,30 +379,31 @@
       (typeof value==="number"?'<span class="stats-bar-fill" data-bar-key="'+key+'" data-left="'+left+'" data-width="'+width+
       '" style="left:'+left+'%;width:'+width+'%"></span>':"")+'</span></td>';
   }
-  function rowMarkup(row,view,bar,tableId) {
+  function rowMarkup(row,view,display,bar,tableId) {
     const matched=highlight&&normalize(row.label).includes(highlight);
     const aggregate=row.group==="continent"||row.group==="national"||row.group==="region";
     return '<tr class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
-      row.values.map((value,index)=>'<td>'+cellHtml(value,view.columns[index],/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].digits??(view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined))+
-        (row.valueUnit&&index===0?'<small class="stats-value-unit">'+escapeHtml(row.valueUnit)+'</small>':"")+'</td>').join("")+barMarkup(row,bar,tableId)+'</tr>';
+      row.values.map((value,index)=>{const spec=row.valueUnit&&index===0?displaySpec(row.valueUnit,[value]):display[index];
+        return '<td>'+cellHtml(value,view.columns[index],spec,/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].digits??(view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined))+
+        (row.valueUnit&&index===0?'<small class="stats-value-unit">'+escapeHtml(spec.unit)+'</small>':"")+'</td>';}).join("")+barMarkup(row,bar,tableId)+'</tr>';
   }
-  function tbodyMarkup(view,groups,bar,tableId) {
+  function tbodyMarkup(view,display,groups,bar,tableId) {
     const colspan=view.columns.length+1+(bar?1:0);
     const label=name=>'<tr class="is-group-label"><th colspan="'+colspan+'">'+name+'</th></tr>';
     const countryRows=(suppressSubgroup=false)=>{
       let last="";
       return groups.country.map(row=>{
         const heading=!suppressSubgroup&&row.continent&&row.continent!==last?'<tr class="is-subgroup"><th colspan="'+colspan+'">'+escapeHtml(row.continent)+'</th></tr>':"";
-        last=row.continent||last;return heading+rowMarkup(row,view,bar,tableId);
+        last=row.continent||last;return heading+rowMarkup(row,view,display,bar,tableId);
       }).join("");
     };
     if(groups.continent.length&&groups.country.length&&groups.continent.length===1)
-      return '<tbody class="stats-continent">'+groups.continent.map(row=>rowMarkup(row,view,bar,tableId)).join("")+'</tbody>'+
+      return '<tbody class="stats-continent">'+groups.continent.map(row=>rowMarkup(row,view,display,bar,tableId)).join("")+'</tbody>'+
         '<tbody class="stats-country">'+countryRows(true)+'</tbody>';
     if(groups.continent.length||groups.country.length)
-      return (groups.continent.length?'<tbody class="stats-continent">'+label("대륙")+groups.continent.map(row=>rowMarkup(row,view,bar,tableId)).join("")+'</tbody>':"")+
+      return (groups.continent.length?'<tbody class="stats-continent">'+label("대륙")+groups.continent.map(row=>rowMarkup(row,view,display,bar,tableId)).join("")+'</tbody>':"")+
         (groups.country.length?'<tbody class="stats-country">'+label("국가")+countryRows()+'</tbody>':"");
-    return '<tbody>'+groups.ordinary.map(row=>rowMarkup(row,view,bar,tableId)).join("")+'</tbody>';
+    return '<tbody>'+groups.ordinary.map(row=>rowMarkup(row,view,display,bar,tableId)).join("")+'</tbody>';
   }
   function isRankCards(table) {
     return table.views.length>1&&table.views.every(view=>view.columns.length===1&&view.rows.length===5&&/^1위$/.test(view.rows[0].label));
@@ -389,21 +411,23 @@
   function rankCardsMarkup(table) {
     return '<div class="stats-rank-scroll">'+table.views.map(view=>{
       const measure=view.columns[0].label.replace(/^.*? · /,"");
+      const spec=displaySpec(view.columns[0].unit||"",view.rows.map(row=>row.values[0]));
       return '<article class="stats-rank-card"><h3>'+escapeHtml(view.label)+'</h3><table><thead><tr><th>순위</th><th>국가</th><th>'+escapeHtml(measure)+
-        '<small>'+escapeHtml(view.columns[0].unit||"")+'</small></th></tr></thead><tbody>'+view.rows.map(row=>{
+        '<small>'+escapeHtml(spec.unit)+'</small></th></tr></thead><tbody>'+view.rows.map(row=>{
           const value=row.values[0];
-          return '<tr><th scope="row">'+escapeHtml(row.label)+'</th><td>'+escapeHtml(value?.name||"–")+'</td><td>'+escapeHtml(formatNumber(value?.value,view.columns[0].unit))+'</td></tr>';
+          return '<tr><th scope="row">'+escapeHtml(row.label)+'</th><td>'+escapeHtml(value?.name||"–")+'</td><td>'+escapeHtml(formatDisplayNumber(value?.value,view.columns[0],spec))+'</td></tr>';
         }).join("")+'</tbody></table></article>';
     }).join("")+'</div>';
   }
   function renderTable(table) {
     const state=stateFor(table.id),base=table.views[Math.min(state.view,table.views.length-1)],view=activeView(table,state);
     const groups=visibleRows(table,view,state),sort=effectiveSort(table,view,state);
+    const display=displayColumns(view);
     const rankCards=isRankCards(table);
     const bar=table.comparison?comparisonBar(table,view,groups,state):null;
     const kind=window.TWStatsCharts.type(table,view,groups,rankCards);
     const showChart=kind&&chartMode(table.id)==="graph";
-    if(showChart)chartModels.set(table.id,{table,view,groups,sort,bar,kind});
+    if(showChart)chartModels.set(table.id,{table,view,groups,sort,bar,kind,display});
     const wide=table.comparison||rankCards||(table.id!=="world-global-primary-energy"&&table.views.some(item=>item.columns.length>=5))||
       /(?:-history|-city-change|-generation-mix)$/.test(table.id);
     const hasBoth=groupRows(view.rows,null).continent.length>1&&groupRows(view.rows,null).country.length>0;
@@ -426,7 +450,7 @@
         return '<th scope="col" aria-sort="'+(active?(sort.direction==="desc"?"descending":"ascending"):"none")+
           '"><button type="button" class="stats-sort" data-table="'+table.id+'" data-sort="'+(index+1)+'"><span class="stats-sort-main">'+
           escapeHtml(column.label)+(active?'<span class="stats-sort-arrow">'+(sort.direction==="desc"?"↓":"↑")+'</span>':"")+
-          '</span><span class="stats-sort-unit">'+escapeHtml(column.unit||"")+'</span>'+
+          '</span><span class="stats-sort-unit">'+escapeHtml(display[index].unit)+'</span>'+
           (column.qualifier?'<span class="stats-sort-qualifier">'+escapeHtml(column.qualifier)+'</span>':"")+'</button></th>';
       }).join("")+(bar?'<th scope="col" class="stats-bar-head"><span>'+escapeHtml(bar.label)+'</span></th>':"");
     const meta='<div class="tw-meta-list stats-table-meta">'+(view.sources||[]).map(source=>
@@ -435,7 +459,7 @@
     const colgroup='<colgroup><col class="stats-label-col">'+view.columns.map(()=>'<col class="stats-number-col">').join("")+
       (bar?'<col class="stats-bar-col">':"")+'</colgroup>';
     const body=showChart?'<div class="stats-chart" data-table="'+table.id+'"></div>':rankCards?rankCardsMarkup(table):'<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table" style="--stats-numeric-cols:'+view.columns.length+
-      ';--stats-bar-width:'+(bar?"220px":"0px")+';min-width:'+(120+88*view.columns.length+(bar?220:0))+'px">'+colgroup+'<thead><tr>'+headers+'</tr></thead>'+tbodyMarkup(view,groups,bar,table.id)+'</table></div>';
+      ';--stats-bar-width:'+(bar?"220px":"0px")+';min-width:'+(120+88*view.columns.length+(bar?220:0))+'px">'+colgroup+'<thead><tr>'+headers+'</tr></thead>'+tbodyMarkup(view,display,groups,bar,table.id)+'</table></div>';
     const more=table.id==="world-us-state-manufacturing"?'<button type="button" class="tw-button is-ghost is-sm stats-more" data-table="'+table.id+
       '" data-action="more">'+(state.expanded?"접기":"더 보기")+'</button>':"";
     return '<section class="stats-table-section'+(wide?' is-wide':'')+'" id="'+escapeHtml(table.id)+'"><div class="stats-table-top"><h2 class="stats-table-title"><a href="#'+
