@@ -5,7 +5,7 @@
   const chartModels = new Map();
   const chartSeen = new Set();
   let chartResizeObserver = null;
-  let chartResizeTimer = null;
+  let chartResizeFrame = 0;
   let data = null;
   let search = "";
   let highlight = "";
@@ -231,7 +231,10 @@
     const tables=topic.regions?(state.region?.tables||[]):topic.tables||[];
     const previousRows=new Map([...el.statsContent.querySelectorAll(".stats-chart [data-row-key]")].map(row=>[
       row.closest(".stats-chart")?.dataset.table+":"+row.dataset.rowKey,row.getBoundingClientRect().top]));
-    chartResizeObserver?.disconnect();chartModels.clear();
+    chartResizeObserver?.disconnect();
+    if(chartResizeFrame)cancelAnimationFrame(chartResizeFrame);
+    chartResizeFrame=0;
+    chartModels.clear();
     const previousBars=new Map([...el.statsContent.querySelectorAll(".stats-bar-fill[data-bar-key]")]
       .map(bar=>[bar.dataset.barKey,{left:bar.dataset.left,width:bar.dataset.width}]));
     el.statsContent.innerHTML=switcher+(tables.length?'<div class="stats-table-grid">'+tables.map(renderTable).join("")+'</div>':'<p class="stats-empty">표가 없습니다.</p>');
@@ -264,8 +267,8 @@
     chartResizeObserver?.disconnect();
     chartResizeObserver=new ResizeObserver(entries=>{
       if(!entries.some(entry=>entry.target.dataset.renderedWidth!==String(entry.target.clientWidth)))return;
-      clearTimeout(chartResizeTimer);
-      chartResizeTimer=setTimeout(()=>renderCharts(),150);
+      if(chartResizeFrame)cancelAnimationFrame(chartResizeFrame);
+      chartResizeFrame=requestAnimationFrame(()=>{chartResizeFrame=0;renderCharts();});
     });
     charts.forEach(container=>chartResizeObserver.observe(container));
   }

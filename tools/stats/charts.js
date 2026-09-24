@@ -190,7 +190,7 @@
       const name=row.label+(row.aggregateMark?"*":"");
       return `<article class="stats-small-panel" data-row-key="${rowKey(row)}"><div class="stats-small-heading"><strong>${esc(name)}</strong><span>${finite(latest)?displayNum(latest,spec,digitsFor(view.columns[0])):"–"}${spec.unit&&spec.unit!=="지수"?`<small>${esc(spec.unit)}</small>`:""}</span></div>${frame(panelWidth,height,body,`${table.title} ${name}`)}</article>`;
     });
-    return `<div class="stats-small-multiples" style="--stats-small-columns:${columns}">${panels.join("")}</div>`;
+    return `<div class="stats-small-multiples">${panels.join("")}</div>`;
   }
 
   function line(model,width) {
