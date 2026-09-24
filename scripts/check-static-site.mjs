@@ -199,7 +199,8 @@ if (isSourceCheck) {
     const checkTime = (time) => !time || /^\d{4}년(?: \d{1,2}(?:~\d{1,2})?월(?: \d{1,2}일)?| 하반기)?$/.test(time);
     if (!checkTime(view.year)) errors.push("Statistics 기준 시점 표기 오류: " + tableId + " / " + view.year);
     for (const column of view.columns) {
-      if (!checkTime(column.year) || /\d{4}\.\d|\d{4}[–-]\d{4}/.test(column.label)) errors.push("Statistics 열 시점 표기 오류: " + tableId);
+      const compactMonth = /^\d{4}\.\d{1,2}(?:~\d{1,2})?$/.test(column.label);
+      if (!checkTime(column.year) || (/\d{4}\.\d|\d{4}[–-]\d{4}/.test(column.label) && !compactMonth)) errors.push("Statistics 열 시점 표기 오류: " + tableId);
     }
     for (const row of view.rows) {
       if (!row.label || row.values?.length !== view.columns.length || row.values.some((cell) =>
@@ -239,6 +240,9 @@ if (isSourceCheck) {
     fs.readFileSync(path.join(rootDir,"tools","stats","app.js"),"utf8"),
     fs.readFileSync(statsPath,"utf8"),
   ].join("\n");
+  for (const forbidden of ["수록", " · ", ";", "아님", "참고값", "재고량"]) {
+    if (fs.readFileSync(statsPath,"utf8").includes(forbidden)) errors.push("Statistics 공개 JSON 문구가 남았습니다: " + forbidden);
+  }
   for (const forbidden of ["textbook", "교재", "수능특강", "textbook-stats.json", "기독교"]) {
     if (publicStatsText.includes(forbidden)) errors.push("Statistics 공개 파일에 이전 분류 표현이 남았습니다: " + forbidden);
   }

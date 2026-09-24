@@ -31,7 +31,7 @@
                   "rowLabel": "지역",
                   "columns": [
                     {
-                      "label": "주민등록인구",
+                      "label": "인구",
                       "unit": "명",
                       "year": "2026년 6월"
                     },
@@ -217,8 +217,7 @@
                       "year": "2024",
                       "url": "https://stat.molit.go.kr/"
                     }
-                  ],
-                  "internalNote": "인구는 2026년 6월, 밀도와 성비는 2024년 12월 기준"
+                  ]
                 },
                 {
                   "id": "연령",
@@ -226,15 +225,15 @@
                   "rowLabel": "시도",
                   "columns": [
                     {
-                      "label": "유소년",
+                      "label": "유소년층",
                       "unit": "%"
                     },
                     {
-                      "label": "청장년",
+                      "label": "청장년층",
                       "unit": "%"
                     },
                     {
-                      "label": "노년",
+                      "label": "노년층",
                       "unit": "%"
                     },
                     {
@@ -404,8 +403,7 @@
                       "url": "https://jumin.mois.go.kr/"
                     }
                   ],
-                  "year": "2024년 12월",
-                  "internalNote": "5세 구간 주민등록인구 원수로 계산"
+                  "year": "2024년 12월"
                 },
                 {
                   "id": "출생과 사망",
@@ -425,7 +423,7 @@
                       "unit": "명"
                     },
                     {
-                      "label": "자연적 증가",
+                      "label": "자연 증가",
                       "unit": "명"
                     }
                   ],
@@ -591,26 +589,25 @@
                       "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1B81A17&conn_path=ZF"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "출생·사망은 월별 합산"
+                  "year": "2024년"
                 },
                 {
                   "id": "이동",
-                  "label": "이동",
+                  "label": "순이동",
                   "rowLabel": "시도",
                   "columns": [
                     {
-                      "label": "2024년",
+                      "label": "2024",
                       "unit": "명",
                       "year": "2024년"
                     },
                     {
-                      "label": "2025년",
-                      "unit": "명",
+                      "label": "2025",
+                      "unit": "",
                       "year": "2025년"
                     },
                     {
-                      "label": "2026년 1~5월",
+                      "label": "2026.1~5",
                       "unit": "명",
                       "year": "2026년 1~5월"
                     }
@@ -773,15 +770,15 @@
                   "rowLabel": "권역",
                   "columns": [
                     {
-                      "label": "유소년",
+                      "label": "유소년층",
                       "unit": "%"
                     },
                     {
-                      "label": "청장년",
+                      "label": "청장년층",
                       "unit": "%"
                     },
                     {
-                      "label": "노년",
+                      "label": "노년층",
                       "unit": "%"
                     },
                     {
@@ -852,8 +849,7 @@
                       "url": "https://jumin.mois.go.kr/"
                     }
                   ],
-                  "year": "2024년 12월",
-                  "internalNote": "시도별 5세 구간 주민등록인구 합산"
+                  "year": "2024년 12월"
                 }
               ]
             },
@@ -1042,7 +1038,7 @@
           "tables": [
             {
               "id": "korea-daytime-compare",
-              "title": "상주인구와 주간인구",
+              "title": "상주 인구와 주간 인구",
               "comparison": true,
               "views": [
                 {
@@ -1051,16 +1047,16 @@
                   "rowLabel": "구",
                   "columns": [
                     {
-                      "label": "상주인구",
+                      "label": "상주 인구",
                       "unit": "명"
                     },
                     {
-                      "label": "주간인구",
+                      "label": "주간 인구",
                       "unit": "명"
                     },
                     {
-                      "label": "주간인구지수",
-                      "unit": "지수"
+                      "label": "주간 인구 지수",
+                      "unit": ""
                     }
                   ],
                   "rows": [
@@ -1280,16 +1276,16 @@
                   "rowLabel": "구",
                   "columns": [
                     {
-                      "label": "상주인구",
+                      "label": "상주 인구",
                       "unit": "명"
                     },
                     {
-                      "label": "주간인구",
+                      "label": "주간 인구",
                       "unit": "명"
                     },
                     {
-                      "label": "주간인구지수",
-                      "unit": "지수"
+                      "label": "주간 인구 지수",
+                      "unit": ""
                     }
                   ],
                   "rows": [
@@ -1694,24 +1690,24 @@
                   "rowLabel": "시군",
                   "columns": [
                     {
-                      "label": "2011년 12월",
-                      "unit": "지수"
+                      "label": "2011",
+                      "unit": ""
                     },
                     {
-                      "label": "2015년 12월",
-                      "unit": "지수"
+                      "label": "2015",
+                      "unit": ""
                     },
                     {
-                      "label": "2020년 12월",
-                      "unit": "지수"
+                      "label": "2020",
+                      "unit": ""
                     },
                     {
-                      "label": "2025년 12월",
-                      "unit": "지수"
+                      "label": "2025",
+                      "unit": ""
                     },
                     {
-                      "label": "2026년 6월",
-                      "unit": "지수"
+                      "label": "2026.6",
+                      "unit": ""
                     }
                   ],
                   "rows": [
@@ -1844,7 +1840,6 @@
                     }
                   ],
                   "year": "2026년 6월",
-                  "internalNote": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의",
                   "note": "2011년 = 100"
                 },
                 {
@@ -1853,24 +1848,24 @@
                   "rowLabel": "시군",
                   "columns": [
                     {
-                      "label": "2011년 12월",
-                      "unit": "지수"
+                      "label": "2011",
+                      "unit": ""
                     },
                     {
-                      "label": "2015년 12월",
-                      "unit": "지수"
+                      "label": "2015",
+                      "unit": ""
                     },
                     {
-                      "label": "2020년 12월",
-                      "unit": "지수"
+                      "label": "2020",
+                      "unit": ""
                     },
                     {
-                      "label": "2025년 12월",
-                      "unit": "지수"
+                      "label": "2025",
+                      "unit": ""
                     },
                     {
-                      "label": "2026년 6월",
-                      "unit": "지수"
+                      "label": "2026.6",
+                      "unit": ""
                     }
                   ],
                   "rows": [
@@ -2003,7 +1998,6 @@
                     }
                   ],
                   "year": "2026년 6월",
-                  "internalNote": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의",
                   "note": "2011년 = 100"
                 },
                 {
@@ -2012,24 +2006,24 @@
                   "rowLabel": "시군",
                   "columns": [
                     {
-                      "label": "2011년 12월",
-                      "unit": "지수"
+                      "label": "2011",
+                      "unit": ""
                     },
                     {
-                      "label": "2015년 12월",
-                      "unit": "지수"
+                      "label": "2015",
+                      "unit": ""
                     },
                     {
-                      "label": "2020년 12월",
-                      "unit": "지수"
+                      "label": "2020",
+                      "unit": ""
                     },
                     {
-                      "label": "2025년 12월",
-                      "unit": "지수"
+                      "label": "2025",
+                      "unit": ""
                     },
                     {
-                      "label": "2026년 6월",
-                      "unit": "지수"
+                      "label": "2026.6",
+                      "unit": ""
                     }
                   ],
                   "rows": [
@@ -2162,7 +2156,6 @@
                     }
                   ],
                   "year": "2026년 6월",
-                  "internalNote": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의",
                   "note": "2011년 = 100"
                 },
                 {
@@ -2171,24 +2164,24 @@
                   "rowLabel": "시군",
                   "columns": [
                     {
-                      "label": "2011년 12월",
-                      "unit": "지수"
+                      "label": "2011",
+                      "unit": ""
                     },
                     {
-                      "label": "2015년 12월",
-                      "unit": "지수"
+                      "label": "2015",
+                      "unit": ""
                     },
                     {
-                      "label": "2020년 12월",
-                      "unit": "지수"
+                      "label": "2020",
+                      "unit": ""
                     },
                     {
-                      "label": "2025년 12월",
-                      "unit": "지수"
+                      "label": "2025",
+                      "unit": ""
                     },
                     {
-                      "label": "2026년 6월",
-                      "unit": "지수"
+                      "label": "2026.6",
+                      "unit": ""
                     }
                   ],
                   "rows": [
@@ -2321,7 +2314,6 @@
                     }
                   ],
                   "year": "2026년 6월",
-                  "internalNote": "2011년 12월 = 100; 동일 행정구역 경계 비교에 유의",
                   "note": "2011년 = 100"
                 }
               ]
@@ -2343,11 +2335,11 @@
                   "rowLabel": "시도",
                   "columns": [
                     {
-                      "label": "사업체",
+                      "label": "사업체 수",
                       "unit": "개"
                     },
                     {
-                      "label": "종사자",
+                      "label": "종사자 수",
                       "unit": "명"
                     },
                     {
@@ -2501,7 +2493,6 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "종사자 10명 이상 제조업 사업체",
                   "note": "종사자 10명 이상 사업체"
                 },
                 {
@@ -2514,7 +2505,7 @@
                       "unit": "십억 원"
                     },
                     {
-                      "label": "1인당",
+                      "label": "1인당 지역 내 총생산",
                       "unit": "천 원"
                     }
                   ],
@@ -2650,7 +2641,7 @@
                 },
                 {
                   "id": "취업 구조",
-                  "label": "취업 구조",
+                  "label": "산업 구조",
                   "rowLabel": "시도",
                   "columns": [
                     {
@@ -2666,7 +2657,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "서비스업 등",
+                      "label": "서비스업",
                       "unit": "%"
                     }
                   ],
@@ -2832,8 +2823,7 @@
                       "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1DA7E33S_NEW"
                     }
                   ],
-                  "year": "2025년",
-                  "internalNote": "서비스업 등은 사회간접자본 및 기타서비스업(D~U); 2025년 광주·전남 개별 행 사용"
+                  "year": "2025년"
                 }
               ]
             },
@@ -3110,8 +3100,6 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "종사자 10명 이상 사업체; 비공개 X는 빈값",
-                  "note": "종사자 10명 이상 사업체",
                   "subviews": [
                     {
                       "id": "shipments",
@@ -3382,12 +3370,11 @@
                         }
                       ],
                       "year": "2024년",
-                      "internalNote": "종사자 10명 이상 사업체; 비공개 X는 빈값",
                       "note": "종사자 10명 이상 사업체"
                     },
                     {
                       "id": "employees",
-                      "label": "종사자",
+                      "label": "종사자 수",
                       "rowLabel": "시도",
                       "columns": [
                         {
@@ -3654,10 +3641,10 @@
                         }
                       ],
                       "year": "2024년",
-                      "internalNote": "종사자 10명 이상 사업체; 비공개 X는 빈값",
                       "note": "종사자 10명 이상 사업체"
                     }
-                  ]
+                  ],
+                  "note": "종사자 10명 이상 사업체"
                 },
                 {
                   "id": "권역",
@@ -3785,7 +3772,6 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "시도 합산, 종사자 10명 이상 사업체; 비공개 X가 있는 권역은 빈값",
                   "note": "종사자 10명 이상 사업체"
                 }
               ]
@@ -3800,11 +3786,11 @@
                   "rowLabel": "권역",
                   "columns": [
                     {
-                      "label": "사업체",
+                      "label": "사업체 수",
                       "unit": "개"
                     },
                     {
-                      "label": "종사자",
+                      "label": "종사자 수",
                       "unit": "명"
                     },
                     {
@@ -3870,14 +3856,13 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "시도 합산, 종사자 10명 이상 제조업 사업체",
                   "note": "종사자 10명 이상 사업체"
                 }
               ]
             },
             {
               "id": "korea-manufacturing-sectors",
-              "title": "업종별 제조업",
+              "title": "주요 제조업",
               "views": [
                 {
                   "id": "default",
@@ -3885,11 +3870,11 @@
                   "rowLabel": "업종",
                   "columns": [
                     {
-                      "label": "사업체",
+                      "label": "사업체 수",
                       "unit": "개"
                     },
                     {
-                      "label": "종사자",
+                      "label": "종사자 수",
                       "unit": "명"
                     },
                     {
@@ -3915,7 +3900,7 @@
                       ]
                     },
                     {
-                      "label": "화학물질 및 화학제품 제조업; 의약품 제외",
+                      "label": "화학물질 및 화학제품 제조업(의약품 제외)",
                       "values": [
                         3496,
                         157803,
@@ -3963,7 +3948,7 @@
                       ]
                     },
                     {
-                      "label": "금속가공제품 제조업; 기계 및 가구 제외",
+                      "label": "금속가공제품 제조업(기계 및 가구 제외)",
                       "values": [
                         9752,
                         256127,
@@ -4019,7 +4004,7 @@
                       ]
                     },
                     {
-                      "label": "섬유제품 제조업; 의복제외",
+                      "label": "섬유제품 제조업(의복 제외)",
                       "values": [
                         2513,
                         64052,
@@ -4067,7 +4052,7 @@
                       ]
                     },
                     {
-                      "label": "목재 및 나무제품 제조업; 가구 제외",
+                      "label": "목재 및 나무제품 제조업(가구 제외)",
                       "values": [
                         841,
                         18290,
@@ -4107,7 +4092,6 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "종사자 10명 이상 제조업 사업체; 비공개 업종 제외",
                   "note": "종사자 10명 이상 사업체"
                 }
               ]
@@ -4129,7 +4113,7 @@
                   "rowLabel": "지역",
                   "columns": [
                     {
-                      "label": "농가수",
+                      "label": "농가 수",
                       "unit": "가구"
                     }
                   ],
@@ -4347,9 +4331,7 @@
                       "url": "https://stat.molit.go.kr/"
                     }
                   ],
-                  "year": "2025년",
-                  "internalNote": "* 2025년 경지면적을 2024년 12월 말 지적 면적으로 나눈 참고값",
-                  "note": "경지 2025년·면적 2024년"
+                  "year": "2025년"
                 }
               ]
             },
@@ -4371,7 +4353,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "노지 과수",
+                      "label": "과수",
                       "unit": "%"
                     }
                   ],
@@ -4520,8 +4502,7 @@
                       "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0012"
                     }
                   ],
-                  "year": "2025년",
-                  "internalNote": "작물별 전국 재배면적 대비 시도 비중; 채소는 DT_1ET0013, 과수는 DT_1ET0014"
+                  "year": "2025년"
                 },
                 {
                   "id": "지역 내",
@@ -4537,7 +4518,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "노지 과수",
+                      "label": "과수",
                       "unit": "%"
                     }
                   ],
@@ -4686,14 +4667,13 @@
                       "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0012"
                     }
                   ],
-                  "year": "2025년",
-                  "internalNote": "지역 작물재배면적 대비 선택 작물 비중; 다른 작물이 있어 합계는 100%가 아님"
+                  "year": "2025년"
                 }
               ]
             },
             {
               "id": "korea-farm-types",
-              "title": "전·겸업 농가",
+              "title": "전업농가와 겸업농가",
               "views": [
                 {
                   "id": "default",
@@ -4795,8 +4775,7 @@
                       "url": "https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3"
                     }
                   ],
-                  "year": "2024년 12월 1일",
-                  "internalNote": "특·광역시는 세종 포함 통합값; 도별 값은 2024년 농림어업조사 표 1-10"
+                  "year": "2024년 12월 1일"
                 }
               ]
             },
@@ -4988,8 +4967,7 @@
                       "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1EB002&conn_path=ZF"
                     }
                   ],
-                  "year": "2025년",
-                  "internalNote": "밭 면적은 전체 경지에서 논 면적을 뺀 값"
+                  "year": "2025년"
                 }
               ]
             },
@@ -5003,15 +4981,15 @@
                   "rowLabel": "시도",
                   "columns": [
                     {
-                      "label": "작물재배면적",
+                      "label": "재배 면적",
                       "unit": "ha"
                     },
                     {
-                      "label": "시설 작물 면적",
+                      "label": "시설 재배 면적",
                       "unit": "ha"
                     },
                     {
-                      "label": "시설 비율",
+                      "label": "시설 재배 비율",
                       "unit": "%"
                     }
                   ],
@@ -5160,14 +5138,13 @@
                       "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1ET0040"
                     }
                   ],
-                  "year": "2025년",
-                  "internalNote": "시설 면적은 KOSIS DT_1ET0017 선택 세부항목 합산; 시설 내 중복 재배 여부에 유의"
+                  "year": "2025년"
                 }
               ]
             },
             {
               "id": "korea-small-farms",
-              "title": "0.5ha 미만 농가",
+              "title": "경지 0.5ha 미만 농가",
               "views": [
                 {
                   "id": "default",
@@ -5175,73 +5152,73 @@
                   "rowLabel": "시도",
                   "columns": [
                     {
-                      "label": "0.5ha 미만",
+                      "label": "농가 수",
                       "unit": "가구"
                     },
                     {
-                      "label": "전체 농가 비율",
+                      "label": "비율",
                       "unit": "%"
                     }
                   ],
                   "rows": [
                     {
-                      "label": "서울특별시",
+                      "label": "서울",
                       "values": [
                         3778,
                         74.3
                       ]
                     },
                     {
-                      "label": "부산광역시",
+                      "label": "부산",
                       "values": [
                         8109,
                         81.9
                       ]
                     },
                     {
-                      "label": "대구광역시",
+                      "label": "대구",
                       "values": [
                         15420,
                         77.5
                       ]
                     },
                     {
-                      "label": "인천광역시",
+                      "label": "인천",
                       "values": [
                         5761,
                         50.4
                       ]
                     },
                     {
-                      "label": "광주광역시",
+                      "label": "광주",
                       "values": [
                         8737,
                         69.8
                       ]
                     },
                     {
-                      "label": "대전광역시",
+                      "label": "대전",
                       "values": [
                         9021,
                         76.7
                       ]
                     },
                     {
-                      "label": "울산광역시",
+                      "label": "울산",
                       "values": [
                         9913,
                         79.4
                       ]
                     },
                     {
-                      "label": "세종특별자치시",
+                      "label": "세종",
                       "values": [
                         3619,
                         61.4
                       ]
                     },
                     {
-                      "label": "경기도",
+                      "label": "경기",
                       "values": [
                         59090,
                         55.5
@@ -5255,14 +5232,14 @@
                       ]
                     },
                     {
-                      "label": "충청북도",
+                      "label": "충북",
                       "values": [
                         35728,
                         52.2
                       ]
                     },
                     {
-                      "label": "충청남도",
+                      "label": "충남",
                       "values": [
                         48510,
                         42.9
@@ -5276,28 +5253,28 @@
                       ]
                     },
                     {
-                      "label": "전라남도",
+                      "label": "전남",
                       "values": [
                         67755,
                         48.7
                       ]
                     },
                     {
-                      "label": "경상북도",
+                      "label": "경북",
                       "values": [
                         83749,
                         51.4
                       ]
                     },
                     {
-                      "label": "경상남도",
+                      "label": "경남",
                       "values": [
                         68110,
                         60.3
                       ]
                     },
                     {
-                      "label": "제주특별자치도",
+                      "label": "제주",
                       "values": [
                         11747,
                         40.3
@@ -5311,8 +5288,7 @@
                       "url": "https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3"
                     }
                   ],
-                  "year": "2024년 12월 1일",
-                  "internalNote": "2024년 농림어업조사 46쪽 표 6; 시도 합계와 전국 추정치에 2가구 차이"
+                  "year": "2024년 12월 1일"
                 }
               ]
             }
@@ -5333,12 +5309,12 @@
                   "rowLabel": "시도",
                   "columns": [
                     {
-                      "label": "최종에너지 소비",
+                      "label": "최종 에너지 소비량",
                       "unit": "천 toe",
                       "year": "2024년"
                     },
                     {
-                      "label": "전력 판매",
+                      "label": "전력 판매량",
                       "unit": "MWh",
                       "year": "2025년"
                     }
@@ -5507,7 +5483,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "신재생 및 기타",
+                      "label": "신재생 등",
                       "unit": "%"
                     }
                   ],
@@ -5725,7 +5701,6 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "2024년 잠정치; 지역 내 에너지원별 비중",
                   "note": "잠정"
                 },
                 {
@@ -5750,7 +5725,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "신재생 및 기타",
+                      "label": "신재생 등",
                       "unit": "%"
                     }
                   ],
@@ -5934,7 +5909,6 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "2024년 잠정치; 지역 내 에너지원별 비중",
                   "note": "잠정"
                 }
               ]
@@ -6072,15 +6046,13 @@
                       "year": "2024",
                       "url": "https://new.kpx.or.kr/boardDownload.es?bid=0085&list_no=75637&seq=1"
                     }
-                  ],
-                  "internalNote": "4개 에너지원 합계 대비",
-                  "note": "4개 에너지원 합계 대비"
+                  ]
                 }
               ]
             },
             {
               "id": "korea-renewable-production",
-              "title": "신재생 에너지 생산 비율",
+              "title": "시도별 신재생 에너지 생산량",
               "views": [
                 {
                   "id": "default",
@@ -6088,7 +6060,7 @@
                   "rowLabel": "시도",
                   "columns": [
                     {
-                      "label": "생산",
+                      "label": "생산량",
                       "unit": "천 toe"
                     },
                     {
@@ -6297,8 +6269,7 @@
                       "url": "https://www.knrec.or.kr/biz/pds/statistic/list.do"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "시도 합산"
+                  "year": "2024년"
                 }
               ]
             }
@@ -6463,7 +6434,7 @@
                   "rowLabel": "시도",
                   "columns": [
                     {
-                      "label": "근로자",
+                      "label": "외국인 근로자",
                       "unit": "명"
                     },
                     {
@@ -6483,7 +6454,7 @@
                       "unit": "명"
                     },
                     {
-                      "label": "계",
+                      "label": "합계",
                       "unit": "명"
                     }
                   ],
@@ -6684,7 +6655,6 @@
                     }
                   ],
                   "year": "2024년 11월 1일",
-                  "internalNote": "계는 한국 국적 미취득자",
                   "subviews": [
                     {
                       "id": "count",
@@ -6692,7 +6662,7 @@
                       "rowLabel": "시도",
                       "columns": [
                         {
-                          "label": "근로자",
+                          "label": "외국인 근로자",
                           "unit": "명"
                         },
                         {
@@ -6712,7 +6682,7 @@
                           "unit": "명"
                         },
                         {
-                          "label": "계",
+                          "label": "합계",
                           "unit": "명"
                         }
                       ],
@@ -6912,8 +6882,7 @@
                           "url": "https://jumin.mois.go.kr/"
                         }
                       ],
-                      "year": "2024년 11월 1일",
-                      "internalNote": "계는 한국 국적 미취득자"
+                      "year": "2024년 11월 1일"
                     },
                     {
                       "id": "share",
@@ -6921,7 +6890,7 @@
                       "rowLabel": "시도",
                       "columns": [
                         {
-                          "label": "근로자",
+                          "label": "외국인 근로자",
                           "unit": "명"
                         },
                         {
@@ -6941,7 +6910,7 @@
                           "unit": "명"
                         },
                         {
-                          "label": "계",
+                          "label": "합계",
                           "unit": "명"
                         }
                       ],
@@ -7141,8 +7110,7 @@
                           "url": "https://jumin.mois.go.kr/"
                         }
                       ],
-                      "year": "2024년 11월 1일",
-                      "internalNote": "계는 한국 국적 미취득자"
+                      "year": "2024년 11월 1일"
                     }
                   ]
                 }
@@ -7390,13 +7358,12 @@
                           "year": "2026",
                           "url": "https://kosis.kr/visual/eRegionIndex/index.do"
                         }
-                      ],
-                      "internalNote": "시도 합산"
+                      ]
                     },
                     {
                       "id": "토지 이용",
                       "label": "토지 이용",
-                      "rowLabel": "경기 시군",
+                      "rowLabel": "시군",
                       "columns": [
                         {
                           "label": "밭",
@@ -7556,16 +7523,15 @@
                           "url": "https://stat.molit.go.kr/"
                         }
                       ],
-                      "year": "2024년 12월",
-                      "internalNote": "경기도 주요 10개 시군, 전체 지적 면적 대비 지목별 비율"
+                      "year": "2024년 12월"
                     },
                     {
                       "id": "경지",
                       "label": "경지",
-                      "rowLabel": "경기 시군",
+                      "rowLabel": "시군",
                       "columns": [
                         {
-                          "label": "전·답",
+                          "label": "경지 면적",
                           "unit": "㎢"
                         },
                         {
@@ -7666,8 +7632,7 @@
                           "url": "https://stat.molit.go.kr/"
                         }
                       ],
-                      "year": "2024년 12월",
-                      "internalNote": "경기도 주요 10개 시군, 지목상 전·답의 합계"
+                      "year": "2024년 12월"
                     }
                   ]
                 }
@@ -7731,8 +7696,7 @@
                           "url": "https://kass.mafra.go.kr/newkass/cmm/fms/FileDown.do?atchFileId=FILE_000000000022023&fileSn=0"
                         }
                       ],
-                      "year": "2023년",
-                      "internalNote": "PDF 574~575쪽, 북한통계 원표 재수록; 북한 경지 구성의 최신 공표 연도"
+                      "year": "2023년"
                     },
                     {
                       "id": "식량",
@@ -7777,8 +7741,7 @@
                           "url": "https://kass.mafra.go.kr/newkass/cmm/fms/FileDown.do?atchFileId=FILE_000000000022023&fileSn=0"
                         }
                       ],
-                      "year": "2024년",
-                      "internalNote": "PDF 576~577쪽, 북한통계 원표 재수록; 쌀은 정곡 기준"
+                      "year": "2024년"
                     }
                   ]
                 }
@@ -7810,7 +7773,7 @@
                   "rowLabel": "대륙",
                   "columns": [
                     {
-                      "label": "수록 인구",
+                      "label": "인구",
                       "unit": "백만 명"
                     },
                     {
@@ -7929,13 +7892,12 @@
                       "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "* 종교별 신자 수를 국가 단위로 합산; 수록 국가 범위"
+                  "year": "2020년"
                 },
                 {
                   "id": "아시아",
                   "label": "아시아",
-                  "rowLabel": "지역·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "크리스트교",
@@ -7963,7 +7925,8 @@
                         24.94,
                         6.73
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "미얀마",
@@ -8062,13 +8025,12 @@
                     }
                   ],
                   "year": "2020년",
-                  "internalNote": "국가 합산",
-                  "note": "수록 국가 합산"
+                  "note": "* 국가 합산"
                 },
                 {
                   "id": "아프리카",
                   "label": "아프리카",
-                  "rowLabel": "지역·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "크리스트교",
@@ -8096,7 +8058,8 @@
                         0.11,
                         0.01
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "알제리",
@@ -8195,8 +8158,7 @@
                     }
                   ],
                   "year": "2020년",
-                  "internalNote": "국가 합산",
-                  "note": "수록 국가 합산"
+                  "note": "* 국가 합산"
                 }
               ]
             },
@@ -8210,7 +8172,7 @@
                   "rowLabel": "종교",
                   "columns": [
                     {
-                      "label": "수록 신자",
+                      "label": "신자 수",
                       "unit": "백만 명"
                     },
                     {
@@ -8331,9 +8293,7 @@
                       "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "* 국가별 신자 수 합산; 수록 국가 범위",
-                  "note": "수록 국가 합산"
+                  "year": "2020년"
                 }
               ]
             },
@@ -8347,7 +8307,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 신자",
+                      "label": "신자 수",
                       "unit": "백만 명"
                     }
                   ],
@@ -8405,8 +8365,7 @@
                       "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "Pew Research Center 수록 국가 중 상위 5개국"
+                  "year": "2020년"
                 },
                 {
                   "id": "muslims",
@@ -8414,7 +8373,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 신자",
+                      "label": "신자 수",
                       "unit": "백만 명"
                     }
                   ],
@@ -8472,8 +8431,7 @@
                       "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "Pew Research Center 수록 국가 중 상위 5개국"
+                  "year": "2020년"
                 },
                 {
                   "id": "hindus",
@@ -8481,7 +8439,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 신자",
+                      "label": "신자 수",
                       "unit": "백만 명"
                     }
                   ],
@@ -8539,8 +8497,7 @@
                       "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "Pew Research Center 수록 국가 중 상위 5개국"
+                  "year": "2020년"
                 },
                 {
                   "id": "buddhists",
@@ -8548,7 +8505,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 신자",
+                      "label": "신자 수",
                       "unit": "백만 명"
                     }
                   ],
@@ -8606,8 +8563,7 @@
                       "url": "https://ourworldindata.org/grapher/share-of-population-by-religious-affiliation.csv?v=1&csvType=full&useColumnShortNames=false"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "Pew Research Center 수록 국가 중 상위 5개국"
+                  "year": "2020년"
                 }
               ]
             }
@@ -8625,7 +8581,7 @@
                 {
                   "id": "규모",
                   "label": "규모",
-                  "rowLabel": "대륙·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "총인구",
@@ -8752,7 +8708,7 @@
                 {
                   "id": "출생과 사망",
                   "label": "출생과 사망",
-                  "rowLabel": "대륙·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "출생률",
@@ -8897,7 +8853,7 @@
                 {
                   "id": "이동",
                   "label": "이동",
-                  "rowLabel": "대륙·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "순이동",
@@ -9580,15 +9536,13 @@
                       "url": "https://population.un.org/wpp/"
                     }
                   ],
-                  "year": "2025년",
-                  "internalNote": "UN WPP 2024 중위 추계, 5세별 인구 원수 합산",
-                  "note": "UN 중위 추계"
+                  "year": "2025년"
                 }
               ]
             },
             {
               "id": "world-migrant-destinations",
-              "title": "이주자 목적지",
+              "title": "국제 이주민 도착 지역",
               "views": [
                 {
                   "id": "default",
@@ -9596,11 +9550,11 @@
                   "rowLabel": "목적지",
                   "columns": [
                     {
-                      "label": "국제 이주자",
+                      "label": "국제 이주민",
                       "unit": "백만 명"
                     },
                     {
-                      "label": "세계 비율",
+                      "label": "비중",
                       "unit": "%"
                     }
                   ],
@@ -9655,9 +9609,7 @@
                       "url": "https://population.un.org/wpp/"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "이주자 이동 유량이 아닌 해당 지역 거주 이주자 재고량",
-                  "note": "국제 이주자 재고량"
+                  "year": "2020년"
                 }
               ]
             },
@@ -9834,15 +9786,13 @@
                       "year": "2025",
                       "url": "https://population.un.org/wpp/"
                     }
-                  ],
-                  "internalNote": "UN WPP 2024 중위 추계, 해당 연도 순이동률",
-                  "note": "UN 중위 추계"
+                  ]
                 }
               ]
             },
             {
               "id": "world-migrant-origins",
-              "title": "이주자 출신국",
+              "title": "이주민 출신국",
               "views": [
                 {
                   "id": "사우디아라비아",
@@ -9850,7 +9800,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "출신국 · 이주자",
+                      "label": "이주민 수",
                       "unit": "백만 명"
                     }
                   ],
@@ -9908,9 +9858,7 @@
                       "url": "https://population.un.org/wpp/"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
-                  "note": "국제 이주자 재고량"
+                  "year": "2020년"
                 },
                 {
                   "id": "독일",
@@ -9918,7 +9866,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "출신국 · 이주자",
+                      "label": "이주민 수",
                       "unit": "백만 명"
                     }
                   ],
@@ -9976,9 +9924,7 @@
                       "url": "https://population.un.org/wpp/"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
-                  "note": "국제 이주자 재고량"
+                  "year": "2020년"
                 },
                 {
                   "id": "캐나다",
@@ -9986,7 +9932,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "출신국 · 이주자",
+                      "label": "이주민 수",
                       "unit": "백만 명"
                     }
                   ],
@@ -10044,9 +9990,7 @@
                       "url": "https://population.un.org/wpp/"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
-                  "note": "국제 이주자 재고량"
+                  "year": "2020년"
                 },
                 {
                   "id": "미국",
@@ -10054,7 +9998,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "출신국 · 이주자",
+                      "label": "이주민 수",
                       "unit": "백만 명"
                     }
                   ],
@@ -10112,9 +10056,7 @@
                       "url": "https://population.un.org/wpp/"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
-                  "note": "국제 이주자 재고량"
+                  "year": "2020년"
                 },
                 {
                   "id": "오스트레일리아",
@@ -10122,7 +10064,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "출신국 · 이주자",
+                      "label": "이주민 수",
                       "unit": "백만 명"
                     }
                   ],
@@ -10180,9 +10122,7 @@
                       "url": "https://population.un.org/wpp/"
                     }
                   ],
-                  "year": "2020년",
-                  "internalNote": "국제 이주자 재고량, 목적지별 출신국 상위 5개국; 미국의 푸에르토리코 출신은 국내 이동으로 보아 제외",
-                  "note": "국제 이주자 재고량"
+                  "year": "2020년"
                 }
               ]
             }
@@ -10200,7 +10140,7 @@
                 {
                   "id": "도시화율",
                   "label": "도시화율",
-                  "rowLabel": "대륙·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "도시화율",
@@ -10393,7 +10333,7 @@
                 },
                 {
                   "id": "도시 증가",
-                  "label": "도시 증가",
+                  "label": "도시 인구 증가율",
                   "rowLabel": "대륙",
                   "columns": [
                     {
@@ -10505,7 +10445,7 @@
                 },
                 {
                   "id": "촌락 증가",
-                  "label": "촌락 증가",
+                  "label": "촌락 인구 증가율",
                   "rowLabel": "대륙",
                   "columns": [
                     {
@@ -10749,7 +10689,7 @@
                 {
                   "id": "작물",
                   "label": "작물",
-                  "rowLabel": "대륙·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "밀",
@@ -10772,7 +10712,8 @@
                         593159383.1,
                         373905944.9
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "유럽",
@@ -10781,7 +10722,8 @@
                         3930058,
                         97819543
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "아프리카",
@@ -10790,7 +10732,8 @@
                         32120528,
                         83575719.9
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "앵글로아메리카",
@@ -10799,7 +10742,8 @@
                         10075780,
                         377632690
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "라틴 아메리카",
@@ -10808,7 +10752,8 @@
                         23756441.4,
                         213142129.4
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "오세아니아",
@@ -10817,7 +10762,8 @@
                         619180,
                         447027
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "중국",
@@ -10908,99 +10854,93 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "국가 합산",
-                  "note": "수록 국가 합산"
+                  "note": "* 국가 합산"
                 },
                 {
                   "id": "가축",
                   "label": "가축",
-                  "rowLabel": "대륙·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "소",
-                      "unit": ""
+                      "unit": "백만 마리"
                     },
                     {
                       "label": "돼지",
-                      "unit": ""
+                      "unit": "백만 마리"
                     },
                     {
                       "label": "양",
-                      "unit": ""
-                    },
-                    {
-                      "label": "소고기",
-                      "unit": ""
+                      "unit": "백만 마리"
                     }
                   ],
                   "rows": [
                     {
                       "label": "아시아",
                       "values": [
-                        173515749,
-                        488575160,
-                        358604378,
-                        13137081.3
+                        173.5,
+                        488.6,
+                        358.6
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "유럽",
                       "values": [
-                        106909661,
-                        172709392,
-                        115061366,
-                        10035616.8
+                        106.9,
+                        172.7,
+                        115.1
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "아프리카",
                       "values": [
-                        348470012,
-                        55763069,
-                        361910010,
-                        6621327.6
+                        348.5,
+                        55.8,
+                        361.9
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "앵글로아메리카",
                       "values": [
-                        98142400,
-                        88890400,
-                        5852000,
-                        13581112
+                        98.1,
+                        88.9,
+                        5.9
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "라틴 아메리카",
                       "values": [
-                        441151778,
-                        101403545,
-                        75285363,
-                        19465449.7
+                        441.2,
+                        101.4,
+                        75.3
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "오세아니아",
                       "values": [
-                        40234812,
-                        5058711,
-                        102963311,
-                        3343236.4
+                        40.2,
+                        5.1,
+                        103
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "중국",
                       "values": [
-                        70325500,
-                        427430000,
-                        182939000,
-                        7011810
+                        70.3,
+                        427.4,
+                        182.9
                       ],
                       "group": "country",
                       "continent": "아시아"
@@ -11008,10 +10948,9 @@
                     {
                       "label": "인도네시아",
                       "values": [
-                        18065156,
-                        5767595,
-                        15137290,
-                        597754.09
+                        18.1,
+                        5.8,
+                        15.1
                       ],
                       "group": "country",
                       "continent": "아시아"
@@ -11019,10 +10958,9 @@
                     {
                       "label": "나이지리아",
                       "values": [
-                        20943448,
-                        9958091,
-                        52136324,
-                        317048.8
+                        20.9,
+                        10,
+                        52.1
                       ],
                       "group": "country",
                       "continent": "아프리카"
@@ -11030,10 +10968,9 @@
                     {
                       "label": "미국",
                       "values": [
-                        87157400,
-                        74905400,
-                        5030000,
-                        12289768
+                        87.2,
+                        74.9,
+                        5
                       ],
                       "group": "country",
                       "continent": "앵글로아메리카"
@@ -11041,10 +10978,9 @@
                     {
                       "label": "아르헨티나",
                       "values": [
-                        52783892,
-                        6115215,
-                        12440906,
-                        3178044
+                        52.8,
+                        6.1,
+                        12.4
                       ],
                       "group": "country",
                       "continent": "라틴 아메리카"
@@ -11052,10 +10988,9 @@
                     {
                       "label": "브라질",
                       "values": [
-                        238180757,
-                        43914785,
-                        21862326,
-                        10237584
+                        238.2,
+                        43.9,
+                        21.9
                       ],
                       "group": "country",
                       "continent": "라틴 아메리카"
@@ -11063,10 +10998,9 @@
                     {
                       "label": "오스트레일리아",
                       "values": [
-                        30372537,
-                        2497379,
-                        79330000,
-                        2589767
+                        30.4,
+                        2.5,
+                        79.3
                       ],
                       "group": "country",
                       "continent": "오세아니아"
@@ -11080,8 +11014,7 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "국가 합산",
-                  "note": "수록 국가 합산"
+                  "note": "* 국가 합산"
                 }
               ]
             },
@@ -11099,7 +11032,7 @@
                       "unit": "백만 t"
                     },
                     {
-                      "label": "수확 면적",
+                      "label": "재배 면적",
                       "unit": "백만 ha"
                     }
                   ],
@@ -11147,11 +11080,11 @@
                   "rowLabel": "작물",
                   "columns": [
                     {
-                      "label": "단위 면적 생산",
+                      "label": "단위 면적당 생산량",
                       "unit": "t/ha"
                     },
                     {
-                      "label": "수출량/생산량",
+                      "label": "수출 비중",
                       "unit": "%"
                     }
                   ],
@@ -11185,14 +11118,13 @@
                       "url": "https://www.fao.org/faostat/en/#data/QCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "쌀 수출량은 FAOSTAT 도정미 환산량이므로 생산량과 정의가 달라 직접 비교 불가; 해당 값은 미표시"
+                  "year": "2024년"
                 }
               ]
             },
             {
               "id": "world-crop-use",
-              "title": "용도별 소비",
+              "title": "용도별 소비 비중",
               "views": [
                 {
                   "id": "default",
@@ -11335,8 +11267,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/QCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"
+                  "year": "2024년"
                 }
               ]
             },
@@ -11409,8 +11340,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/TCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
+                  "year": "2024년"
                 },
                 {
                   "id": "rice",
@@ -11477,8 +11407,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/TCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
+                  "year": "2024년"
                 },
                 {
                   "id": "maizecorn",
@@ -11545,8 +11474,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/TCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "국가별 교역 합계(역내 교역 포함); 쌀은 도정미 환산량"
+                  "year": "2024년"
                 }
               ]
             },
@@ -11560,7 +11488,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 물량",
+                      "label": "물량",
                       "unit": "백만 t"
                     }
                   ],
@@ -11618,8 +11546,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/TCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "year": "2024년"
                 },
                 {
                   "id": "wheatimportquantity",
@@ -11627,7 +11554,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 물량",
+                      "label": "물량",
                       "unit": "백만 t"
                     }
                   ],
@@ -11685,8 +11612,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/TCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "year": "2024년"
                 },
                 {
                   "id": "riceexportquantity",
@@ -11694,7 +11620,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 물량",
+                      "label": "물량",
                       "unit": "백만 t"
                     }
                   ],
@@ -11752,8 +11678,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/TCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "year": "2024년"
                 },
                 {
                   "id": "riceimportquantity",
@@ -11761,7 +11686,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 물량",
+                      "label": "물량",
                       "unit": "백만 t"
                     }
                   ],
@@ -11819,8 +11744,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/TCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "year": "2024년"
                 },
                 {
                   "id": "maizecornexportquantity",
@@ -11828,7 +11752,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 물량",
+                      "label": "물량",
                       "unit": "백만 t"
                     }
                   ],
@@ -11886,8 +11810,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/TCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "year": "2024년"
                 },
                 {
                   "id": "maizecornimportquantity",
@@ -11895,7 +11818,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 물량",
+                      "label": "물량",
                       "unit": "백만 t"
                     }
                   ],
@@ -11953,8 +11876,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/TCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "FAOSTAT 수록 국가 상위 5개국; 쌀은 도정미 환산량"
+                  "year": "2024년"
                 }
               ]
             },
@@ -11968,7 +11890,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 생산량",
+                      "label": "생산량",
                       "unit": "백만 t"
                     }
                   ],
@@ -12034,7 +11956,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 생산량",
+                      "label": "생산량",
                       "unit": "백만 t"
                     }
                   ],
@@ -12100,7 +12022,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 생산량",
+                      "label": "생산량",
                       "unit": "백만 t"
                     }
                   ],
@@ -12172,7 +12094,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 사육 두수",
+                      "label": "사육 두수",
                       "unit": "백만 마리"
                     }
                   ],
@@ -12238,7 +12160,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 사육 두수",
+                      "label": "사육 두수",
                       "unit": "백만 마리"
                     }
                   ],
@@ -12304,7 +12226,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 사육 두수",
+                      "label": "사육 두수",
                       "unit": "백만 마리"
                     }
                   ],
@@ -12445,8 +12367,7 @@
                       "url": "https://www.fao.org/faostat/en/#data/QCL"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "중·남부 아메리카는 아메리카에서 앵글로아메리카를 뺀 값"
+                  "year": "2024년"
                 }
               ]
             }
@@ -12464,110 +12385,116 @@
                 {
                   "id": "1차 에너지",
                   "label": "1차 에너지",
-                  "rowLabel": "대륙·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
-                      "label": "총소비",
-                      "unit": ""
+                      "label": "소비량",
+                      "unit": "EJ"
                     },
                     {
                       "label": "석탄",
-                      "unit": ""
+                      "unit": "%"
                     },
                     {
                       "label": "석유",
-                      "unit": ""
+                      "unit": "%"
                     },
                     {
                       "label": "천연가스",
-                      "unit": ""
+                      "unit": "%"
                     },
                     {
                       "label": "원자력",
-                      "unit": ""
+                      "unit": "%"
                     },
                     {
-                      "label": "재생",
-                      "unit": ""
+                      "label": "신재생",
+                      "unit": "%"
                     }
                   ],
                   "rows": [
                     {
                       "label": "아시아",
                       "values": [
-                        95350.6,
+                        343.3,
                         40.36,
                         27.32,
                         17.43,
                         2.21,
                         12.69
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "유럽",
                       "values": [
-                        28445.1,
+                        102.4,
                         8.9,
                         32.9,
                         31.82,
                         8.55,
                         17.82
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "아프리카",
                       "values": [
-                        3516.1,
+                        12.7,
                         30.45,
                         32.06,
                         32.99,
                         0.54,
                         3.95
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "앵글로아메리카",
                       "values": [
-                        30171.6,
+                        108.6,
                         7.55,
                         36.98,
                         34.16,
                         7.35,
                         13.96
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "라틴 아메리카",
                       "values": [
-                        9663,
+                        34.8,
                         3.56,
                         39.13,
                         26.44,
                         0.97,
                         29.9
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "오세아니아",
                       "values": [
-                        1892.3,
+                        6.8,
                         23.13,
                         37.53,
                         21.15,
                         0,
                         18.18
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "중국",
                       "values": [
-                        48477,
+                        174.5,
                         52.81,
                         18.49,
                         8.96,
@@ -12580,7 +12507,7 @@
                     {
                       "label": "인도",
                       "values": [
-                        11276.2,
+                        40.6,
                         56.58,
                         26.86,
                         6.23,
@@ -12593,7 +12520,7 @@
                     {
                       "label": "일본",
                       "values": [
-                        4762.7,
+                        17.1,
                         26.43,
                         37.43,
                         19.1,
@@ -12606,7 +12533,7 @@
                     {
                       "label": "이란",
                       "values": [
-                        3586.3,
+                        12.9,
                         0.51,
                         29.13,
                         68.42,
@@ -12619,7 +12546,7 @@
                     {
                       "label": "러시아",
                       "values": [
-                        9007.2,
+                        32.4,
                         11.56,
                         23.64,
                         52.96,
@@ -12632,7 +12559,7 @@
                     {
                       "label": "프랑스",
                       "values": [
-                        2481.2,
+                        8.9,
                         1.99,
                         31.26,
                         12.88,
@@ -12645,7 +12572,7 @@
                     {
                       "label": "미국",
                       "values": [
-                        26349.5,
+                        94.9,
                         8.33,
                         37.76,
                         34.24,
@@ -12658,7 +12585,7 @@
                     {
                       "label": "캐나다",
                       "values": [
-                        3822.1,
+                        13.8,
                         2.12,
                         31.64,
                         33.63,
@@ -12677,13 +12604,12 @@
                     }
                   ],
                   "year": "2024년",
-                  "internalNote": "국가 합산",
-                  "note": "수록 국가 합산"
+                  "note": "* 국가 합산"
                 },
                 {
                   "id": "발전",
                   "label": "발전",
-                  "rowLabel": "대륙·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "석탄",
@@ -12726,7 +12652,8 @@
                         20.15,
                         0
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "유럽",
@@ -12739,7 +12666,8 @@
                         25.83,
                         0
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "아프리카",
@@ -12752,7 +12680,8 @@
                         13.29,
                         0
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "앵글로아메리카",
@@ -12765,7 +12694,8 @@
                         19.13,
                         0
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "라틴 아메리카",
@@ -12778,7 +12708,8 @@
                         24.72,
                         0
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "오세아니아",
@@ -12791,7 +12722,8 @@
                         33.69,
                         0
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "중국",
@@ -12914,13 +12846,12 @@
                     }
                   ],
                   "year": "2025년",
-                  "internalNote": "국가 합산; 신재생은 수력 제외",
-                  "note": "수록 국가 합산·수력 제외"
+                  "note": "* 국가 합산"
                 },
                 {
                   "id": "원자력",
                   "label": "원자력",
-                  "rowLabel": "대륙·국가",
+                  "rowLabel": "지역",
                   "columns": [
                     {
                       "label": "원자력 발전량",
@@ -12938,7 +12869,8 @@
                         857.13,
                         5.18
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "유럽",
@@ -12946,7 +12878,8 @@
                         943.83,
                         20.43
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "아프리카",
@@ -12954,7 +12887,8 @@
                         10.21,
                         2.56
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "앵글로아메리카",
@@ -12962,7 +12896,8 @@
                         870.1,
                         16.82
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "라틴 아메리카",
@@ -12970,7 +12905,8 @@
                         36.79,
                         2.21
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "오세아니아",
@@ -12978,7 +12914,8 @@
                         0,
                         0
                       ],
-                      "group": "continent"
+                      "group": "continent",
+                      "aggregateMark": true
                     },
                     {
                       "label": "중국",
@@ -13061,8 +12998,7 @@
                     }
                   ],
                   "year": "2025년",
-                  "internalNote": "국가 합산",
-                  "note": "수록 국가 합산"
+                  "note": "* 국가 합산"
                 }
               ]
             },
@@ -13100,7 +13036,7 @@
                       "unit": "%"
                     },
                     {
-                      "label": "재생",
+                      "label": "신재생",
                       "unit": "%"
                     }
                   ],
@@ -13212,8 +13148,7 @@
                       "url": "https://www.energyinst.org/statistical-review"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "Energy Institute가 개별 국가로 수록한 범위의 상위 10개국"
+                  "year": "2024년"
                 }
               ]
             },
@@ -13360,9 +13295,7 @@
                       "url": "https://www.energyinst.org/statistical-review"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음",
-                  "note": "수급 차이, 순수출입 아님"
+                  "year": "2024년"
                 },
                 {
                   "id": "gas",
@@ -13511,9 +13444,7 @@
                       "url": "https://www.energyinst.org/statistical-review"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음",
-                  "note": "수급 차이, 순수출입 아님"
+                  "year": "2024년"
                 },
                 {
                   "id": "coal",
@@ -13646,15 +13577,13 @@
                       "url": "https://www.energyinst.org/statistical-review"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음",
-                  "note": "수급 차이, 순수출입 아님"
+                  "year": "2024년"
                 }
               ]
             },
             {
               "id": "world-renewable-generation-rank",
-              "title": "재생에너지 발전 비율 상위 국가",
+              "title": "신재생 발전 비율 상위 국가",
               "views": [
                 {
                   "id": "wind",
@@ -13662,7 +13591,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 총발전량 대비 비율",
+                      "label": "발전 비율",
                       "unit": "%"
                     }
                   ],
@@ -13720,8 +13649,7 @@
                       "url": "https://www.energyinst.org/statistical-review"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
+                  "year": "2024년"
                 },
                 {
                   "id": "solar",
@@ -13729,7 +13657,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 총발전량 대비 비율",
+                      "label": "발전 비율",
                       "unit": "%"
                     }
                   ],
@@ -13787,8 +13715,7 @@
                       "url": "https://www.energyinst.org/statistical-review"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
+                  "year": "2024년"
                 },
                 {
                   "id": "hydro",
@@ -13796,7 +13723,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 총발전량 대비 비율",
+                      "label": "발전 비율",
                       "unit": "%"
                     }
                   ],
@@ -13854,8 +13781,7 @@
                       "url": "https://www.energyinst.org/statistical-review"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
+                  "year": "2024년"
                 },
                 {
                   "id": "otherrenewables",
@@ -13863,7 +13789,7 @@
                   "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "국가 · 총발전량 대비 비율",
+                      "label": "발전 비율",
                       "unit": "%"
                     }
                   ],
@@ -13921,8 +13847,7 @@
                       "url": "https://www.energyinst.org/statistical-review"
                     }
                   ],
-                  "year": "2024년",
-                  "internalNote": "Energy Institute 개별 국가 중 총발전량 10 TWh 이상, 에너지원별 상위 5개국"
+                  "year": "2024년"
                 }
               ]
             }
@@ -13948,15 +13873,15 @@
                       "columns": [
                         {
                           "label": "농림어업",
-                          "unit": ""
+                          "unit": "%"
                         },
                         {
-                          "label": "공업",
-                          "unit": ""
+                          "label": "광공업",
+                          "unit": "%"
                         },
                         {
                           "label": "서비스업",
-                          "unit": ""
+                          "unit": "%"
                         }
                       ],
                       "rows": [
@@ -14185,9 +14110,7 @@
                           "url": "https://population.un.org/wpp/"
                         }
                       ],
-                      "year": "2025년",
-                      "internalNote": "* GDP를 같은 해 UN WPP 인구로 나눈 참고값; World Bank의 공식 1인당 GDP 지표와 다를 수 있음",
-                      "note": "UN 인구로 계산한 참고값"
+                      "year": "2025년"
                     }
                   ]
                 }
@@ -14209,15 +14132,15 @@
                       "columns": [
                         {
                           "label": "농림어업",
-                          "unit": ""
+                          "unit": "%"
                         },
                         {
-                          "label": "공업",
-                          "unit": ""
+                          "label": "광공업",
+                          "unit": "%"
                         },
                         {
                           "label": "서비스업",
-                          "unit": ""
+                          "unit": "%"
                         }
                       ],
                       "rows": [
@@ -14354,8 +14277,7 @@
                           "url": "https://wits.worldbank.org/CountryProfile/en/Country/TUR/Year/2023/Summarytext"
                         }
                       ],
-                      "year": "2023년",
-                      "internalNote": "WITS에 저장된 튀르키예·카자흐스탄 2023년 상품군 구성; 다른 지역 주요국은 원천 미확보"
+                      "year": "2023년"
                     },
                     {
                       "id": "작물",
@@ -14491,9 +14413,7 @@
                           "url": "https://www.energyinst.org/statistical-review"
                         }
                       ],
-                      "year": "2024년",
-                      "internalNote": "생산−소비는 수급 차이이며 순수출입과 동일하지 않음",
-                      "note": "수급 차이, 순수출입 아님"
+                      "year": "2024년"
                     }
                   ]
                 },
@@ -14585,9 +14505,7 @@
                           "url": "https://population.un.org/wpp/"
                         }
                       ],
-                      "year": "2025년",
-                      "internalNote": "* GDP를 같은 해 UN WPP 인구로 나눈 참고값; World Bank의 공식 1인당 GDP 지표와 다를 수 있음",
-                      "note": "UN 인구로 계산한 참고값"
+                      "year": "2025년"
                     }
                   ]
                 }
@@ -14608,20 +14526,16 @@
                       "rowLabel": "국가",
                       "columns": [
                         {
-                          "label": "농업",
-                          "unit": ""
+                          "label": "농림어업",
+                          "unit": "%"
                         },
                         {
                           "label": "광공업",
-                          "unit": ""
+                          "unit": "%"
                         },
                         {
                           "label": "서비스업",
-                          "unit": ""
-                        },
-                        {
-                          "label": "기준",
-                          "unit": ""
+                          "unit": "%"
                         }
                       ],
                       "rows": [
@@ -14630,8 +14544,7 @@
                           "values": [
                             1.93,
                             27.35,
-                            64.11,
-                            "2022년"
+                            64.11
                           ]
                         },
                         {
@@ -14639,8 +14552,7 @@
                           "values": [
                             1.4,
                             16.78,
-                            70.85,
-                            "2025년"
+                            70.85
                           ]
                         },
                         {
@@ -14648,8 +14560,7 @@
                           "values": [
                             0.87,
                             25.16,
-                            64.46,
-                            "2025년"
+                            64.46
                           ]
                         },
                         {
@@ -14657,8 +14568,7 @@
                           "values": [
                             2.07,
                             22.64,
-                            64.51,
-                            "2025년"
+                            64.51
                           ]
                         },
                         {
@@ -14666,8 +14576,7 @@
                           "values": [
                             3.06,
                             29.67,
-                            58.88,
-                            "2025년"
+                            58.88
                           ]
                         },
                         {
@@ -14675,8 +14584,7 @@
                           "values": [
                             2.68,
                             19.58,
-                            68.36,
-                            "2025년"
+                            68.36
                           ]
                         },
                         {
@@ -14684,8 +14592,7 @@
                           "values": [
                             0.64,
                             16.49,
-                            73.1,
-                            "2025년"
+                            73.1
                           ]
                         },
                         {
@@ -14693,8 +14600,7 @@
                           "values": [
                             0.94,
                             17.58,
-                            76.26,
-                            "2021년"
+                            76.26
                           ]
                         }
                       ],
@@ -15643,8 +15549,7 @@
                           "url": "https://data.census.gov/table/AIESBASICTIMESERIES.AIES31BASIC02"
                         }
                       ],
-                      "year": "2023년",
-                      "internalNote": "50개 주, 2017 NAICS 3자리 업종; 비공개 출하액은 순위에서 제외"
+                      "year": "2023년"
                     }
                   ]
                 }
@@ -15665,16 +15570,16 @@
                       "rowLabel": "국가",
                       "columns": [
                         {
-                          "label": "농업",
-                          "unit": ""
+                          "label": "농림어업",
+                          "unit": "%"
                         },
                         {
                           "label": "광공업",
-                          "unit": ""
+                          "unit": "%"
                         },
                         {
                           "label": "서비스업",
-                          "unit": ""
+                          "unit": "%"
                         }
                       ],
                       "rows": [
@@ -15746,7 +15651,7 @@
                     },
                     {
                       "id": "자원",
-                      "label": "자원",
+                      "label": "수출 구성",
                       "rowLabel": "국가",
                       "columns": [
                         {
@@ -15811,8 +15716,7 @@
                           "url": "https://www.wto.org/english/res_e/statis_e/daily_update_e/trade_profiles/ET_e.pdf"
                         }
                       ],
-                      "year": "2021년",
-                      "internalNote": "WTO 2023 프로필의 2021년 상품 수출 구성; DR콩고·에티오피아·남아공·보츠와나"
+                      "year": "2021년"
                     }
                   ]
                 }

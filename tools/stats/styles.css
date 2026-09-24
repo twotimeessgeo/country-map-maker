@@ -63,6 +63,7 @@
 .stats-table tbody tr:hover th:first-child { background: var(--tw-surface); }
 .stats-table tbody tr.is-match > *, .stats-table tbody tr.is-match th:first-child { background: var(--tw-surface); }
 .stats-table tbody tr.is-aggregate > *, .stats-table tbody tr.is-aggregate th:first-child { background: var(--tw-surface); font-weight: var(--tw-weight-medium); }
+.stats-aggregate-mark { margin-left: 2px; font-size: 10px; font-weight: var(--tw-weight-body); }
 .stats-table tbody tr.is-group-label th { padding-top: 8px; padding-bottom: 8px; border-bottom: 0; color: var(--tw-ink-3); font-size: 12px; font-weight: var(--tw-weight-body); text-align: left; background: var(--tw-bg); }
 .stats-table tbody.stats-country tr.is-group-label:first-child th { border-top: 1px solid var(--tw-hairline-strong); padding-top: 16px; }
 .stats-table tbody tr.is-subgroup th { padding-top: 10px; padding-bottom: 4px; border-bottom: 0; color: var(--tw-ink-4); font-size: 11px; font-weight: var(--tw-weight-body); text-align: left; }

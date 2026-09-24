@@ -12,7 +12,7 @@
     for (const id of ["statsToolbar","statsSearch","statsSearchResults","topicList","statsContent","statsToast","statsStickyOverlay"]) el[id] = document.getElementById(id);
     bind();
     try {
-      const response = await fetch("./data/stats.json?v=6",{cache:"no-store"});
+      const response = await fetch("./data/stats.json?v=7",{cache:"no-store"});
       if (!response.ok) throw new Error("HTTP " + response.status);
       data = await response.json();
       render();
@@ -320,7 +320,7 @@
   function rowMarkup(row,view,bar,tableId) {
     const matched=highlight&&normalize(row.label).includes(highlight);
     const aggregate=row.group==="continent"||row.group==="national"||row.group==="region";
-    return '<tr class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+'</th>'+
+    return '<tr class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
       row.values.map((value,index)=>'<td>'+cellHtml(value,view.columns[index])+'</td>').join("")+barMarkup(row,bar,tableId)+'</tr>';
   }
   function tbodyMarkup(view,groups,bar,tableId) {
@@ -399,7 +399,7 @@
     ]))];
     const view=activeView(table,state),groups=visibleRows(view,state);
     const result=[[view.rowLabel,...view.columns.map(c=>c.label+(c.unit?" ("+c.unit+")":""))]];
-    const append=row=>result.push([row.label,...row.values.map((value,index)=>value&&typeof value==="object"?value.name+" "+value.value:
+    const append=row=>result.push([row.label+(row.aggregateMark?"*":""),...row.values.map((value,index)=>value&&typeof value==="object"?value.name+" "+value.value:
       typeof value==="number"?formatNumber(value,view.columns[index].unit).replaceAll(",","").replaceAll("−","-"):value??"–")]);
     if(groups.continent.length) {result.push(["대륙"]);groups.continent.forEach(append);}
     if(groups.country.length) {

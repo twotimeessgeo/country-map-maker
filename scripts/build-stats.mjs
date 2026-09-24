@@ -4,6 +4,7 @@ import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 import { subjects as inventory } from "../tools/stats/spec/tables.mjs";
 import { compose, slugFor, topicFor } from "../tools/stats/spec/compose.mjs";
+import { polishStatisticsCopy } from "../tools/stats/spec/copy.mjs";
 import { majorCountryRows, busanDistrictRows } from "../tools/stats/spec/major-country-rows.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -1048,7 +1049,7 @@ for (const [subject, definition] of Object.entries(inventory)) {
     }
   }
 }
-const result = compose(rawTables, gaps);
+const result = polishStatisticsCopy(compose(rawTables, gaps));
 const json = JSON.stringify(result, null, 2) + "\n";
 const gapEvidence = {
   "k-x-01": ["시군 취업자 지표에는 광역시가 없고 2020년 원표는 통근·통학 인구를 합쳐 취업자만의 통근 비율을 계산할 수 없음", "data/korea-stats.js; data_downloads/kosis/raw/DT_1PA2021/101_DT_1PA2021_F_2020.csv"],
