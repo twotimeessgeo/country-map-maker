@@ -4,6 +4,15 @@
   const states = new Map();
   const chartModels = new Map();
   const chartSeen = new Set();
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
+  const barEntryObserver = "IntersectionObserver" in window ? new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const bar = entry.target;
+      barEntryObserver.unobserve(bar);
+      bar.animate([{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], { duration: 400, delay: Number(bar.dataset.enterDelay || 0), easing: "cubic-bezier(.16,1,.3,1)", fill: "backwards" });
+    }
+  }, { threshold: .01 }) : null;
   let chartResizeObserver = null;
   let chartResizeFrame = 0;
   let data = null;
@@ -231,6 +240,9 @@
     const tables=topic.regions?(state.region?.tables||[]):topic.tables||[];
     const previousRows=new Map([...el.statsContent.querySelectorAll(".stats-chart [data-row-key]")].map(row=>[
       row.closest(".stats-chart")?.dataset.table+":"+row.dataset.rowKey,row.getBoundingClientRect().top]));
+    const previousTableRows=new Map([...el.statsContent.querySelectorAll(".stats-table-section .stats-table tbody tr[data-row-key]")].map(row=>[
+      row.closest(".stats-table-section")?.id+":"+row.dataset.rowKey,row.getBoundingClientRect().top]));
+    barEntryObserver?.disconnect();
     chartResizeObserver?.disconnect();
     if(chartResizeFrame)cancelAnimationFrame(chartResizeFrame);
     chartResizeFrame=0;
@@ -238,10 +250,20 @@
     const previousBars=new Map([...el.statsContent.querySelectorAll(".stats-bar-fill[data-bar-key]")]
       .map(bar=>[bar.dataset.barKey,{left:bar.dataset.left,width:bar.dataset.width}]));
     el.statsContent.innerHTML=switcher+(tables.length?'<div class="stats-table-grid">'+tables.map(renderTable).join("")+'</div>':'<p class="stats-empty">표가 없습니다.</p>');
-    for(const bar of el.statsContent.querySelectorAll(".stats-bar-fill[data-bar-key]")) {
+    for(const [index,bar] of [...el.statsContent.querySelectorAll(".stats-bar-fill[data-bar-key]")].entries()) {
       const old=previousBars.get(bar.dataset.barKey);
-      if(old && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+      if(old && !reducedMotion.matches)
         bar.animate([{left:old.left+"%",width:old.width+"%"},{left:bar.dataset.left+"%",width:bar.dataset.width+"%"}],{duration:200,easing:"ease-out"});
+      else if(!old && !reducedMotion.matches && barEntryObserver) {
+        bar.dataset.enterDelay=String(Math.min(index,11)*20);
+        barEntryObserver.observe(bar);
+      }
+    }
+    if(!reducedMotion.matches) for(const row of el.statsContent.querySelectorAll(".stats-table-section .stats-table tbody tr[data-row-key]")) {
+      const before=previousTableRows.get(row.closest(".stats-table-section")?.id+":"+row.dataset.rowKey);
+      if(before===undefined)continue;
+      const delta=before-row.getBoundingClientRect().top;
+      if(Math.abs(delta)>2)row.animate([{transform:`translateY(${delta}px)`},{transform:"translateY(0)"}],{duration:240,easing:"cubic-bezier(.16,1,.3,1)"});
     }
     requestAnimationFrame(()=>{renderCharts(previousRows);measureSticky();updateStickyHeader();});
   }
@@ -385,7 +407,7 @@
   function rowMarkup(row,view,display,bar,tableId) {
     const matched=highlight&&normalize(row.label).includes(highlight);
     const aggregate=row.group==="continent"||row.group==="national"||row.group==="region";
-    return '<tr class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
+    return '<tr data-row-key="'+escapeHtml(row.label)+'" class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
       row.values.map((value,index)=>{const spec=row.valueUnit&&index===0?displaySpec(row.valueUnit,[value]):display[index];
         return '<td>'+cellHtml(value,view.columns[index],spec,/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].digits??(view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined))+
         (row.valueUnit&&index===0?'<small class="stats-value-unit">'+escapeHtml(spec.unit)+'</small>':"")+'</td>';}).join("")+barMarkup(row,bar,tableId)+'</tr>';

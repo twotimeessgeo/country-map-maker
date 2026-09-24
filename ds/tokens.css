@@ -7,7 +7,7 @@
 :root {
   color-scheme: light;
 
-  /* Color — strictly neutral. No hue anywhere. */
+  /* UI and data are neutral; the title rule and Notes covers are narrow exceptions. */
   --tw-bg: #ffffff;
   --tw-surface: #f4f4f4;
   --tw-surface-2: #ebebeb;
@@ -49,6 +49,12 @@
   --tw-leading-body: 1.6;
   --tw-track-display: -0.035em;
   --tw-track-heading: -0.015em;
+  --tw-track-hero: -0.045em;
+  --tw-track-3xl: -0.025em;
+  --tw-track-2xl: -0.02em;
+  --tw-track-xl: -0.012em;
+  --tw-track-body: 0;
+  --tw-accent-gradient: linear-gradient(90deg, #0f1530 0%, #6d3ae0 55%, #d9786a 100%);
 
   /* Space — 4px grid */
   --tw-space-1: 4px;

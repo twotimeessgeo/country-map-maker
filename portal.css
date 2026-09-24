@@ -1,21 +1,39 @@
-/* Portal home — built on ds/ (Promenade Design System 3.0) */
-
-.portal-hero {
-  min-height: calc(100vh - var(--tw-nav-height));
-  min-height: calc(100svh - var(--tw-nav-height));
-  padding-block: 0;
-  align-content: center;
+/* DS 3.1 home: one quiet globe and a centered revealing navigation. */
+html, body.portal-home { min-height: 100%; }
+body.portal-home { margin: 0; overflow-x: hidden; }
+.home-header { position: relative; z-index: 20; height: 88px; background: var(--tw-bg); }
+.home-nav { position: relative; display: flex; align-items: center; justify-content: center; height: 100%; padding-inline: 16px; }
+.home-brand { position: relative; z-index: 2; min-height: 48px; padding: 0 8px; border: 0; background: var(--tw-bg); color: var(--tw-ink); font-family: var(--tw-font-latin); font-size: 26px; font-weight: 300; letter-spacing: -.02em; cursor: pointer; view-transition-name: tw-brand; }
+.home-brand:focus-visible { outline: 1px solid var(--tw-ink); outline-offset: 3px; border-radius: var(--tw-radius-xs); }
+.home-brand.is-intro > span { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.home-brand.is-intro > span > span { display: inline-block; animation: home-letter-in 520ms var(--tw-ease-out) both; animation-delay: calc(var(--letter-index) * 35ms); }
+@keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
+.home-link-set { position: absolute; inset: 0; display: grid; grid-template-columns: max-content max-content 188px max-content max-content; justify-content: center; align-items: center; column-gap: 36px; pointer-events: none; }
+.home-link-set a { position: relative; width: max-content; color: var(--tw-ink); font-family: var(--tw-font-latin); font-size: 16px; font-weight: 300; text-decoration: none; opacity: 0; visibility: hidden; transition: opacity 240ms var(--tw-ease-out), transform 240ms var(--tw-ease-out), visibility 0s 240ms; }
+.home-link-set a:nth-child(1) { grid-column: 1; transform: translateX(40px); transition-delay: 0ms; }
+.home-link-set a:nth-child(2) { grid-column: 2; transform: translateX(40px); transition-delay: 60ms; }
+.home-link-set a:nth-child(3) { grid-column: 4; transform: translateX(-40px); transition-delay: 60ms; }
+.home-link-set a:nth-child(4) { grid-column: 5; transform: translateX(-40px); transition-delay: 0ms; }
+.home-header.is-open .home-link-set { pointer-events: auto; }
+.home-header.is-open .home-link-set a { opacity: 1; visibility: visible; transform: translateX(0); transition-duration: 360ms; transition-delay: 0ms; }
+.home-header.is-open .home-link-set a:nth-child(1), .home-header.is-open .home-link-set a:nth-child(4) { transition-delay: 60ms; }
+.home-link-set a::after { position: absolute; right: 0; bottom: -3px; left: 0; height: 1px; background: currentColor; content: ""; transform: scaleX(0); transform-origin: left; transition: transform 240ms var(--tw-ease-out); }
+.home-link-set a:hover::after, .home-link-set a:focus-visible::after { transform: scaleX(1); }
+.home-link-set a:focus-visible { outline: none; }
+.home-main { display: grid; place-items: center; min-height: calc(100vh - 88px); min-height: calc(100svh - 88px); }
+.home-globe { display: block; width: 240px; height: 240px; cursor: grab; touch-action: pan-y; }
+.home-globe.is-dragging { cursor: grabbing; }
+.home-globe:focus-visible { outline: 1px solid var(--tw-ink); outline-offset: 8px; border-radius: 50%; }
+@media (max-width: 719px) {
+  .home-brand { font-size: 22px; }
+  .home-link-set { inset: 70px 16px auto; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 0; padding: 10px; border: 1px solid var(--tw-hairline); border-radius: var(--tw-radius-md); background: var(--tw-bg); opacity: 0; visibility: hidden; transform: translateY(-8px); transition: opacity 240ms var(--tw-ease-out), transform 240ms var(--tw-ease-out), visibility 0s 240ms; }
+  .home-link-set a { width: auto; padding: 14px 8px; text-align: center; font-size: 15px; transform: none !important; }
+  .home-link-set a:nth-child(n) { grid-column: auto; }
+  .home-header.is-open .home-link-set { opacity: 1; visibility: visible; transform: translateY(0); transition-delay: 0ms; }
+  .home-globe { width: 200px; height: 200px; }
 }
-
-.portal-title {
-  font-family: var(--tw-font-latin);
-  font-size: var(--tw-text-hero);
-  font-weight: var(--tw-weight-display);
-  line-height: 0.95;
-  letter-spacing: -0.045em;
-}
-
-@media (max-width: 480px) {
-  .portal-hero .tw-hero-actions { flex-wrap: nowrap; gap: 6px; }
-  .portal-hero .tw-button { padding-inline: 12px; }
+@media (prefers-reduced-motion: reduce) {
+  .home-link-set, .home-link-set a { transition-duration: 120ms !important; transition-delay: 0ms !important; transform: none !important; }
+  .home-link-set a::after { transition: none; }
+  .home-brand.is-intro > span > span { animation: none; }
 }

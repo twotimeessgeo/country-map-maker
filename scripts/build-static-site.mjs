@@ -8,7 +8,10 @@ const outputDir = path.join(rootDir, "dist");
 const publicEntries = [
   ".nojekyll",
   "index.html",
+  "404.html",
+  "404.css",
   "portal.css",
+  "portal.js",
   "ds",
   "data",
   "fonts",
@@ -17,6 +20,8 @@ const publicEntries = [
 ];
 const requiredOutputs = [
   "index.html",
+  "404.html",
+  "ds/globe-land.json",
   "data/graph-catalog.js",
   "data/graph-catalog.json",
   "data/statistics-index.js",

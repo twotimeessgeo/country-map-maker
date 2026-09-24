@@ -51,7 +51,7 @@ h1,
 h2,
 h3,
 h4 {
-  font-weight: var(--tw-weight-strong);
+  font-weight: var(--tw-weight-medium);
   letter-spacing: var(--tw-track-heading);
   line-height: var(--tw-leading-snug);
   text-wrap: balance;
@@ -134,8 +134,11 @@ a {
 }
 
 .tw-nav {
-  view-transition-name: site-nav;
+  view-transition-name: none;
 }
+
+.tw-brand span { view-transition-name: tw-brand; }
+::view-transition-old(tw-brand), ::view-transition-new(tw-brand) { animation-duration: 320ms; animation-timing-function: var(--tw-ease-out); }
 
 ::view-transition-old(root) {
   animation: var(--tw-dur-1) var(--tw-ease-out) both tw-page-out;
@@ -175,6 +178,7 @@ a {
 }
 .tw-reveal.is-visible {
   animation: tw-reveal-in var(--tw-dur-3) var(--tw-ease-out) both;
+  animation-delay: var(--tw-reveal-delay, 0ms);
 }
 @keyframes tw-reveal-in {
   from { opacity: 0; transform: translateY(8px); }

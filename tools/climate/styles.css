@@ -2340,3 +2340,14 @@ tfoot td {
   }
 
 }
+
+/* The selected locations are outlined tokens; filter selection keeps its 3.0 fill. */
+.selected-tray-chip { background: var(--tw-bg); color: var(--tw-ink); outline: 1px solid var(--tw-hairline-strong); outline-offset: -1px; }
+.selected-tray-chip:hover { background: var(--tw-surface); }
+.chip-button:active, .selected-tray-chip:active { transform: scale(.97); }
+@media (prefers-reduced-motion: reduce) { .chip-button:active, .selected-tray-chip:active { transform: none; } }
+.fx-coords { position:absolute; z-index:4; left:20px; bottom:20px; color:var(--tw-ink-3); font-family:var(--tw-font-latin); font-size:11px; font-weight:300; pointer-events:none; }
+.world-stage { position:relative; }
+.fx-season-dot { display:none; }
+[data-fx-season="on"] .fx-season-dot { display:block; }
+@media (max-width:719px) { .fx-coords { display:none !important; } }

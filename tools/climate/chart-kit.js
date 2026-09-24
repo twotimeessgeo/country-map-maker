@@ -156,6 +156,7 @@
         <g pointer-events="none">${bars}${line}${dots}</g>
         ${hits}
         ${labels}
+        <circle class="fx-season-dot" cx="${cx(new Date().getMonth())}" cy="${m.top - 9}" r=".5" fill="${INK}" aria-hidden="true" />
       </svg>`;
   }
 

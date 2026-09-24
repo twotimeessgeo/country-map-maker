@@ -19,6 +19,7 @@ const UNIT_NAMES = {
 const notesDir = path.join(root, "notes");
 const postsDir = path.join(notesDir, "posts");
 const cutData = JSON.parse(fs.readFileSync(path.join(root, "tools/cut/data/ebsi_geo_data.json"), "utf8"));
+const COVER_PALETTES = new Set(["dawn", "dusk", "glacier", "moss", "ember"]);
 const posts = fs.readdirSync(postsDir).filter((name) => name.endsWith(".md"))
   .map((name) => readPost(path.join(postsDir, name)))
   .sort((a, b) => b.date.localeCompare(a.date));
@@ -186,6 +187,23 @@ function escapeHtml(value) {
 function slugify(value) { return value.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, ""); }
 function subjectName(value) { return value === "world" ? "세계지리" : value === "korea" ? "한국지리" : value; }
 function formatDate(value) { const [y, m, d] = value.split("-"); return `${y}. ${Number(m)}. ${Number(d)}.`; }
+function coverPalette(post) {
+  const override = String(post.cover || "").toLowerCase();
+  if (COVER_PALETTES.has(override)) return override;
+  const month = Number(String(post.exam || post.slug).match(/-(\d{2})(?:-|$)/)?.[1]);
+  if (month === 6) return "dawn";
+  if (month === 9) return "dusk";
+  if (month === 11) return "glacier";
+  if ([3, 4, 7, 10].includes(month)) return "moss";
+  return "ember";
+}
+function coverAttributes(post) {
+  const hash = [...post.slug].reduce((value, letter) => (Math.imul(value, 31) + letter.codePointAt(0)) >>> 0, 7);
+  const x1 = 30 + hash % 41, y1 = 30 + (hash >>> 5) % 31;
+  const x2 = 70 + (hash >>> 10) % 31, y2 = 75 + (hash >>> 15) % 26;
+  const angle = 110 + (hash >>> 20) % 41;
+  return `data-cover-palette="${coverPalette(post)}" data-slug="${escapeHtml(post.slug)}" style="--cover-x1:${x1}%;--cover-y1:${y1}%;--cover-x2:${x2}%;--cover-y2:${y2}%;--cover-angle:${angle}deg"`;
+}
 function hasNumber(value) { return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value)); }
 function questionMeta(post, record, number) {
   const row = post.q?.find((entry) => Number(entry.n) === number);
@@ -239,7 +257,7 @@ function nav(depth, current) {
 }
 function head(title, depth, og = {}) {
   const prefix = "../".repeat(depth);
-  return `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)} | Promenade Geography</title><meta name="theme-color" content="#ffffff">${og.image ? `<meta property="og:title" content="${escapeHtml(title)}"><meta property="og:image" content="${escapeHtml(og.image)}">` : ""}<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="${prefix}ds/fonts.css"><link rel="stylesheet" href="${prefix}ds/tokens.css"><link rel="stylesheet" href="${prefix}ds/base.css?v=52"><link rel="stylesheet" href="${prefix}ds/components.css?v=52"><link rel="stylesheet" href="${prefix}ds/patterns.css"><link rel="stylesheet" href="${prefix}notes/notes.css?v=20260924d"></head><body>`;
+  return `<!doctype html><html lang="ko" data-fx-notes-thumb="off" data-fx-progress="off"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(title)} | Promenade Geography</title><meta name="theme-color" content="#ffffff">${og.image ? `<meta property="og:title" content="${escapeHtml(title)}"><meta property="og:image" content="${escapeHtml(og.image)}">` : ""}<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css"><link rel="stylesheet" href="${prefix}ds/fonts.css"><link rel="stylesheet" href="${prefix}ds/tokens.css"><link rel="stylesheet" href="${prefix}ds/base.css?v=ds31p"><link rel="stylesheet" href="${prefix}ds/components.css?v=ds31p"><link rel="stylesheet" href="${prefix}ds/patterns.css"><link rel="stylesheet" href="${prefix}ds/visual.css?v=ds31p"><link rel="stylesheet" href="${prefix}notes/notes.css?v=ds31p"></head><body>`;
 }
 function questionRows(post, record) {
   return Array.isArray(post.q) ? post.q.map((entry) => {
@@ -315,24 +333,24 @@ function renderArticle(post, rawHtml, headings, record, posts, ogImage) {
     return `<a href="#${escapeHtml(id)}" data-question="${row.n}" aria-label="${row.n}번"><span class="notes-toc-number">${String(row.n).padStart(2, "0")}</span>${bar}</a>`;
   }).join("");
   const mobileToc = [...rows.values()].map((row) => `<a href="#q${row.n}" aria-label="${row.n}번">${String(row.n).padStart(2, "0")}</a>`).join("");
-  return `${head(post.title, 2, { image: ogImage })}${nav(2, true)}<nav class="notes-mobile-strip" aria-label="문항 바로가기">${mobileToc}</nav><div class="notes-layout"><header class="notes-article-head"><div class="tw-meta-list notes-overline"><span>${subjectName(post.subject)}</span><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span>twotimess</span></div><h1>${escapeHtml(post.title)}</h1></header>${renderHeroChart(post, record)}<aside class="notes-desktop-toc"><nav aria-label="목차"><span class="notes-toc-indicator" aria-hidden="true"></span>${toc}</nav></aside><main class="notes-article">${article}${renderEndCards(post)}${adjacentPosts(post, posts)}<footer class="notes-article-footer"><span>문항 출처 한국교육과정평가원</span></footer></main></div><dialog id="notesLightbox" class="notes-lightbox" aria-label="그림 크게 보기"><div class="notes-lightbox-bar"><span id="notesLightboxCaption"></span><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxClose">닫기</button></div><img id="notesLightboxImage" alt=""><div class="notes-lightbox-actions"><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxPrev" aria-label="이전 그림">←</button><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxNext" aria-label="다음 그림">→</button></div></dialog><script src="../../ds/tooltip.js" defer></script><script src="../../ds/motion.js?v=51" defer></script><script src="../notes.js?v=20260924c" defer></script></body></html>`;
+  return `${head(post.title, 2, { image: ogImage })}${nav(2, true)}<div class="notes-progress" aria-hidden="true"></div><nav class="notes-mobile-strip" aria-label="문항 바로가기">${mobileToc}</nav><div class="notes-layout"><div class="notes-cover notes-article-cover" ${coverAttributes(post)} aria-hidden="true"></div><header class="notes-article-head"><div class="tw-meta-list notes-overline"><span>${subjectName(post.subject)}</span><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span>twotimess</span></div><h1>${escapeHtml(post.title)}</h1></header>${renderHeroChart(post, record)}<aside class="notes-desktop-toc"><nav aria-label="목차"><span class="notes-toc-indicator" aria-hidden="true"></span>${toc}</nav></aside><main class="notes-article">${article}${renderEndCards(post)}${adjacentPosts(post, posts)}<footer class="notes-article-footer"><span>문항 출처 한국교육과정평가원</span></footer></main></div><dialog id="notesLightbox" class="notes-lightbox" aria-label="그림 크게 보기"><div class="notes-lightbox-bar"><span id="notesLightboxCaption"></span><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxClose">닫기</button></div><img id="notesLightboxImage" alt=""><div class="notes-lightbox-actions"><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxPrev" aria-label="이전 그림">←</button><button type="button" class="tw-button is-ghost is-sm" id="notesLightboxNext" aria-label="다음 그림">→</button></div></dialog><script src="../../ds/tooltip.js" defer></script><script src="../../ds/motion.js?v=51" defer></script><script src="../../ds/visual.js?v=ds31p" defer></script><script src="../notes.js?v=20260924c" defer></script></body></html>`;
 }
-function renderSparkline(post) {
+function renderSparkline(post, white = false) {
   const record = cutData.records.find((entry) => entry.subject === subjectName(post.subject)
     && `${entry.school_year}-${String(entry.month).padStart(2, "0")}` === post.exam);
   const rows = questionRows(post, record);
   if (!rows.length) return "";
   const shapes = rows.map((row, index) => {
     const x = index * 8 + 1;
-    if (row.wrongRate === null) return `<rect x="${x + 2}" y="33" width="2" height="2" fill="var(--tw-ink-4)"/>`;
+    if (row.wrongRate === null) return `<rect x="${x + 2}" y="33" width="2" height="2" fill="${white ? "currentColor" : "var(--tw-ink-4)"}"/>`;
     const height = +(Math.max(1, Math.min(32, row.wrongRate * .32))).toFixed(1);
-    return `<rect x="${x}" y="${+(35 - height).toFixed(1)}" width="6" height="${height}" fill="var(--tw-ink)"/>`;
+    return `<rect x="${x}" y="${+(35 - height).toFixed(1)}" width="6" height="${height}" fill="${white ? "currentColor" : "var(--tw-ink)"}"/>`;
   }).join("");
-  return `<svg class="notes-list-spark" viewBox="0 0 160 40" width="160" height="40" aria-hidden="true"><path d="M0 35.5 H160" stroke="var(--tw-ink)" stroke-width="1"/>${shapes}</svg>`;
+  return `<svg class="notes-list-spark" viewBox="0 0 160 40" width="160" height="40" aria-hidden="true"><path d="M0 35.5 H160" stroke="${white ? "currentColor" : "var(--tw-ink)"}" stroke-width="1"/>${shapes}</svg>`;
 }
 function renderList(posts) {
   const subjects = [...new Set(posts.map((post) => post.subject))];
   const filters = subjects.length > 1 ? `<nav class="tw-segmented notes-filters" aria-label="과목"><button type="button" data-subject="all" aria-pressed="true">전체</button><button type="button" data-subject="korea" aria-pressed="false">한국지리</button><button type="button" data-subject="world" aria-pressed="false">세계지리</button></nav>` : "";
-  const rows = posts.map((post) => `<a class="notes-list-row" href="./${encodeURIComponent(post.slug)}/index.html" data-subject="${escapeHtml(post.subject)}"><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span class="notes-list-copy"><span class="notes-list-title">${escapeHtml(post.title)}</span><span class="notes-list-subject">${escapeHtml(subjectName(post.subject))}</span></span>${renderSparkline(post)}</a>`).join("\n");
-  return `${head("Notes", 1)}${nav(1, true)}<main class="notes-index tw-page"><header class="notes-index-head"><h1 class="tw-display" lang="en">Notes</h1>${filters}</header><div class="notes-list">${rows}</div></main><script src="../ds/motion.js?v=51" defer></script><script src="./notes.js?v=20260924c" defer></script></body></html>`;
+  const rows = posts.map((post) => `<a class="notes-list-row" href="./${encodeURIComponent(post.slug)}/index.html" data-subject="${escapeHtml(post.subject)}"><time datetime="${escapeHtml(post.date)}">${formatDate(post.date)}</time><span class="notes-list-copy"><span class="notes-list-title">${escapeHtml(post.title)}</span><span class="notes-list-subject">${escapeHtml(subjectName(post.subject))}</span></span>${renderSparkline(post)}<span class="notes-list-thumb notes-cover" ${coverAttributes(post)} aria-hidden="true">${renderSparkline(post, true)}</span></a>`).join("\n");
+  return `${head("Notes", 1)}${nav(1, true)}<main class="notes-index tw-page"><header class="notes-index-head"><h1 class="tw-display" lang="en">Notes</h1><span class="tw-title-rule" aria-hidden="true"></span>${filters}</header><div class="notes-list">${rows}</div></main><script src="../ds/motion.js?v=51" defer></script><script src="../ds/visual.js?v=ds31p" defer></script><script src="./notes.js?v=20260924c" defer></script></body></html>`;
 }

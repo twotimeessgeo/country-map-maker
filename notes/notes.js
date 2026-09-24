@@ -1,4 +1,19 @@
 (() => {
+  const fx = new URLSearchParams(location.search);
+  if (fx.get("fx-notes-thumb") === "1") document.documentElement.dataset.fxNotesThumb = "on";
+  if (fx.get("fx-progress") === "1") document.documentElement.dataset.fxProgress = "on";
+  if (document.querySelector(".notes-progress") && document.documentElement.dataset.fxProgress === "on") {
+    let scheduled = false;
+    const updateProgress = () => {
+      scheduled = false;
+      const length = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+      document.documentElement.style.setProperty("--read-progress", `${Math.min(100, Math.max(0, scrollY / length * 100))}%`);
+    };
+    const scheduleProgress = () => { if (!scheduled) { scheduled = true; requestAnimationFrame(updateProgress); } };
+    addEventListener("scroll", scheduleProgress, { passive: true });
+    addEventListener("resize", scheduleProgress, { passive: true });
+    scheduleProgress();
+  }
   const filters = document.querySelector(".notes-filters");
   if (filters) {
     filters.addEventListener("click", (event) => {

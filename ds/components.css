@@ -539,6 +539,26 @@ a:hover .tw-arrow::after,
   letter-spacing: var(--tw-track-display);
 }
 
+.tw-title-rule {
+  display: block;
+  width: 56px;
+  height: 3px;
+  margin-top: 14px;
+  margin-bottom: 20px;
+  border-radius: 3px;
+  background: var(--tw-accent-gradient);
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: tw-title-rule-in 400ms var(--tw-ease-out) 60ms both;
+}
+@keyframes tw-title-rule-in { to { transform: scaleX(1); } }
+.tw-hero:has(> .tw-title-rule) { row-gap: 0; }
+@media (max-width: 719px) { .tw-title-rule { width: 40px; height: 2px; } }
+@media (prefers-reduced-motion: reduce) { .tw-title-rule { animation: none; transform: none; } }
+
+.tw-button:active, .tw-chip:active, .tw-segmented > button:active { transform: scale(.97); transition: transform 120ms var(--tw-ease-out); }
+@media (prefers-reduced-motion: reduce) { .tw-button:active, .tw-chip:active, .tw-segmented > button:active { transform: none; } }
+
 .tw-lede {
   color: var(--tw-ink-2);
   font-size: var(--tw-text-lg);
@@ -547,7 +567,8 @@ a:hover .tw-arrow::after,
 
 .tw-heading {
   font-size: var(--tw-text-2xl);
-  font-weight: var(--tw-weight-strong);
+  font-weight: var(--tw-weight-medium);
+  letter-spacing: var(--tw-track-2xl);
 }
 
 /* ───────── Stat ───────── */
@@ -566,7 +587,7 @@ a:hover .tw-arrow::after,
   font-family: var(--tw-font-latin);
   font-size: var(--tw-text-xl);
   font-weight: var(--tw-weight-latin);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tw-track-xl);
   font-variant-numeric: tabular-nums;
 }
 

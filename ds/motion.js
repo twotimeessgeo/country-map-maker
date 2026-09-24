@@ -4,7 +4,7 @@
   const seen = new Set();
   const thumbPositions = new Map();
   const thumbIntent = new Map();
-  const revealSelector = ".region-card, .kit-card";
+  const revealSelector = ".region-card, .kit-card, .notes-list-row";
   function motionTiming(token) {
     const css = getComputedStyle(document.documentElement);
     return {
@@ -64,10 +64,17 @@
       if (element.dataset.motionObserved) continue;
       element.dataset.motionObserved = "true";
       element.dataset.motionKey = motionKey(element);
+      let stagger = 0, previous = element.previousElementSibling;
+      while (previous && stagger < 5 && previous.matches?.(revealSelector) && Math.abs(previous.offsetTop - element.offsetTop) < 2) {
+        stagger++;
+        previous = previous.previousElementSibling;
+      }
+      element.style.setProperty("--tw-reveal-delay", `${stagger * 50}ms`);
       const rect = element.getBoundingClientRect();
       const inAnchor = hashTarget()?.contains(element);
       if (inAnchor || (rect.top < innerHeight && rect.bottom > 0)) {
         seen.add(element.dataset.motionKey);
+        if (!reduced.matches && !inAnchor) element.classList.add("tw-reveal");
         element.classList.add("is-visible");
         continue;
       }

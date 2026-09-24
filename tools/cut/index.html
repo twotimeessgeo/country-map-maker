@@ -38,6 +38,7 @@
 
     <header class="tw-page tw-hero cut-hero">
       <h1 class="tw-display" lang="en">Archive</h1>
+      <span class="tw-title-rule" aria-hidden="true"></span>
       <div class="cut-hero-meta">
         <nav id="subjectChips" class="tw-segmented" aria-label="과목"></nav>
         <nav id="scopeChips" class="tw-segmented" aria-label="시험 범위">
@@ -69,6 +70,7 @@
       </form>
       <p class="cut-status" id="lookupStatus" role="status">불러오는 중…</p>
 
+      <div class="cut-overview">
       <section class="tw-section cut-result-panel" aria-labelledby="resultTitle">
         <p id="resultSubject" hidden></p><h2 id="resultTitle" class="tw-sr-only">등급컷</h2>
         <div class="tw-card cut-result-card">
@@ -85,6 +87,20 @@
           </dl>
         </div>
       </section>
+
+      <section class="tw-section cut-trend-panel" aria-labelledby="trendTitle">
+        <details id="trendDisclosure" class="tw-disclosure cut-disclosure" open>
+          <summary><h2 id="trendTitle">1등급 추이</h2></summary>
+          <div class="cut-disclosure-body">
+            <div id="trendRange" class="tw-segmented cut-trend-range" role="group" aria-label="추이 범위">
+              <button type="button" data-trend-range="recent" aria-pressed="true">최근 10회</button>
+              <button type="button" data-trend-range="all" aria-pressed="false">전체</button>
+            </div>
+            <div id="cutTrendChart" class="tw-card cut-trend-card"></div>
+          </div>
+        </details>
+      </section>
+      </div>
 
       <section class="tw-section cut-question-panel" aria-labelledby="questionAnalysisTitle">
         <div class="tw-section-head cut-question-heading">
@@ -110,19 +126,6 @@
         </div>
         <div id="questionPhotoGrid" class="cut-photo-grid" hidden></div>
         <div id="questionUnpublished" class="cut-unpublished-items" hidden></div>
-      </section>
-
-      <section class="tw-section cut-trend-panel" aria-labelledby="trendTitle">
-        <details id="trendDisclosure" class="tw-disclosure cut-disclosure" open>
-          <summary><h2 id="trendTitle">1등급 추이</h2></summary>
-          <div class="cut-disclosure-body">
-            <div id="trendRange" class="tw-segmented cut-trend-range" role="group" aria-label="추이 범위">
-              <button type="button" data-trend-range="recent" aria-pressed="true">최근 10회</button>
-              <button type="button" data-trend-range="all" aria-pressed="false">전체</button>
-            </div>
-            <div id="cutTrendChart" class="tw-card cut-trend-card"></div>
-          </div>
-        </details>
       </section>
 
       <section class="tw-section cut-history-panel" aria-labelledby="historyTitle">

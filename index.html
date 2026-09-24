@@ -4,59 +4,30 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Promenade Geography</title>
-    <meta
-      name="description"
-      content="Maps, climate graphics, statistics, and exam data for geography work."
-    />
     <meta name="theme-color" content="#ffffff" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
     <link rel="stylesheet" href="./ds/fonts.css?v=32" />
-    <link rel="stylesheet" href="./ds/tokens.css?v=47" />
-    <link rel="stylesheet" href="./ds/base.css?v=52" />
-    <link rel="stylesheet" href="./ds/components.css?v=52" />
-    <link rel="stylesheet" href="./ds/patterns.css?v=49" />
-    <link rel="stylesheet" href="./portal.css?v=33" />
+    <link rel="stylesheet" href="./ds/tokens.css?v=ds31p" />
+    <link rel="stylesheet" href="./ds/base.css?v=ds31p" />
+    <link rel="stylesheet" href="./ds/components.css?v=ds31p" />
+    <link rel="stylesheet" href="./portal.css?v=ds31p" />
   </head>
-  <body>
-    <header class="tw-nav">
-      <nav class="tw-nav-inner" aria-label="Promenade Geography">
-        <a class="tw-brand" href="./index.html" aria-current="page">
-          <span lang="en">Promenade</span>
-        </a>
-        <div class="tw-nav-links">
-          <a class="tw-nav-link" lang="en" href="./tools/climate/index.html">Climate Atlas</a>
-          <a class="tw-nav-link" lang="en" href="./tools/stats/index.html">Statistics</a>
-          <a class="tw-nav-link" lang="en" href="./tools/cut/index.html">Archive</a>
-          <a class="tw-nav-link" lang="en" href="./notes/index.html">Notes</a>
+  <body class="portal-home">
+    <header class="home-header" id="homeHeader">
+      <nav class="home-nav" aria-label="Promenade Geography">
+        <button class="home-brand" id="homeBrand" type="button" aria-expanded="false" aria-controls="homeLinks" lang="en">Promenade</button>
+        <div class="home-link-set" id="homeLinks" inert>
+          <a href="./tools/climate/index.html" lang="en">Climate Atlas</a>
+          <a href="./tools/stats/index.html" lang="en">Statistics</a>
+          <a href="./tools/cut/index.html" lang="en">Archive</a>
+          <a href="./notes/index.html" lang="en">Notes</a>
         </div>
-        <span class="tw-nav-spacer"></span>
-        <details class="tw-nav-menu">
-          <summary aria-label="메뉴"><span class="tw-nav-menu-icon" aria-hidden="true"></span></summary>
-          <div class="tw-nav-menu-panel">
-            <a lang="en" href="./tools/climate/index.html">Climate Atlas</a>
-            <a lang="en" href="./tools/stats/index.html">Statistics</a>
-            <a lang="en" href="./tools/cut/index.html">Archive</a>
-            <a lang="en" href="./notes/index.html">Notes</a>
-          </div>
-        </details>
       </nav>
     </header>
-
-    <main>
-      <section class="tw-page tw-hero portal-hero" aria-labelledby="portalTitle">
-        <h1 id="portalTitle" class="portal-title" lang="en">Promenade</h1>
-        <nav class="tw-hero-actions" aria-label="도구">
-          <a class="tw-button is-primary is-md" lang="en" href="./tools/climate/index.html">Climate Atlas</a>
-          <a class="tw-button is-md" lang="en" href="./tools/stats/index.html">Statistics</a>
-          <a class="tw-button is-md" lang="en" href="./tools/cut/index.html">Archive</a>
-          <a class="tw-button is-md" lang="en" href="./notes/index.html">Notes</a>
-        </nav>
-      </section>
+    <main class="home-main">
+      <canvas class="home-globe" data-globe data-globe-src="./ds/globe-land.json" width="240" height="240" tabindex="0" role="img" aria-label="지구본"></canvas>
     </main>
-
-    <script src="./ds/motion.js?v=51"></script>
+    <script src="./portal.js?v=ds31p" defer></script>
+    <script src="./ds/globe.js?v=ds31p" defer></script>
   </body>
 </html>

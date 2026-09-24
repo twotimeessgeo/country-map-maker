@@ -184,3 +184,23 @@
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(cut-content), ::view-transition-new(cut-content) { animation: none !important; }
 }
+
+/* DS 3.1 archive rhythm and paired overview. */
+.cut-overview { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
+.cut-page .cut-overview .tw-section { min-width: 0; padding: 48px 0; }
+.cut-result-card { width: 100%; }
+.cut-page > .tw-section { padding: 64px 0; border-top: 1px solid var(--tw-hairline); }
+@media (min-width: 1024px) {
+  .cut-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
+  .cut-trend-panel .cut-disclosure > summary { pointer-events: none; list-style: none; }
+  .cut-trend-panel .cut-disclosure > summary::-webkit-details-marker { display: none; }
+  .cut-trend-panel .cut-disclosure > summary::after { display: none; }
+  .cut-trend-panel .cut-disclosure-body { display: grid !important; }
+}
+@media (max-width: 760px) {
+  .cut-page .cut-overview .tw-section, .cut-page > .tw-section { padding: 48px 0; }
+  .cut-trend-panel { border-top: 1px solid var(--tw-hairline); }
+}
+.cut-question-rate-bar::after { transform-origin:left center; animation:cut-rate-in 400ms var(--tw-ease-out) var(--bar-delay,0ms) both; }
+@keyframes cut-rate-in { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+@media (prefers-reduced-motion:reduce) { .cut-question-rate-bar::after { animation:none; } }

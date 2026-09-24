@@ -293,6 +293,7 @@ function shiftExam(direction) {
   if (next) selectExamByKey(recordKey(next));
 }
 
+let gradeCounted = false;
 function renderGradeCards(record) {
   const fragment = document.createDocumentFragment();
   const hasCuts = GRADE_KEYS.some((grade) => isFiniteNumber(record[`raw${grade}`]));
@@ -311,6 +312,7 @@ function renderGradeCards(record) {
     score.textContent = isFiniteNumber(record[`raw${grade}`])
       ? formatNumber(record[`raw${grade}`], 0)
       : hasCuts ? "없음" : "미발표";
+    if (isFiniteNumber(record[`raw${grade}`])) score.dataset.countTo = String(Number(record[`raw${grade}`]));
 
     const unit = document.createElement("span");
     unit.className = "cut-grade-unit tw-sr-only";
@@ -322,18 +324,38 @@ function renderGradeCards(record) {
     standard.textContent = isFiniteNumber(record[`std${grade}`])
       ? formatNumber(record[`std${grade}`], 0)
       : hasCuts ? "-" : "미발표";
+    if (isFiniteNumber(record[`std${grade}`])) standard.dataset.countTo = String(Number(record[`std${grade}`]));
 
     const percentile = document.createElement("td");
     percentile.className = "cut-percentile-score";
     percentile.textContent = isFiniteNumber(record[`pct${grade}`])
       ? formatNumber(record[`pct${grade}`], 0)
       : hasCuts ? "-" : "미발표";
+    if (isFiniteNumber(record[`pct${grade}`])) percentile.dataset.countTo = String(Number(record[`pct${grade}`]));
 
     card.append(label, score, standard, percentile);
     fragment.appendChild(card);
   }
 
   elements.gradeGrid.replaceChildren(fragment);
+  if (!gradeCounted && hasCuts && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    gradeCounted = true;
+    const cells = [...elements.gradeGrid.querySelectorAll("[data-count-to]")];
+    const update = progress => cells.forEach(cell => {
+      if (!cell.isConnected) return;
+      const value = String(Math.round(Number(cell.dataset.countTo) * progress));
+      if (cell.classList.contains("cut-grade-score")) cell.firstChild.textContent = value;
+      else cell.textContent = value;
+    });
+    const start = performance.now();
+    const animate = time => {
+      const t = Math.min(1, (time - start) / 600);
+      update(1 - Math.pow(1 - t, 3));
+      if (t < 1 && cells.some(cell => cell.isConnected)) requestAnimationFrame(animate);
+    };
+    update(0);
+    requestAnimationFrame(animate);
+  }
 }
 
 function renderResult(record) {
@@ -445,6 +467,8 @@ function renderQuestionPhotos(record, order) {
 }
 
 function renderQuestionAnalysis(record) {
+  const previousRows = new Map([...elements.questionGrid.querySelectorAll(".cut-question-row[data-question]")]
+    .map(row => [row.dataset.question, row.getBoundingClientRect().top]));
   elements.notesAnalysisLink.hidden = !(record?.subject === "세계지리" && recordKey(record) === "2027-09");
   elements.questionGrid.replaceChildren();
   elements.questionPhotoGrid.replaceChildren();
@@ -470,7 +494,7 @@ function renderQuestionAnalysis(record) {
   const unpublished = QUESTION_NUMBERS.filter((question) => !observedNumbers.has(question));
   const fragment = document.createDocumentFragment();
 
-  for (const item of observed) {
+  for (const [index, item] of observed.entries()) {
     const question = Number(item.question);
     const wrongRate = 100 - Number(item.national_rate);
     const answer = correctChoice(record, question);
@@ -493,6 +517,7 @@ function renderQuestionAnalysis(record) {
     const bar = document.createElement("span");
     bar.className = "cut-question-rate-bar";
     bar.style.setProperty("--wrong-rate", `${Math.max(0, Math.min(100, wrongRate))}%`);
+    bar.style.setProperty("--bar-delay", `${Math.min(index, 11) * 20}ms`);
     const value = document.createElement("span");
     value.textContent = formatPercent(wrongRate);
     wrongDisplay.append(bar, value);
@@ -526,6 +551,14 @@ function renderQuestionAnalysis(record) {
     fragment.appendChild(row);
   }
   elements.questionGrid.replaceChildren(fragment);
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    for (const row of elements.questionGrid.querySelectorAll(".cut-question-row[data-question]")) {
+      const before = previousRows.get(row.dataset.question);
+      if (before === undefined) continue;
+      const delta = before - row.getBoundingClientRect().top;
+      if (Math.abs(delta) > 2) row.animate([{ transform: `translateY(${delta}px)` }, { transform: "translateY(0)" }], { duration: 240, easing: "cubic-bezier(.16,1,.3,1)" });
+    }
+  }
   renderQuestionPhotos(record, order);
 
   if (questionView === "table" && observed.length && unpublished.length) {
@@ -797,8 +830,15 @@ function readDisclosureState(key) {
 }
 
 function bindDisclosureState(element, key) {
-  element.open = readDisclosureState(key);
+  const desktopTrend = element === elements.trendDisclosure ? matchMedia("(min-width: 1024px)") : null;
+  const sync = () => {
+    element.open = desktopTrend?.matches ? true : readDisclosureState(key);
+    if (desktopTrend) element.querySelector("summary").tabIndex = desktopTrend.matches ? -1 : 0;
+  };
+  sync();
+  desktopTrend?.addEventListener("change", sync);
   element.addEventListener("toggle", () => {
+    if (desktopTrend?.matches) return;
     try { localStorage.setItem(key, element.open ? "open" : "closed"); }
     catch { /* Storage may be unavailable. */ }
   });

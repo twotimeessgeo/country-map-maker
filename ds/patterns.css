@@ -130,8 +130,8 @@ html:has(.tw-nav.is-static) { scroll-padding-top: calc(var(--tw-subnav-h) + 16px
 
 .tw-section-head h2 {
   font-size: var(--tw-text-3xl);
-  font-weight: var(--tw-weight-strong);
-  letter-spacing: -0.02em;
+  font-weight: var(--tw-weight-medium);
+  letter-spacing: var(--tw-track-3xl);
   line-height: 1.15;
 }
 
@@ -230,7 +230,7 @@ html:has(.tw-nav.is-static) { scroll-padding-top: calc(var(--tw-subnav-h) + 16px
   font-family: var(--tw-font-latin);
   font-size: var(--tw-text-xl);
   font-weight: var(--tw-weight-latin);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tw-track-xl);
 }
 
 .tw-index-copy span {
