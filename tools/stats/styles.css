@@ -73,6 +73,7 @@
 .stats-sort:hover { color: var(--tw-ink); }
 .stats-sort-main { display: inline-flex; gap: 5px; align-items: center; font-size: 13px; }
 .stats-sort-unit { display: block; color: var(--tw-ink-3); font-size: 11px; font-weight: var(--tw-weight-body); }
+.stats-sort-qualifier { display: block; color: var(--tw-ink-4); font-size: 10px; font-weight: var(--tw-weight-body); }
 .stats-sort-arrow { font-size: 10px; }
 .stats-value { display: inline-block; position: relative; min-width: 42px; font-family: var(--tw-font-latin); font-variant-numeric: tabular-nums; }
 .stats-value-unit { margin-left: 4px; color: var(--tw-ink-3); font-size: 11px; }

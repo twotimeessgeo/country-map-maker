@@ -25,6 +25,7 @@ const slugNames = {
   "w-6-01":"us-state-manufacturing","w-7-03":"africa-export-groups",
   "k-7-01":"north-south-land","k-7-02":"north-south-crops",
   "k-6-01":"population","k-6-03":"age-structure","k-6-06":"net-migration","k-6-07":"city-growth",
+  "k-x-05":"province-population-history","k-x-06":"province-migration-history",
   "k-x-03":"births-deaths","k-6-08":"foreign-residents","k-6-09":"city-foreign-share","k-x-04":"foreign-types","k-7-05":"capital-share",
   "w-3-04":"religion-asia","w-3-05":"religion-africa","w-3-06":"population-history","w-3-07":"birth-death",
   "w-3-09":"population-growth","w-3-10":"migration-rate-history","w-3-11":"migration-history",
@@ -72,7 +73,7 @@ export function topicFor(subject,id) {
   if (/^k-5-(0[7-9]|1[0-6])$/.test(id)) return "food";
   if (/^k-5-(1[7-9]|2[0-5])$/.test(id)) return "industry";
   if (/^k-5-2[67]$/.test(id)) return "transport";
-  if (/^k-6-0[1-7]$/.test(id)||id==="k-x-03") return "population";
+  if (/^k-6-0[1-7]$/.test(id)||["k-x-03","k-x-05","k-x-06"].includes(id)) return "population";
   if (/^k-6-0[89]$/.test(id)||id==="k-x-04") return "foreigners";
   return "region";
 }
@@ -177,6 +178,9 @@ function sourceItems(id,table,year,columns,rows) {
   if(id==="k-6-02") return [item("행정안전부","2024"),item("국토교통부","2024")];
   if(id==="k-x-02") return [item("에너지경제연구원","2024"),item("한국전력공사","2025")];
   if(id==="k-5-09") return [item("국가데이터처","2025"),item("국토교통부","2024")];
+  if(/^k-4-0[3-6]$/.test(id))return [
+    item("국가데이터처","2020","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1IN1502"),
+    item("행정안전부","2025","https://jumin.mois.go.kr/")];
   if(id==="k-7-05") return [
     item("행정안전부","2026","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20651E&conn_path=ZF"),
     item("국가데이터처","2024","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1EA1045&conn_path=ZF"),
@@ -195,6 +199,7 @@ function sourceItems(id,table,year,columns,rows) {
 function publicNote(note) {
   if(!note) return null;
   if(note.includes("경지면적을 2024년")) return "경지 2025년·면적 2024년";
+  if(note.includes("* 2020년 행정구역 기준"))return "* 2020년 행정구역 기준";
   if(note.includes("수력 제외")) return "수록 국가 합산·수력 제외";
   if(note.includes("국가 합산")||note.includes("국가별 신자 수")) return "수록 국가 합산";
   if(note.includes("2011년 12월 = 100")) return "2011년 = 100";
@@ -219,6 +224,7 @@ function normalizedRows(rows,oldColumns) {
       return value;
     });
     const out={label:r.label,values};
+    if(r.aggregateMark)out.aggregateMark=true;
     if(r.group) out.group=r.group;
     if(r.continent) out.continent=r.continent;
     return out;
@@ -228,7 +234,8 @@ function viewFrom(subject,id,table,label,viewId,variant) {
   const raw=variant||table;
   const oldCols=raw.columns||table.columns;
   const columns=oldCols.map(c=>({label:/^\d{4}(?:\.|$)/.test(c.label)?formatYear(c.label):c.label.replace(/\*$/, ""),
-    unit:/성비|노령화지수/.test(c.label)?"":c.unit||unitFor(c.label,raw.unit||table.unit),...(c.year?{year:formatYear(c.year)}:{})}));
+    unit:/성비|노령화지수/.test(c.label)?"":c.unit||unitFor(c.label,raw.unit||table.unit),...(c.year?{year:formatYear(c.year)}:{}),
+    ...(c.qualifier?{qualifier:c.qualifier}:{}),...(Number.isInteger(c.digits)?{digits:c.digits}:{})}));
   const out={id:viewId,label,rowLabel:raw.rowLabel||table.rowLabel,columns,rows:normalizedRows(raw.rows||table.rows,oldCols),
     sources:sourceItems(id,table,raw.year||table.year,columns,raw.rows||table.rows)};
   const year=formatYear(raw.year||table.year);
@@ -272,7 +279,8 @@ function combine(subject,topic,entries) {
       scale.internalNote=`인구는 ${scale.year}, 밀도와 성비는 ${density.year} 기준`;
       delete scale.year;
     }
-    const views=[scale,get("k-6-03","연령"),get("k-x-03","출생과 사망"),get("k-6-06","이동")].filter(Boolean);
+    const views=[scale,get("k-6-03","연령"),get("k-x-03","출생과 사망"),get("k-6-06","이동"),
+      get("k-x-05","인구 변화"),get("k-x-06","순이동 변화")].filter(Boolean);
     const comparison=compare("korea-population-compare","시도별 인구",views);if(comparison)out.push(comparison);
   }
   if(subject==="korea"&&topic==="foreigners") {
@@ -287,7 +295,10 @@ function combine(subject,topic,entries) {
     add("korea-daytime-compare","상주인구와 주간인구",[["k-4-07","서울"],["k-4-08","부산"]]);
     const ranks=[get("k-4-01","도별"),get("k-4-02","권역별")].filter(Boolean);
     if(ranks.length)out.push({id:"korea-city-rank",title:"인구 상위 도시",views:ranks});
-    const changes=[["k-4-03","수도권·강원"],["k-4-04","영남"],["k-4-05","충청"],["k-4-06","호남·제주"]].map(([key,label])=>get(key,label)).filter(Boolean);
+    const changes=[["k-4-03","수도권·강원"],["k-4-04","영남"],["k-4-05","충청"],["k-4-06","호남·제주"]].map(([key,label])=>{
+      const t=map.get(key);map.delete(key);
+      return t?{...t.views[0],id:label,label,subviews:t.views}:null;
+    }).filter(Boolean);
     if(changes.length)out.push({id:"korea-city-change",title:"도시 인구 변화 지수",views:changes});
   }
   if(subject==="korea"&&topic==="food") {

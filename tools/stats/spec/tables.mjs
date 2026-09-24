@@ -70,6 +70,8 @@ export const subjects = {
           t("k-6-06", "시도별 기간별 인구 순이동", "province-migration"),
           t("k-6-07", "주요 시군 인구 증가율", "city-growth"),
           extra("k-x-03", "시도별 합계출산율과 자연적 증가", "extra-fertility"),
+          extra("k-x-05", "시도 인구 변화", "province-population-history"),
+          extra("k-x-06", "시도 순이동 변화", "province-migration-history"),
         ]),
         chapter("15", "인구 문제와 다문화 공간의 확대", [
           t("k-6-08", "시도별 외국인 현황", "province-foreign"),

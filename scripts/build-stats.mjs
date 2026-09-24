@@ -32,6 +32,7 @@ const local = Object.fromEntries([
   "molit_gyeonggi_land_use_2024", "wits_export_groups_2023",
   "aies_state_manufacturing_2023",
   "mafra_north_south_2023_2024",
+  "kosis_city_census_boundary_audit",
 ].map((name) => [name, JSON.parse(fs.readFileSync(path.join(root, "data-sources/stats", name + ".json"), "utf8"))]));
 const regionSets = {
   monsoon: majorCountryRows.monsoon,
@@ -287,15 +288,46 @@ function make(target) {
   if (!kind) return null;
   if (kind === "city-change-index") {
     const groups={capital:["11","28","41","42","51"],yeongnam:["26","27","31","47","48"],chungcheong:["30","36","43","44"],honam:["29","45","46","50","52"]};
-    const sourceMetric=km.cities["resident-population"];
-    const rows=Object.entries(kr.cities).filter(([code,city])=>groups[arg].includes(city.parentCode))
+    const census=km.cities["population-census-linked-2020"],resident=km.cities["resident-population"];
+    const audit=local.kosis_city_census_boundary_audit;
+    const raw=(code,year)=>census.seriesByRegion[code]?.find(point=>point.periodKey===year)?.value;
+    for(const item of audit.spotChecks)if(raw(item.code,item.year)!==item.linkedValue||Math.abs(item.linkedValue/item.sourceValue-1)>.02)
+      throw new Error(`총조사 경계 연계 검증 실패: ${item.code} ${item.year}`);
+    for(const [code,years] of Object.entries(audit.overrides))for(const [year,item] of Object.entries(years)) {
+      if(Object.values(item.components).reduce((sum,value)=>sum+value,0)!==item.value||!f(raw(code,year)))
+        throw new Error(`총조사 원표 합산 검증 실패: ${code} ${year}`);
+    }
+    const censusValue=(code,year)=>audit.overrides[code]?.[year]?.value??raw(code,year);
+    const years=["1990","2000","2010","2020","2025"];
+    const changed=new Set(["41670","43110","44270","48120"]);
+    const cities=Object.entries(kr.cities).filter(([,city])=>groups[arg].includes(city.parentCode))
       .map(([code,city])=>{
-        const points=sourceMetric.seriesByRegion[code]||[];
-        const at=(key)=>points.find((p)=>p.periodKey===key)?.value;
-        const baseline=at("201112"),latest=at("202606");
-        return baseline>0&&f(latest)?row(city.shortLabel||city.label,[100,...["201512","202012","202512","202606"].map((key)=>f(at(key))?round(at(key)/baseline*100,1):null)]):null;
+        const latest=resident.seriesByRegion[code]?.find(point=>point.periodKey==="202512")?.value;
+        const values=[...years.slice(0,4).map(year=>censusValue(code,year)),latest];
+        return values.every(f)&&values[0]>0?{code,label:city.shortLabel||city.label,values,aggregateMark:changed.has(code)}:null;
       }).filter(Boolean).sort((a,b)=>b.values[4]-a.values[4]).slice(0,12);
-    return rows.length?table(target,"지수","2026.06",sourceFromMetric(sourceMetric),["시군",{label:"2011년 12월",unit:"지수"},{label:"2015년 12월",unit:"지수"},{label:"2020년 12월",unit:"지수"},{label:"2025년 12월",unit:"지수"},{label:"2026년 6월",unit:"지수"}],rows,{note:"2011년 12월 = 100; 동일 행정구역 경계 비교에 유의"}):null;
+    const indexRows=cities.map(city=>({...row(city.label,city.values.map(value=>round(value/city.values[0]*100,1))),aggregateMark:city.aggregateMark}));
+    const populationRows=cities.map(city=>({...row(city.label,city.values.map(value=>round(value/1000,1))),aggregateMark:city.aggregateMark}));
+    const columns=unit=>years.map(year=>({label:year,unit,year,...(unit==="천 명"?{digits:1}:{}),...(year==="2025"?{qualifier:"주민등록"}:{})}));
+    return cities.length?table(target,"지수, 천 명","2025",sourceFromMetric(census),["시군",...columns("지수")],indexRows,{
+      variants:[{id:"index",label:"지수",columns:columns("지수"),rows:indexRows},{id:"population",label:"인구",columns:columns("천 명"),rows:populationRows}],
+      note:"* 2020년 행정구역 기준",
+    }):null;
+  }
+  if(kind==="province-population-history") {
+    const metric=km.provinces["population-estimate"],years=["1990","2000","2010","2020","2025"];
+    const rows=Object.entries(kr.provinces).map(([code,region])=>row(region.shortLabel,years.map(year=>metric.seriesByRegion[code]?.find(point=>point.periodKey===year)?.value)));
+    if(rows.some(record=>!f(record.values[4])))throw new Error("2025 시도 인구 추계 누락");
+    return table(target,"명","2025",sourceFromMetric(metric),["시도",...years.map(year=>({label:year,unit:"명",year}))],rows);
+  }
+  if(kind==="province-migration-history") {
+    const metric=km.provinces["net-migration"],years=["1990","2000","2010","2020","2025"];
+    const rows=Object.entries(kr.provinces).map(([code,region])=>row(region.shortLabel,years.map(year=>{
+      const months=(metric.seriesByRegion[code]||[]).filter(point=>point.periodKey.startsWith(year)&&/^\d{6}$/.test(point.periodKey));
+      return months.length===12?months.reduce((sum,point)=>sum+point.value,0):null;
+    })));
+    if(rows.some(record=>!f(record.values[4])))throw new Error("2025 시도 순이동 누락");
+    return table(target,"명","2025",sourceFromMetric(metric),["시도",...years.map(year=>({label:year,unit:"명",year}))],rows);
   }
   if (kind === "kosis-employment") {
     const rows=provinceOrder.map((name)=>{

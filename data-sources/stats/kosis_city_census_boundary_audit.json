@@ -1,0 +1,17 @@
+{
+  "basis": "2020 administrative city boundaries",
+  "sourceTables": ["DT_1IN0001_05", "DT_1IN1502"],
+  "overrides": {
+    "41170": {"1990": {"value": 481240, "components": {"안양시": 481240}}},
+    "43110": {"1990": {"value": 592304, "components": {"청주시": 477663, "청원군": 114641}}},
+    "48120": {"2010": {"value": 1047488, "components": {"창원시": 1047488}}}
+  },
+  "spotChecks": [
+    {"code": "41670", "year": "1990", "sourceValue": 96879, "linkedValue": 97049},
+    {"code": "41670", "year": "2020", "sourceValue": 113352, "linkedValue": 113352},
+    {"code": "44270", "year": "1990", "sourceValue": 131732, "linkedValue": 130644},
+    {"code": "44270", "year": "2020", "sourceValue": 168955, "linkedValue": 168955},
+    {"code": "43110", "year": "2020", "sourceValue": 855326, "linkedValue": 855326},
+    {"code": "48120", "year": "2020", "sourceValue": 1029389, "linkedValue": 1029389}
+  ]
+}

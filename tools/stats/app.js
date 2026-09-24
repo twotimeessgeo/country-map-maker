@@ -320,7 +320,7 @@
     const matched=highlight&&normalize(row.label).includes(highlight);
     const aggregate=row.group==="continent"||row.group==="national"||row.group==="region";
     return '<tr class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
-      row.values.map((value,index)=>'<td>'+cellHtml(value,view.columns[index],/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined)+
+      row.values.map((value,index)=>'<td>'+cellHtml(value,view.columns[index],/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].digits??(view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined))+
         (row.valueUnit&&index===0?'<small class="stats-value-unit">'+escapeHtml(row.valueUnit)+'</small>':"")+'</td>').join("")+barMarkup(row,bar,tableId)+'</tr>';
   }
   function tbodyMarkup(view,groups,bar,tableId) {
@@ -378,7 +378,8 @@
         return '<th scope="col" aria-sort="'+(active?(sort.direction==="desc"?"descending":"ascending"):"none")+
           '"><button type="button" class="stats-sort" data-table="'+table.id+'" data-sort="'+(index+1)+'"><span class="stats-sort-main">'+
           escapeHtml(column.label)+(active?'<span class="stats-sort-arrow">'+(sort.direction==="desc"?"↓":"↑")+'</span>':"")+
-          '</span><span class="stats-sort-unit">'+escapeHtml(column.unit||"")+'</span></button></th>';
+          '</span><span class="stats-sort-unit">'+escapeHtml(column.unit||"")+'</span>'+
+          (column.qualifier?'<span class="stats-sort-qualifier">'+escapeHtml(column.qualifier)+'</span>':"")+'</button></th>';
       }).join("")+(bar?'<th scope="col" class="stats-bar-head"><span>'+escapeHtml(bar.label)+'</span></th>':"");
     const meta='<div class="tw-meta-list stats-table-meta">'+(view.sources||[]).map(source=>
       '<span><a href="'+escapeHtml(source.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(source.name)+'</a>, '+escapeHtml(source.year)+'</span>').join(" ")+'</div>';
@@ -400,7 +401,7 @@
     const view=activeView(table,state),groups=visibleRows(table,view,state);
     const result=[[view.rowLabel,...view.columns.map(c=>c.label+(c.unit?" ("+c.unit+")":""))]];
     const append=row=>result.push([row.label+(row.aggregateMark?"*":""),...row.values.map((value,index)=>value&&typeof value==="object"?value.name+" "+value.value:
-      typeof value==="number"?formatNumber(value,row.valueUnit&&index===0?row.valueUnit:view.columns[index].unit,/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined).replaceAll(",","").replaceAll("−","-")+(row.valueUnit&&index===0?" "+row.valueUnit:""):value??"–")]);
+      typeof value==="number"?formatNumber(value,row.valueUnit&&index===0?row.valueUnit:view.columns[index].unit,/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].digits??(view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined)).replaceAll(",","").replaceAll("−","-")+(row.valueUnit&&index===0?" "+row.valueUnit:""):value??"–")]);
     if(groups.continent.length) {result.push(["대륙"]);groups.continent.forEach(append);}
     if(groups.country.length) {
       result.push(["국가"]);

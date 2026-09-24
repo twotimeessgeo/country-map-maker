@@ -28,7 +28,7 @@ const labels = new Map(Object.entries({
   "재생": "신재생", "재생에너지": "신재생",
   "농업": "농림어업", "공업": "광공업",
 }));
-const noUnit = new Set(["주간 인구 지수", "2011", "2015", "2020", "2025", "2026.6"]);
+const noUnit = new Set(["주간 인구 지수"]);
 const romanYears = new Map([
   ["2011년 12월", "2011"], ["2015년 12월", "2015"], ["2020년 12월", "2020"],
   ["2025년 12월", "2025"], ["2026년 6월", "2026.6"],
@@ -58,7 +58,7 @@ function polishView(table,view) {
   if (aggregate && view.rows.some(row=>row.group==="continent")) {
     for (const row of view.rows) if(row.group==="continent")row.aggregateMark=true;
     view.note="* 국가 합산";
-  } else if (["종사자 10명 이상 사업체","2011년 = 100","잠정"].includes(originalNote)) view.note=originalNote;
+  } else if (["종사자 10명 이상 사업체","2011년 = 100","잠정","* 2020년 행정구역 기준"].includes(originalNote)) view.note=originalNote;
 
   view.label=renewableText(cleanLabel(view.label));
   if(view.label==="취업 구조")view.label="산업 구조";
