@@ -5,6 +5,13 @@
  */
 
 /* ───────── Hero ───────── */
+:root {
+  --tw-climate-map-dur: 280ms;
+  --tw-climate-marker-dur: 420ms;
+  --tw-climate-chip-dur: 160ms;
+  --tw-climate-check-dur: 180ms;
+  --tw-climate-anchor-dur: 200ms;
+}
 
 .atlas-hero {
   justify-items: start;
@@ -392,7 +399,7 @@
   gap: var(--tw-space-3);
 }
 
-body[data-app-mode="korea"] .map-card { width: min(100%, 520px); justify-self: center; }
+body[data-app-mode="korea"] .map-card { width: min(100%, 400px); justify-self: center; }
 
 .map-skip-link:focus-visible {
   position: relative;
@@ -451,14 +458,25 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 520px); justify-self: c
   box-shadow: none;
 }
 
-.map-marker.is-selected::before {
+.map-marker.is-selecting::before,
+.map-marker.is-deselecting::before {
+  inset: 50% auto auto 50%;
+  width: 10px;
+  height: 10px;
   border: 1px solid var(--tw-ink);
-  animation: tw-marker-ring var(--tw-dur-2) var(--tw-ease-out) both;
+  background: var(--tw-hairline);
+  pointer-events: none;
 }
-
-@keyframes tw-marker-ring {
-  from { transform: scale(0.6); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+.map-marker.is-selecting::before { animation: tw-marker-select var(--tw-climate-marker-dur) var(--tw-ease-out) both; }
+.map-marker.is-deselecting::before { animation: tw-marker-deselect var(--tw-climate-marker-dur) var(--tw-ease-out) both; }
+@keyframes tw-marker-select {
+  from { transform: translate(-50%,-50%) scale(1); opacity: .35; }
+  to { transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
+}
+@keyframes tw-marker-deselect {
+  from { transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
+  80% { transform: translate(-50%,-50%) scale(1); opacity: .35; }
+  to { transform: translate(-50%,-50%) scale(1); opacity: 0; }
 }
 
 .world-map-frame {
@@ -481,9 +499,8 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 520px); justify-self: c
 .world-map-frame.is-korea {
   width: 100%;
   margin: 0 auto;
-  aspect-ratio: 620 / 1120;
+  aspect-ratio: 400 / 650;
 }
-.world-map-frame.is-korea .map-marker { --marker-color: var(--tw-ink); }
 
 .world-map-svg,
 .world-map-leaders,
@@ -529,8 +546,8 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 520px); justify-self: c
 
 .map-landmass {
   fill: #ffffff;
-  stroke: rgba(0, 0, 0, 0.32);
-  stroke-width: 0.7;
+  stroke: var(--tw-ink-4);
+  stroke-width: 0.5;
 }
 
 .map-country-borders {
@@ -542,18 +559,18 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 520px); justify-self: c
 .map-marker {
   position: absolute;
   z-index: 1;
-  width: 10px;
-  height: 10px;
+  width: 7px;
+  height: 7px;
   padding: 0;
-  border: 1.5px solid #ffffff;
+  border: 0;
   border-radius: 999px;
-  background: var(--marker-color);
+  background: var(--tw-ink-3);
   cursor: pointer;
   transform: translate(
       calc(-50% + var(--marker-dx, 0px) + var(--marker-auto-dx, 0px)),
       calc(-50% + var(--marker-dy, 0px) + var(--marker-auto-dy, 0px))
     );
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.18);
+  box-shadow: none;
   transition: width var(--tw-dur-1) var(--tw-ease-out), height var(--tw-dur-1) var(--tw-ease-out),
     box-shadow var(--tw-dur-1) var(--tw-ease-out);
 }
@@ -569,13 +586,14 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 520px); justify-self: c
 .map-marker:focus-visible,
 .map-marker.is-selected {
   z-index: 2;
-  border-color: #ffffff;
-  box-shadow: 0 0 0 1.5px var(--tw-ink), 0 0 0 5px rgba(0, 0, 0, 0.08);
+  width: 10px;
+  height: 10px;
 }
 
 .map-marker.is-selected {
-  width: 13px;
-  height: 13px;
+  border: 1.5px solid var(--tw-bg);
+  background: var(--tw-ink);
+  box-shadow: 0 0 0 1px var(--tw-ink);
 }
 
 .selected-tray-chip:focus-visible,
@@ -1992,6 +2010,18 @@ tfoot td {
   flex-direction: column;
   gap: 4px;
 }
+.map-zoom-level {
+  align-self: end;
+  padding: 4px 8px;
+  border-radius: var(--tw-radius-pill);
+  background: var(--tw-bg);
+  color: var(--tw-ink-2);
+  font-family: var(--tw-font-latin);
+  font-size: var(--tw-text-2xs);
+  line-height: 1;
+  box-shadow: var(--tw-shadow-thumb);
+}
+.map-zoom-level[hidden] { display: none; }
 
 .map-zoom-controls button {
   display: grid;

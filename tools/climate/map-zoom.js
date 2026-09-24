@@ -24,6 +24,8 @@
   const pointers = new Map();
   let pinch = null;
   let suppressClick = false;
+  let mapScope = null;
+  let previousSelected = null;
 
   function clamp() {
     view.k = Math.min(MAX_ZOOM, Math.max(1, view.k));
@@ -60,6 +62,8 @@
       controls.querySelector("[data-zoom='in']").disabled = view.k >= MAX_ZOOM - 0.001;
       controls.querySelector("[data-zoom='out']").disabled = view.k <= 1.001;
       controls.querySelector("[data-zoom='reset']").hidden = view.k <= 1.001;
+      const level=controls.querySelector(".map-zoom-level");
+      if(level){level.hidden=view.k<=1.001;level.textContent=`×${Number(view.k.toFixed(1))}`;}
     }
     layoutLabels();
     if (view.k >= 3 && !frame.classList.contains("is-korea")) void loadHighResolution();
@@ -86,7 +90,7 @@
   function setView(next, animate = false) {
     cancelAnimation();
     const css = getComputedStyle(document.documentElement);
-    const duration = parseFloat(css.getPropertyValue("--tw-dur-2")) || 0;
+    const duration = parseFloat(css.getPropertyValue("--tw-climate-map-dur")) || parseFloat(css.getPropertyValue("--tw-dur-2")) || 0;
     if (!animate || matchMedia("(prefers-reduced-motion: reduce)").matches || !duration) {
       Object.assign(view, next);
       apply();
@@ -216,11 +220,38 @@
 
   window.ClimateMapZoom = { focusMarkerOnMobile };
 
+  function fitSelected() {
+    const selected=markers.filter(marker=>marker.classList.contains("is-selected"));
+    if(!selected.length)return {k:1,x:0,y:0};
+    const xs=selected.map(marker=>marker._mapX),ys=selected.map(marker=>marker._mapY);
+    const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+    const width=Math.max((maxX-minX)/.76,baseWidth/4),height=Math.max((maxY-minY)/.76,baseHeight/4);
+    const k=Math.max(1,Math.min(MAX_ZOOM,baseWidth/width,baseHeight/height));
+    return {k,x:(minX+maxX)/2-baseWidth/(2*k),y:(minY+maxY)/2-baseHeight/(2*k)};
+  }
+
+  function pulseSelection() {
+    const selected=new Set(markers.filter(marker=>marker.classList.contains("is-selected")).map(marker=>marker.dataset.mapRegionId));
+    if(previousSelected)for(const marker of markers) {
+      const id=marker.dataset.mapRegionId;
+      const action=selected.has(id)&&!previousSelected.has(id)?"is-selecting":!selected.has(id)&&previousSelected.has(id)?"is-deselecting":"";
+      if(!action)continue;
+      marker.classList.remove("is-selecting","is-deselecting");
+      void marker.offsetWidth;
+      marker.classList.add(action);
+      const duration=parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tw-climate-marker-dur"))||420;
+      setTimeout(()=>marker.classList.remove(action),duration+30);
+    }
+    previousSelected=selected;
+  }
+
   function attach() {
     const next = host.querySelector(".world-map-frame");
     if (!next || next === frame) return;
     cancelAnimation();
+    const oldScope=mapScope;
     frame = next;
+    mapScope=frame.dataset.mapScope||"all";
     svg = frame.querySelector(".world-map-svg");
     if (!svg) return;
     baseWidth = svg.viewBox.baseVal.width;
@@ -230,6 +261,7 @@
       marker._mapX = parseFloat(marker.style.left) * baseWidth / 100;
       marker._mapY = parseFloat(marker.style.top) * baseHeight / 100;
     }
+    pulseSelection();
     if (!attach.mobileStarted && matchMedia("(max-width: 760px)").matches) {
       attach.mobileStarted = true;
       const selected = markers.filter((marker) => marker.classList.contains("is-selected"));
@@ -243,16 +275,19 @@
     const controls = document.createElement("div");
     controls.className = "map-zoom-controls";
     controls.innerHTML = `
+      <span class="map-zoom-level" aria-label="확대 배율" hidden></span>
       <button type="button" data-zoom="in" aria-label="확대">+</button>
       <button type="button" data-zoom="out" aria-label="축소">−</button>
       <button type="button" data-zoom="reset" aria-label="전체 보기" hidden>전체</button>`;
     frame.appendChild(controls);
-    apply();
+    if(mapScope==="selected")setView(fitSelected(),oldScope!==null);
+    else if(oldScope==="selected")setView({k:1,x:0,y:0},true);
+    else apply();
   }
 
   new MutationObserver(attach).observe(host, { childList: true, subtree: true });
   attach();
-  host.addEventListener("climate-map-selection", apply);
+  host.addEventListener("climate-map-selection",()=>{pulseSelection();apply();});
 
   host.addEventListener("click", (event) => {
     const button = event.target.closest(".map-zoom-controls button");
@@ -291,7 +326,7 @@
       if (!frame || !frame.contains(event.target) || !(event.ctrlKey || event.metaKey)) return;
       event.preventDefault();
       const [px, py] = local(event);
-      zoomAt(Math.exp(-event.deltaY * 0.01), px, py);
+      zoomAt(Math.exp(-event.deltaY * 0.01), px, py, true);
     },
     { passive: false }
   );

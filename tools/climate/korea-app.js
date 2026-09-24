@@ -1,6 +1,6 @@
 const KOREA_MAP_VIEWBOX = {
-  width: 620,
-  height: 1120,
+  width: 400,
+  height: 650,
 };
 
 const KOREA_MAP_PADDING = {
@@ -1209,7 +1209,7 @@ function renderMap(visibleRegions, selectedRegions) {
     .join("");
 
   elements.worldMap.innerHTML = `
-    <div class="world-map-frame is-natural is-korea">
+    <div class="world-map-frame is-natural is-korea" data-map-scope="${state.mapScope}">
       <svg class="world-map-svg" viewBox="0 0 ${width} ${height}" aria-label="한국 기후 지도">
         <rect class="map-sphere" x="0" y="0" width="${width}" height="${height}"></rect>
         <g>

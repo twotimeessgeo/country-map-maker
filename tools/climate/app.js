@@ -3934,7 +3934,7 @@ function renderWorldMap(regions) {
 
   const background = renderProjectedWorldMapBackground(projection);
   return `
-    <div class="world-map-frame is-natural">
+    <div class="world-map-frame is-natural" data-map-scope="${state.mapScope}">
       ${background}
       <svg class="world-map-leaders" aria-hidden="true"></svg>
       <div class="world-map-markers">
