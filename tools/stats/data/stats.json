@@ -760,7 +760,7 @@
                 }
               ],
               "defaultSort": {
-                "mode": "firstNumeric",
+                "mode": "latestYearOrFirstNumeric",
                 "direction": "desc"
               }
             },
@@ -2337,7 +2337,7 @@
                 }
               ],
               "defaultSort": {
-                "mode": "firstNumeric",
+                "mode": "latestYearOrFirstNumeric",
                 "direction": "desc"
               }
             }
@@ -4143,89 +4143,19 @@
           "tables": [
             {
               "id": "korea-agriculture-compare",
-              "title": "시도별 식량",
+              "title": "시도별 농가와 경지",
               "comparison": true,
               "views": [
                 {
-                  "id": "농가",
-                  "label": "농가",
-                  "rowLabel": "지역",
+                  "id": "combined",
+                  "label": "농가와 경지",
+                  "rowLabel": "시도",
                   "columns": [
                     {
                       "label": "농가 수",
-                      "unit": "가구"
-                    }
-                  ],
-                  "rows": [
-                    {
-                      "label": "경기",
-                      "values": [
-                        106373
-                      ]
+                      "unit": "가구",
+                      "year": "2024년"
                     },
-                    {
-                      "label": "강원",
-                      "values": [
-                        64974
-                      ]
-                    },
-                    {
-                      "label": "충북",
-                      "values": [
-                        68472
-                      ]
-                    },
-                    {
-                      "label": "충남",
-                      "values": [
-                        113142
-                      ]
-                    },
-                    {
-                      "label": "전북",
-                      "values": [
-                        87718
-                      ]
-                    },
-                    {
-                      "label": "전남",
-                      "values": [
-                        139132
-                      ]
-                    },
-                    {
-                      "label": "경북",
-                      "values": [
-                        162801
-                      ]
-                    },
-                    {
-                      "label": "경남",
-                      "values": [
-                        113007
-                      ]
-                    },
-                    {
-                      "label": "제주",
-                      "values": [
-                        29125
-                      ]
-                    }
-                  ],
-                  "sources": [
-                    {
-                      "name": "국가데이터처",
-                      "year": "2024",
-                      "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1EA1045&conn_path=ZF"
-                    }
-                  ],
-                  "year": "2024년"
-                },
-                {
-                  "id": "경지",
-                  "label": "경지",
-                  "rowLabel": "시도",
-                  "columns": [
                     {
                       "label": "경지 면적",
                       "unit": "ha",
@@ -4241,6 +4171,7 @@
                     {
                       "label": "서울",
                       "values": [
+                        5084,
                         599,
                         1
                       ]
@@ -4248,6 +4179,7 @@
                     {
                       "label": "부산",
                       "values": [
+                        9902,
                         4744,
                         6.2
                       ]
@@ -4255,6 +4187,7 @@
                     {
                       "label": "대구",
                       "values": [
+                        19893,
                         13556,
                         9
                       ]
@@ -4262,6 +4195,7 @@
                     {
                       "label": "인천",
                       "values": [
+                        11421,
                         17195,
                         16.1
                       ]
@@ -4269,6 +4203,7 @@
                     {
                       "label": "광주",
                       "values": [
+                        12521,
                         9019,
                         18
                       ]
@@ -4276,6 +4211,7 @@
                     {
                       "label": "대전",
                       "values": [
+                        11767,
                         3649,
                         6.8
                       ]
@@ -4283,6 +4219,7 @@
                     {
                       "label": "울산",
                       "values": [
+                        12487,
                         8625,
                         8.1
                       ]
@@ -4290,6 +4227,7 @@
                     {
                       "label": "세종",
                       "values": [
+                        5890,
                         6737,
                         14.5
                       ]
@@ -4297,6 +4235,7 @@
                     {
                       "label": "경기",
                       "values": [
+                        106373,
                         145209,
                         14.2
                       ]
@@ -4304,6 +4243,7 @@
                     {
                       "label": "강원",
                       "values": [
+                        64974,
                         99231,
                         5.9
                       ]
@@ -4311,6 +4251,7 @@
                     {
                       "label": "충북",
                       "values": [
+                        68472,
                         93857,
                         12.7
                       ]
@@ -4318,6 +4259,7 @@
                     {
                       "label": "충남",
                       "values": [
+                        113142,
                         212135,
                         25.7
                       ]
@@ -4325,6 +4267,7 @@
                     {
                       "label": "전북",
                       "values": [
+                        87718,
                         187971,
                         23.3
                       ]
@@ -4332,6 +4275,7 @@
                     {
                       "label": "전남",
                       "values": [
+                        139132,
                         272983,
                         22.1
                       ]
@@ -4339,6 +4283,7 @@
                     {
                       "label": "경북",
                       "values": [
+                        162801,
                         235217,
                         12.8
                       ]
@@ -4346,6 +4291,7 @@
                     {
                       "label": "경남",
                       "values": [
+                        113007,
                         133925,
                         12.7
                       ]
@@ -4353,12 +4299,18 @@
                     {
                       "label": "제주",
                       "values": [
+                        29125,
                         55256,
                         29.9
                       ]
                     }
                   ],
                   "sources": [
+                    {
+                      "name": "국가데이터처",
+                      "year": "2024",
+                      "url": "https://sri.kostat.go.kr/boardDownload.es?bid=226&list_no=436097&seq=3"
+                    },
                     {
                       "name": "국가데이터처",
                       "year": "2025",
@@ -4369,8 +4321,7 @@
                       "year": "2024",
                       "url": "https://stat.molit.go.kr/"
                     }
-                  ],
-                  "year": "2025년"
+                  ]
                 }
               ],
               "defaultSort": {
@@ -9304,7 +9255,7 @@
                 }
               ],
               "defaultSort": {
-                "mode": "firstNumeric",
+                "mode": "latestYearOrFirstNumeric",
                 "direction": "desc"
               }
             },
@@ -9538,7 +9489,7 @@
                 }
               ],
               "defaultSort": {
-                "mode": "firstNumeric",
+                "mode": "latestYearOrFirstNumeric",
                 "direction": "desc"
               }
             },
@@ -9960,7 +9911,7 @@
                 }
               ],
               "defaultSort": {
-                "mode": "firstNumeric",
+                "mode": "latestYearOrFirstNumeric",
                 "direction": "desc"
               }
             },
@@ -10734,7 +10685,7 @@
                 }
               ],
               "defaultSort": {
-                "mode": "firstNumeric",
+                "mode": "latestYearOrFirstNumeric",
                 "direction": "desc"
               }
             },
@@ -10856,7 +10807,7 @@
                 }
               ],
               "defaultSort": {
-                "mode": "firstNumeric",
+                "mode": "latestYearOrFirstNumeric",
                 "direction": "desc"
               }
             }
@@ -12816,6 +12767,19 @@
                       ],
                       "group": "country",
                       "continent": "앵글로아메리카"
+                    },
+                    {
+                      "label": "브라질",
+                      "values": [
+                        13.8,
+                        3.86,
+                        37.32,
+                        8.2,
+                        1.01,
+                        49.62
+                      ],
+                      "group": "country",
+                      "continent": "라틴 아메리카"
                     }
                   ],
                   "sources": [
@@ -13058,6 +13022,20 @@
                       ],
                       "group": "country",
                       "continent": "앵글로아메리카"
+                    },
+                    {
+                      "label": "브라질",
+                      "values": [
+                        2.29,
+                        1.69,
+                        7.31,
+                        2.11,
+                        51.78,
+                        34.82,
+                        0
+                      ],
+                      "group": "country",
+                      "continent": "라틴 아메리카"
                     }
                   ],
                   "sources": [
@@ -13210,6 +13188,15 @@
                       ],
                       "group": "country",
                       "continent": "앵글로아메리카"
+                    },
+                    {
+                      "label": "브라질",
+                      "values": [
+                        15.87,
+                        2.11
+                      ],
+                      "group": "country",
+                      "continent": "라틴 아메리카"
                     }
                   ],
                   "sources": [
@@ -13319,10 +13306,10 @@
                 {
                   "id": "default",
                   "label": "기본",
-                  "rowLabel": "국가",
+                  "rowLabel": "순위",
                   "columns": [
                     {
-                      "label": "순위",
+                      "label": "국가",
                       "unit": ""
                     },
                     {
@@ -13332,72 +13319,72 @@
                   ],
                   "rows": [
                     {
-                      "label": "중국",
+                      "label": "1위",
                       "values": [
-                        1,
+                        "중국",
                         158.9
                       ]
                     },
                     {
-                      "label": "미국",
+                      "label": "2위",
                       "values": [
-                        2,
+                        "미국",
                         91.8
                       ]
                     },
                     {
-                      "label": "인도",
+                      "label": "3위",
                       "values": [
-                        3,
+                        "인도",
                         38.8
                       ]
                     },
                     {
-                      "label": "러시아",
+                      "label": "4위",
                       "values": [
-                        4,
+                        "러시아",
                         31.8
                       ]
                     },
                     {
-                      "label": "일본",
+                      "label": "5위",
                       "values": [
-                        5,
+                        "일본",
                         16.4
                       ]
                     },
                     {
-                      "label": "대한민국",
+                      "label": "6위",
                       "values": [
-                        6,
+                        "대한민국",
                         13.1
                       ]
                     },
                     {
-                      "label": "이란",
+                      "label": "7위",
                       "values": [
-                        7,
+                        "이란",
                         12.8
                       ]
                     },
                     {
-                      "label": "캐나다",
+                      "label": "8위",
                       "values": [
-                        8,
+                        "캐나다",
                         11.9
                       ]
                     },
                     {
-                      "label": "사우디아라비아",
+                      "label": "9위",
                       "values": [
-                        9,
+                        "사우디아라비아",
                         11.8
                       ]
                     },
                     {
-                      "label": "인도네시아",
+                      "label": "10위",
                       "values": [
-                        10,
+                        "인도네시아",
                         11.1
                       ]
                     }
@@ -13445,6 +13432,14 @@
                         14.9,
                         51.1,
                         -36.2
+                      ]
+                    },
+                    {
+                      "label": "브라질",
+                      "values": [
+                        182.1,
+                        119.1,
+                        63
                       ]
                     },
                     {
@@ -13586,6 +13581,14 @@
                         150.1,
                         37,
                         113.1
+                      ]
+                    },
+                    {
+                      "label": "브라질",
+                      "values": [
+                        22.8,
+                        31.4,
+                        -8.5
                       ]
                     },
                     {
@@ -13735,6 +13738,14 @@
                         11.8,
                         1.5,
                         10.3
+                      ]
+                    },
+                    {
+                      "label": "브라질",
+                      "values": [
+                        0.1,
+                        0.5,
+                        -0.4
                       ]
                     },
                     {

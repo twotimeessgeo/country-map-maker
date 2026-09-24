@@ -620,8 +620,8 @@ function make(target) {
       .sort((a,b)=>b[1].Total-a[1].Total);
     if(ranked.length<11||ranked.slice(0,10).some(([name,value],index)=>!englishToKorean.has(name)||!Number.isFinite(value.Total)||value.Total<ranked[index+1][1].Total))
       throw new Error("EI 1차 에너지 국가 순위 또는 국가명 누락");
-    const records=ranked.slice(0,10).map(([name,v],index)=>row(englishToKorean.get(name),[index+1,round(v.Total,1)]));
-    return table(target,"EJ","2024",eiSource,["국가",{label:"순위",unit:""},{label:"1차 에너지 공급",unit:"EJ"}],records,{note:"Energy Institute가 개별 국가로 수록한 범위의 상위 10개국"});
+    const records=ranked.slice(0,10).map(([name,v],index)=>row(String(index+1)+"위",[englishToKorean.get(name),round(v.Total,1)]));
+    return table(target,"EJ","2024",eiSource,["순위",{label:"국가",unit:""},{label:"1차 에너지 공급",unit:"EJ"}],records,{note:"Energy Institute가 개별 국가로 수록한 범위의 상위 10개국"});
   }
   if (kind === "ei-world-regions") {
     const a=local.ei_energy_2024.supply_ej;
@@ -630,9 +630,13 @@ function make(target) {
     return table(target,"EJ","2024",eiSource,["권역",{label:"1차 에너지 공급",unit:"EJ"}],rows,{note:"Energy Institute 집계 권역을 재구성한 참고값; 아시아에는 일부 CIS 지역과 중동, 아시아태평양 전체가 포함되어 오세아니아와 중복됨"});
   }
   if (kind === "province-single") {
+    if(target.id==="k-5-07") {
+      const records=local.kostat_farm_households_2024.under_half_ha;
+      if(records.length!==provinceOrder.length||records.some(record=>!f(record.total)))throw new Error("2024 시도별 농가 수 누락");
+      return table(target,"가구","2024",farmSource,["시도",{label:"농가 수",unit:"가구"}],
+        records.map((record,index)=>row(provinceOrder[index],[record.total])));
+    }
     const built = provinceSingle(target, arg);
-    if (built && target.id === "k-5-07") built.rows = built.rows.filter((record) =>
-      ["경기", "강원", "충북", "충남", "전북", "전남", "경북", "경남", "제주"].includes(record.label));
     return built;
   }
   if (kind === "city-rank-province" || kind === "city-rank-region") {

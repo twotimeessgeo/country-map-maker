@@ -245,8 +245,11 @@
   }
   function effectiveSort(table,view,state) {
     if(state.sort!==undefined)return state.sort;
-    if(table.defaultSort?.mode==="firstNumeric") {
-      const index=firstNumericIndex(view);
+    if(["firstNumeric","latestYearOrFirstNumeric"].includes(table.defaultSort?.mode)) {
+      const yearColumns=table.defaultSort.mode==="latestYearOrFirstNumeric"&&view.columns.length>=2&&
+        view.columns.every(column=>/^(?:19|20)\d{2}(?:[.~-]\d+)*(?:년)?$/.test(column.label));
+      const latest=yearColumns?view.columns.findLastIndex((column,i)=>column.barEligible!==false&&view.rows.some(row=>typeof row.values[i]==="number"))+1:0;
+      const index=latest||firstNumericIndex(view);
       return index===null?null:{index,direction:table.defaultSort.direction};
     }
     return null;

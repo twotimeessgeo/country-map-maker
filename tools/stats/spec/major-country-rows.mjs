@@ -15,11 +15,10 @@ export const majorCountryRows = {
   },
   crops: ["CHN", "USA", "IND", "BRA", "RUS", "AUS", "FRA", "UKR"],
   livestock: ["CHN", "USA", "IND", "BRA", "IDN", "ARG", "AUS", "NGA"],
-  energy: ["USA", "RUS", "CHN", "IND", "FRA", "CAN", "JPN", "IRN"],
+  energy: ["USA", "RUS", "CHN", "IND", "FRA", "CAN", "JPN", "IRN", "BRA"],
   monsoon: ["CHN", "JPN", "IND", "AUS", "IDN", "SGP", "THA", "VNM"],
   dry: ["SAU", "TUR", "KAZ", "UZB", "IRN", "EGY", "MAR", "ISR"],
   europeAmerica: ["USA", "CAN", "FRA", "DEU", "GBR", "ITA", "ESP", "RUS"],
   africaLatin: ["BRA", "ARG", "MEX", "CHL", "PER", "NGA", "ZAF", "ETH"],
 };
 export const busanDistrictRows = ["중구", "강서구", "동구", "금정구", "부산진구", "해운대구", "북구"];
-

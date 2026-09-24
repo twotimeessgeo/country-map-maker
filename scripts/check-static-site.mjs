@@ -222,8 +222,8 @@ if (isSourceCheck) {
         if (!table.id || seenIds.has(table.id) || !/^(?:korea|world)-[a-z0-9-]+$/.test(table.id)) errors.push("Statistics 표 ID 오류: " + table.id);
         seenIds.add(table.id);
         if (!table.title || !table.views?.length) errors.push("Statistics 표 제목·전환 누락: " + table.id);
-        if (!["firstNumeric","rank","year","intrinsic"].includes(table.defaultSort?.mode) ||
-            table.defaultSort.mode==="firstNumeric"&&table.defaultSort.direction!=="desc" ||
+        if (!["firstNumeric","latestYearOrFirstNumeric","rank","year","intrinsic"].includes(table.defaultSort?.mode) ||
+            ["firstNumeric","latestYearOrFirstNumeric"].includes(table.defaultSort.mode)&&table.defaultSort.direction!=="desc" ||
             table.defaultSort.mode==="year"&&table.defaultSort.direction!=="asc")
           errors.push("Statistics 기본 정렬 정의 오류: " + table.id);
         for (const view of table.views || []) checkView(view, table.id);

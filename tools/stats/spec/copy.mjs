@@ -114,14 +114,11 @@ function polishView(table,view) {
   for(const sub of view.subviews||[])polishView(table,sub);
 }
 export function polishStatisticsCopy(result) {
+  const yearColumns=view=>view.columns.length>=2&&view.columns.every(column=>/^(?:19|20)\d{2}(?:[.~-]\d+)*(?:년)?$/.test(column.label));
   for(const subject of Object.values(result.subjects))for(const topic of subject.topics) {
     const tables=topic.regions?topic.regions.flatMap(region=>region.tables):topic.tables||[];
     for(const table of tables) {
       table.title=titles[table.id]||table.title;
-      table.defaultSort=/\-rank$/.test(table.id)||table.views.some(view=>view.rowLabel==="순위")?{mode:"rank"}:
-        table.views.every(view=>/^연도$/.test(view.rowLabel))?{mode:"year",direction:"asc"}:
-        table.views.every(view=>view.rows.length&&view.rows.every(row=>/^(?:유소년층|청장년층|노년층|0~14세|15~64세|65세 이상)$/.test(row.label)))?{mode:"intrinsic"}:
-        {mode:"firstNumeric",direction:"desc"};
       if(table.id==="world-religion-rank")for(const view of table.views)view.columns[0].label="신자 수";
       if(table.id==="world-migrant-origins")for(const view of table.views)view.columns[0].label="이주민 수";
       if(table.id==="world-crop-trade-rank")for(const view of table.views)view.columns[0].label="물량";
@@ -129,6 +126,11 @@ export function polishStatisticsCopy(result) {
       if(table.id==="world-livestock-rank")for(const view of table.views)view.columns[0].label="사육 두수";
       if(table.id==="world-renewable-generation-rank")for(const view of table.views)view.columns[0].label="발전 비율";
       for(const view of table.views)polishView(table,view);
+      table.defaultSort=/\-rank$/.test(table.id)||table.views.some(view=>view.rowLabel==="순위")?{mode:"rank"}:
+        table.views.every(view=>/^연도$/.test(view.rowLabel))?{mode:"year",direction:"asc"}:
+        table.views.every(view=>view.rows.length&&view.rows.every(row=>/^(?:유소년층|청장년층|노년층|0~14세|15~64세|65세 이상)$/.test(row.label)))?{mode:"intrinsic"}:
+        table.views.some(view=>yearColumns(view)||(view.subviews||[]).some(yearColumns))?{mode:"latestYearOrFirstNumeric",direction:"desc"}:
+        {mode:"firstNumeric",direction:"desc"};
     }
   }
   return result;

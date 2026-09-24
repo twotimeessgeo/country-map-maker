@@ -291,7 +291,16 @@ function combine(subject,topic,entries) {
     if(changes.length)out.push({id:"korea-city-change",title:"도시 인구 변화 지수",views:changes});
   }
   if(subject==="korea"&&topic==="food") {
-    add("korea-agriculture-compare","시도별 식량",[["k-5-07","농가"],["k-5-09","경지"],["k-5-15","생산"]]);
+    const farm=get("k-5-07","농가"),land=get("k-5-09","경지");
+    if(farm&&land) {
+      const byName=new Map(land.rows.map(row=>[row.label,row]));
+      const rows=farm.rows.map(row=>({label:row.label,values:[...row.values,...(byName.get(row.label)?.values||[null,null])]}));
+      out.push({id:"korea-agriculture-compare",title:"시도별 농가와 경지",comparison:true,views:[{
+        id:"combined",label:"농가와 경지",rowLabel:"시도",
+        columns:[...farm.columns.map(column=>({...column,year:farm.year})),...land.columns.map(column=>({...column,year:land.year}))],
+        rows,sources:[...farm.sources,...land.sources],
+      }]});
+    }
     mergeViews("k-5-13","k-5-14","작물별 재배 면적 비율","전국 대비","지역 내");
   }
   if(subject==="korea"&&topic==="energy") add("korea-energy-compare","시도별 에너지",[["k-x-02","소비와 판매"],["k-5-02","공급"],["k-5-03","생산"]]);
