@@ -26,6 +26,10 @@
   let suppressClick = false;
   let mapScope = null;
   let previousSelected = null;
+  let gestureFrame = 0;
+  let gestureTimer = 0;
+  let gesturePending = null;
+  let gestureActive = false;
 
   function clamp() {
     view.k = Math.min(MAX_ZOOM, Math.max(1, view.k));
@@ -46,12 +50,15 @@
       ocean.setAttribute("width", String(width));
       ocean.setAttribute("height", String(height));
     }
+    const frameWidth = frame.clientWidth;
+    const frameHeight = frame.clientHeight;
     for (const marker of markers) {
       const x = ((marker._mapX - view.x) / width) * 100;
       const y = ((marker._mapY - view.y) / height) * 100;
-      marker.style.left = `${x}%`;
-      marker.style.top = `${y}%`;
-      marker.hidden = x < -2 || x > 102 || y < -2 || y > 102;
+      marker.style.setProperty("--marker-zoom-dx", `${(x - marker._mapX / baseWidth * 100) * frameWidth / 100}px`);
+      marker.style.setProperty("--marker-zoom-dy", `${(y - marker._mapY / baseHeight * 100) * frameHeight / 100}px`);
+      const outside = x < -2 || x > 102 || y < -2 || y > 102;
+      if (marker.hidden !== outside) marker.hidden = outside;
     }
     frame.style.setProperty("--map-k", String(view.k));
     frame.style.setProperty("--grid-dash", `${3 / view.k}px`);
@@ -65,13 +72,49 @@
       const level=controls.querySelector(".map-zoom-level");
       if(level){level.hidden=view.k<=1.001;level.textContent=`×${Number(view.k.toFixed(1))}`;}
     }
-    layoutLabels();
-    if (view.k >= 3 && !frame.classList.contains("is-korea")) void loadHighResolution();
+    if (!gestureActive) {
+      layoutLabels();
+      if (view.k >= 3 && !frame.classList.contains("is-korea")) void loadHighResolution();
+    }
   }
 
   function cancelAnimation() {
     if (animation) cancelAnimationFrame(animation);
     animation = 0;
+  }
+
+  function cancelGesture() {
+    if (gestureFrame) cancelAnimationFrame(gestureFrame);
+    clearTimeout(gestureTimer);
+    gestureFrame = 0;
+    gestureTimer = 0;
+    gesturePending = null;
+    gestureActive = false;
+  }
+
+  function finishGesture() {
+    if (gestureFrame) {
+      gestureTimer = setTimeout(finishGesture, 16);
+      return;
+    }
+    gestureTimer = 0;
+    gestureActive = false;
+    layoutLabels();
+    if (view.k >= 3 && frame && !frame.classList.contains("is-korea")) void loadHighResolution();
+  }
+
+  function queueGesture(next) {
+    cancelAnimation();
+    gestureActive = true;
+    gesturePending = next;
+    if (!gestureFrame) gestureFrame = requestAnimationFrame(() => {
+      gestureFrame = 0;
+      Object.assign(view, gesturePending);
+      gesturePending = null;
+      apply();
+    });
+    clearTimeout(gestureTimer);
+    gestureTimer = setTimeout(finishGesture, 150);
   }
 
   function easeFromToken(progress, controls) {
@@ -88,6 +131,7 @@
   }
 
   function setView(next, animate = false) {
+    cancelGesture();
     cancelAnimation();
     const css = getComputedStyle(document.documentElement);
     const duration = parseFloat(css.getPropertyValue("--tw-climate-map-dur")) || parseFloat(css.getPropertyValue("--tw-dur-2")) || 0;
@@ -110,13 +154,21 @@
     animation = requestAnimationFrame(tick);
   }
 
-  function zoomAt(factor, px, py, animate = false) {
-    const k = Math.min(MAX_ZOOM, Math.max(1, view.k * factor));
+  function zoomTarget(source, factor, px, py) {
+    const k = Math.min(MAX_ZOOM, Math.max(1, source.k * factor));
     const cx = px / frame.clientWidth;
     const cy = py / frame.clientHeight;
-    const anchorX = view.x + cx * baseWidth / view.k;
-    const anchorY = view.y + cy * baseHeight / view.k;
-    setView({ k, x: anchorX - cx * baseWidth / k, y: anchorY - cy * baseHeight / k }, animate);
+    const anchorX = source.x + cx * baseWidth / source.k;
+    const anchorY = source.y + cy * baseHeight / source.k;
+    return { k, x: anchorX - cx * baseWidth / k, y: anchorY - cy * baseHeight / k };
+  }
+
+  function zoomAt(factor, px, py, animate = false) {
+    setView(zoomTarget(view, factor, px, py), animate);
+  }
+
+  function queueZoom(factor, px, py) {
+    queueGesture(zoomTarget(gesturePending ?? view, factor, px, py));
   }
 
   function layoutLabels() {
@@ -153,7 +205,7 @@
   }
 
   async function loadHighResolution() {
-    if (frame.dataset.mapResolution === "10m" || highResRejected || highResPending) return;
+    if (gestureActive || frame.dataset.mapResolution === "10m" || highResRejected || highResPending) return;
     if (!highResPromise) {
       highResPromise = fetch("./data/world-countries-10m.json")
         .then((response) => {
@@ -164,7 +216,7 @@
     }
     try {
       await highResPromise;
-      if (!frame || frame.classList.contains("is-korea") || view.k < 3 || frame.dataset.mapResolution === "10m") return;
+      if (!frame || gestureActive || frame.classList.contains("is-korea") || view.k < 3 || frame.dataset.mapResolution === "10m") return;
       const projection = typeof buildMapProjection === "function" ? buildMapProjection() : null;
       if (!projection || !window.topojson) return;
       const path = window.d3.geoPath(projection);
@@ -184,7 +236,7 @@
       highResPending=true;
       requestAnimationFrame(()=>{
         highResPending=false;
-        if(frame!==nextFrame||svg!==nextSvg||view.k<3||nextFrame.classList.contains("is-korea"))return;
+        if(frame!==nextFrame||svg!==nextSvg||gestureActive||view.k<3||nextFrame.classList.contains("is-korea"))return;
         const landNode=nextSvg.querySelector(".map-landmass"),borderNode=nextSvg.querySelector(".map-country-borders");
         if(!landNode||!borderNode)return;
         landNode.setAttribute("d",landPath);
@@ -249,6 +301,7 @@
     const next = host.querySelector(".world-map-frame");
     if (!next || next === frame) return;
     cancelAnimation();
+    cancelGesture();
     const oldScope=mapScope;
     frame = next;
     mapScope=frame.dataset.mapScope||"all";
@@ -326,7 +379,7 @@
       if (!frame || !frame.contains(event.target) || !(event.ctrlKey || event.metaKey)) return;
       event.preventDefault();
       const [px, py] = local(event);
-      zoomAt(Math.exp(-event.deltaY * 0.01), px, py, true);
+      queueZoom(Math.max(0.75, Math.min(1.25, Math.exp(-event.deltaY * 0.02))), px, py);
     },
     { passive: false }
   );
@@ -357,7 +410,7 @@
       const cy = center[1] / frame.clientHeight;
       const anchorX = pinch.x + pinch.at[0] / frame.clientWidth * baseWidth / pinch.k;
       const anchorY = pinch.y + pinch.at[1] / frame.clientHeight * baseHeight / pinch.k;
-      setView({ k, x: anchorX - cx * baseWidth / k, y: anchorY - cy * baseHeight / k });
+      queueGesture({ k, x: anchorX - cx * baseWidth / k, y: anchorY - cy * baseHeight / k });
       return;
     }
     if (!drag || event.pointerId !== drag.id) return;
@@ -366,7 +419,7 @@
     if (!drag.moved && Math.hypot(dx, dy) < 4) return;
     drag.moved = true;
     frame.classList.add("is-panning");
-    setView({
+    queueGesture({
       k: view.k,
       x: drag.x - dx * baseWidth / view.k / frame.clientWidth,
       y: drag.y - dy * baseHeight / view.k / frame.clientHeight,

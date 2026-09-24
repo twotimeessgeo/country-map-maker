@@ -604,8 +604,8 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 400px); justify-self: c
   background: var(--tw-ink-3);
   cursor: pointer;
   transform: translate(
-      calc(-50% + var(--marker-dx, 0px) + var(--marker-auto-dx, 0px)),
-      calc(-50% + var(--marker-dy, 0px) + var(--marker-auto-dy, 0px))
+      calc(-50% + var(--marker-dx, 0px) + var(--marker-auto-dx, 0px) + var(--marker-zoom-dx, 0px)),
+      calc(-50% + var(--marker-dy, 0px) + var(--marker-auto-dy, 0px) + var(--marker-zoom-dy, 0px))
     );
   box-shadow: none;
   transition: width var(--tw-dur-1) var(--tw-ease-out), height var(--tw-dur-1) var(--tw-ease-out),
