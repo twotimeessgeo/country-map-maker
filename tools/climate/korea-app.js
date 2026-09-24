@@ -1029,7 +1029,7 @@ function renderRegionList(regions) {
 
 function renderSelectedRegions(regions) {
   if (!regions.length) {
-    return renderEmptyState("지도나 목록에서 지역을 선택해 주세요", "", true);
+    return window.ClimateChartKit.renderEmptyOutline();
   }
 
   const sharedChartScale = buildClimateChartScale(regions);

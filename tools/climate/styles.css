@@ -869,6 +869,27 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 400px); justify-self: c
   gap: var(--tw-space-5);
 }
 
+.climate-selection-empty {
+  grid-column: 1 / -1;
+  display: grid;
+  justify-items: center;
+  gap: var(--tw-space-6);
+  padding: var(--tw-space-8) var(--tw-space-6);
+  border: 1px solid var(--tw-hairline);
+  border-radius: var(--tw-radius-xl);
+  color: var(--tw-ink-3);
+  font-size: var(--tw-text-sm);
+  text-align: center;
+}
+
+.climate-selection-empty svg {
+  display: block;
+  width: min(100%, 600px);
+  height: auto;
+  color: var(--tw-ink-4);
+  opacity: .5;
+}
+
 .region-card {
   display: grid;
   align-content: start;
@@ -877,7 +898,7 @@ body[data-app-mode="korea"] .map-card { width: min(100%, 400px); justify-self: c
   border-radius: var(--tw-radius-xl);
   border: 1px solid var(--tw-hairline);
   background: var(--tw-bg);
-  transition: background-color 120ms var(--tw-ease-out);
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out);
 }
 
 .region-card:hover {

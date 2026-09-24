@@ -209,5 +209,13 @@
     return `<span class="region-card-locator" aria-hidden="true"><img src="./data/${isKorea ? "korea" : "world"}-mini.svg" alt="" width="64" height="34">${dot}</span>`;
   }
 
-  window.ClimateChartKit = { buildScale, render, renderLocator };
+  function renderEmptyOutline() {
+    const ticks = Array.from({ length: 12 }, (_, index) => {
+      const x = 42 + (index + 0.5) * 43;
+      return `M${x},228v5`;
+    }).join("");
+    return `<div class="climate-selection-empty"><span>지도나 목록에서 지역을 고르세요.</span><svg viewBox="0 0 600 250" aria-hidden="true" focusable="false"><path d="M42 20V228H558V20M42 228v5M558 228v5${ticks}" fill="none" stroke="currentColor" stroke-width="1" /></svg></div>`;
+  }
+
+  window.ClimateChartKit = { buildScale, render, renderLocator, renderEmptyOutline };
 })();

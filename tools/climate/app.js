@@ -1928,7 +1928,7 @@ function renderRegionOptions(regions) {
 
 function renderSelectedRegions(selectedRegions) {
   if (selectedRegions.length === 0) {
-    return renderEmptyState("지도나 목록에서 지역을 선택해 주세요", "", true);
+    return window.ClimateChartKit.renderEmptyOutline();
   }
 
   const sharedChartScale = buildClimateChartScale(selectedRegions);
@@ -1950,7 +1950,7 @@ function renderSelectedRegions(selectedRegions) {
         <article class="region-card world-region-card" data-region-id="${escapeHtml(region.id)}">
           <header class="region-card-head">
             <div class="region-card-title">
-              <div class="region-card-title-line"><h3>${escapeHtml(region.name)}</h3><span class="region-card-climate-pill">${escapeHtml(region.climateCode)}</span></div>
+              <div class="region-card-title-line"><h3>${escapeHtml(region.name)}</h3><span class="region-card-climate-pill">${escapeHtml(String(region.climateCode ?? "").replace(/^(?:남|북)\s*/, ""))}</span></div>
               <p class="region-card-sub">${renderMetaList([
                 countryDisplayName(region),
                 region.continent,
