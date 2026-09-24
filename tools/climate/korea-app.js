@@ -1152,7 +1152,7 @@ function renderComparison(regions) {
       precs: region.monthlyPrecipitationMm,
       source: region,
     })),
-    extras: [{ title: "연교차", unit: "°C", kind: "bar", value: (item) => getAnnualTemperatureRange(item.source) }],
+    extras: [{ title: "기온의 연교차", unit: "°C", kind: "bar", value: (item) => getAnnualTemperatureRange(item.source) }],
     csv: (key, headers, rows, filename) => registerClimateCsvExport(`korea-${key}`, headers, rows, filename),
   });
 }

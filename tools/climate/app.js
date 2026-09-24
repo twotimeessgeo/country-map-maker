@@ -302,7 +302,7 @@ const EXAM_COMPARISON_TEMPLATES = [
       "2025-suneung-q19-opt-04",
     ],
     categoryKey: "annualTemperatureRange",
-    title: "연교차 비교",
+    title: "기온의 연교차 비교",
     label: "기온의 연교차",
     pattern: "한 지역은 다른 지역보다 기온의 연교차가 크다.",
     reversePattern: "한 지역은 다른 지역보다 기온의 연교차가 작다.",
@@ -3752,7 +3752,7 @@ function formatExamStatementSource(statement) {
 
 function getExamFeatureTitle(statement) {
   const tags = new Set([...(statement.tags ?? []), ...(statement.climateGroups ?? [])]);
-  if (tags.has("일교차") && tags.has("연교차")) return "일교차와 연교차 비교";
+  if (tags.has("일교차") && tags.has("연교차")) return "기온의 일교차와 연교차 비교";
   if (tags.has("타이가") || tags.has("침엽수림대")) return "타이가 분포";
   if (tags.has("수목 농업") || tags.has("올리브") || tags.has("오렌지")) return "수목 농업";
   if (tags.has("경엽수림")) return "경엽수림 분포";
