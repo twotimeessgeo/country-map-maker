@@ -39,8 +39,17 @@
 .stats-table-title { margin: 0; font-size: 16px; font-weight: var(--tw-weight-medium); line-height: 1.4; }
 .stats-table-title a { color: inherit; text-decoration: none; }
 .stats-table-title a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.stats-chart-switch { margin: 0; width: fit-content; }
+.stats-chart-switch > button { min-width: 38px; padding: 5px 10px; font-size: 11px; }
+.stats-chart { width: 100%; min-width: 0; }
+.stats-plot { display: block; width: 100%; height: auto; max-width: 100%; overflow: visible; font-family: var(--tw-font-latin), var(--tw-font-sans); }
+.stats-line-series.is-muted { opacity: .25; }
+.stats-line-series.is-muted.is-focused { opacity: 1; }
+.stats-line-legend { cursor: pointer; }
+.stats-line-legend:focus-visible { outline: 1px solid var(--tw-ink); }
 .stats-actions { display: flex; gap: 2px; flex: none; }
 .stats-icon-button { min-width: 31px; min-height: 31px; padding: 0 7px; font-size: 16px; }
+.stats-icon-button[data-action="svg"] { font-size: 11px; }
 .stats-views, .stats-subviews, .stats-scope { width: fit-content; max-width: 100%; overflow-x: auto; margin: 0 0 14px; white-space: nowrap; }
 .stats-scope { margin-top: -2px; }
 .stats-views > button, .stats-subviews > button, .stats-scope > button { font-size: var(--tw-text-xs); min-width: 46px; }

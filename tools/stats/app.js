@@ -2,6 +2,10 @@
   "use strict";
   const el = {};
   const states = new Map();
+  const chartModels = new Map();
+  const chartSeen = new Set();
+  let chartResizeObserver = null;
+  let chartResizeTimer = null;
   let data = null;
   let search = "";
   let highlight = "";
@@ -57,6 +61,11 @@
         renderContent(); return;
       }
       if (button.dataset.scope) { state.scope = button.dataset.scope; renderContent(); return; }
+      if (button.dataset.chartMode) {
+        const current=selected();
+        try {localStorage.setItem("tw-stats-view:"+current.subject+":"+current.topic.id,button.dataset.chartMode);} catch {}
+        renderContent(); return;
+      }
       if (button.dataset.sort !== undefined) {
         const index = Number(button.dataset.sort);
         const current=effectiveSort(table,activeView(table,state),state);
@@ -76,6 +85,11 @@
           return;
         }
         await copyText(matrix.map(row=>row.join("\t")).join("\n"),"복사했습니다.");
+        return;
+      }
+      if (button.dataset.action === "svg") {
+        const svg=document.getElementById(table.id)?.querySelector(".stats-chart svg");
+        if(svg)window.TWStatsCharts.download(svg,table.id);
         return;
       }
       if (button.dataset.action === "link") {
@@ -123,6 +137,11 @@
     window.addEventListener("scroll",updateStickyHeader,{passive:true});
   }
   function normalize(value) {return String(value||"").trim().toLocaleLowerCase("ko");}
+  function chartMode() {
+    const current=selected();
+    try {return localStorage.getItem("tw-stats-view:"+current.subject+":"+current.topic.id)==="graph"?"graph":"table";}
+    catch {return "table";}
+  }
   function escapeHtml(value) {return String(value??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
   function csvEscape(value) {const text=String(value??"");return /[",\r\n]/.test(text)?'"'+text.replaceAll('"','""')+'"':text;}
   function stateFor(id) {
@@ -217,6 +236,9 @@
       '<button type="button" data-region="'+region.id+'" class="'+(region.id===state.region?.id?"is-active":"")+
       '" aria-pressed="'+(region.id===state.region?.id)+'">'+escapeHtml(region.title)+'</button>').join("")+'</nav>' : "";
     const tables=topic.regions?(state.region?.tables||[]):topic.tables||[];
+    const previousRows=new Map([...el.statsContent.querySelectorAll(".stats-chart [data-row-key]")].map(row=>[
+      row.closest(".stats-chart")?.dataset.table+":"+row.dataset.rowKey,row.getBoundingClientRect().top]));
+    chartResizeObserver?.disconnect();chartModels.clear();
     const previousBars=new Map([...el.statsContent.querySelectorAll(".stats-bar-fill[data-bar-key]")]
       .map(bar=>[bar.dataset.barKey,{left:bar.dataset.left,width:bar.dataset.width}]));
     el.statsContent.innerHTML=switcher+(tables.length?'<div class="stats-table-grid">'+tables.map(renderTable).join("")+'</div>':'<p class="stats-empty">표가 없습니다.</p>');
@@ -225,7 +247,34 @@
       if(old && !matchMedia("(prefers-reduced-motion: reduce)").matches)
         bar.animate([{left:old.left+"%",width:old.width+"%"},{left:bar.dataset.left+"%",width:bar.dataset.width+"%"}],{duration:200,easing:"ease-out"});
     }
-    requestAnimationFrame(()=>{measureSticky();updateStickyHeader();});
+    requestAnimationFrame(()=>{renderCharts(previousRows);measureSticky();updateStickyHeader();});
+  }
+  function renderCharts(previousRows=new Map()) {
+    const charts=[...el.statsContent.querySelectorAll(".stats-chart[data-table]")];
+    for(const container of charts) {
+      const model=chartModels.get(container.dataset.table),width=container.clientWidth;
+      if(!model||!width||container.dataset.renderedWidth===String(width))continue;
+      container.innerHTML=window.TWStatsCharts.render(model,width);
+      container.dataset.renderedWidth=String(width);
+      window.TWStatsCharts.bind(container);
+      const svg=container.querySelector("svg"),seen=chartSeen.has(container.dataset.table);
+      if(!svg||matchMedia("(prefers-reduced-motion: reduce)").matches)continue;
+      if(!seen)svg.animate([{opacity:0},{opacity:1}],{duration:300,easing:"ease-out"});
+      else for(const row of container.querySelectorAll("[data-row-key]")) {
+        const before=previousRows.get(container.dataset.table+":"+row.dataset.rowKey);
+        if(before===undefined)continue;
+        const delta=before-row.getBoundingClientRect().top;
+        if(Math.abs(delta)>1)row.animate([{transform:`translateY(${delta}px)`},{transform:"translateY(0)"}],{duration:250,easing:"ease-out"});
+      }
+      chartSeen.add(container.dataset.table);
+    }
+    chartResizeObserver?.disconnect();
+    chartResizeObserver=new ResizeObserver(entries=>{
+      if(!entries.some(entry=>entry.target.dataset.renderedWidth!==String(entry.target.clientWidth)))return;
+      clearTimeout(chartResizeTimer);
+      chartResizeTimer=setTimeout(()=>renderCharts(),150);
+    });
+    charts.forEach(container=>chartResizeObserver.observe(container));
   }
   function activeView(table,state) {
     const base=table.views[Math.min(state.view,table.views.length-1)];
@@ -359,6 +408,9 @@
     const groups=visibleRows(table,view,state),sort=effectiveSort(table,view,state);
     const rankCards=isRankCards(table);
     const bar=table.comparison?comparisonBar(table,view,groups,state):null;
+    const kind=window.TWStatsCharts.type(table,view,groups,rankCards);
+    const showChart=kind&&chartMode()==="graph";
+    if(showChart)chartModels.set(table.id,{table,view,groups,sort,bar,kind});
     const wide=table.comparison||rankCards||(table.id!=="world-global-primary-energy"&&table.views.some(item=>item.columns.length>=5))||
       /(?:-history|-city-change|-generation-mix)$/.test(table.id);
     const hasBoth=groupRows(view.rows,null).continent.length>1&&groupRows(view.rows,null).country.length>0;
@@ -367,9 +419,12 @@
     const scopeNav=table.comparison&&hasBoth?'<nav class="tw-segmented stats-scope" aria-label="행 범위">'+
       [["all","모두"],["continent","대륙"],["country","국가"]].map(([id,label])=>'<button type="button" data-table="'+table.id+'" data-scope="'+id+
       '" class="'+(state.scope===id?"is-active":"")+'" aria-pressed="'+(state.scope===id)+'">'+label+'</button>').join("")+'</nav>':"";
-    const actions=[["copy","⧉","복사"],["csv","↓","CSV"],["link","↗","링크"]].map(([action,icon,label])=>
+    const actions=[["copy","⧉","복사"],["csv","↓","CSV"],...(showChart?[["svg","SVG","SVG"]]:[]),["link","↗","링크"]].map(([action,icon,label])=>
       '<button type="button" class="tw-button is-ghost is-sm stats-icon-button" data-table="'+table.id+'" data-action="'+action+
       '" aria-label="'+label+'" title="'+label+'">'+icon+'</button>').join("");
+    const chartSwitch=kind?'<nav class="tw-segmented stats-chart-switch" aria-label="'+escapeHtml(table.title)+' 보기">'+
+      [["table","표"],["graph","그래프"]].map(([mode,label])=>'<button type="button" data-table="'+table.id+'" data-chart-mode="'+mode+
+      '" class="'+((showChart?"graph":"table")===mode?"is-active":"")+'" aria-pressed="'+((showChart?"graph":"table")===mode)+'">'+label+'</button>').join("")+'</nav>':"";
     const headers='<th scope="col" aria-sort="'+(sort?.index===0?(sort.direction==="desc"?"descending":"ascending"):"none")+
       '"><button type="button" class="stats-sort" data-table="'+table.id+'" data-sort="0"><span class="stats-sort-main">'+escapeHtml(view.rowLabel)+
       (sort?.index===0?'<span class="stats-sort-arrow">'+(sort.direction==="desc"?"↓":"↑")+'</span>':"")+'</span></button></th>'+
@@ -386,12 +441,12 @@
     const note=view.note?'<p class="stats-note">'+escapeHtml(view.note)+'</p>':"";
     const colgroup='<colgroup><col class="stats-label-col">'+view.columns.map(()=>'<col class="stats-number-col">').join("")+
       (bar?'<col class="stats-bar-col">':"")+'</colgroup>';
-    const body=rankCards?rankCardsMarkup(table):'<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table" style="--stats-numeric-cols:'+view.columns.length+
+    const body=showChart?'<div class="stats-chart" data-table="'+table.id+'"></div>':rankCards?rankCardsMarkup(table):'<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table" style="--stats-numeric-cols:'+view.columns.length+
       ';--stats-bar-width:'+(bar?"220px":"0px")+';min-width:'+(120+88*view.columns.length+(bar?220:0))+'px">'+colgroup+'<thead><tr>'+headers+'</tr></thead>'+tbodyMarkup(view,groups,bar,table.id)+'</table></div>';
     const more=table.id==="world-us-state-manufacturing"?'<button type="button" class="tw-button is-ghost is-sm stats-more" data-table="'+table.id+
       '" data-action="more">'+(state.expanded?"접기":"더 보기")+'</button>':"";
     return '<section class="stats-table-section'+(wide?' is-wide':'')+'" id="'+escapeHtml(table.id)+'"><div class="stats-table-top"><h2 class="stats-table-title"><a href="#'+
-      escapeHtml(table.id)+'">'+escapeHtml(table.title)+'</a></h2><div class="stats-actions">'+actions+'</div></div>'+
+      escapeHtml(table.id)+'">'+escapeHtml(table.title)+'</a></h2>'+chartSwitch+'<div class="stats-actions">'+actions+'</div></div>'+
       viewNav+subNav+scopeNav+body+more+meta+note+'</section>';
   }
   function exportMatrix(table,state) {
