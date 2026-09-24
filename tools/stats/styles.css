@@ -86,6 +86,7 @@
 .stats-note { margin: 4px 0 0; color: var(--tw-ink-3); font-size: 12px; }
 .stats-more { margin-top: 14px; }
 .stats-rank-scroll { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; }
+#world-crop-trade-rank .stats-rank-scroll { grid-template-columns: repeat(3,minmax(0,1fr)); }
 .stats-rank-card { min-width: 0; padding: 16px; border: 1px solid var(--tw-hairline); border-radius: var(--tw-radius-lg); }
 .stats-rank-card h3 { margin: 0 0 12px; font-size: var(--tw-text-md); font-weight: var(--tw-weight-medium); }
 .stats-rank-card table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--tw-text-xs); }

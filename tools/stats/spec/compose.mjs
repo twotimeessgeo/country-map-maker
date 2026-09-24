@@ -1,6 +1,6 @@
 const topics = {
-  korea: [["population","인구"],["urban","도시"],["industry","산업"],["agriculture","농업"],["energy","에너지와 자원"],["transport","교통"],["multicultural","다문화"],["region","지역"],["climate","기후"]],
-  world: [["religion","종교"],["population","인구와 이주"],["urban","도시화"],["food","식량"],["energy","에너지"],["region","지역"],["climate","기후"]],
+  korea: [["population","인구"],["urban","도시"],["industry","산업"],["food","식량"],["energy","에너지와 자원"],["transport","교통"],["foreigners","외국인"],["region","지역"],["climate","기후"]],
+  world: [["religion","종교"],["population","인구"],["urban","도시"],["food","식량"],["energy","에너지"],["region","지역"],["climate","기후"]],
 };
 const regionDefs = {
   korea: [["capital","수도권"],["north","북한"]],
@@ -69,11 +69,11 @@ export function topicFor(subject,id) {
   }
   if (/^k-4-/.test(id)||id==="k-x-01") return "urban";
   if (/^k-5-0[1-6]$/.test(id)||id==="k-x-02") return "energy";
-  if (/^k-5-(0[7-9]|1[0-6])$/.test(id)) return "agriculture";
+  if (/^k-5-(0[7-9]|1[0-6])$/.test(id)) return "food";
   if (/^k-5-(1[7-9]|2[0-5])$/.test(id)) return "industry";
   if (/^k-5-2[67]$/.test(id)) return "transport";
   if (/^k-6-0[1-7]$/.test(id)||id==="k-x-03") return "population";
-  if (/^k-6-0[89]$/.test(id)||id==="k-x-04") return "multicultural";
+  if (/^k-6-0[89]$/.test(id)||id==="k-x-04") return "foreigners";
   return "region";
 }
 function regionFor(id) {
@@ -275,10 +275,10 @@ function combine(subject,topic,entries) {
     const views=[scale,get("k-6-03","연령"),get("k-x-03","출생과 사망"),get("k-6-06","이동")].filter(Boolean);
     const comparison=compare("korea-population-compare","시도별 인구",views);if(comparison)out.push(comparison);
   }
-  if(subject==="korea"&&topic==="multicultural") {
+  if(subject==="korea"&&topic==="foreigners") {
     const scale=get("k-6-08","규모"),types=map.get("k-x-04");map.delete("k-x-04");
     const views=[scale,types&&{...types.views[0],id:"types",label:"유형",subviews:types.views}].filter(Boolean);
-    const t=compare("korea-multicultural-compare","시도별 외국인주민",views);if(t)out.push(t);
+    const t=compare("korea-multicultural-compare","시도별 외국인",views);if(t)out.push(t);
   }
   if(subject==="korea"&&topic==="industry") add("korea-industry-compare","시도별 산업",[["k-5-17","제조업"],["k-5-25","생산"],["k-5-24","취업 구조"]]);
   if(subject==="korea"&&topic==="industry") map.delete("k-5-18");
@@ -290,8 +290,8 @@ function combine(subject,topic,entries) {
     const changes=[["k-4-03","수도권·강원"],["k-4-04","영남"],["k-4-05","충청"],["k-4-06","호남·제주"]].map(([key,label])=>get(key,label)).filter(Boolean);
     if(changes.length)out.push({id:"korea-city-change",title:"도시 인구 변화 지수",views:changes});
   }
-  if(subject==="korea"&&topic==="agriculture") {
-    add("korea-agriculture-compare","시도별 농업",[["k-5-07","농가"],["k-5-09","경지"],["k-5-15","생산"]]);
+  if(subject==="korea"&&topic==="food") {
+    add("korea-agriculture-compare","시도별 식량",[["k-5-07","농가"],["k-5-09","경지"],["k-5-15","생산"]]);
     mergeViews("k-5-13","k-5-14","작물별 재배 면적 비율","전국 대비","지역 내");
   }
   if(subject==="korea"&&topic==="energy") add("korea-energy-compare","시도별 에너지",[["k-x-02","소비와 판매"],["k-5-02","공급"],["k-5-03","생산"]]);
@@ -302,7 +302,7 @@ function combine(subject,topic,entries) {
     mergeViews("w-3-11","w-3-10","순이동 변화","수","비율");
   }
   if(subject==="world"&&topic==="urban") {
-    add("world-urban-compare","대륙과 주요국 도시화",[["w-x-01","도시화율"],["w-3-19","도시와 촌락"],["w-3-20","도시 증가"],["w-3-21","촌락 증가"]]);
+    add("world-urban-compare","대륙과 주요국 도시",[["w-x-01","도시화율"],["w-3-19","도시와 촌락"],["w-3-20","도시 증가"],["w-3-21","촌락 증가"]]);
     map.delete("w-3-22");
   }
   if(subject==="world"&&topic==="food") add("world-food-compare","대륙과 주요국 식량",[["w-3-30","작물"],["w-3-31","가축"]]);

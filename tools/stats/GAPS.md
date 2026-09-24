@@ -6,8 +6,8 @@
 | --- | --- | --- | --- | --- |
 | korea-urban-x-01 | 한국 urban | 주요 시군 거주지 내 취업과 타지역 통근 비율 | 시군 취업자 지표에는 광역시가 없고 2020년 원표는 통근·통학 인구를 합쳐 취업자만의 통근 비율을 계산할 수 없음 | data/korea-stats.js; data_downloads/kosis/raw/DT_1PA2021/101_DT_1PA2021_F_2020.csv |
 | korea-energy-5-01 | 한국 energy | 주요 광물 지역별 생산량 | 에너지 생산 시트의 석탄은 toe이며 광물별 물리 생산량이 아님; 광업·제조업조사는 출하액(백만원)만 수록 | data_downloads/keei/2025_지역에너지통계연보_2024자료.xlsx Ⅰ-2; data_downloads/kosis/raw/DT_1FS1101/101_DT_1FS1101_Y_2024.csv |
-| korea-agriculture-5-15 | 한국 agriculture | 주요 작물 도별 생산량 | 작물 셀 원천에는 2025년 시도별 재배면적(ha)만 있고 수확 생산량(t) 열이 없음; 농식품 PDF의 생산량은 전국 합계 | data_downloads/kosis/browser_extract/crop_area_2025_20260920/source_cells.json; data_downloads/mafra/2025_agriculture_food_main_statistics.pdf |
-| korea-agriculture-5-16 | 한국 agriculture | 시군별 주요 작물 재배 면적 비율 | 작물 셀 원천의 행은 전국·17개 시도만 포함; 시군별 여러 작물 면적은 없음 | data_downloads/kosis/browser_extract/crop_area_2025_20260920/source_cells.json; data/korea-stats.js cities.paddy-field-area |
+| korea-food-5-15 | 한국 food | 주요 작물 도별 생산량 | 작물 셀 원천에는 2025년 시도별 재배면적(ha)만 있고 수확 생산량(t) 열이 없음; 농식품 PDF의 생산량은 전국 합계 | data_downloads/kosis/browser_extract/crop_area_2025_20260920/source_cells.json; data_downloads/mafra/2025_agriculture_food_main_statistics.pdf |
+| korea-food-5-16 | 한국 food | 시군별 주요 작물 재배 면적 비율 | 작물 셀 원천의 행은 전국·17개 시도만 포함; 시군별 여러 작물 면적은 없음 | data_downloads/kosis/browser_extract/crop_area_2025_20260920/source_cells.json; data/korea-stats.js cities.paddy-field-area |
 | korea-industry-5-23 | 한국 industry | 시도별 소매 업태 상위 지역 | 사업체 원표는 산업분류별 사업체수·종사자수이며 백화점·편의점 등 소매 업태별 판매액 열이 없음 | data_downloads/kosis/raw/DT_1K52F01/101_DT_1K52F01_Y_2024.csv |
 | korea-transport-5-26 | 한국 transport | 교통수단별 여객 수송 분담률 | 지역 연보의 영업자동차 수송은 단양군 범위; 전국 교통수단별 여객 수송량 분모와 같은 연도 원표가 없음 | data_downloads/danyang/yearbook/extracted/11. 교통_관광.xlsx; data/korea-stats.js |
 | korea-transport-5-27 | 한국 transport | 교통수단별 화물 수송 분담률 | 지역 연보의 운수 자료는 단양군 범위; 전국 철도·도로·해운·항공 화물량을 같은 단위로 집계한 원표가 없음 | data_downloads/danyang/yearbook/extracted/11. 교통_관광.xlsx; data/korea-stats.js |

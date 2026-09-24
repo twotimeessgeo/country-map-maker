@@ -758,7 +758,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-age-structure-region",
@@ -851,7 +855,11 @@
                   ],
                   "year": "2024년 12월"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-city-growth",
@@ -1028,7 +1036,11 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             }
           ]
         },
@@ -1355,7 +1367,11 @@
                   ],
                   "year": "2020년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-city-rank",
@@ -1678,7 +1694,10 @@
                   ],
                   "year": "2025년 12월"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "rank"
+              }
             },
             {
               "id": "korea-city-change",
@@ -2316,7 +2335,11 @@
                   "year": "2026년 6월",
                   "note": "2011년 = 100"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             }
           ]
         },
@@ -2825,7 +2848,11 @@
                   ],
                   "year": "2025년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-manufacturing-sectors-province",
@@ -3774,7 +3801,11 @@
                   "year": "2024년",
                   "note": "종사자 10명 이상 사업체"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-manufacturing-region",
@@ -3858,7 +3889,11 @@
                   "year": "2024년",
                   "note": "종사자 10명 이상 사업체"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-manufacturing-sectors",
@@ -4094,17 +4129,21 @@
                   "year": "2024년",
                   "note": "종사자 10명 이상 사업체"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             }
           ]
         },
         {
-          "id": "agriculture",
-          "title": "농업",
+          "id": "food",
+          "title": "식량",
           "tables": [
             {
               "id": "korea-agriculture-compare",
-              "title": "시도별 농업",
+              "title": "시도별 식량",
               "comparison": true,
               "views": [
                 {
@@ -4333,7 +4372,11 @@
                   ],
                   "year": "2025년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-crop-share-national",
@@ -4669,7 +4712,11 @@
                   ],
                   "year": "2025년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-farm-types",
@@ -4777,7 +4824,11 @@
                   ],
                   "year": "2024년 12월 1일"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-paddy-field-share",
@@ -4969,7 +5020,11 @@
                   ],
                   "year": "2025년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-crop-area",
@@ -5140,7 +5195,11 @@
                   ],
                   "year": "2025년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-small-farms",
@@ -5290,7 +5349,11 @@
                   ],
                   "year": "2024년 12월 1일"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             }
           ]
         },
@@ -5911,7 +5974,11 @@
                   "year": "2024년",
                   "note": "잠정"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-generation-mix",
@@ -6078,7 +6145,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "year",
+                "direction": "asc"
+              }
             },
             {
               "id": "korea-renewable-production",
@@ -6228,7 +6299,11 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-renewable-production-region",
@@ -6301,17 +6376,21 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             }
           ]
         },
         {
-          "id": "multicultural",
-          "title": "다문화",
+          "id": "foreigners",
+          "title": "외국인",
           "tables": [
             {
               "id": "korea-multicultural-compare",
-              "title": "시도별 외국인주민",
+              "title": "시도별 외국인",
               "comparison": true,
               "views": [
                 {
@@ -7144,7 +7223,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "korea-city-foreign-share",
@@ -7321,7 +7404,11 @@
                   ],
                   "year": "2024년 11월 1일"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             }
           ]
         },
@@ -7674,7 +7761,11 @@
                       ],
                       "year": "2024년 12월"
                     }
-                  ]
+                  ],
+                  "defaultSort": {
+                    "mode": "firstNumeric",
+                    "direction": "desc"
+                  }
                 }
               ]
             },
@@ -7783,7 +7874,11 @@
                       ],
                       "year": "2024년"
                     }
-                  ]
+                  ],
+                  "defaultSort": {
+                    "mode": "firstNumeric",
+                    "direction": "desc"
+                  }
                 }
               ]
             }
@@ -8200,7 +8295,11 @@
                   "year": "2020년",
                   "note": "* 국가 합산"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-religion-distribution",
@@ -8335,7 +8434,11 @@
                   ],
                   "year": "2020년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-religion-rank",
@@ -8605,13 +8708,16 @@
                   ],
                   "year": "2020년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "rank"
+              }
             }
           ]
         },
         {
           "id": "population",
-          "title": "인구와 이주",
+          "title": "인구",
           "tables": [
             {
               "id": "world-population-compare",
@@ -9017,7 +9123,11 @@
                   ],
                   "year": "2025년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-population-history",
@@ -9192,7 +9302,11 @@
                   ],
                   "year": "2025년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-migration-history",
@@ -9422,7 +9536,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-birth-death",
@@ -9495,7 +9613,11 @@
                   ],
                   "year": "2025년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-age-structure-continents",
@@ -9578,7 +9700,11 @@
                   ],
                   "year": "2025년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-migrant-destinations",
@@ -9651,7 +9777,11 @@
                   ],
                   "year": "2020년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-migration-rate-countries",
@@ -9828,7 +9958,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-migrant-origins",
@@ -10164,17 +10298,20 @@
                   ],
                   "year": "2020년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "rank"
+              }
             }
           ]
         },
         {
           "id": "urban",
-          "title": "도시화",
+          "title": "도시",
           "tables": [
             {
               "id": "world-urban-compare",
-              "title": "대륙과 주요국 도시화",
+              "title": "대륙과 주요국 도시",
               "comparison": true,
               "views": [
                 {
@@ -10595,7 +10732,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-urbanization-history",
@@ -10713,7 +10854,11 @@
                     }
                   ]
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             }
           ]
         },
@@ -10733,24 +10878,24 @@
                   "columns": [
                     {
                       "label": "밀",
-                      "unit": "t"
+                      "unit": "만 t"
                     },
                     {
                       "label": "쌀",
-                      "unit": "t"
+                      "unit": "만 t"
                     },
                     {
                       "label": "옥수수",
-                      "unit": "t"
+                      "unit": "만 t"
                     }
                   ],
                   "rows": [
                     {
                       "label": "아시아",
                       "values": [
-                        368545446,
-                        593159383.1,
-                        373905944.9
+                        36854.5,
+                        59315.9,
+                        37390.6
                       ],
                       "group": "continent",
                       "aggregateMark": true
@@ -10758,9 +10903,9 @@
                     {
                       "label": "유럽",
                       "values": [
-                        223071879,
-                        3930058,
-                        97819543
+                        22307.2,
+                        393,
+                        9782
                       ],
                       "group": "continent",
                       "aggregateMark": true
@@ -10768,9 +10913,9 @@
                     {
                       "label": "아프리카",
                       "values": [
-                        24812033.8,
-                        32120528,
-                        83575719.9
+                        2481.2,
+                        3212.1,
+                        8357.6
                       ],
                       "group": "continent",
                       "aggregateMark": true
@@ -10778,9 +10923,9 @@
                     {
                       "label": "앵글로아메리카",
                       "values": [
-                        53650020,
-                        10075780,
-                        377632690
+                        5365,
+                        1007.6,
+                        37763.3
                       ],
                       "group": "continent",
                       "aggregateMark": true
@@ -10788,9 +10933,9 @@
                     {
                       "label": "라틴 아메리카",
                       "values": [
-                        32554984.9,
-                        23756441.4,
-                        213142129.4
+                        3255.5,
+                        2375.6,
+                        21314.2
                       ],
                       "group": "continent",
                       "aggregateMark": true
@@ -10798,9 +10943,9 @@
                     {
                       "label": "오세아니아",
                       "values": [
-                        34110000,
-                        619180,
-                        447027
+                        3411,
+                        61.9,
+                        44.7
                       ],
                       "group": "continent",
                       "aggregateMark": true
@@ -10808,9 +10953,9 @@
                     {
                       "label": "중국",
                       "values": [
-                        140100000,
-                        207530000,
-                        294920000
+                        14010,
+                        20753,
+                        29492
                       ],
                       "group": "country",
                       "continent": "아시아"
@@ -10818,9 +10963,9 @@
                     {
                       "label": "인도",
                       "values": [
-                        113292368,
-                        217867864.16,
-                        40230572.74
+                        11329.2,
+                        21786.8,
+                        4023.1
                       ],
                       "group": "country",
                       "continent": "아시아"
@@ -10828,9 +10973,9 @@
                     {
                       "label": "프랑스",
                       "values": [
-                        26606940,
-                        71960,
-                        14670620
+                        2660.7,
+                        7.2,
+                        1467.1
                       ],
                       "group": "country",
                       "continent": "유럽"
@@ -10838,9 +10983,9 @@
                     {
                       "label": "러시아",
                       "values": [
-                        82588000,
-                        1258900,
-                        13954000
+                        8258.8,
+                        125.9,
+                        1395.4
                       ],
                       "group": "country",
                       "continent": "유럽"
@@ -10848,9 +10993,9 @@
                     {
                       "label": "우크라이나",
                       "values": [
-                        22441110,
-                        15000,
-                        26863740
+                        2244.1,
+                        1.5,
+                        2686.4
                       ],
                       "group": "country",
                       "continent": "유럽"
@@ -10858,9 +11003,9 @@
                     {
                       "label": "미국",
                       "values": [
-                        53650020,
-                        10075780,
-                        377632690
+                        5365,
+                        1007.6,
+                        37763.3
                       ],
                       "group": "country",
                       "continent": "앵글로아메리카"
@@ -10868,9 +11013,9 @@
                     {
                       "label": "브라질",
                       "values": [
-                        7633178,
-                        10671490,
-                        114953303
+                        763.3,
+                        1067.1,
+                        11495.3
                       ],
                       "group": "country",
                       "continent": "라틴 아메리카"
@@ -10878,9 +11023,9 @@
                     {
                       "label": "오스트레일리아",
                       "values": [
-                        34110000,
-                        619180,
-                        447027
+                        3411,
+                        61.9,
+                        44.7
                       ],
                       "group": "country",
                       "continent": "오세아니아"
@@ -11056,7 +11201,11 @@
                   "year": "2024년",
                   "note": "* 국가 합산"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-world-crops",
@@ -11108,7 +11257,11 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-crop-yield-trade",
@@ -11160,7 +11313,11 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-crop-use",
@@ -11226,7 +11383,11 @@
                   ],
                   "year": "2023년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-crop-continents",
@@ -11309,7 +11470,11 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-crop-trade-continents",
@@ -11516,7 +11681,11 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-crop-trade-rank",
@@ -11918,7 +12087,10 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "rank"
+              }
             },
             {
               "id": "world-crop-rank",
@@ -12122,7 +12294,10 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "rank"
+              }
             },
             {
               "id": "world-livestock-rank",
@@ -12326,7 +12501,10 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "rank"
+              }
             },
             {
               "id": "world-livestock-continents",
@@ -12409,7 +12587,11 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             }
           ]
         },
@@ -13040,7 +13222,11 @@
                   "year": "2025년",
                   "note": "* 국가 합산"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-global-primary-energy",
@@ -13049,48 +13235,65 @@
                 {
                   "id": "default",
                   "label": "기본",
-                  "rowLabel": "범위",
+                  "rowLabel": "에너지원",
                   "columns": [
                     {
-                      "label": "총공급",
+                      "label": "공급량",
                       "unit": "EJ"
                     },
                     {
-                      "label": "석유",
-                      "unit": "%"
-                    },
-                    {
-                      "label": "천연가스",
-                      "unit": "%"
-                    },
-                    {
-                      "label": "석탄",
-                      "unit": "%"
-                    },
-                    {
-                      "label": "원자력",
-                      "unit": "%"
-                    },
-                    {
-                      "label": "수력",
-                      "unit": "%"
-                    },
-                    {
-                      "label": "신재생",
+                      "label": "비중",
                       "unit": "%"
                     }
                   ],
                   "rows": [
                     {
-                      "label": "세계",
+                      "label": "석유",
+                      "values": [
+                        199.1,
+                        33.6
+                      ]
+                    },
+                    {
+                      "label": "천연가스",
+                      "values": [
+                        148.6,
+                        25.1
+                      ]
+                    },
+                    {
+                      "label": "석탄",
+                      "values": [
+                        165.1,
+                        27.9
+                      ]
+                    },
+                    {
+                      "label": "원자력",
+                      "values": [
+                        30.7,
+                        5.2
+                      ]
+                    },
+                    {
+                      "label": "수력",
+                      "values": [
+                        16,
+                        2.7
+                      ]
+                    },
+                    {
+                      "label": "재생",
+                      "values": [
+                        32.7,
+                        5.5
+                      ]
+                    },
+                    {
+                      "label": "합계",
                       "values": [
                         592.2,
-                        33.6,
-                        25.1,
-                        27.9,
-                        5.2,
-                        2.7,
-                        5.5
+                        100
                       ]
                     }
                   ],
@@ -13103,7 +13306,11 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-primary-energy-rank",
@@ -13115,6 +13322,10 @@
                   "rowLabel": "국가",
                   "columns": [
                     {
+                      "label": "순위",
+                      "unit": ""
+                    },
+                    {
                       "label": "1차 에너지 공급",
                       "unit": "EJ"
                     }
@@ -13123,60 +13334,70 @@
                     {
                       "label": "중국",
                       "values": [
+                        1,
                         158.9
                       ]
                     },
                     {
                       "label": "미국",
                       "values": [
+                        2,
                         91.8
                       ]
                     },
                     {
                       "label": "인도",
                       "values": [
+                        3,
                         38.8
                       ]
                     },
                     {
                       "label": "러시아",
                       "values": [
+                        4,
                         31.8
                       ]
                     },
                     {
                       "label": "일본",
                       "values": [
+                        5,
                         16.4
                       ]
                     },
                     {
                       "label": "대한민국",
                       "values": [
+                        6,
                         13.1
                       ]
                     },
                     {
                       "label": "이란",
                       "values": [
+                        7,
                         12.8
                       ]
                     },
                     {
                       "label": "캐나다",
                       "values": [
+                        8,
                         11.9
                       ]
                     },
                     {
                       "label": "사우디아라비아",
                       "values": [
+                        9,
                         11.8
                       ]
                     },
                     {
                       "label": "인도네시아",
                       "values": [
+                        10,
                         11.1
                       ]
                     }
@@ -13190,7 +13411,10 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "rank"
+              }
             },
             {
               "id": "world-fossil-energy-balance",
@@ -13619,7 +13843,11 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "firstNumeric",
+                "direction": "desc"
+              }
             },
             {
               "id": "world-renewable-generation-rank",
@@ -13889,7 +14117,10 @@
                   ],
                   "year": "2024년"
                 }
-              ]
+              ],
+              "defaultSort": {
+                "mode": "rank"
+              }
             }
           ]
         },
@@ -13998,56 +14229,56 @@
                       "columns": [
                         {
                           "label": "밀",
-                          "unit": "t"
+                          "unit": "만 t"
                         },
                         {
                           "label": "쌀",
-                          "unit": "t"
+                          "unit": "만 t"
                         },
                         {
                           "label": "옥수수",
-                          "unit": "t"
+                          "unit": "만 t"
                         }
                       ],
                       "rows": [
                         {
                           "label": "오스트레일리아",
                           "values": [
-                            34110000,
-                            619180,
-                            447027
+                            3411,
+                            61.9,
+                            44.7
                           ]
                         },
                         {
                           "label": "중국",
                           "values": [
-                            140100000,
-                            207530000,
-                            294920000
+                            14010,
+                            20753,
+                            29492
                           ]
                         },
                         {
                           "label": "인도",
                           "values": [
-                            113292368,
-                            217867864.16,
-                            40230572.74
+                            11329.2,
+                            21786.8,
+                            4023.1
                           ]
                         },
                         {
                           "label": "일본",
                           "values": [
-                            1029000,
-                            10142000,
-                            168.87
+                            102.9,
+                            1014.2,
+                            0
                           ]
                         },
                         {
                           "label": "타이",
                           "values": [
-                            1320.06,
-                            33551336.65,
-                            4558192
+                            0.1,
+                            3355.1,
+                            455.8
                           ]
                         }
                       ],
@@ -14060,7 +14291,11 @@
                       ],
                       "year": "2024년"
                     }
-                  ]
+                  ],
+                  "defaultSort": {
+                    "mode": "firstNumeric",
+                    "direction": "desc"
+                  }
                 },
                 {
                   "id": "world-monsoon-gdp",
@@ -14152,7 +14387,11 @@
                       ],
                       "year": "2025년"
                     }
-                  ]
+                  ],
+                  "defaultSort": {
+                    "mode": "firstNumeric",
+                    "direction": "desc"
+                  }
                 }
               ]
             },
@@ -14326,72 +14565,72 @@
                       "columns": [
                         {
                           "label": "밀",
-                          "unit": "t"
+                          "unit": "만 t"
                         },
                         {
                           "label": "쌀",
-                          "unit": "t"
+                          "unit": "만 t"
                         },
                         {
                           "label": "옥수수",
-                          "unit": "t"
+                          "unit": "만 t"
                         }
                       ],
                       "rows": [
                         {
                           "label": "이란",
                           "values": [
-                            16750000,
-                            3478820.05,
-                            269804.62
+                            1675,
+                            347.9,
+                            27
                           ]
                         },
                         {
                           "label": "카자흐스탄",
                           "values": [
-                            18576694.15,
-                            512982.22,
-                            1005167.21
+                            1857.7,
+                            51.3,
+                            100.5
                           ]
                         },
                         {
                           "label": "모로코",
                           "values": [
-                            2441670.47,
-                            6006,
-                            73227.36
+                            244.2,
+                            0.6,
+                            7.3
                           ]
                         },
                         {
                           "label": "사우디아라비아",
                           "values": [
-                            820392.78,
-                            1006.16,
-                            67441.44
+                            82,
+                            0.1,
+                            6.7
                           ]
                         },
                         {
                           "label": "튀르키예",
                           "values": [
-                            20800000,
-                            1019000,
-                            8100000
+                            2080,
+                            101.9,
+                            810
                           ]
                         },
                         {
                           "label": "이집트",
                           "values": [
-                            9400000,
-                            6430000,
-                            7206000
+                            940,
+                            643,
+                            720.6
                           ]
                         },
                         {
                           "label": "우즈베키스탄",
                           "values": [
-                            6729357.31,
-                            383563.95,
-                            866836.18
+                            672.9,
+                            38.4,
+                            86.7
                           ]
                         }
                       ],
@@ -14455,7 +14694,11 @@
                       ],
                       "year": "2024년"
                     }
-                  ]
+                  ],
+                  "defaultSort": {
+                    "mode": "firstNumeric",
+                    "direction": "desc"
+                  }
                 },
                 {
                   "id": "world-dry-gdp",
@@ -14547,7 +14790,11 @@
                       ],
                       "year": "2025년"
                     }
-                  ]
+                  ],
+                  "defaultSort": {
+                    "mode": "firstNumeric",
+                    "direction": "desc"
+                  }
                 }
               ]
             },
@@ -14652,7 +14899,11 @@
                         }
                       ]
                     }
-                  ]
+                  ],
+                  "defaultSort": {
+                    "mode": "firstNumeric",
+                    "direction": "desc"
+                  }
                 },
                 {
                   "id": "world-us-state-manufacturing",
@@ -15591,7 +15842,11 @@
                       ],
                       "year": "2023년"
                     }
-                  ]
+                  ],
+                  "defaultSort": {
+                    "mode": "firstNumeric",
+                    "direction": "desc"
+                  }
                 }
               ]
             },
@@ -15758,7 +16013,11 @@
                       ],
                       "year": "2021년"
                     }
-                  ]
+                  ],
+                  "defaultSort": {
+                    "mode": "firstNumeric",
+                    "direction": "desc"
+                  }
                 }
               ]
             }

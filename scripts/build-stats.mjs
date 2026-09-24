@@ -609,14 +609,19 @@ function make(target) {
   if (kind === "ei-world-mix") {
     const a=local.ei_energy_2024.supply_ej['Total World'];
     const fields=["Oil","Natural Gas","Coal","Nuclear energy","Hydro electric","Renewables"];
-    return table(target,"EJ, %","2024",eiSource,["범위",{label:"총공급",unit:"EJ"},...fields.map((field)=>({label:({Oil:"석유","Natural Gas":"천연가스",Coal:"석탄","Nuclear energy":"원자력","Hydro electric":"수력",Renewables:"재생"})[field],unit:"%"}))],
-      [row("세계",[round(a.Total,1),...fields.map((field)=>round(a[field]/a.Total*100,1))])]);
+    const names={Oil:"석유","Natural Gas":"천연가스",Coal:"석탄","Nuclear energy":"원자력","Hydro electric":"수력",Renewables:"재생"};
+    if(Math.abs(fields.reduce((sum,field)=>sum+a[field],0)-a.Total)>0.01)throw new Error("EI 세계 에너지원 합계 불일치");
+    return table(target,"EJ, %","2024",eiSource,["에너지원",{label:"공급량",unit:"EJ"},{label:"비중",unit:"%"}],
+      [...fields.map(field=>row(names[field],[round(a[field],1),round(a[field]/a.Total*100,1)])),row("합계",[round(a.Total,1),100])]);
   }
   if (kind === "ei-world-rank") {
     const englishToKorean = new Map(countries.map((country)=>[eiNames[country.iso3] || country.atlasName,cName(country)]));
-    const records=Object.entries(local.ei_energy_2024.supply_ej).filter(([name])=>!/^Total |^Other |^of which:|Non-OECD|European Union/.test(name)&&name.trim()!=="Non-OECD")
-      .sort((a,b)=>b[1].Total-a[1].Total).slice(0,10).map(([name,v])=>row(englishToKorean.get(name)||name,[round(v.Total,1)]));
-    return table(target,"EJ","2024",eiSource,["국가",{label:"1차 에너지 공급",unit:"EJ"}],records,{note:"Energy Institute가 개별 국가로 수록한 범위의 상위 10개국"});
+    const ranked=Object.entries(local.ei_energy_2024.supply_ej).filter(([name])=>!/^Total |^Other |^of which:|Non-OECD|European Union/.test(name)&&name.trim()!=="Non-OECD")
+      .sort((a,b)=>b[1].Total-a[1].Total);
+    if(ranked.length<11||ranked.slice(0,10).some(([name,value],index)=>!englishToKorean.has(name)||!Number.isFinite(value.Total)||value.Total<ranked[index+1][1].Total))
+      throw new Error("EI 1차 에너지 국가 순위 또는 국가명 누락");
+    const records=ranked.slice(0,10).map(([name,v],index)=>row(englishToKorean.get(name),[index+1,round(v.Total,1)]));
+    return table(target,"EJ","2024",eiSource,["국가",{label:"순위",unit:""},{label:"1차 에너지 공급",unit:"EJ"}],records,{note:"Energy Institute가 개별 국가로 수록한 범위의 상위 10개국"});
   }
   if (kind === "ei-world-regions") {
     const a=local.ei_energy_2024.supply_ej;
