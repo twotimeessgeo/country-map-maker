@@ -7345,15 +7345,12 @@
                       "columns": [
                         {
                           "label": "수도권",
-                          "unit": ""
+                          "unit": "",
+                          "barEligible": false
                         },
                         {
                           "label": "전국 비중",
                           "unit": "%"
-                        },
-                        {
-                          "label": "기준",
-                          "unit": ""
                         }
                       ],
                       "rows": [
@@ -7361,32 +7358,45 @@
                           "label": "인구",
                           "values": [
                             26112598,
-                            51.1,
-                            "2026년 6월"
-                          ]
+                            51.1
+                          ],
+                          "valueUnit": "명",
+                          "order": 0
                         },
                         {
                           "label": "농가",
                           "values": [
                             122878,
-                            12.6,
-                            "2024년"
-                          ]
+                            12.6
+                          ],
+                          "valueUnit": "가구",
+                          "order": 1
                         },
                         {
                           "label": "지역 내 총생산",
                           "values": [
                             1352044,
-                            52.8,
-                            "2024년"
-                          ]
+                            52.8
+                          ],
+                          "valueUnit": "십억 원",
+                          "order": 2
                         }
                       ],
                       "sources": [
                         {
-                          "name": "국가데이터처",
+                          "name": "행정안전부",
                           "year": "2026",
-                          "url": "https://kosis.kr/visual/eRegionIndex/index.do"
+                          "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20651E&conn_path=ZF"
+                        },
+                        {
+                          "name": "국가데이터처",
+                          "year": "2024",
+                          "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1EA1045&conn_path=ZF"
+                        },
+                        {
+                          "name": "국가데이터처",
+                          "year": "2024",
+                          "url": "https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1C91&conn_path=ZF"
                         }
                       ]
                     },

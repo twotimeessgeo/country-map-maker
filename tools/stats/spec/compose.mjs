@@ -177,6 +177,11 @@ function sourceItems(id,table,year,columns,rows) {
   if(id==="k-6-02") return [item("행정안전부","2024"),item("국토교통부","2024")];
   if(id==="k-x-02") return [item("에너지경제연구원","2024"),item("한국전력공사","2025")];
   if(id==="k-5-09") return [item("국가데이터처","2025"),item("국토교통부","2024")];
+  if(id==="k-7-05") return [
+    item("행정안전부","2026","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1YL20651E&conn_path=ZF"),
+    item("국가데이터처","2024","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1EA1045&conn_path=ZF"),
+    item("국가데이터처","2024","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=INH_1C91&conn_path=ZF"),
+  ];
   if(id==="k-5-04") return [item("한국전력거래소","2024")];
   if(["w-4-01","w-5-01"].includes(id)) return [item("World Bank",latest),item("UN",latest)];
   const label=name.includes("U.S. Census")?"U.S. Census Bureau":name.includes("WTO")?"WTO":

@@ -75,6 +75,7 @@
 .stats-sort-unit { display: block; color: var(--tw-ink-3); font-size: 11px; font-weight: var(--tw-weight-body); }
 .stats-sort-arrow { font-size: 10px; }
 .stats-value { display: inline-block; position: relative; min-width: 42px; font-family: var(--tw-font-latin); font-variant-numeric: tabular-nums; }
+.stats-value-unit { margin-left: 4px; color: var(--tw-ink-3); font-size: 11px; }
 .stats-missing { color: var(--tw-ink-4); }
 .stats-rank-cell { display: flex; flex-direction: column; gap: 2px; text-align: left; }
 .stats-rank-cell strong { font-size: 14px; font-weight: var(--tw-weight-body); }

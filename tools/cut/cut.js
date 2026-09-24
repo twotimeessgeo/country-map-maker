@@ -867,7 +867,7 @@ async function initialize() {
     elements.status.hidden = true;
     if (payload.source_url) elements.sourceLink.href = payload.source_url;
     if (payload.fetched_at) {
-      elements.collectionDate.textContent = String(payload.fetched_at).slice(0, 10).replaceAll("-", ".");
+      elements.collectionDate.textContent = String(payload.fetched_at).slice(0, 4);
     }
     bindDisclosureState(elements.trendDisclosure, "cut-trend-disclosure");
     bindDisclosureState(elements.historyDisclosure, "cut-history-disclosure");

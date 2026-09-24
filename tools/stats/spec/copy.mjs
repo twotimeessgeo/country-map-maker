@@ -95,6 +95,13 @@ function polishView(table,view) {
     const basis=view.columns.findIndex(column=>column.label==="기준");
     if(basis>=0){view.columns.splice(basis,1);for(const row of view.rows)row.values.splice(basis,1);}
   }
+  if(table.id==="korea-capital-compare"&&view.label==="주요 지표") {
+    const basis=view.columns.findIndex(column=>column.label==="기준");
+    if(basis>=0){view.columns.splice(basis,1);for(const row of view.rows)row.values.splice(basis,1);}
+    view.columns[0].barEligible=false;
+    const units={"인구":"명","농가":"가구","지역 내 총생산":"십억 원"};
+    view.rows.forEach((row,index)=>{row.valueUnit=units[row.label]||"";row.order=index;});
+  }
   if(table.id==="world-africa-latin-compare"&&view.label==="자원")view.label="수출 구성";
   if(table.id==="korea-small-farms")for(const row of view.rows)row.label=provinceShort.get(row.label)||row.label;
   for(const row of view.rows)row.label=industryNames.get(row.label)||row.label;

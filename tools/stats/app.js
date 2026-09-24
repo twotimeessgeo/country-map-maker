@@ -12,7 +12,7 @@
     for (const id of ["statsToolbar","statsSearch","statsSearchResults","topicList","statsContent","statsToast","statsStickyOverlay"]) el[id] = document.getElementById(id);
     bind();
     try {
-      const response = await fetch("./data/stats.json?v=8",{cache:"no-store"});
+      const response = await fetch("./data/stats.json?v=9",{cache:"no-store"});
       if (!response.ok) throw new Error("HTTP " + response.status);
       data = await response.json();
       render();
@@ -284,24 +284,24 @@
     }
     return groups;
   }
-  function formatNumber(value,unit) {
+  function formatNumber(value,unit,digitsOverride) {
     if(value===null||value===undefined||value==="")return "–";
     if(typeof value!=="number")return String(value);
-    const digits=["%","‰","지수"].includes(unit)?1:/^(명|개|가구|마리|t|천 명|만 t|MWh|천 toe)$/.test(unit)?0:1;
+    const digits=Number.isInteger(digitsOverride)?digitsOverride:["%","‰","지수"].includes(unit)?1:/^(명|개|가구|마리|t|천 명|만 t|MWh|천 toe)$/.test(unit)?0:1;
     return new Intl.NumberFormat("ko-KR",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(value).replaceAll("-","−");
   }
-  function cellHtml(value,column) {
+  function cellHtml(value,column,digitsOverride) {
     if(value===null||value===undefined)return '<span class="stats-missing">–</span>';
     if(typeof value==="object"&&value.name) return '<span class="stats-rank-cell"><strong>'+escapeHtml(value.name)+'</strong><small>'+escapeHtml(formatNumber(value.value,column.unit))+'</small></span>';
-    const display=escapeHtml(formatNumber(value,column.unit));
+    const display=escapeHtml(formatNumber(value,column.unit,digitsOverride));
     if(typeof value!=="number")return display;
     return '<span class="stats-value">'+display+'</span>';
   }
   function comparisonBar(view,groups,state) {
     const rows=[...groups.continent,...groups.country,...groups.ordinary];
-    const first=view.columns.findIndex((_,index)=>rows.some(row=>typeof row.values[index]==="number"));
+    const first=view.columns.findIndex((column,index)=>column.barEligible!==false&&rows.some(row=>typeof row.values[index]==="number"));
     if(first<0)return null;
-    const chosen=state.sort?.index>0&&view.columns[state.sort.index-1]&&rows.some(row=>typeof row.values[state.sort.index-1]==="number")
+    const chosen=state.sort?.index>0&&view.columns[state.sort.index-1]?.barEligible!==false&&rows.some(row=>typeof row.values[state.sort.index-1]==="number")
       ? state.sort.index-1:first;
     const values=rows.map(row=>row.values[chosen]).filter(value=>typeof value==="number"&&Number.isFinite(value));
     return {index:chosen,label:view.columns[chosen].label,min:Math.min(0,...values),max:Math.max(0,...values)};
@@ -321,7 +321,8 @@
     const matched=highlight&&normalize(row.label).includes(highlight);
     const aggregate=row.group==="continent"||row.group==="national"||row.group==="region";
     return '<tr class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
-      row.values.map((value,index)=>'<td>'+cellHtml(value,view.columns[index])+'</td>').join("")+barMarkup(row,bar,tableId)+'</tr>';
+      row.values.map((value,index)=>'<td>'+cellHtml(value,view.columns[index],row.valueUnit&&index===0?0:undefined)+
+        (row.valueUnit&&index===0?'<small class="stats-value-unit">'+escapeHtml(row.valueUnit)+'</small>':"")+'</td>').join("")+barMarkup(row,bar,tableId)+'</tr>';
   }
   function tbodyMarkup(view,groups,bar,tableId) {
     const colspan=view.columns.length+1+(bar?1:0);
@@ -400,7 +401,7 @@
     const view=activeView(table,state),groups=visibleRows(view,state);
     const result=[[view.rowLabel,...view.columns.map(c=>c.label+(c.unit?" ("+c.unit+")":""))]];
     const append=row=>result.push([row.label+(row.aggregateMark?"*":""),...row.values.map((value,index)=>value&&typeof value==="object"?value.name+" "+value.value:
-      typeof value==="number"?formatNumber(value,view.columns[index].unit).replaceAll(",","").replaceAll("−","-"):value??"–")]);
+      typeof value==="number"?formatNumber(value,row.valueUnit&&index===0?row.valueUnit:view.columns[index].unit,row.valueUnit&&index===0?0:undefined).replaceAll(",","").replaceAll("−","-")+(row.valueUnit&&index===0?" "+row.valueUnit:""):value??"–")]);
     if(groups.continent.length) {result.push(["대륙"]);groups.continent.forEach(append);}
     if(groups.country.length) {
       result.push(["국가"]);
