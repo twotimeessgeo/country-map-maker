@@ -62,8 +62,7 @@
       }
       if (button.dataset.scope) { state.scope = button.dataset.scope; renderContent(); return; }
       if (button.dataset.chartMode) {
-        const current=selected();
-        try {localStorage.setItem("tw-stats-view:"+current.subject+":"+current.topic.id,button.dataset.chartMode);} catch {}
+        try {localStorage.setItem("tw-stats-view:"+table.id,button.dataset.chartMode);} catch {}
         renderContent(); return;
       }
       if (button.dataset.sort !== undefined) {
@@ -85,11 +84,6 @@
           return;
         }
         await copyText(matrix.map(row=>row.join("\t")).join("\n"),"복사했습니다.");
-        return;
-      }
-      if (button.dataset.action === "svg") {
-        const svg=document.getElementById(table.id)?.querySelector(".stats-chart svg");
-        if(svg)window.TWStatsCharts.download(svg,table.id);
         return;
       }
       if (button.dataset.action === "link") {
@@ -137,9 +131,8 @@
     window.addEventListener("scroll",updateStickyHeader,{passive:true});
   }
   function normalize(value) {return String(value||"").trim().toLocaleLowerCase("ko");}
-  function chartMode() {
-    const current=selected();
-    try {return localStorage.getItem("tw-stats-view:"+current.subject+":"+current.topic.id)==="graph"?"graph":"table";}
+  function chartMode(tableId) {
+    try {return localStorage.getItem("tw-stats-view:"+tableId)==="graph"?"graph":"table";}
     catch {return "table";}
   }
   function escapeHtml(value) {return String(value??"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
@@ -409,7 +402,7 @@
     const rankCards=isRankCards(table);
     const bar=table.comparison?comparisonBar(table,view,groups,state):null;
     const kind=window.TWStatsCharts.type(table,view,groups,rankCards);
-    const showChart=kind&&chartMode()==="graph";
+    const showChart=kind&&chartMode(table.id)==="graph";
     if(showChart)chartModels.set(table.id,{table,view,groups,sort,bar,kind});
     const wide=table.comparison||rankCards||(table.id!=="world-global-primary-energy"&&table.views.some(item=>item.columns.length>=5))||
       /(?:-history|-city-change|-generation-mix)$/.test(table.id);
@@ -419,7 +412,7 @@
     const scopeNav=table.comparison&&hasBoth?'<nav class="tw-segmented stats-scope" aria-label="행 범위">'+
       [["all","모두"],["continent","대륙"],["country","국가"]].map(([id,label])=>'<button type="button" data-table="'+table.id+'" data-scope="'+id+
       '" class="'+(state.scope===id?"is-active":"")+'" aria-pressed="'+(state.scope===id)+'">'+label+'</button>').join("")+'</nav>':"";
-    const actions=[["copy","⧉","복사"],["csv","↓","CSV"],...(showChart?[["svg","SVG","SVG"]]:[]),["link","↗","링크"]].map(([action,icon,label])=>
+    const actions=[["copy","⧉","복사"],["csv","↓","CSV"],["link","↗","링크"]].map(([action,icon,label])=>
       '<button type="button" class="tw-button is-ghost is-sm stats-icon-button" data-table="'+table.id+'" data-action="'+action+
       '" aria-label="'+label+'" title="'+label+'">'+icon+'</button>').join("");
     const chartSwitch=kind?'<nav class="tw-segmented stats-chart-switch" aria-label="'+escapeHtml(table.title)+' 보기">'+

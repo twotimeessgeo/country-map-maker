@@ -49,7 +49,6 @@
 .stats-line-legend:focus-visible { outline: 1px solid var(--tw-ink); }
 .stats-actions { display: flex; gap: 2px; flex: none; }
 .stats-icon-button { min-width: 31px; min-height: 31px; padding: 0 7px; font-size: 16px; }
-.stats-icon-button[data-action="svg"] { font-size: 11px; }
 .stats-views, .stats-subviews, .stats-scope { width: fit-content; max-width: 100%; overflow-x: auto; margin: 0 0 14px; white-space: nowrap; }
 .stats-scope { margin-top: -2px; }
 .stats-views > button, .stats-subviews > button, .stats-scope > button { font-size: var(--tw-text-xs); min-width: 46px; }
