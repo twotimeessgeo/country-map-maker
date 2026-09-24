@@ -2,7 +2,7 @@
 
 These source tables are excluded from the public static build. The generated page reads only `tools/stats/data/stats.json`.
 
-- `korea_generation_by_energy_source_2014_2024.csv`: Korea Power Exchange, 2024 Energy Source Generation, GWh. Local source: `data_downloads/kpx/`; the workbook/PDF provenance and EPSIS cross-check are recorded in that folder's `SOURCE.md`. Public source: https://new.kpx.or.kr/boardDownload.es?bid=0085&list_no=75637&seq=1
+- `korea_generation_by_energy_source_2014_2024.csv`: Korea Power Exchange, `2024년도 발전설비현황` PDF page 179 (printed pages 346–347), `3. 에너지원별 발전량`, GWh. The original four columns were checked against the PDF; LNG, pumped storage, other and published annual totals were transcribed from the same table. The public six-way view combines pumped storage and the source's other row as `기타`. Published category sums differ from the printed total by at most 1 GWh in four years; percentages divide by each year's printed total. Local original and EPSIS cross-check: `data_downloads/kpx/SOURCE.md`. Public source: https://new.kpx.or.kr/boardDownload.es?bid=0085&list_no=75637&seq=1
 - `wheat_rice_maize_top3_producers_2024.csv`: FAOSTAT Crops and Livestock Products, 2024 production in tonnes. Local source: `data_downloads/faostat/`; FAOSTAT flags are retained in the copied file. Public source: https://www.fao.org/faostat/en/#data/QCL
 - `cattle_sheep_pig_top3_stocks_2024.csv`: FAOSTAT Crops and Livestock Products, 2024 stocks in head. Local source: `data_downloads/faostat/`; FAOSTAT flags are retained in the copied file. Public source: https://www.fao.org/faostat/en/#data/QCL
 

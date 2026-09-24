@@ -12,7 +12,7 @@
     for (const id of ["statsToolbar","statsSearch","statsSearchResults","topicList","statsContent","statsToast","statsStickyOverlay"]) el[id] = document.getElementById(id);
     bind();
     try {
-      const response = await fetch("./data/stats.json?v=7",{cache:"no-store"});
+      const response = await fetch("./data/stats.json?v=8",{cache:"no-store"});
       if (!response.ok) throw new Error("HTTP " + response.status);
       data = await response.json();
       render();

@@ -589,13 +589,17 @@ function make(target) {
   }
   if (kind === "ei-korea-generation") {
     const records=readCsv("korea_generation_by_energy_source_2014_2024.csv");
-    const fields=[["석탄","coal_gwh"],["석유","oil_gwh"],["원자력","nuclear_gwh"],["신재생","new_renewable_gwh"]];
+    const fields=[["석탄","coal_gwh"],["천연가스","gas_gwh"],["원자력","nuclear_gwh"],
+      ["신재생","new_renewable_gwh"],["석유","oil_gwh"],["기타",null]];
     const rows=records.map((record)=>{
-      const total=fields.reduce((sum,[,key])=>sum+Number(record[key]),0);
-      return row(String(record.year),fields.map(([,key])=>round(Number(record[key])/total*100,1)));
+      const total=Number(record.total_gwh);
+      const values=fields.map(([,key])=>key?Number(record[key]):Number(record.pumped_hydro_gwh)+Number(record.other_gwh));
+      if(!Number.isFinite(total)||values.some(value=>!Number.isFinite(value))||Math.abs(values.reduce((sum,value)=>sum+value,0)-total)>1)
+        throw new Error(`KPX 에너지원별 발전량 합계 불일치: ${record.year}`);
+      return row(String(record.year),values.map(value=>round(value/total*100,1)));
     });
     return table(target,"%","2014–2024",source("한국전력거래소","https://new.kpx.or.kr/boardDownload.es?bid=0085&list_no=75637&seq=1"),
-      ["연도",...fields.map(([label])=>({label,unit:"%"}))],rows,{note:"4개 에너지원 합계 대비"});
+      ["연도",...fields.map(([label])=>({label,unit:"%"}))],rows);
   }
   if (kind === "kosis-land-area") {
     return table(target,"ha, %","2025",source("국가데이터처 경지면적조사, 국토교통부 지적통계","https://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_1EB001"),
@@ -682,10 +686,7 @@ function make(target) {
       ["구", "상주인구", "주간인구", "주간인구지수"], rows) : null;
   }
   if (kind === "kpx-generation") {
-    const records = readCsv("korea_generation_by_energy_source_2014_2024.csv");
-    const latest = records.at(-1);
-    const keys = [["원자력", "nuclear_gwh"], ["석탄", "coal_gwh"], ["석유", "oil_gwh"], ["신재생", "new_renewable_gwh"]];
-    // This local CSV omits gas and hydropower. Do not present four-source shares as the complete electricity mix.
+    // The year-by-year table above already covers this source without duplicating it.
     return null;
   }
   if (kind === "province-manufacturing") {
