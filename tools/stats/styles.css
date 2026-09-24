@@ -30,10 +30,11 @@
 .stats-topic-link.is-climate { margin-top: 20px; border-top: 1px solid var(--tw-hairline); border-radius: 0; padding-top: 16px; }
 .stats-outlink { font-size: 15px; color: var(--tw-ink-3); }
 .stats-content { min-width: 0; }
+.stats-table-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 56px 40px; align-items: start; }
 .stats-region-switch { width: fit-content; max-width: 100%; overflow-x: auto; margin: 0 0 32px; white-space: nowrap; }
 .stats-region-switch > button { flex: 0 0 auto; white-space: nowrap; font-size: var(--tw-text-xs); }
 .stats-table-section { min-width: 0; scroll-margin-top: calc(var(--stats-subnav-h) + 16px); }
-.stats-table-section + .stats-table-section { margin-top: 56px; }
+.stats-table-section.is-wide { grid-column: 1 / -1; }
 .stats-table-top { display: flex; align-items: center; justify-content: flex-start; flex-wrap: wrap; gap: 8px 12px; width: fit-content; max-width: min(100%, 880px); margin-bottom: 14px; }
 .stats-table-title { margin: 0; font-size: 16px; font-weight: var(--tw-weight-medium); line-height: 1.4; }
 .stats-table-title a { color: inherit; text-decoration: none; }
@@ -43,11 +44,18 @@
 .stats-views, .stats-subviews, .stats-scope { width: fit-content; max-width: 100%; overflow-x: auto; margin: 0 0 14px; white-space: nowrap; }
 .stats-scope { margin-top: -2px; }
 .stats-views > button, .stats-subviews > button, .stats-scope > button { font-size: var(--tw-text-xs); min-width: 46px; }
-.stats-table-wrap { position: relative; width: fit-content; max-width: min(100%, 880px); overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.stats-table-wrap { position: relative; width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .stats-table-wrap.has-overflow { box-shadow: inset -11px 0 10px -11px rgba(0,0,0,.25); }
-.stats-table { width: max-content; max-width: none; min-width: min(100%, 420px); border-collapse: separate; border-spacing: 0; font-size: var(--tw-text-sm); font-family: var(--tw-font-sans); }
-.stats-table th, .stats-table td { min-width: 88px; padding: 10px 12px; border-bottom: 1px solid var(--tw-hairline); text-align: right; white-space: nowrap; }
-.stats-table th:first-child, .stats-table td:first-child { min-width: 140px; width: 140px; text-align: left; }
+.stats-table { width: 100%; max-width: none; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-size: var(--tw-text-sm); font-family: var(--tw-font-sans); }
+.stats-number-col { width: min(140px, calc((100% - 120px - var(--stats-bar-width, 0px)) / var(--stats-numeric-cols, 1))); }
+.stats-bar-col { width: 220px; }
+.stats-table th, .stats-table td { min-width: 88px; max-width: 140px; padding: 10px 12px; border-bottom: 1px solid var(--tw-hairline); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats-table th:first-child, .stats-table td:first-child { min-width: 120px; max-width: none; width: auto; text-align: left; }
+.stats-table .stats-bar-head, .stats-table .stats-bar-cell { width: 220px; min-width: 220px; max-width: 220px; }
+.stats-bar-head span { display: block; font-size: 12px; }
+.stats-bar-track { position: relative; display: block; width: 200px; height: 6px; border-radius: 3px; background: var(--tw-surface-2); }
+.stats-bar-track::before { position: absolute; z-index: 1; top: -3px; bottom: -3px; left: var(--stats-zero); width: 1px; background: var(--tw-ink-3); content: ""; }
+.stats-bar-fill { position: absolute; top: 0; height: 6px; border-radius: 3px; background: var(--tw-ink); transition: width 200ms ease-out, left 200ms ease-out; }
 .stats-table thead th { position: sticky; top: 0; z-index: 5; background: var(--tw-bg); color: var(--tw-ink-2); vertical-align: bottom; font-weight: var(--tw-weight-medium); }
 .stats-table thead th:first-child { left: 0; z-index: 7; }
 .stats-table tbody th:first-child { position: sticky; left: 0; z-index: 2; background: var(--tw-bg); font-weight: var(--tw-weight-body); }
@@ -74,7 +82,20 @@
 .stats-table-meta a { color: inherit; text-decoration: none; }
 .stats-table-meta a:hover { text-decoration: underline; }
 .stats-note { margin: 4px 0 0; color: var(--tw-ink-3); font-size: 12px; }
+.stats-more { margin-top: 14px; }
+.stats-rank-scroll { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; }
+.stats-rank-card { min-width: 0; padding: 16px; border: 1px solid var(--tw-hairline); border-radius: var(--tw-radius-lg); }
+.stats-rank-card h3 { margin: 0 0 12px; font-size: var(--tw-text-md); font-weight: var(--tw-weight-medium); }
+.stats-rank-card table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--tw-text-xs); }
+.stats-rank-card th, .stats-rank-card td { padding: 7px 3px; border-bottom: 1px solid var(--tw-hairline); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stats-rank-card th:first-child { width: 35px; font-weight: var(--tw-weight-body); }
+.stats-rank-card th:last-child, .stats-rank-card td:last-child { width: 76px; text-align: right; font-variant-numeric: tabular-nums; }
+.stats-rank-card thead th { color: var(--tw-ink-2); font-weight: var(--tw-weight-medium); }
+.stats-rank-card thead small { display: block; color: var(--tw-ink-3); font-size: 10px; }
+.stats-rank-card tbody tr:last-child > * { border-bottom: 0; }
+.stats-rank-card tbody td:last-child { font-family: var(--tw-font-latin); }
 .stats-empty { padding: 28px 0; color: var(--tw-ink-2); font-size: var(--tw-text-sm); }
+@media (max-width:1199px) { .stats-table-grid { grid-template-columns: minmax(0,1fr); } }
 @media (max-width:760px) {
   .stats-hero { padding-top: 40px; padding-bottom: var(--tw-space-6); }
   .stats-subject > a { min-width: 72px; }
@@ -85,7 +106,9 @@
   .stats-topic-link { flex: none; min-height: 34px; padding: 7px 12px; border-radius: var(--tw-radius-pill); }
   .stats-topic-link.is-climate { margin-top: 0; border: 0; padding-top: 7px; }
   .stats-content { padding-top: 8px; }
-  .stats-table-section + .stats-table-section { margin-top: 44px; }
+  .stats-table-grid { gap: 44px; }
+  .stats-rank-scroll { display: flex; gap: 12px; overflow-x: auto; margin-right: calc(-1 * var(--tw-gutter)); padding-right: var(--tw-gutter); scroll-snap-type: x mandatory; scrollbar-width: thin; }
+  .stats-rank-card { flex: 0 0 min(82vw,300px); scroll-snap-align: start; }
   .stats-table-wrap { max-width: 100%; }
   .stats-table th, .stats-table td { padding: 9px 10px; }
   .stats-table-top { align-items: center; }
