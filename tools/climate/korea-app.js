@@ -792,13 +792,14 @@ function syncSelectionControls() {
 function renderSelection() {
   const selectedRegions = getSelectedRegions();
   normalizeComparisonBaseline(selectedRegions);
-  const trayMotion = window.TwMotion?.snapshotTray(elements.selectedTray);
+  const trayMotion = window.ClimateMotion?.snapshotTray(elements.selectedTray);
+  const cardMotion = window.ClimateMotion?.snapshotCards(elements.selectedRegionsContent);
   const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
   resetClimateCsvExports();
   if (elements.selectionSummary) elements.selectionSummary.textContent = `${selectedRegions.length}곳 선택`;
   if (elements.selectedTray) {
     elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
-    window.TwMotion?.animateTray(elements.selectedTray, trayMotion);
+    window.ClimateMotion?.animateTray(elements.selectedTray, trayMotion);
   }
   if (elements.downloadSelectedCsvButton) {
     elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
@@ -814,6 +815,7 @@ function renderSelection() {
     renderMap(visibleRegions, selectedRegions);
   }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
+  window.ClimateMotion?.animateCards(elements.selectedRegionsContent, cardMotion, elements.selectionSummary);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
   window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
   finishPartialRender();
@@ -829,7 +831,8 @@ function renderComparisonOnly() {
 }
 
 function render() {
-  const trayMotion = window.TwMotion?.snapshotTray(elements.selectedTray);
+  const trayMotion = window.ClimateMotion?.snapshotTray(elements.selectedTray);
+  const cardMotion = window.ClimateMotion?.snapshotCards(elements.selectedRegionsContent);
   const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
   resetClimateCsvExports();
 
@@ -849,7 +852,7 @@ function render() {
   }
   if (elements.selectedTray) {
     elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
-    window.TwMotion?.animateTray(elements.selectedTray, trayMotion);
+    window.ClimateMotion?.animateTray(elements.selectedTray, trayMotion);
   }
   if (elements.mapSummary) {
     const mapRegions = getMapRegions(visibleRegions, selectedRegions);
@@ -868,6 +871,7 @@ function render() {
     elements.downloadSelectedCsvButton.textContent = "CSV";
   }
   elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
+  window.ClimateMotion?.animateCards(elements.selectedRegionsContent, cardMotion, elements.selectionSummary);
   elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
   window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
   renderMap(visibleRegions, selectedRegions);
@@ -1007,12 +1011,15 @@ function renderRegionList(regions) {
               <strong>${escapeHtml(region.name)}</strong>
               ${renderMetaList([region.nation, region.zone])}
             </div>
-            <input
-              type="checkbox"
-              ${checked ? "checked" : ""}
-              data-region-checkbox="${region.id}"
-              aria-label="${escapeHtml(region.name)} 선택"
-            />
+            <span class="region-option-check-wrap">
+              <input
+                type="checkbox"
+                ${checked ? "checked" : ""}
+                data-region-checkbox="${region.id}"
+                aria-label="${escapeHtml(region.name)} 선택"
+              />
+              <svg class="region-option-check-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3.5 3.5L15 6" /></svg>
+            </span>
           </div>
         </label>
       `;
