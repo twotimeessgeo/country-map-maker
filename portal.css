@@ -1,45 +1,22 @@
-/* DS 3.1 home: Promenade where the tool pages put their brand; the meridian sculpture on a hairline meridian;
-   the four tools as a numbered index in the space beside it. */
+/* DS 3.1 home: the tool pages' nav bar over the meridian sculpture, drawn live in metal and stipple (ds/merid3d.js). */
 html, body.portal-home { min-height: 100%; }
 body.portal-home { margin: 0; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; background: var(--tw-bg); }
-.home-header { position: relative; z-index: 3; }
-.home-bar-inner { display: flex; align-items: center; width: min(var(--tw-page-max), 100% - (var(--tw-gutter) * 2)); height: var(--tw-nav-height); margin-inline: auto; }
-.home-brand { margin: 0; color: var(--tw-ink); font-family: var(--tw-font-latin); font-size: 1.125rem; font-weight: 300; line-height: 1; letter-spacing: -.02em; white-space: nowrap; view-transition-name: tw-brand; }
-.home-brand.is-intro > span { display: inline-block; overflow: hidden; vertical-align: bottom; }
-.home-brand.is-intro > span > span { display: inline-block; animation: home-letter-in 520ms var(--tw-ease-out) both; animation-delay: calc(var(--letter-index) * 35ms); }
-.home-main { position: relative; flex: 1; min-height: 540px; overflow: hidden; }
-.home-art { position: absolute; inset: 0; }
-/* the sculpture: a 1-bit stipple drawing standing on the bottom edge, only its foot below the fold */
-.home-merid { position: absolute; left: 30%; bottom: -7%; height: 104%; width: auto; max-width: none; transform: translateX(-50%); user-select: none; -webkit-user-drag: none; animation: home-rise 1100ms var(--tw-ease-out) 120ms both; }
-.home-meridian { position: absolute; top: 0; bottom: 0; left: calc(30% - .5px); width: 1px; background: var(--tw-ink); transform-origin: top; animation: home-draw 1200ms var(--tw-ease-out) 200ms both; }
-/* the index */
-.home-index { position: absolute; z-index: 2; right: max(var(--tw-gutter), (100% - var(--tw-page-max)) / 2); bottom: clamp(40px, 12vh, 120px); display: flex; flex-direction: column; width: min(460px, 42vw); border-top: 1px solid var(--tw-ink); }
-.home-index a { display: flex; align-items: baseline; gap: 18px; padding: 14px 0 12px; border-bottom: 1px solid var(--tw-hairline-strong); color: var(--tw-ink); font-family: var(--tw-font-latin); font-size: clamp(24px, 2.6vw, 38px); font-weight: 300; line-height: 1.1; letter-spacing: -.02em; text-decoration: none; animation: home-fade 500ms var(--tw-ease-out) both; }
-.home-index a:nth-child(1) { animation-delay: 360ms; }
-.home-index a:nth-child(2) { animation-delay: 420ms; }
-.home-index a:nth-child(3) { animation-delay: 480ms; }
-.home-index a:nth-child(4) { animation-delay: 540ms; }
-.home-index i { flex: none; width: 22px; color: var(--tw-ink-2); font-size: 12px; font-style: normal; letter-spacing: .02em; }
-.home-index span { flex: 1; transition: transform 320ms var(--tw-ease-out); }
-.home-index a::after { content: "→"; font-size: .6em; opacity: 0; transform: translateX(-8px); transition: opacity 240ms var(--tw-ease-out), transform 320ms var(--tw-ease-out); }
-.home-index a:hover span, .home-index a:focus-visible span { transform: translateX(6px); }
-.home-index a:hover::after, .home-index a:focus-visible::after { opacity: 1; transform: none; }
-.home-index a:focus-visible { outline: none; border-bottom-color: var(--tw-ink); }
+#homeBrand.is-intro > span { display: inline-block; overflow: hidden; vertical-align: bottom; }
+#homeBrand.is-intro > span > span { display: inline-block; animation: home-letter-in 520ms var(--tw-ease-out) both; animation-delay: calc(var(--letter-index) * 35ms); }
+.home-main { position: relative; flex: 1; min-height: 520px; overflow: hidden; }
+/* live sculpture: one canvas pixel per CSS pixel, scaled without smoothing so the dots stay square */
+.home-3d { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: grab; touch-action: pan-y; transition: opacity 900ms var(--tw-ease-out) 150ms; }
+.home-3d.is-live { opacity: 1; }
+.home-3d.is-stipple { image-rendering: pixelated; }
+.home-3d.is-dragging { cursor: grabbing; }
+/* the still drawing, shown when WebGL is not there */
+.home-merid { position: absolute; left: 50%; bottom: -6%; height: 104%; width: auto; max-width: none; transform: translateX(-50%); user-select: none; -webkit-user-drag: none; }
 @keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
-@keyframes home-rise { from { opacity: 0; transform: translate(-50%, 24px); } to { opacity: 1; transform: translate(-50%, 0); } }
-@keyframes home-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes home-draw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-/* phones: sculpture on its meridian first, the index under it */
 @media (max-width: 719px) {
-  .home-main { display: flex; flex-direction: column; min-height: 0; overflow: visible; }
-  .home-art { position: relative; inset: auto; height: 60vh; height: 60svh; min-height: 380px; overflow: hidden; }
-  .home-merid { left: 46%; height: 106%; bottom: -8%; }
-  .home-meridian { left: calc(46% - .5px); }
-  .home-index { position: static; width: auto; margin: 0 16px 36px; }
-  .home-index a { font-size: 24px; padding: 12px 0 10px; }
+  .home-main { min-height: 460px; }
+  .home-merid { height: min(100%, 150vw); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .home-merid, .home-meridian, .home-index a { animation: none; }
-  .home-brand.is-intro > span > span { animation: none; }
-  .home-index span, .home-index a::after { transition: none; }
+  #homeBrand.is-intro > span > span { animation: none; }
+  .home-3d { transition: none; }
 }

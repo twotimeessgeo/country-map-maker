@@ -10,26 +10,35 @@
     <link rel="stylesheet" href="./ds/tokens.css?v=ds31p" />
     <link rel="stylesheet" href="./ds/base.css?v=ds31p" />
     <link rel="stylesheet" href="./ds/components.css?v=ds31p" />
-    <link rel="stylesheet" href="./portal.css?v=merid5" />
+    <link rel="stylesheet" href="./portal.css?v=merid6" />
   </head>
   <body class="portal-home">
-    <header class="home-header" id="homeHeader">
-      <div class="home-bar-inner">
-        <h1 class="home-brand" id="homeBrand" lang="en">Promenade</h1>
-      </div>
+    <header class="tw-nav is-static">
+      <nav class="tw-nav-inner" aria-label="Promenade Geography">
+        <a class="tw-brand" href="./index.html" aria-current="page"><span id="homeBrand" lang="en">Promenade</span></a>
+        <div class="tw-nav-links">
+          <a class="tw-nav-link" lang="en" href="./tools/climate/index.html">Climate Atlas</a>
+          <a class="tw-nav-link" lang="en" href="./tools/stats/index.html">Statistics</a>
+          <a class="tw-nav-link" lang="en" href="./tools/cut/index.html">Archive</a>
+          <a class="tw-nav-link" lang="en" href="./notes/index.html">Notes</a>
+        </div>
+        <span class="tw-nav-spacer"></span>
+        <details class="tw-nav-menu">
+          <summary aria-label="메뉴"><span class="tw-nav-menu-icon" aria-hidden="true"></span></summary>
+          <div class="tw-nav-menu-panel">
+            <a lang="en" href="./tools/climate/index.html">Climate Atlas</a>
+            <a lang="en" href="./tools/stats/index.html">Statistics</a>
+            <a lang="en" href="./tools/cut/index.html">Archive</a>
+            <a lang="en" href="./notes/index.html">Notes</a>
+          </div>
+        </details>
+      </nav>
     </header>
     <main class="home-main">
-      <div class="home-art">
-        <span class="home-meridian" aria-hidden="true"></span>
-        <img class="home-merid" src="./ds/merid.png?v=1" width="723" height="1219" alt="자오선 조형물" decoding="async" fetchpriority="high" />
-      </div>
-      <nav class="home-index" id="homeLinks" aria-label="Promenade Geography">
-        <a href="./tools/climate/index.html" lang="en"><i>01</i><span>Climate Atlas</span></a>
-        <a href="./tools/stats/index.html" lang="en"><i>02</i><span>Statistics</span></a>
-        <a href="./tools/cut/index.html" lang="en"><i>03</i><span>Archive</span></a>
-        <a href="./notes/index.html" lang="en"><i>04</i><span>Notes</span></a>
-      </nav>
+      <canvas class="home-3d" data-merid3d role="img" aria-label="자오선 조형물"></canvas>
+      <img class="home-merid" src="./ds/merid.png?v=1" width="723" height="1219" alt="자오선 조형물" decoding="async" />
     </main>
-    <script src="./portal.js?v=merid4" defer></script>
+    <script src="./portal.js?v=merid6" defer></script>
+    <script src="./ds/merid3d.js?v=1" defer></script>
   </body>
 </html>
