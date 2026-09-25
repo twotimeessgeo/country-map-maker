@@ -147,13 +147,13 @@ function start(host) {
     camera.aspect = w / h;
     if (!model) return;
     const phone = w / h < 0.8, aspect = w / h;
-    setPortrait(phone);
+    setPortrait(false);                           // the sculpture keeps its built pose everywhere
     const H = ext.maxY - ext.minY;
     const cx = phone ? 0 : 0.10;                  // model centre sits 10% right of the middle on wide screens
-    const cut = H * (phone ? 0.05 : 0.06);         // only the very foot runs below the bottom edge
+    const cut = H * (phone ? 0.10 : 0.06);         // only the very foot runs below the bottom edge
     // tall enough for spike + margin; wide enough that the widest ring never leaves the sides, whatever the turn
     const needH = (H - cut) * 1.10;
-    const needW = (ext.r * 1.12) / ((0.5 - cx) * aspect);
+    const needW = (ext.r * (phone ? 0.98 : 1.12)) / ((0.5 - cx) * aspect);
     const vis = Math.max(needH, needW);
     const dist = vis / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
     const yc = ext.minY + cut + vis / 2;           // bottom edge fixed above the foot; any spare room goes to the top
