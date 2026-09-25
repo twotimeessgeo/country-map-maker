@@ -49,10 +49,10 @@ function start(host) {
   const EFFECT = { none: 0, grain: 1, stipple: 2, bayer: 3 }[host.dataset.effect || "stipple"] ?? 2;
   const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 });
   const post = new THREE.ShaderMaterial({
-    uniforms: { tScene: { value: rt.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uDpr: { value: 1 }, uSeed: { value: 0 }, uMode: { value: EFFECT }, uExposure: { value: 1.05 } },
+    uniforms: { tScene: { value: rt.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uDpr: { value: 1 }, uSeed: { value: 0 }, uMode: { value: EFFECT }, uExposure: { value: 1.05 }, uFloor: { value: -1 }, uFade: { value: .3 } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }",
     fragmentShader: `precision highp float; varying vec2 vUv;
-      uniform sampler2D tScene; uniform vec2 uRes; uniform float uDpr, uSeed, uExposure; uniform int uMode;
+      uniform sampler2D tScene; uniform vec2 uRes; uniform float uDpr, uSeed, uExposure, uFloor, uFade; uniform int uMode;
       vec3 aces(vec3 x){ return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.); }
       float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21) + uSeed); p += dot(p, p+45.32); return fract(p.x*p.y); }
       float bayer(vec2 p){ vec2 q = mod(p, 4.);
@@ -62,6 +62,8 @@ function start(host) {
       void main(){
         vec3 c = aces(texture2D(tScene, vUv).rgb * uExposure);
         float L = pow(dot(c, vec3(.2126,.7152,.0722)), 1./2.2);
+        // below the floor line: the mirror image, dimmed and fading out with depth (phones)
+        if (vUv.y < uFloor) L *= .5 * (1. - smoothstep(0., uFade, uFloor - vUv.y));
         vec2 cell = floor(gl_FragCoord.xy / max(1., floor(uDpr+.25)));   // one dot per CSS pixel
         float o = L;
         if (L < .012) { gl_FragColor = vec4(0.,0.,0.,1.); return; }   // pure black stays black: no stray dots
@@ -86,6 +88,13 @@ function start(host) {
 
   const steel = new THREE.MeshStandardMaterial({ color: 0xf4f5f7, metalness: 1, roughness: 0.035 });
   const band = new THREE.MeshStandardMaterial({ color: 0xeef0f2, metalness: 1, roughness: 0.07 });
+  // phones: the sculpture stands on a black mirror floor; the floor is the ground plane of the Blender scene
+  renderer.localClippingEnabled = true;
+  const above = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), below = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
+  const mSteel = steel.clone(), mBand = band.clone();
+  for (const m of [steel, band, mSteel, mBand]) m.side = THREE.DoubleSide;
+  const mirror = new THREE.Group(); mirror.visible = false;
+  let floorY = 0;
 
   let model = null, size = new THREE.Vector3(), ext = null;
   new GLTFLoader().load(host.dataset.armillary, gltf => {
@@ -100,7 +109,11 @@ function start(host) {
     const box = new THREE.Box3().setFromObject(model);
     box.getSize(size); const c = box.getCenter(new THREE.Vector3());
     model.position.sub(c);                       // turn about the sculpture's own centre
+    floorY = -c.y;                               // Blender's ground (z = 0) after centring
     orient.add(model);
+    const twin = model.clone(true);
+    twin.traverse(o => { if (o.isMesh) o.material = o.material === band ? mBand : mSteel; });
+    mirror.add(twin); mirror.scale.y = -1; mirror.position.y = 2 * floorY; orient.add(mirror);
     const rod = model.getObjectByName("Rod");
     if (rod) { model.updateMatrixWorld(true); const a = new THREE.Vector3(0, 0, 0), b = new THREE.Vector3(0, 1, 0); rod.localToWorld(a); rod.localToWorld(b); axis = b.sub(a).normalize(); }
     fit();
@@ -148,15 +161,30 @@ function start(host) {
     if (!model) return;
     const phone = w / h < 0.8, aspect = w / h;
     setPortrait(false);                           // the sculpture keeps its built pose everywhere
-    const H = ext.maxY - ext.minY;
     const cx = phone ? 0 : 0.10;                  // model centre sits 10% right of the middle on wide screens
-    const cut = H * (phone ? 0.10 : 0.06);         // only the very foot runs below the bottom edge
-    // tall enough for spike + margin; wide enough that the widest ring never leaves the sides, whatever the turn
-    const needH = (H - cut) * 1.10;
-    const needW = (ext.r * (phone ? 0.98 : 1.12)) / ((0.5 - cx) * aspect);
-    const vis = Math.max(needH, needW);
+    let vis, yc;
+    // phones: the whole sculpture stands on a mirror floor; the reflection fills the lower part of the tall screen
+    mirror.visible = phone;
+    const clip = phone ? [above] : [], clipM = phone ? [below] : [];
+    above.constant = -floorY; below.constant = floorY;
+    for (const m of [steel, band]) { m.clippingPlanes = clip; m.needsUpdate = true; }
+    for (const m of [mSteel, mBand]) { m.clippingPlanes = clipM; m.needsUpdate = true; }
+    if (phone) {
+      const up = ext.maxY - floorY;
+      const needW = (ext.r * 1.02) / (0.5 * aspect);
+      vis = Math.max(up * 1.9, needW);                 // at least as much room below the floor as the sculpture is tall, less its margin
+      const top = ext.maxY + up * 0.06;
+      yc = top - vis / 2;
+      const floorV = (floorY - (yc - vis / 2)) / vis;    // floor line, 0 = bottom of the stage
+      post.uniforms.uFloor.value = floorV; post.uniforms.uFade.value = Math.max(0.1, floorV * 0.8);
+    } else {
+      const H = ext.maxY - ext.minY, cut = H * 0.06;     // only the very foot runs below the bottom edge
+      // tall enough for spike + margin; wide enough that the widest ring never leaves the sides, whatever the turn
+      vis = Math.max((H - cut) * 1.10, (ext.r * 1.12) / ((0.5 - cx) * aspect));
+      yc = ext.minY + cut + vis / 2;                     // bottom edge fixed above the foot; any spare room goes to the top
+      post.uniforms.uFloor.value = -1;
+    }
     const dist = vis / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    const yc = ext.minY + cut + vis / 2;           // bottom edge fixed above the foot; any spare room goes to the top
     camera.position.set(0, yc, dist);
     camera.lookAt(0, yc, 0);
     camera.clearViewOffset();

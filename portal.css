@@ -18,16 +18,8 @@ body.portal-home .tw-nav-link:hover { background: var(--tw-surface); }
 .home-merid { position: absolute; left: 58%; bottom: -8%; height: 102%; width: auto; max-width: none; transform: translateX(-50%) scaleX(-1); filter: invert(1); user-select: none; -webkit-user-drag: none; transition: opacity 600ms var(--tw-ease-out); }
 .home-stage.has-3d .home-merid { opacity: 0; }
 @keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
-.home-index { display: none; }
 @media (max-width: 719px) {
-  /* phones: the sculpture stands in a black upper stage and sinks into the white below, where the four tools are listed */
-  .home-main { display: flex; flex-direction: column; min-height: 0; overflow: visible; }
-  .home-stage { position: relative; inset: auto; flex: none; height: 62vh; height: 62svh; min-height: 380px; overflow: hidden; }
-  .home-index { display: flex; flex-direction: column; flex: 1; padding: 22px 16px 32px; background: #fff; color: #0d0d0d; }
-  .home-index a { display: flex; align-items: baseline; gap: 16px; padding: 13px 0 11px; border-bottom: 1px solid rgba(0,0,0,.12); color: inherit; font-family: var(--tw-font-latin); font-size: 26px; font-weight: 300; line-height: 1.1; letter-spacing: -.02em; text-decoration: none; }
-  .home-index a:first-child { border-top: 1px solid #0d0d0d; }
-  .home-index i { flex: none; width: 22px; color: #6b6b6b; font-size: 12px; font-style: normal; letter-spacing: .02em; }
-  .home-index a:active span { opacity: .6; }
+  .home-main { min-height: 460px; }
   .home-merid { left: 52%; height: min(96%, 150vw); bottom: -6%; }
 }
 @media (prefers-reduced-motion: reduce) {
