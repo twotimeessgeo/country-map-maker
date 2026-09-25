@@ -233,15 +233,27 @@ function convert(table, subject, correction) {
   return { bookId: table.id, title, type: table.type || "region", topic: topicFor(subject, table.id, table),
     ...(Number(table.id.split("-")[0]) >= (subject === "korea" ? 5 : 7) ? { region: regionFor(subject, table.id) } : {}), views };
 }
+function tablesDir(folder, files) {
+  const marked = path.join(sourceRoot, folder, "tables_marked");
+  if (!fs.existsSync(marked)) throw new Error(`${folder}/tables_marked 없음: 먼저 python3 claude_sample/watermark.py mark ../${folder}/tables ../${folder}/tables_marked`);
+  for (const file of files) {
+    const source = path.join(sourceRoot, folder, "tables", file), copy = path.join(marked, file);
+    if (!fs.existsSync(copy) || fs.statSync(copy).mtimeMs < fs.statSync(source).mtimeMs)
+      throw new Error(`${folder}/tables_marked/${file}이 원본보다 오래됨: watermark.py mark를 다시 실행해 주세요`);
+  }
+  return "tables_marked";
+}
 function readSubject(subject) {
   const folder = subject === "korea" ? "kr" : "v5";
   const correctionFile = subject === "korea" ? "kr/text.json" : "claude_sample/text.json";
   const correction = JSON.parse(fs.readFileSync(path.join(sourceRoot, correctionFile), "utf8"));
   const files = fs.readdirSync(path.join(sourceRoot, folder, "tables")).filter(name => name.endsWith(".json"))
     .sort((a,b) => a.localeCompare(b, undefined, { numeric: true }));
+  // the book prints from tables_marked (claude_sample/watermark.py); the site must show the same printed values
+  const dir = tablesDir(folder, files);
   const tables = [], skipped = [];
   for (const file of files) {
-    const table = JSON.parse(fs.readFileSync(path.join(sourceRoot, folder, "tables", file), "utf8"));
+    const table = JSON.parse(fs.readFileSync(path.join(sourceRoot, folder, dir, file), "utf8"));
     const converted = convert(table, subject, correction);
     if (converted.skip) skipped.push({ id: table.id, reason: converted.skip });
     else tables.push(converted);

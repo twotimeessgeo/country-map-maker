@@ -5,7 +5,7 @@ export const duplicateResolutions = [
   ["korea","korea-book-2-10","korea-population-compare",{replace:"인구 변화"}],
   ["korea","korea-book-2-11","korea-population-compare",{label:"노년층 비율 변화"}],
   ["korea","korea-book-2-12","korea-population-compare",{label:"합계 출산율 변화"}],
-  ["korea","korea-book-2-5","korea-city-rank",{labels:["권역별 인구","권역별 1위 도시","권역별 2위 도시","권역별 3위 도시"]}],
+  ["korea","korea-book-2-5","korea-city-rank",{labels:["권역·도 인구","권역·도 1위 도시","권역·도 2위 도시","권역·도 3위 도시"]}],
   ["korea","korea-book-3-6","korea-city-rank",{label:"도별 상위 세 도시"}],
   ["korea","korea-book-3-4","korea-daytime-compare",{labels:["서울 자치구 인구와 지가","서울 자치구 비율"]}],
   ["korea","korea-book-3-7","korea-daytime-compare",{discard:"부산 구별 상주·주간 인구는 기존 7행이 통계집 5행보다 넓음"}],
