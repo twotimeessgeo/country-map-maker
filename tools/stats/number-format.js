@@ -12,7 +12,8 @@
     if (Number.isInteger(column.digits)) return column.digits;
     if (/합계\s*출산율/.test(column.label || "")) return 2;
     if (["%", "‰", "지수"].includes(column.unit)) return 1;
-    return /^(명|개|가구|마리|t|천 명|MWh|천 toe)$/.test(column.unit || "") ? 0 : 1;
+    if (/^(명|개|가구|마리|t|천 명|MWh|천 toe|ha|호|대|건|곳)$/.test(column.unit || "")) return 0;
+    return 1;
   }
   function spec(column, values) {
     const unit = column.unit || "";
