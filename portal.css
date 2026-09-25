@@ -1,47 +1,35 @@
-/* DS 3.1 home: the brand, four links under it, and the meridian sculpture. */
+/* DS 3.1 home: four links along the top, the meridian sculpture standing from the bottom left, Promenade in the space it leaves. */
 html, body.portal-home { min-height: 100%; }
-body.portal-home { margin: 0; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; }
-.home-header { position: relative; z-index: 20; padding: 40px 16px 4px; background: var(--tw-bg); }
-.home-nav { display: flex; flex-direction: column; align-items: center; gap: 18px; }
-.home-brand { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; margin: 0; padding: 0 8px; color: var(--tw-ink); font-family: var(--tw-font-latin); font-size: clamp(48px, 7.2vw, 104px); font-weight: 300; line-height: 1; letter-spacing: -.035em; view-transition-name: tw-brand; }
+body.portal-home { margin: 0; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; background: var(--tw-bg); }
+.home-header { position: relative; z-index: 2; padding: 26px clamp(16px, 4vw, 56px) 0; }
+.home-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 36px; }
+.home-links a { position: relative; padding: 6px 0; color: var(--tw-ink); font-family: var(--tw-font-latin); font-size: 16px; font-weight: 300; text-decoration: none; animation: home-fade 420ms var(--tw-ease-out) both; }
+.home-links a:nth-child(1) { animation-delay: 380ms; }
+.home-links a:nth-child(2) { animation-delay: 420ms; }
+.home-links a:nth-child(3) { animation-delay: 460ms; }
+.home-links a:nth-child(4) { animation-delay: 500ms; }
+.home-links a::after { position: absolute; right: 0; bottom: 3px; left: 0; height: 1px; background: currentColor; content: ""; transform: scaleX(0); transform-origin: left; transition: transform 240ms var(--tw-ease-out); }
+.home-links a:hover::after, .home-links a:focus-visible::after { transform: scaleX(1); }
+.home-links a:focus-visible { outline: none; }
+.home-main { position: relative; flex: 1; min-height: 520px; overflow: hidden; }
+/* the sculpture: a 1-bit stipple drawing, standing on the bottom edge and filling the height */
+.home-merid { position: absolute; left: clamp(0px, 5vw, 96px); bottom: -2%; height: 104%; width: auto; max-width: none; user-select: none; -webkit-user-drag: none; animation: home-rise 1100ms var(--tw-ease-out) 120ms both; }
+.home-brand { position: absolute; right: clamp(16px, 5vw, 96px); bottom: clamp(40px, 11vh, 120px); margin: 0; color: var(--tw-ink); font-family: var(--tw-font-latin); font-size: clamp(56px, 9.6vw, 176px); font-weight: 300; line-height: .9; letter-spacing: -.04em; view-transition-name: tw-brand; }
 .home-brand.is-intro > span { display: inline-block; overflow: hidden; vertical-align: bottom; }
-.home-brand.is-intro > span > span { display: inline-block; animation: home-letter-in 520ms var(--tw-ease-out) both; animation-delay: calc(var(--letter-index) * 35ms); }
+.home-brand.is-intro > span > span { display: inline-block; animation: home-letter-in 560ms var(--tw-ease-out) both; animation-delay: calc(240ms + var(--letter-index) * 35ms); }
 @keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
-.home-link-set { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 36px; }
-.home-link-side { display: contents; }
-.home-link-set a { position: relative; padding: 6px 0; color: var(--tw-ink); font-family: var(--tw-font-latin); font-size: 16px; font-weight: 300; text-decoration: none; animation: home-link-in 360ms var(--tw-ease-out) 420ms both; }
-.home-link-side.is-left a:nth-child(2) { animation-delay: 460ms; }
-.home-link-side.is-right a:first-child { animation-delay: 500ms; }
-.home-link-side.is-right a:nth-child(2) { animation-delay: 540ms; }
-@keyframes home-link-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
-.home-link-set a::after { position: absolute; right: 0; bottom: 3px; left: 0; height: 1px; background: currentColor; content: ""; transform: scaleX(0); transform-origin: left; transition: transform 240ms var(--tw-ease-out); }
-.home-link-set a:hover::after, .home-link-set a:focus-visible::after { transform: scaleX(1); }
-.home-link-set a:focus-visible { outline: none; }
-.home-main { position: relative; overflow: hidden; flex: 1; min-height: 460px; }
-/* the meridian sculpture as on the Meridian covers: large, turned, crossed by three bars that invert it */
-.home-art { position: absolute; inset: 0; isolation: isolate; background: #fff; }
-.home-merid { position: absolute; left: 50%; top: 50%; height: 108%; width: auto; max-width: none; transform: translate(-50%, -48%); user-select: none; -webkit-user-drag: none; animation: home-merid-in 1100ms var(--tw-ease-out) 150ms both; }
-.home-bar { position: absolute; width: clamp(26px, 3.6vw, 56px); background: #fff; mix-blend-mode: difference; pointer-events: none; animation: home-bar-in 900ms var(--tw-ease-out) both; }
-.home-bar.is-a { left: calc(50% - 6.4vw); top: 22%; height: 56%; transform-origin: top; animation-delay: 450ms; }
-.home-bar.is-b { left: calc(50% - 1.8vw); top: 0; height: 74%; transform-origin: top; animation-delay: 540ms; }
-.home-bar.is-c { left: calc(50% + 2.8vw); top: 30%; bottom: 0; transform-origin: bottom; animation-delay: 630ms; }
-@keyframes home-bar-in { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-@keyframes home-merid-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes home-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes home-fade { from { opacity: 0; } to { opacity: 1; } }
 @media (max-width: 719px) {
-  .home-header { padding-top: 28px; }
-  .home-nav { gap: 12px; }
-  .home-link-set { gap: 4px 22px; }
-  .home-link-set a { font-size: 15px; }
-  .home-main { min-height: 420px; }
-  .home-merid { height: min(104%, 156vw); }
-  .home-bar { width: 22px; }
-  .home-bar.is-a { left: calc(50% - 44px); }
-  .home-bar.is-b { left: calc(50% - 11px); }
-  .home-bar.is-c { left: calc(50% + 22px); }
+  .home-header { padding-top: 20px; }
+  .home-links { justify-content: center; gap: 4px 22px; }
+  .home-links a { font-size: 15px; }
+  .home-main { min-height: 480px; }
+  .home-merid { left: -6vw; height: 92%; bottom: -2%; }
+  .home-brand { right: 16px; bottom: auto; top: 18px; font-size: clamp(44px, 13.5vw, 64px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .home-merid, .home-bar { animation: none; }
-  .home-link-set a { animation: none !important; }
-  .home-link-set a::after { transition: none; }
+  .home-links a, .home-merid { animation: none; }
+  .home-links a::after { transition: none; }
   .home-brand.is-intro > span > span { animation: none; }
 }
