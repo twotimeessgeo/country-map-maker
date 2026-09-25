@@ -1,7 +1,7 @@
 // Source of ds/merid-3d.js. Rebuild: npx esbuild scripts/merid-3d.src.js --bundle --minify --format=iife --target=es2020 --legal-comments=none --outfile=ds/merid-3d.js  (needs three@0.170)
 /* Home: the armillary sundial (ds/armillary.glb) in polished steel on black.
    three.js + GLTFLoader and a small strip-light studio for reflections, bundled into one file (ds/merid-3d.js).
-   A camera flight in, then still at the Meridian cover angle; drag turns the rings about the rod; no entrance with reduced motion. */
+   A camera flight in, then still at the Meridian cover angle, mirrored so the needle points up to the right; drag turns the rings about the rod; no entrance with reduced motion. */
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
@@ -89,8 +89,11 @@ function start(host) {
 
   // tilt (the pose) > pivot (the quarter it is seen from) > spin (the turn, about the polar rod itself) > orient > model.
   // Turning about the rod keeps the needle where the Meridian drawing puts it: only the rings swing round it, like the sky round the pole.
-  const tilt = new THREE.Group(), pivot = new THREE.Group(), spin = new THREE.Group(), orient = new THREE.Group();
-  scene.add(tilt); tilt.add(pivot); pivot.add(spin); spin.add(orient);
+  // flip mirrors the whole pose left to right, so the needle points up to the right and the rings open to the left
+  const flip = new THREE.Group(), tilt = new THREE.Group(), pivot = new THREE.Group(), spin = new THREE.Group(), orient = new THREE.Group();
+  const SIDE = host.dataset.side === "left" ? 1 : -1;
+  flip.scale.x = SIDE;
+  scene.add(flip); flip.add(tilt); tilt.add(pivot); pivot.add(spin); spin.add(orient);
   let portrait = null;
   const TILT_X = 0.35, TILT_Z = -0.28;   // the resting pose: the angle of the Meridian cover drawing
   const POSE = host.dataset.pose ? +host.dataset.pose : 1.2;
@@ -157,7 +160,7 @@ function start(host) {
   function setSpin(a) { spin.quaternion.setFromAxisAngle(axisD, a); mSpin.quaternion.copy(spin.quaternion); }
   function measure() {
     const keep = spin.quaternion.clone(), v = new THREE.Vector3(), q = new THREE.Vector3();
-    setSpin(0); tilt.updateMatrixWorld(true);
+    setSpin(0); flip.updateMatrixWorld(true);
     const toO = new THREE.Matrix4().copy(orient.matrixWorld).invert();
     const pts = [], isRod = [];
     model.traverse(o => { if (!o.isMesh) return; const pos = o.geometry.attributes.position, rodPart = o === rodMesh || /rod/i.test(o.name);
@@ -170,13 +173,13 @@ function start(host) {
     const grow = (b, p) => { b.minX = Math.min(b.minX, p.x); b.maxX = Math.max(b.maxX, p.x); b.minY = Math.min(b.minY, p.y); b.maxY = Math.max(b.maxY, p.y); };
     const toP = new THREE.Matrix4();
     for (let k = 0; k < 36; k++) {
-      setSpin(k / 36 * Math.PI * 2); tilt.updateMatrixWorld(true);
+      setSpin(k / 36 * Math.PI * 2); flip.updateMatrixWorld(true);
       const m = orient.matrixWorld; toP.copy(pivot.matrixWorld).invert();
       pts.forEach((p, i) => { v.copy(p).applyMatrix4(m); grow(e.all, v); if (keepTop[i]) grow(e.top, v);
         else if (v.y < e.foot.y) { e.foot.y = v.y; e.foot.x = v.x; }
         e.minPivotY = Math.min(e.minPivotY, v.applyMatrix4(toP).y); });
     }
-    spin.quaternion.copy(keep); mSpin.quaternion.copy(keep); tilt.updateMatrixWorld(true);
+    spin.quaternion.copy(keep); mSpin.quaternion.copy(keep); flip.updateMatrixWorld(true);
     return e;
   }
   // wide screens: the Meridian cover angle (looking down on it, the frame rolled so the needle leans left).
@@ -184,7 +187,7 @@ function start(host) {
   function setPose(phone) {
     if (phone === portrait) return; portrait = phone;
     tilt.rotation.set(+host.dataset.tilt || TILT_X, 0, phone ? 0 : (host.dataset.roll ? +host.dataset.roll : TILT_Z));
-    tilt.updateMatrixWorld(true);
+    flip.updateMatrixWorld(true);
     // the floor (Blender's ground) in world space; it only depends on the tilt and the quarter, not on the turn
     const n = new THREE.Vector3(0, 1, 0).transformDirection(pivot.matrixWorld), p = new THREE.Vector3(0, floorY, 0).applyMatrix4(pivot.matrixWorld);
     above.setFromNormalAndCoplanarPoint(n, p); below.setFromNormalAndCoplanarPoint(n.clone().negate(), p);
@@ -219,14 +222,15 @@ function start(host) {
       // the whole sculpture stands on its black mirror floor; the reflection fills the lower part of the tall screen
       const a = ext.all, up = a.maxY - a.minY;
       uFadeLen.value = up * 0.5;
-      vis = Math.max(up * 1.52, (a.maxX - a.minX) * 1.1 / aspect);
+      vis = Math.max(up * 1.52, (a.maxX - a.minX) * 1.16 / aspect);
       xc = (a.minX + a.maxX) / 2;
       yc = a.maxY + up * 0.05 - vis / 2;
     } else {
       // as large as the stage allows with nothing cut, whichever way it has been turned; the rod's foot always stays below the edge
-      const t = ext.top, H = t.maxY - t.minY, m = 0.045;
-      vis = Math.max(H * (1 + 2 * m), (t.maxX - t.minX) * (1 + 2 * m) / aspect);
-      xc = (t.minX + t.maxX) / 2;
+      // the sculpture's centre sits 10% right of the middle; the fit keeps its right side clear of the edge
+      const t = ext.top, H = t.maxY - t.minY, m = 0.045, cx = 0.10;
+      vis = Math.max(H * (1 + 2 * m), (t.maxX - t.minX) * (1 + 2 * m) / ((1 - 2 * cx) * aspect));
+      xc = (t.minX + t.maxX) / 2 - cx * vis * aspect;
       const hi = t.minY - H * m, lo = Math.max(t.maxY + H * m - vis, ext.foot.y + vis * 0.03);
       yc = Math.min(hi, Math.max(lo, (t.minY + t.maxY) / 2 - vis / 2)) + vis / 2;   // centred, unless that would show the foot
     }
@@ -239,7 +243,7 @@ function start(host) {
 
   // motion: one entrance, then it holds still. Drag turns the rings about the rod (with a little glide); it never spins on its own.
   //   Reduced motion: the resting view, straight away.
-  const INTRO = +host.dataset.introMs || 4600;
+  const INTRO = +host.dataset.introMs || 3000;
   let turn = +host.dataset.turn || 0, vel = 0, drag = null, last = 0, raf = 0, visible = true, t0 = 0, introDone = reduced, shot = null;
   const ease = t => t * t * t * (t * (t * 6 - 15) + 10);                      // smootherstep: eases in and out
   const settle = t => 1 - Math.pow(1 - t, 4);
@@ -253,7 +257,7 @@ function start(host) {
     let busy = false;
     if (!introDone) {
       t0 = t0 || ts;
-      // entrance (4.6 s), one continuous flight: from a macro shot of the needle tip, down the shaft
+      // entrance (3 s), one continuous flight: from a macro shot of the needle tip, down the shaft
       // past the hub, out through a wide arc around the rings, and back to the resting view.
       // The lens widens then closes (a slow dolly zoom), and the light sweeps across the steel.
       if (!shot) shot = flight();
@@ -262,8 +266,8 @@ function start(host) {
       camera.lookAt(shot.tgt.getPoint(u));
       camera.fov = shot.fov(u);
       camera.clearViewOffset(); camera.updateProjectionMatrix();
-      scene.environmentRotation.y = -2.4 * (1 - settle(k));
-      post.uniforms.uExposure.value = 1.05 * Math.min(1, k * 5);        // up from black in the first ~0.9 s
+      scene.environmentRotation.y = -2.4 * SIDE * (1 - settle(k));
+      post.uniforms.uExposure.value = 1.05 * Math.min(1, k * 5);        // up from black in the first ~0.6 s
       if (k >= 1) { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; applyCamera(); }
       busy = true;
     } else if (!drag && Math.abs(vel) > 0.002) {
@@ -277,7 +281,7 @@ function start(host) {
   if (!reduced) post.uniforms.uExposure.value = 0;
   // the path, in world space, for the current layout
   function flight() {
-    setSpin(turn); tilt.updateMatrixWorld(true);
+    setSpin(turn); flip.updateMatrixWorld(true);
     const rod = model.getObjectByName("Rod"), hubN = model.getObjectByName("Hub_N");
     const b = portrait ? ext.all : ext.top;
     const tip = rod ? rod.localToWorld(new THREE.Vector3(0, 2.05, 0)) : new THREE.Vector3(frame.xc, b.maxY, 0);
@@ -286,10 +290,10 @@ function start(host) {
     const R = (b.maxX - b.minX) / 2, X = frame.xc;
     const end = new THREE.Vector3(X, frame.yc, frame.dist), endT = new THREE.Vector3(X, frame.yc, 0);
     const pos = new THREE.CatmullRomCurve3([
-      tip.clone().add(new THREE.Vector3(0.35, -0.25, 0.55)),          // macro on the tip, looking up it
-      hub.clone().add(new THREE.Vector3(0.9, 0.35, 1.1)),             // down along the shaft to the hub
-      new THREE.Vector3(X - R * 2.6 * kw, hub.y + R * 0.6, R * 3.2 * kw),   // out wide, round the far side of the rings
-      new THREE.Vector3(X - R * 1.2 * kw, frame.yc + R * 0.3, frame.dist * 0.55),
+      tip.clone().add(new THREE.Vector3(-0.35 * SIDE, -0.25, 0.55)),  // macro on the tip, looking up it
+      hub.clone().add(new THREE.Vector3(-0.9 * SIDE, 0.35, 1.1)),     // down along the shaft to the hub
+      new THREE.Vector3(X + R * 2.6 * kw * SIDE, hub.y + R * 0.6, R * 3.2 * kw),   // out wide, round the far side of the rings
+      new THREE.Vector3(X + R * 1.2 * kw * SIDE, frame.yc + R * 0.3, frame.dist * 0.55),
       end,
     ], false, "centripetal");
     const tgt = new THREE.CatmullRomCurve3([tip.clone(), tip.clone().lerp(hub, 0.7), hub.clone(), endT.clone().lerp(hub, 0.3), endT], false, "centripetal");
