@@ -63,12 +63,12 @@ export function mergeBookStats(result, snapshot) {
           const old = target.views[0];
           const candidate = book.views[0];
           if (candidate.rows.length >= old.rows.length && candidate.columns.length > old.columns.length)
-            target.views[0] = { ...candidate, id: old.id, label: old.label };
+            target.views[0] = { ...candidate, id: old.id, label: old.label, bookSource: true };
           else report[subject].skipped.push({ id: book.bookId, reason: "사이트 표의 행·연도 범위가 더 넓음" });
         } else {
           for (const [index, view] of book.views.entries()) {
             const label = book.views.length === 1 ? match.label : `${match.label} ${view.label}`;
-            target.views.push({ ...view, id: `book-${book.bookId}-${slug(view.id || index)}`, label });
+            target.views.push({ ...view, id: `book-${book.bookId}-${slug(view.id || index)}`, label, bookSource: true });
           }
         }
         if (!report[subject].skipped.some(item => item.id === book.bookId)) report[subject].merged++;
@@ -100,7 +100,7 @@ export function mergeBookStats(result, snapshot) {
       const duplicate = tables.find(table => table.title === title);
       const uniqueTitle = duplicate ? `${title} (${book.views[0].year || book.bookId})` : title;
       tables.push({ id: `${subject}-book-${book.bookId}`, title: uniqueTitle,
-        views: book.views, rank: book.type === "rank", defaultSort: defaultSort(book) });
+        views: book.views.map(view => ({ ...view, bookSource: true })), rank: book.type === "rank", defaultSort: defaultSort(book) });
       report[subject].imported++;
     }
     report[subject].skipped.unshift(...(snapshot.skipped[subject] || []));

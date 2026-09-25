@@ -16,6 +16,7 @@ if (write === check || !["all", "korea", "world"].includes(scope) || (write && !
 const sourceUrls = {
   "국가데이터처": "https://kosis.kr/", "행정안전부": "https://jumin.mois.go.kr/",
   "국토교통부": "https://stat.molit.go.kr/", "농림축산식품부": "https://www.mafra.go.kr/",
+  "서울특별시": "https://data.seoul.go.kr/",
   "에너지경제연구원": "https://www.keei.re.kr/", "한국에너지공단": "https://www.knrec.or.kr/",
   "한국전력공사": "https://home.kepco.co.kr/", "한국교통연구원": "https://www.ktdb.go.kr/",
   "한국전력거래소": "https://www.kpx.or.kr/", "UN": "https://population.un.org/",
@@ -32,13 +33,14 @@ const sourceUrls = {
   "OPEC": "https://asb.opec.org/",
 };
 function sourceName(source) {
-  const text = String(source.upstream || source.institution || source.publisher || source.underlying || source.file || "");
+  const text = String(source.upstream || source.institution || source.publisher || source.underlying || source.file || source.url || "");
   const patterns = [
     [/한국교통연구원|국가교통DB|ktdb/i, "한국교통연구원"], [/한국전력거래소/, "한국전력거래소"],
+    [/data\.seoul\.go\.kr|서울특별시/, "서울특별시"],
     [/한국전력공사/, "한국전력공사"], [/한국에너지공단/, "한국에너지공단"],
     [/에너지경제연구원|keei/i, "에너지경제연구원"], [/농림축산식품부|mafra/i, "농림축산식품부"],
     [/국토교통부|molit/i, "국토교통부"], [/행정안전부|mois/i, "행정안전부"],
-    [/국가데이터처|통계청|kostat|KOSIS|kosis|DT_|north_statistics/i, "국가데이터처"],
+    [/국가데이터처|통계청|kostat|KOSIS|kosis|mods\.go\.kr|DT_|north_statistics/i, "국가데이터처"],
     [/Pew|pew/i, "Pew Research Center"], [/UNHCR|unhcr/i, "UNHCR"],
     [/IRENA|irena/i, "IRENA"], [/IEA\b/i, "IEA"], [/Energy Institute|energy_institute|EI_Statistical/i, "Energy Institute"],
     [/Ember|ember/i, "Ember"], [/FAOSTAT|faostat/i, "FAOSTAT"],
@@ -61,7 +63,8 @@ function sourcesFor(table) {
     ...(table.sections || []).flatMap(section => [...(section.rows || []), ...(section.groups || []).flatMap(group => group.rows || [])]),
   ].flatMap(row => String(row.year || "").match(/(?:19|20)\d{2}/g) || []);
   for (const item of table.sources || []) {
-    const name = sourceName(item);
+    let name;
+    try { name = sourceName(item); } catch (error) { throw new Error(`${table.id}: ${error.message}`); }
     const years = String(item.years || item.year || table.year || "").match(/(?:19|20)\d{2}/g) || rowYears;
     const year = years.at(-1);
     if (!year) throw new Error(`${table.id}: 출처 연도를 확인할 수 없습니다`);
@@ -118,6 +121,7 @@ function flatten(table, patch, subject, correction) {
       if (subgroup) item.continent = subgroup;
     }
     if (subgroup && subject === "korea") item.section = subgroup;
+    else if (section && !["전국", "시·도", "시도", "대륙", "국가", "연도", "권역"].includes(section)) item.section = section;
     if (row.rank != null) item.rank = row.rank;
     if (row.year != null) item.year = row.year;
     result.push(item);
@@ -195,6 +199,19 @@ function convert(table, subject, correction) {
             ...(Number.isInteger(column.decimals) ? { digits: column.decimals } : {}) }], rows: rankRows, sources };
       }).filter(Boolean);
     });
+  }
+  if (table.type === "rank" && table.rows?.length) {
+    const rankIndex = (table.columns || []).findIndex(column => column.label === "순위");
+    views = selected.filter(column => column.index !== rankIndex && column.type !== "text").map(column => {
+      const rankRows = table.rows.map((row, index) => ({
+        label: `${row.rank || row.values?.[rankIndex] || index + 1}위`,
+        values: [{ name: patch.rows?.[row.label] || row.label, value: row.values?.[column.index] ?? null }],
+      })).filter(row => typeof row.values[0].value === "number" && Number.isFinite(row.values[0].value));
+      if (!rankRows.length) return null;
+      return { id: `rank-${column.index}`, label: column.label, rowLabel: "순위",
+        columns: [{ label: column.label, unit: column.unit || "",
+          ...(Number.isInteger(column.decimals) ? { digits: column.decimals } : {}) }], rows: rankRows, sources };
+    }).filter(Boolean);
   }
   if (!views.length) return { skip: "유효한 값이 없음" };
   return { bookId: table.id, title, type: table.type || "region", topic: topicFor(subject, table.id, table),

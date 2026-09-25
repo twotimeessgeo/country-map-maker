@@ -440,7 +440,7 @@
     }).join("")+'</tbody>';
   }
   function isRankCards(table) {
-    return table.views.length>1&&table.views.every(view=>view.columns.length===1&&view.rows.length>=5&&/^1위$/.test(view.rows[0].label));
+    return (table.views.length>1||table.rank)&&table.views.every(view=>view.columns.length===1&&view.rows.length>=5&&/^1위$/.test(view.rows[0].label));
   }
   function rankCardsMarkup(table) {
     return '<div class="stats-rank-scroll">'+table.views.map(view=>{
