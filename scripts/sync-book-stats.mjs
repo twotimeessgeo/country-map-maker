@@ -169,7 +169,9 @@ function convert(table, subject, correction) {
   for (const column of columns) if (patch.setGroup?.[column.label]) column.group = patch.setGroup[column.label];
   let selected = columns.filter(column => !patch.dropColumns?.includes(column.label) && !patch.dropColumns?.includes(table.columns[column.index].label));
   if (patch.columnOrder) selected.sort((a,b) => {
-    const ai = patch.columnOrder.indexOf(a.label), bi = patch.columnOrder.indexOf(b.label);
+    // the book orders by the table's own column names (before renaming); accept either spelling
+    const at = column => { const raw = patch.columnOrder.indexOf(table.columns[column.index].label); return raw >= 0 ? raw : patch.columnOrder.indexOf(column.label); };
+    const ai = at(a), bi = at(b);
     return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi) || a.index - b.index;
   });
   const rows = flatten(table, patch, subject, correction);
