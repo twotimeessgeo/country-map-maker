@@ -4,13 +4,13 @@ body.portal-home { margin: 0; overflow-x: hidden; display: flex; flex-direction:
 #homeBrand.is-intro > span { display: inline-block; overflow: hidden; vertical-align: bottom; }
 #homeBrand.is-intro > span > span { display: inline-block; animation: home-letter-in 520ms var(--tw-ease-out) both; animation-delay: calc(var(--letter-index) * 35ms); }
 .home-main { position: relative; flex: 1; min-height: 520px; overflow: hidden; }
-/* a 1-bit stipple drawing: shown near its native size so the dots stay crisp, the foot running past the bottom edge */
-.home-merid { position: absolute; left: 50%; bottom: -9%; height: 112%; width: auto; max-width: none; transform: translateX(-50%); user-select: none; -webkit-user-drag: none; animation: home-rise 1100ms var(--tw-ease-out) 120ms both; }
+/* a 1-bit stipple drawing: shown near its native size so the dots stay crisp, mirrored and set right of centre, the foot running past the bottom edge */
+.home-merid { position: absolute; left: 58%; bottom: -8%; height: 102%; width: auto; max-width: none; transform: translateX(-50%) scaleX(-1); user-select: none; -webkit-user-drag: none; animation: home-rise 1100ms var(--tw-ease-out) 120ms both; }
 @keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
-@keyframes home-rise { from { opacity: 0; transform: translate(-50%, 24px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes home-rise { from { opacity: 0; transform: translate(-50%, 24px) scaleX(-1); } to { opacity: 1; transform: translate(-50%, 0) scaleX(-1); } }
 @media (max-width: 719px) {
   .home-main { min-height: 460px; }
-  .home-merid { height: min(108%, 170vw); bottom: -7%; }
+  .home-merid { left: 52%; height: min(96%, 150vw); bottom: -6%; }
 }
 @media (prefers-reduced-motion: reduce) {
   #homeBrand.is-intro > span > span, .home-merid { animation: none; }
