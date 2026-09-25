@@ -417,14 +417,17 @@
       return heading+rowMarkup(row,view,display,bar,tableId);
     }).join("")+'</tbody>';
   }
-  function isRankCards(table) {
-    return (table.views.length>1||table.rank)&&table.views.every(view=>view.columns.length===1&&view.rows.length>=5&&/^1위$/.test(view.rows[0].label));
+  function isRankCardView(view) {
+    return view.columns.length===1&&view.rows.length>=5&&/^1위$/.test(view.rows[0].label)&&
+      view.rows.every(row=>row.values[0]&&typeof row.values[0]==="object"&&row.values[0].name);
   }
-  function rankCardsMarkup(table) {
-    return '<div class="stats-rank-scroll">'+table.views.map(view=>{
+  function isRankCards(table) {return (table.views.length>1||table.rank)&&table.views.every(isRankCardView);}
+  function rankCardsMarkup(table,active) {
+    return '<div class="stats-rank-scroll">'+(isRankCards(table)?table.views:[active]).map(view=>{
       const measure=view.columns[0].label.replace(/^.*? · /,"");
       const spec=numbers.spec(view.columns[0],view.rows.map(row=>row.values[0]));
-      return '<article class="stats-rank-card"><h3>'+escapeHtml(view.label)+'</h3><table><thead><tr><th>순위</th><th>국가</th><th>'+escapeHtml(measure)+
+      const entity=table.id.startsWith("korea-")?"시군구":table.title.includes("도시")?"도시":"국가";
+      return '<article class="stats-rank-card"><h3>'+escapeHtml(view.label)+'</h3><table><thead><tr><th>순위</th><th>'+entity+'</th><th>'+escapeHtml(measure)+
         '<small>'+escapeHtml(spec.unit)+'</small></th></tr></thead><tbody>'+view.rows.map(row=>{
           const value=row.values[0];
           return '<tr><th scope="row">'+escapeHtml(row.label)+'</th><td>'+escapeHtml(value?.name||"–")+'</td><td>'+escapeHtml(formatDisplayNumber(value?.value,view.columns[0],spec))+'</td></tr>';
@@ -435,7 +438,7 @@
     const state=stateFor(table.id),base=table.views[Math.min(state.view,table.views.length-1)],view=activeView(table,state);
     const groups=visibleRows(table,view,state),sort=effectiveSort(table,view,state);
     const display=displayColumns(view);
-    const rankCards=isRankCards(table);
+    const rankCards=isRankCardView(view);
     const bar=table.comparison?comparisonBar(table,view,groups,state):null;
     const kind=window.TWStatsCharts.type(table,view,groups,rankCards);
     const showChart=kind&&chartMode(table.id)==="graph";
@@ -443,7 +446,7 @@
     const wide=table.comparison||rankCards||(table.id!=="world-global-primary-energy"&&table.views.some(item=>item.columns.length>=5))||
       /(?:-history|-city-change|-generation-mix)$/.test(table.id);
     const hasBoth=groupRows(view.rows,null).continent.length>1&&groupRows(view.rows,null).country.length>0;
-    const viewNav=table.views.length>1&&!rankCards?segmented("stats-views",table.title+" 지표",table.views,state.view,"view",table.id):"";
+    const viewNav=table.views.length>1&&!isRankCards(table)?segmented("stats-views",table.title+" 지표",table.views,state.view,"view",table.id):"";
     const subNav=base.subviews?.length>1?segmented("stats-subviews",table.title+" 단위",base.subviews,state.subview,"subview",table.id):"";
     const scopeNav=table.comparison&&hasBoth?'<nav class="tw-segmented stats-scope" aria-label="행 범위">'+
       [["all","모두"],["continent","대륙"],["country","국가"]].map(([id,label])=>'<button type="button" data-table="'+table.id+'" data-scope="'+id+
@@ -470,7 +473,7 @@
     const note=view.note?'<p class="stats-note">'+escapeHtml(view.note)+'</p>':"";
     const colgroup='<colgroup><col class="stats-label-col">'+view.columns.map(()=>'<col class="stats-number-col">').join("")+
       (bar?'<col class="stats-bar-col">':"")+'</colgroup>';
-    const body=showChart?'<div class="stats-chart" data-table="'+table.id+'"></div>':rankCards?rankCardsMarkup(table):'<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table" style="--stats-numeric-cols:'+view.columns.length+
+    const body=showChart?'<div class="stats-chart" data-table="'+table.id+'"></div>':rankCards?rankCardsMarkup(table,view):'<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table" style="--stats-numeric-cols:'+view.columns.length+
       ';--stats-bar-width:'+(bar?"220px":"0px")+';min-width:'+(120+88*view.columns.length+(bar?220:0))+'px">'+colgroup+'<thead><tr>'+headers+'</tr></thead>'+tbodyMarkup(view,display,groups,bar,table.id)+'</table></div>';
     const more=table.id==="world-us-state-manufacturing"?'<button type="button" class="tw-button is-ghost is-sm stats-more" data-table="'+table.id+
       '" data-action="more">'+(state.expanded?"접기":"더 보기")+'</button>':"";
@@ -483,6 +486,9 @@
       view.label,row.label,row.values[0]?.name||"",formatNumber(row.values[0]?.value,view.columns[0])
     ]))];
     const view=activeView(table,state),groups=visibleRows(table,view,state);
+    if(isRankCardView(view))return [["순위",table.id.startsWith("korea-")?"시군구":"국가",view.columns[0].label],...view.rows.map(row=>[
+      row.label,row.values[0]?.name||"",formatNumber(row.values[0]?.value,view.columns[0])
+    ])];
     const result=[[view.rowLabel,...view.columns.map(c=>c.label+(c.unit?" ("+c.unit+")":""))]];
     const append=row=>result.push([row.label+(row.aggregateMark?"*":""),...row.values.map((value,index)=>value&&typeof value==="object"?value.name+" "+value.value:
       typeof value==="number"?formatNumber(value,row.valueUnit&&index===0?{...view.columns[index],unit:row.valueUnit}:view.columns[index]).replaceAll(",","").replaceAll("−","-")+(row.valueUnit&&index===0?" "+row.valueUnit:""):value??"–")]);
