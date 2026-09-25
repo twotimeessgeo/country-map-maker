@@ -43,7 +43,8 @@ function sourceName(source) {
     [/IRENA|irena/i, "IRENA"], [/IEA\b/i, "IEA"], [/Energy Institute|energy_institute|EI_Statistical/i, "Energy Institute"],
     [/Ember|ember/i, "Ember"], [/FAOSTAT|faostat/i, "FAOSTAT"],
     [/World Bank|world_bank/i, "World Bank"], [/UN Statistics|UNSD|National Accounts Main/i, "UN Statistics Division"],
-    [/UN DESA|UN WUP|UNCTAD|UNHCR|UN |un_desa/i, "UN"],
+    [/UNCTAD|unctad/i, "UNCTAD"],
+    [/UN DESA|UN WUP|UNHCR|UN |un_desa/i, "UN"],
     [/U\.S\. Geological|USGS|usgs/i, "U.S. Geological Survey"],
     [/US Census|U\.S\. Census|aies/i, "U.S. Census Bureau"],
     [/World Mining|world_mining/i, "World Mining Data"], [/CEPII|OEC|BACI|oec_baci/i, "OEC"],
@@ -55,9 +56,13 @@ function sourceName(source) {
 }
 function sourcesFor(table) {
   const out = new Map();
+  const rowYears = [
+    ...(table.rows || []), ...(table.groups || []).flatMap(group => group.rows || []),
+    ...(table.sections || []).flatMap(section => [...(section.rows || []), ...(section.groups || []).flatMap(group => group.rows || [])]),
+  ].flatMap(row => String(row.year || "").match(/(?:19|20)\d{2}/g) || []);
   for (const item of table.sources || []) {
     const name = sourceName(item);
-    const years = String(item.years || item.year || table.year || "").match(/(?:19|20)\d{2}/g) || [];
+    const years = String(item.years || item.year || table.year || "").match(/(?:19|20)\d{2}/g) || rowYears;
     const year = years.at(-1);
     if (!year) throw new Error(`${table.id}: 출처 연도를 확인할 수 없습니다`);
     const url = /^https:\/\//.test(item.url || "") ? item.url : sourceUrls[name];
@@ -114,6 +119,7 @@ function flatten(table, patch, subject, correction) {
     }
     if (subgroup && subject === "korea") item.section = subgroup;
     if (row.rank != null) item.rank = row.rank;
+    if (row.year != null) item.year = row.year;
     result.push(item);
   }
   for (const row of table.rows || []) add(row);
@@ -137,6 +143,7 @@ function convert(table, subject, correction) {
   if (correction.exclude?.includes(table.id) || patch.exclude) return { skip: "표기 보정의 exclude" };
   if (subject === "korea" && table.id.startsWith("1-") && table.id !== "1-8") return { skip: "기후 관측값은 Climate 도구 대상" };
   if (subject === "world" && table.id.startsWith("1-")) return { skip: "기후 관측값은 Climate 도구 대상" };
+  if (subject === "world" && table.id === "6-20") return { skip: "광물 매장량의 공통 기준 연도가 명시되지 않음" };
   const title = replaceText(patch.title || table.title, correction.titleReplace);
   const rowLabel = (patch.rowLabel || table.rowLabel || "지역").replaceAll("시·도", "시도");
   const columns = (table.columns || []).map((column, index) => ({ ...column, index,
@@ -153,8 +160,10 @@ function convert(table, subject, correction) {
   const sources = sourcesFor(table);
   let views = groups.map((group, viewIndex) => {
     const subset = selected.filter(column => (column.group || "") === group);
+    const hasRowYears = rows.some(row => row.year != null);
     const projected = rows.map(row => {
       const values = subset.map(column => row.values?.[column.index] ?? null);
+      if (hasRowYears) values.push(row.year == null ? null : String(row.year));
       return { label: row.label, values,
         ...(row.group ? { group: row.group } : {}), ...(row.continent ? { continent: row.continent } : {}),
         ...(row.section ? { section: row.section } : {}), ...(row.rank != null ? { rank: row.rank } : {}) };
@@ -162,10 +171,11 @@ function convert(table, subject, correction) {
     if (!subset.length || !projected.some(row => row.values.some(value => value !== null))) return null;
     const years = String(table.year || "").match(/(?:19|20)\d{2}/g) || [];
     return { id: group || `view-${viewIndex+1}`, label: group || (groups.length > 1 && subset.length === 1 ? subset[0].label : "기본"), rowLabel,
-      columns: subset.map(column => ({ label: column.label.replace(/((?:19|20)\d{2})[–-]((?:19|20)\d{2})/g, "$1~$2"), unit: column.unit || "",
+      columns: [...subset.map(column => ({ label: column.label.replace(/((?:19|20)\d{2})[–-]((?:19|20)\d{2})/g, "$1~$2"), unit: column.unit || "",
         ...(Number.isInteger(column.decimals) ? { digits: column.decimals } : {}),
         ...(column.year && /^\d{4}$/.test(String(column.year)) ? { year: column.year + "년" } : {}),
         ...(column.type === "text" ? { barEligible: false } : {}) })),
+        ...(hasRowYears ? [{ label: "기준", unit: "", barEligible: false }] : [])],
       rows: projected, sources,
       ...(years.length === 1 && /^\d{4}$/.test(String(table.year)) ? { year: years[0] + "년" } : {}) };
   }).filter(Boolean);
