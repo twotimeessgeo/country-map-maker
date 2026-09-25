@@ -32,7 +32,8 @@ const matches = {
     "7-5": { target: "world-us-state-manufacturing", skip: "사이트가 미국 50개 주, 통계집은 일부 주" },
   },
 };
-const normalize = text => String(text).replaceAll("시·도", "시도").replaceAll("시·군", "시군").replaceAll("신재생", "신·재생");
+const normalize = text => String(text).replaceAll("시·군·구", "시군구").replaceAll("시·도", "시도")
+  .replaceAll("시·군", "시군").replaceAll("신재생", "신·재생");
 const slug = text => String(text).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "view";
 function defaultSort(table) {
   if (table.type === "rank" || table.views.some(view => view.rowLabel === "순위")) return { mode: "rank" };
@@ -98,7 +99,7 @@ export function mergeBookStats(result, snapshot) {
       }
       const title = normalize(book.title);
       const duplicate = tables.find(table => table.title === title);
-      const uniqueTitle = duplicate ? `${title} (${book.views[0].year || book.bookId})` : title;
+      const uniqueTitle = duplicate ? `${title} — 세부 통계` : title;
       tables.push({ id: `${subject}-book-${book.bookId}`, title: uniqueTitle,
         views: book.views.map(view => ({ ...view, bookSource: true })), rank: book.type === "rank", defaultSort: defaultSort(book) });
       report[subject].imported++;
