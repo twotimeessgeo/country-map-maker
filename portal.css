@@ -14,15 +14,10 @@ body.portal-home .tw-nav-link:hover { background: var(--tw-surface); }
 .home-3d { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: grab; touch-action: pan-y; transition: opacity 1200ms var(--tw-ease-out); }
 .home-3d.is-live { opacity: 1; }
 .home-3d.is-dragging { cursor: grabbing; }
-/* the stipple drawing, inverted for the dark page: shown until (or instead of) the model */
-.home-merid { position: absolute; left: 58%; bottom: -8%; height: 102%; width: auto; max-width: none; transform: translateX(-50%) scaleX(-1); filter: invert(1); user-select: none; -webkit-user-drag: none; transition: opacity 600ms var(--tw-ease-out); }
-.home-stage.has-3d .home-merid { opacity: 0; }
-@keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
+.home-stage.has-3d @keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
 @media (max-width: 719px) {
   .home-main { min-height: 460px; }
-  .home-merid { left: 52%; height: min(96%, 150vw); bottom: -6%; }
-}
+  }
 @media (prefers-reduced-motion: reduce) {
   #homeBrand.is-intro > span > span { animation: none; }
-  .home-3d, .home-merid { transition: none; }
-}
+  .home-3d, }

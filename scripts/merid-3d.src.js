@@ -44,15 +44,15 @@ function start(host) {
   scene.environmentIntensity = 1.0;
   const camera = new THREE.PerspectiveCamera(12, 1, 0.1, 200);   // long lens: near-orthographic, so the turning model keeps the same height on screen
   // post: the scene renders into a float target, then one full-screen pass prints it.
-  //   stipple (default): 1-bit random dots like the Meridian cover drawings, re-seeded a few times a second so the metal shimmers
+  //   stipple (default): 1-bit random dots like the Meridian cover drawings; the dot pattern is fixed, so a still sculpture is a still print
   //   bayer: ordered 1-bit dither    grain: continuous tone with film grain    none: plain
   const EFFECT = { none: 0, grain: 1, stipple: 2, bayer: 3 }[host.dataset.effect || "stipple"] ?? 2;
   const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 });
   const post = new THREE.ShaderMaterial({
-    uniforms: { tScene: { value: rt.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uDpr: { value: 1 }, uSeed: { value: 0 }, uMode: { value: EFFECT }, uExposure: { value: 1.05 }, uFloor: { value: -1 }, uFade: { value: .3 } },
+    uniforms: { tScene: { value: rt.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uDpr: { value: 1 }, uSeed: { value: 0 }, uMode: { value: EFFECT }, uExposure: { value: 1.05 }, uFloor: { value: -1 }, uFade: { value: .3 }, uReveal: { value: 1 } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }",
     fragmentShader: `precision highp float; varying vec2 vUv;
-      uniform sampler2D tScene; uniform vec2 uRes; uniform float uDpr, uSeed, uExposure, uFloor, uFade; uniform int uMode;
+      uniform sampler2D tScene; uniform vec2 uRes; uniform float uDpr, uSeed, uExposure, uFloor, uFade, uReveal; uniform int uMode;
       vec3 aces(vec3 x){ return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.); }
       float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21) + uSeed); p += dot(p, p+45.32); return fract(p.x*p.y); }
       float bayer(vec2 p){ vec2 q = mod(p, 4.);
@@ -66,6 +66,13 @@ function start(host) {
         if (vUv.y < uFloor) L *= .5 * (1. - smoothstep(0., uFade, uFloor - vUv.y));
         vec2 cell = floor(gl_FragCoord.xy / max(1., floor(uDpr+.25)));   // one dot per CSS pixel
         float o = L;
+        // entrance: the print develops from the spike down, a ragged bright front leading the dots in
+        if (uReveal < 1.) {
+          float n = hash(floor(gl_FragCoord.xy / 6.) + 7.1);
+          float front = 1.15 - uReveal * 1.35 + n * .08;      // screen height of the front, falling from above the top to below the bottom
+          float d = vUv.y - front;                            // > 0: already developed
+          L = d < 0. ? 0. : L * smoothstep(0., .12, d) + (1. - smoothstep(0., .035, d)) * L * 2.2;
+        }
         if (L < .012) { gl_FragColor = vec4(0.,0.,0.,1.); return; }   // pure black stays black: no stray dots
         if (uMode == 2) o = step(hash(cell), pow(L, 1.15) * 1.08);
         else if (uMode == 3) o = step(bayer(cell), L);
@@ -150,6 +157,8 @@ function start(host) {
     }
     ext = measure();
   }
+  let frame = null;
+  function applyCamera() { if (!frame) return; camera.position.set(0, frame.yc, frame.dist * dolly); camera.lookAt(0, frame.yc, 0); }
   function fit() {
     const r = host.getBoundingClientRect();
     const w = Math.max(1, r.width), h = Math.max(1, r.height);
@@ -184,9 +193,8 @@ function start(host) {
       yc = ext.minY + cut + vis / 2;                     // bottom edge fixed above the foot; any spare room goes to the top
       post.uniforms.uFloor.value = -1;
     }
-    const dist = vis / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    camera.position.set(0, yc, dist);
-    camera.lookAt(0, yc, 0);
+    frame = { dist: vis / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)), yc };
+    applyCamera();
     camera.clearViewOffset();
     if (cx) camera.setViewOffset(w, h, -w * cx, 0, w, h);
     camera.updateProjectionMatrix();
@@ -197,12 +205,12 @@ function start(host) {
   // motion: one entrance, then it holds still. Drag turns it (with a little glide); it never spins on its own.
   //   entrance (2.8 s): the light sweeps across the steel while the sculpture turns a third of the way into its pose
   //   and the exposure rises out of black. Reduced motion: the pose, straight away.
-  const POSE = -0.6, INTRO = 2800;
-  let yaw = reduced ? POSE : POSE - 1.25, vel = 0, drag = null, last = 0, raf = 0, visible = true, t0 = 0, introDone = reduced, seedT = 0;
-  const ease = t => 1 - Math.pow(1 - t, 4);
+  const POSE = -0.6, INTRO = +host.dataset.introMs || 3600;
+  let yaw = reduced ? POSE : POSE - 2.6, vel = 0, drag = null, last = 0, raf = 0, visible = true, t0 = 0, introDone = reduced, dolly = 1;
+  const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;   // slow in, fast middle, long settle
+  const settle = t => 1 - Math.pow(1 - t, 4);
   function draw(ts) {
     pivot.rotation.y = yaw;
-    if (ts !== undefined && ts - seedT > 110) { seedT = ts; post.uniforms.uSeed.value = Math.random() * 10; }  // stipple re-seeds ~9 times a second
     renderer.setRenderTarget(rt); renderer.render(scene, camera);
     renderer.setRenderTarget(null); renderer.render(postScene, postCam);
   }
@@ -211,11 +219,16 @@ function start(host) {
     let busy = false;
     if (!introDone) {
       t0 = t0 || ts;
-      const k = Math.min(1, (ts - t0) / INTRO), e = ease(k);
-      yaw = POSE - 1.25 * (1 - e);
-      scene.environmentRotation.y = -2.2 * (1 - e);                   // the light sweeps across
-      post.uniforms.uExposure.value = 1.05 * Math.min(1, k * 1.6);     // out of black
-      if (k >= 1) { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; }
+      // entrance (3.6 s): a long turn into the pose while the camera eases back from close in,
+      // the light sweeps across the steel, and the stipple print develops from the top down
+      const k = Math.min(1, (ts - t0) / INTRO), e = ease(k), s2 = settle(k);
+      yaw = POSE - 2.6 * (1 - s2);
+      dolly = 0.82 + 0.18 * e;
+      scene.environmentRotation.y = -3.1 * (1 - e);
+      post.uniforms.uReveal.value = Math.min(1, k * 1.25);
+      post.uniforms.uExposure.value = 1.05 * (0.55 + 0.45 * e);
+      if (k >= 1) { introDone = true; dolly = 1; scene.environmentRotation.y = 0; post.uniforms.uReveal.value = 1; post.uniforms.uExposure.value = 1.05; }
+      applyCamera();
       busy = true;
     } else if (!drag && Math.abs(vel) > 0.002) {
       yaw += vel * dt; vel *= Math.pow(0.04, dt); busy = true;        // glide after a drag, then stop
@@ -223,13 +236,12 @@ function start(host) {
     if (drag) busy = true;
     draw(ts);
     // keep rendering while moving; when still, only the stipple needs frames (its dots re-seed), and only while on screen
-    const shimmer = EFFECT === 2 && !reduced;
-    if (visible && !document.hidden && (busy || shimmer)) raf = requestAnimationFrame(loop);
+    if (visible && !document.hidden && busy) raf = requestAnimationFrame(loop);   // idle: no frames at all
   }
   function resume() { cancelAnimationFrame(raf); last = 0; if (model) raf = requestAnimationFrame(loop); }
-  if (!reduced) post.uniforms.uExposure.value = 0;
+  if (!reduced) post.uniforms.uReveal.value = 0;
   let px = 0, pt = 0;
-  canvas.addEventListener("pointerdown", e => { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05;
+  canvas.addEventListener("pointerdown", e => { introDone = true; dolly = 1; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; post.uniforms.uReveal.value = 1; applyCamera();
     drag = { x: e.clientX, y: yaw }; px = e.clientX; pt = performance.now(); vel = 0; canvas.setPointerCapture(e.pointerId); canvas.classList.add("is-dragging"); resume(); });
   canvas.addEventListener("pointermove", e => { if (!drag) return;
     const now = performance.now(), ny = drag.y + (e.clientX - drag.x) * 0.006;
