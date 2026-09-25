@@ -9,6 +9,7 @@
     "check:climate": "node scripts/sync-climate-data.mjs --check",
     "check:climate:korea": "node scripts/sync-korea-climate-data.mjs --check",
     "check:stats:supplemental": "node scripts/sync-supplemental-stats.mjs --check",
+    "check:stats:book": "node scripts/sync-book-stats.mjs --check",
     "data:stats:graph-catalog": "node scripts/sync-graph-catalog.mjs --write",
     "check:stats:graph-catalog": "node scripts/sync-graph-catalog.mjs --check",
     "data:stats:index": "node scripts/build-statistics-index.mjs --write",
@@ -17,7 +18,7 @@
     "check:exam": "node scripts/check-exam-workbench.mjs",
     "check:statements": "node scripts/check-exam-statements.mjs",
     "check:site": "node scripts/check-static-site.mjs",
-    "check": "npm run check:climate && npm run check:climate:korea && npm run check:stats:supplemental && npm run check:stats:graph-catalog && npm run check:stats:index && npm run check:js && npm run check:exam && npm run check:statements && npm run check:site",
+    "check": "npm run check:climate && npm run check:climate:korea && npm run check:stats:supplemental && npm run check:stats:book && npm run check:stats:graph-catalog && npm run check:stats:index && npm run check:js && npm run check:exam && npm run check:statements && npm run check:site",
     "build": "npm run check && node scripts/build-static-site.mjs && node scripts/check-static-site.mjs dist"
   },
   "keywords": [

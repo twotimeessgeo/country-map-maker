@@ -28,6 +28,7 @@ const requiredOutputs = [
   "data/statistics-index.json",
   "data/supplemental-stats.js",
   "data/supplemental-stats.json",
+  "data/book-stats.json",
   "tools/climate/index.html",
   "tools/climate/data/climate-data.js",
   "tools/climate/data/climate-data.json",
@@ -78,6 +79,7 @@ const publicDataFiles = new Set([
   "data/statistics-index.json",
   "data/supplemental-stats.js",
   "data/supplemental-stats.json",
+  "data/book-stats.json",
 ]);
 
 fs.rmSync(outputDir, { recursive: true, force: true });

@@ -230,7 +230,7 @@ if (isSourceCheck) {
       !source.name || !source.url || !/^\d{4}$/.test(source.year))) {
       errors.push("Statistics 표 내용·출처가 비었습니다: " + tableId); return;
     }
-    const sourceNames=new Set(["행정안전부","국가데이터처","국토교통부","농림축산식품부","에너지경제연구원","한국에너지공단","한국전력공사","한국전력거래소","FAOSTAT","UN","World Bank","Energy Institute","Ember","Pew Research Center","U.S. Census Bureau","WTO"]);
+    const sourceNames=new Set(["행정안전부","국가데이터처","국토교통부","농림축산식품부","서울특별시","에너지경제연구원","한국에너지공단","한국전력공사","한국전력거래소","한국교통연구원","FAOSTAT","UN","World Bank","Energy Institute","Ember","Pew Research Center","U.S. Census Bureau","WTO","IRENA","UNHCR","IEA","U.S. Geological Survey","UN Statistics Division","OEC","UNCTAD","World Mining Data","CIA World Factbook","OPEC"]);
     if(view.sources.some(source=>!sourceNames.has(source.name))) errors.push("Statistics 출처 기관명이 올바르지 않습니다: "+tableId);
     if(view.note && (view.note.length>30 || view.note.includes(";"))) errors.push("Statistics 화면 주석이 깁니다: "+tableId);
     const checkTime = (time) => !time || /^\d{4}년(?: \d{1,2}(?:~\d{1,2})?월(?: \d{1,2}일)?| 하반기)?$/.test(time);

@@ -67,7 +67,10 @@ function polishView(table,view) {
   if(table.id==="world-urban-compare"&&view.label==="촌락 증가")view.label="촌락 인구 증가율";
   view.rowLabel=["대륙·국가","지역·국가"].includes(view.rowLabel)?"지역":cleanLabel(view.rowLabel);
   if(table.id==="korea-capital-compare"&&view.rowLabel==="경기 시군")view.rowLabel="시군";
-  if(view.rowLabel==="연도")view.rows.sort((a,b)=>Number.parseInt(a.label,10)-Number.parseInt(b.label,10));
+  if(view.rowLabel==="연도") {
+    const sections=[...new Set(view.rows.map(row=>row.section||""))];
+    view.rows.sort((a,b)=>sections.indexOf(a.section||"")-sections.indexOf(b.section||"")||Number.parseInt(a.label,10)-Number.parseInt(b.label,10));
+  }
 
   for(const column of view.columns) {
     if(table.id==="korea-city-change")column.label=romanYears.get(column.label)||column.label;
@@ -93,7 +96,7 @@ function polishView(table,view) {
     for(const column of view.columns)column.unit="백만 마리";
     for(const row of view.rows)row.values=row.values.slice(0,3).map(value=>typeof value==="number"?Math.round(value/1e6*10)/10:value);
   }
-  if(table.id.startsWith("world-"))for(let index=0;index<view.columns.length;index+=1) {
+  if(table.id.startsWith("world-")&&!view.bookSource)for(let index=0;index<view.columns.length;index+=1) {
     if(view.columns[index].unit!=="t")continue;
     view.columns[index].unit="만 t";
     for(const row of view.rows)if(typeof row.values[index]==="number")row.values[index]=Math.round(row.values[index]/1000)/10;
@@ -113,6 +116,7 @@ function polishView(table,view) {
   if(table.id==="korea-small-farms")for(const row of view.rows)row.label=provinceShort.get(row.label)||row.label;
   for(const row of view.rows)row.label=renewableText(industryNames.get(row.label)||row.label);
   for(const sub of view.subviews||[])polishView(table,sub);
+  delete view.bookSource;
 }
 export function polishStatisticsCopy(result) {
   const yearColumns=view=>view.columns.length>=2&&view.columns.every(column=>/^(?:19|20)\d{2}(?:[.~-]\d+)*(?:년)?$/.test(column.label));
@@ -127,7 +131,7 @@ export function polishStatisticsCopy(result) {
       if(table.id==="world-livestock-rank")for(const view of table.views)view.columns[0].label="사육 두수";
       if(table.id==="world-renewable-generation-rank")for(const view of table.views)view.columns[0].label="발전 비율";
       for(const view of table.views)polishView(table,view);
-      table.defaultSort=/\-rank$/.test(table.id)||table.views.some(view=>view.rowLabel==="순위")?{mode:"rank"}:
+      table.defaultSort=table.rank||/\-rank$/.test(table.id)||table.views.some(view=>view.rowLabel==="순위")?{mode:"rank"}:
         table.views.every(view=>/^연도$/.test(view.rowLabel))?{mode:"year",direction:"asc"}:
         table.views.every(view=>view.rows.length&&view.rows.every(row=>/^(?:유소년층|청장년층|노년층|0~14세|15~64세|65세 이상)$/.test(row.label)))?{mode:"intrinsic"}:
         table.views.some(view=>yearColumns(view)||(view.subviews||[]).some(yearColumns))?{mode:"latestYearOrFirstNumeric",direction:"desc"}:
