@@ -127,7 +127,7 @@ export function polishStatisticsCopy(result) {
       if(table.id==="world-livestock-rank")for(const view of table.views)view.columns[0].label="사육 두수";
       if(table.id==="world-renewable-generation-rank")for(const view of table.views)view.columns[0].label="발전 비율";
       for(const view of table.views)polishView(table,view);
-      table.defaultSort=/\-rank$/.test(table.id)||table.views.some(view=>view.rowLabel==="순위")?{mode:"rank"}:
+      table.defaultSort=table.rank||/\-rank$/.test(table.id)||table.views.some(view=>view.rowLabel==="순위")?{mode:"rank"}:
         table.views.every(view=>/^연도$/.test(view.rowLabel))?{mode:"year",direction:"asc"}:
         table.views.every(view=>view.rows.length&&view.rows.every(row=>/^(?:유소년층|청장년층|노년층|0~14세|15~64세|65세 이상)$/.test(row.label)))?{mode:"intrinsic"}:
         table.views.some(view=>yearColumns(view)||(view.subviews||[]).some(yearColumns))?{mode:"latestYearOrFirstNumeric",direction:"desc"}:

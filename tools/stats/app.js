@@ -336,7 +336,11 @@
       return sort.direction==="desc"?-result:result;
     };
     const pinned=groups.ordinary.filter(row=>["national","region"].includes(row.group)||row.label==="전국"||row.label==="특·광역시");
-    groups.ordinary=[...pinned,...groups.ordinary.filter(row=>!pinned.includes(row)).sort(compare)];
+    const ordinary=groups.ordinary.filter(row=>!pinned.includes(row));
+    if(ordinary.some(row=>row.section)) {
+      const sections=[...new Set(ordinary.map(row=>row.section||""))];
+      groups.ordinary=[...pinned,...sections.flatMap(section=>ordinary.filter(row=>(row.section||"")===section).sort(compare))];
+    } else groups.ordinary=[...pinned,...ordinary.sort(compare)];
     groups.continent=[...groups.continent].sort(compare);
     const order=[...new Set(groups.country.map(row=>row.continent||""))];
     groups.country=order.flatMap(name=>groups.country.filter(row=>(row.continent||"")===name).sort(compare));
@@ -428,10 +432,15 @@
     if(groups.continent.length||groups.country.length)
       return (groups.continent.length?'<tbody class="stats-continent">'+label("대륙")+groups.continent.map(row=>rowMarkup(row,view,display,bar,tableId)).join("")+'</tbody>':"")+
         (groups.country.length?'<tbody class="stats-country">'+label("국가")+countryRows()+'</tbody>':"");
-    return '<tbody>'+groups.ordinary.map(row=>rowMarkup(row,view,display,bar,tableId)).join("")+'</tbody>';
+    let lastSection="";
+    return '<tbody>'+groups.ordinary.map(row=>{
+      const heading=row.section&&row.section!==lastSection?'<tr class="is-subgroup"><th colspan="'+colspan+'">'+escapeHtml(row.section)+'</th></tr>':"";
+      lastSection=row.section||lastSection;
+      return heading+rowMarkup(row,view,display,bar,tableId);
+    }).join("")+'</tbody>';
   }
   function isRankCards(table) {
-    return table.views.length>1&&table.views.every(view=>view.columns.length===1&&view.rows.length===5&&/^1위$/.test(view.rows[0].label));
+    return table.views.length>1&&table.views.every(view=>view.columns.length===1&&view.rows.length>=5&&/^1위$/.test(view.rows[0].label));
   }
   function rankCardsMarkup(table) {
     return '<div class="stats-rank-scroll">'+table.views.map(view=>{
