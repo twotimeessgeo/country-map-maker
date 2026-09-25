@@ -1,22 +1,17 @@
-/* DS 3.1 home: the tool pages' nav bar over the meridian sculpture, drawn live in metal and stipple (ds/merid3d.js). */
+/* DS 3.1 home: the tool pages' nav bar over the meridian sculpture, standing from the bottom edge and filling the height. */
 html, body.portal-home { min-height: 100%; }
 body.portal-home { margin: 0; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; background: var(--tw-bg); }
 #homeBrand.is-intro > span { display: inline-block; overflow: hidden; vertical-align: bottom; }
 #homeBrand.is-intro > span > span { display: inline-block; animation: home-letter-in 520ms var(--tw-ease-out) both; animation-delay: calc(var(--letter-index) * 35ms); }
 .home-main { position: relative; flex: 1; min-height: 520px; overflow: hidden; }
-/* live sculpture: one canvas pixel per CSS pixel, scaled without smoothing so the dots stay square */
-.home-3d { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: grab; touch-action: pan-y; transition: opacity 900ms var(--tw-ease-out) 150ms; }
-.home-3d.is-live { opacity: 1; }
-.home-3d.is-stipple { image-rendering: pixelated; }
-.home-3d.is-dragging { cursor: grabbing; }
-/* the still drawing, shown when WebGL is not there */
-.home-merid { position: absolute; left: 50%; bottom: -6%; height: 104%; width: auto; max-width: none; transform: translateX(-50%); user-select: none; -webkit-user-drag: none; }
+/* a 1-bit stipple drawing: shown near its native size so the dots stay crisp, the foot running past the bottom edge */
+.home-merid { position: absolute; left: 50%; bottom: -9%; height: 112%; width: auto; max-width: none; transform: translateX(-50%); user-select: none; -webkit-user-drag: none; animation: home-rise 1100ms var(--tw-ease-out) 120ms both; }
 @keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@keyframes home-rise { from { opacity: 0; transform: translate(-50%, 24px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @media (max-width: 719px) {
   .home-main { min-height: 460px; }
-  .home-merid { height: min(100%, 150vw); }
+  .home-merid { height: min(108%, 170vw); bottom: -7%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  #homeBrand.is-intro > span > span { animation: none; }
-  .home-3d { transition: none; }
+  #homeBrand.is-intro > span > span, .home-merid { animation: none; }
 }
