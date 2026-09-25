@@ -9,8 +9,9 @@ const newRegions = {
 const matches = {
   korea: {
     "2-2": { target: "korea-population-compare", skip: "사이트 인구가 2026년 6월로 더 최신" },
-    "2-3": { target: "korea-population-compare", label: "2025년 연령 구조" },
-    "2-4": { target: "korea-population-compare", label: "2025년 출생과 사망" },
+    // same rows and a newer year than the site's own views: the book view takes their place instead of sitting beside them
+    "2-3": { target: "korea-population-compare", replaceView: "연령", year: "2025년" },
+    "2-4": { target: "korea-population-compare", replaceView: "출생과 사망", year: "2025년" },
     "2-6": { target: "korea-multicultural-compare", label: "2024년 외국인주민 구성" },
     "4-1": { target: "korea-industry-compare", label: "지역 내 총생산과 산업 구조" },
     "4-2": { target: "korea-industry-compare", label: "제조업 세부 지표" },
@@ -60,7 +61,14 @@ export function mergeBookStats(result, snapshot) {
       if (match) {
         const target = findTable(match.target);
         if (!target) throw new Error(`병합 대상 표 없음: ${match.target}`);
-        if (match.replace) {
+        if (match.replaceView) {
+          const index = target.views.findIndex(view => view.label === match.replaceView);
+          if (index < 0) throw new Error(`교체할 보기 없음: ${match.target}/${match.replaceView}`);
+          const old = target.views[index], candidate = book.views[0];
+          if (book.views.length !== 1 || candidate.rows.length < old.rows.length || candidate.columns.length < old.columns.length)
+            throw new Error(`교체 후보 범위가 좁음: ${book.bookId}`);
+          target.views[index] = { ...candidate, id: old.id, label: old.label, year: match.year || candidate.year, bookSource: true };
+        } else if (match.replace) {
           const old = target.views[0];
           const candidate = book.views[0];
           if (candidate.rows.length >= old.rows.length && candidate.columns.length > old.columns.length)
