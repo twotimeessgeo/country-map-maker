@@ -389,7 +389,7 @@
   function rowMarkup(row,view,display,bar,tableId) {
     const matched=highlight&&normalize(row.label).includes(highlight);
     const aggregate=row.group==="continent"||row.group==="national"||row.group==="region";
-    return '<tr data-row-key="'+escapeHtml(row.label)+'" class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
+    return '<tr data-row-key="'+escapeHtml(row.label)+'" class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row" title="'+escapeHtml(row.label)+'">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
       row.values.map((value,index)=>{const spec=row.valueUnit&&index===0?numbers.spec({...view.columns[index],unit:row.valueUnit},[value]):display[index];
         return '<td>'+cellHtml(value,view.columns[index],spec)+
         (row.valueUnit&&index===0?'<small class="stats-value-unit">'+escapeHtml(spec.unit)+'</small>':"")+'</td>';}).join("")+barMarkup(row,bar,tableId)+'</tr>';
@@ -434,6 +434,23 @@
         }).join("")+'</tbody></table></article>';
     }).join("")+'</div>';
   }
+  function labelWidth(view) {
+    const context=document.createElement("canvas").getContext("2d");
+    context.font='14px "TWK Lausanne", "Pretendard Variable", Pretendard, sans-serif';
+    return Math.ceil(Math.max(120,...view.rows.map(row=>context.measureText(row.label).width),context.measureText(view.rowLabel).width)+32);
+  }
+  function sourceMeta(sources) {
+    const grouped=new Map();
+    for(const source of sources||[]) {
+      if(!grouped.has(source.name))grouped.set(source.name,{url:source.url,years:new Set()});
+      grouped.get(source.name).years.add(source.year);
+    }
+    return '<div class="tw-meta-list stats-table-meta">'+[...grouped].map(([name,item])=>{
+      const years=[...item.years].sort((a,b)=>Number(a)-Number(b));
+      const period=years.length>=3?years[0]+"–"+years.at(-1):years.join(", ");
+      return '<span><a href="'+escapeHtml(item.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(name)+'</a>, '+escapeHtml(period)+'</span>';
+    }).join(" ")+'</div>';
+  }
   function renderTable(table) {
     const state=stateFor(table.id),base=table.views[Math.min(state.view,table.views.length-1)],view=activeView(table,state);
     const groups=visibleRows(table,view,state),sort=effectiveSort(table,view,state);
@@ -468,16 +485,16 @@
           '</span><span class="stats-sort-unit">'+escapeHtml(display[index].unit)+'</span>'+
           (column.qualifier?'<span class="stats-sort-qualifier">'+escapeHtml(column.qualifier)+'</span>':"")+'</button></th>';
       }).join("")+(bar?'<th scope="col" class="stats-bar-head"><span>'+escapeHtml(bar.label)+'</span></th>':"");
-    const meta='<div class="tw-meta-list stats-table-meta">'+(view.sources||[]).map(source=>
-      '<span><a href="'+escapeHtml(source.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(source.name)+'</a>, '+escapeHtml(source.year)+'</span>').join(" ")+'</div>';
+    const meta=sourceMeta(view.sources);
     const note=view.note?'<p class="stats-note">'+escapeHtml(view.note)+'</p>':"";
     const colgroup='<colgroup><col class="stats-label-col">'+view.columns.map(()=>'<col class="stats-number-col">').join("")+
       (bar?'<col class="stats-bar-col">':"")+'</colgroup>';
+    const minNumericWidth=88*view.columns.length+(bar?220:0);
     const body=showChart?'<div class="stats-chart" data-table="'+table.id+'"></div>':rankCards?rankCardsMarkup(table,view):'<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table" style="--stats-numeric-cols:'+view.columns.length+
-      ';--stats-bar-width:'+(bar?"220px":"0px")+';min-width:'+(120+88*view.columns.length+(bar?220:0))+'px">'+colgroup+'<thead><tr>'+headers+'</tr></thead>'+tbodyMarkup(view,display,groups,bar,table.id)+'</table></div>';
+      ';--stats-bar-width:'+(bar?"220px":"0px")+';min-width:calc(var(--stats-mobile-label-width, var(--stats-label-width)) + '+minNumericWidth+'px)">'+colgroup+'<thead><tr>'+headers+'</tr></thead>'+tbodyMarkup(view,display,groups,bar,table.id)+'</table></div>';
     const more=table.id==="world-us-state-manufacturing"?'<button type="button" class="tw-button is-ghost is-sm stats-more" data-table="'+table.id+
       '" data-action="more">'+(state.expanded?"접기":"더 보기")+'</button>':"";
-    return '<section class="stats-table-section'+(wide?' is-wide':'')+'" id="'+escapeHtml(table.id)+'"><div class="stats-table-top"><h2 class="stats-table-title"><a href="#'+
+    return '<section class="stats-table-section'+(wide?' is-wide':'')+'" id="'+escapeHtml(table.id)+'" style="--stats-label-width:'+labelWidth(view)+'px"><div class="stats-table-top"><h2 class="stats-table-title"><a href="#'+
       escapeHtml(table.id)+'">'+escapeHtml(table.title)+'</a></h2>'+chartSwitch+'<div class="stats-actions">'+actions+'</div></div>'+
       viewNav+subNav+scopeNav+body+more+meta+note+'</section>';
   }
