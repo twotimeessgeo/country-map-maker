@@ -290,6 +290,32 @@ if (isSourceCheck) {
     }
     if (count !== stats.meta?.tableCount?.[subject]) errors.push("Statistics 표 수가 메타와 다릅니다: " + subject);
   }
+  const chartContext=vm.createContext({window:{TWStatsNumbers:numbers},matchMedia:()=>({matches:false})});
+  vm.runInContext(fs.readFileSync(path.join(rootDir,"tools","stats","charts.js"),"utf8"),chartContext);
+  const chart=chartContext.window.TWStatsCharts;
+  const chartCases=[
+    ["korea","korea-population-compare","규모","bar"],
+    ["korea","korea-population-compare","기간별 순 이동","diverging"],
+    ["world","world-religion-compare","대륙","stacked"],
+    ["world","world-population-history","수","line"],
+    ["korea","korea-book-3-1","기본","line"],
+    ["korea","korea-crop-share-national","작물별 재배 면적","bar"],
+  ];
+  for(const [subject,id,label,expected] of chartCases) {
+    const table=stats.subjects[subject].topics.flatMap(topic=>topic.regions?topic.regions.flatMap(region=>region.tables):topic.tables||[])
+      .find(item=>item.id===id);
+    const view=table?.views.find(item=>item.label===label);
+    if(!view) {errors.push(`Statistics 그래프 검증 표 누락: ${id}/${label}`);continue;}
+    const groups={continent:view.rows.filter(row=>row.group==="continent"),country:view.rows.filter(row=>row.group==="country"),
+      ordinary:view.rows.filter(row=>!['continent','country'].includes(row.group))};
+    const sort={index:view.columns.length,direction:"desc"};
+    const kind=chart.type(table,view,groups,false,sort);
+    if(kind!==expected)errors.push(`Statistics 그래프 종류 오류: ${id}/${label} ${kind}`);
+    if(id==="korea-crop-share-national"&&kind==="bar") {
+      const svg=chart.render({table,view,groups,sort,bar:null,kind,display:numbers.specsForView(view)},720);
+      if(svg.includes('data-row-key="전국"'))errors.push("Statistics 전국 합계 막대가 남았습니다");
+    }
+  }
   if (stats.meta?.gapCount > 20) errors.push("Statistics 미수록 표가 20건을 초과합니다.");
   if (isSourceCheck) {
     const gapsText = fs.readFileSync(path.join(rootDir,"tools","stats","GAPS.md"),"utf8");

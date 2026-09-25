@@ -440,7 +440,7 @@
     const display=displayColumns(view);
     const rankCards=isRankCardView(view);
     const bar=table.comparison?comparisonBar(table,view,groups,state):null;
-    const kind=window.TWStatsCharts.type(table,view,groups,rankCards);
+    const kind=window.TWStatsCharts.type(table,view,groups,rankCards,sort);
     const showChart=kind&&chartMode(table.id)==="graph";
     if(showChart)chartModels.set(table.id,{table,view,groups,sort,bar,kind,display});
     const wide=table.comparison||rankCards||(table.id!=="world-global-primary-energy"&&table.views.some(item=>item.columns.length>=5))||
