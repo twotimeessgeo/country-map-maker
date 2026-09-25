@@ -16,6 +16,7 @@ if (write === check || !["all", "korea", "world"].includes(scope) || (write && !
 const sourceUrls = {
   "국가데이터처": "https://kosis.kr/", "행정안전부": "https://jumin.mois.go.kr/",
   "국토교통부": "https://stat.molit.go.kr/", "농림축산식품부": "https://www.mafra.go.kr/",
+  "한국지질자원연구원": "https://www.kigam.re.kr/",
   "서울특별시": "https://data.seoul.go.kr/",
   "에너지경제연구원": "https://www.keei.re.kr/", "한국에너지공단": "https://www.knrec.or.kr/",
   "한국전력공사": "https://home.kepco.co.kr/", "한국교통연구원": "https://www.ktdb.go.kr/",
@@ -28,6 +29,8 @@ const sourceUrls = {
   "U.S. Census Bureau": "https://www.census.gov/programs-surveys/aies.html",
   "UN Statistics Division": "https://unstats.un.org/unsd/snaama/",
   "OEC": "https://oec.world/", "UNCTAD": "https://unctadstat.unctad.org/",
+  "WTO": "https://www.wto.org/english/res_e/statis_e/statis_e.htm",
+  "Australian DFAT": "https://www.dfat.gov.au/",
   "World Mining Data": "https://www.world-mining-data.info/",
   "CIA World Factbook": "https://www.cia.gov/the-world-factbook/",
   "OPEC": "https://asb.opec.org/",
@@ -36,6 +39,7 @@ function sourceName(source) {
   const text = String(source.upstream || source.institution || source.publisher || source.underlying || source.file || source.url || "");
   const patterns = [
     [/한국교통연구원|국가교통DB|ktdb/i, "한국교통연구원"], [/한국전력거래소/, "한국전력거래소"],
+    [/한국지질자원연구원|kigam/i, "한국지질자원연구원"],
     [/data\.seoul\.go\.kr|서울특별시/, "서울특별시"],
     [/한국전력공사/, "한국전력공사"], [/한국에너지공단/, "한국에너지공단"],
     [/에너지경제연구원|keei/i, "에너지경제연구원"], [/농림축산식품부|mafra/i, "농림축산식품부"],
@@ -50,6 +54,8 @@ function sourceName(source) {
     [/U\.S\. Geological|USGS|usgs/i, "U.S. Geological Survey"],
     [/US Census|U\.S\. Census|aies/i, "U.S. Census Bureau"],
     [/World Mining|world_mining/i, "World Mining Data"], [/CEPII|OEC|BACI|oec_baci/i, "OEC"],
+    [/WTO|wto/i, "WTO"],
+    [/Australian Department of Foreign Affairs and Trade|DFAT/i, "Australian DFAT"],
     [/CIA|cia_world_factbook/i, "CIA World Factbook"], [/OPEC|opec/i, "OPEC"],
   ];
   const found = patterns.find(([pattern]) => pattern.test(text));
@@ -87,7 +93,7 @@ function topicFor(subject, id, table) {
     if (chapter === 3) return "urban";
     if (chapter === 5) return "region";
     if ([5, 6, 7, 20, 23].includes(number)) return "food";
-    if ([9, 10, 11, 13, 15, 16].includes(number)) return "energy";
+    if ([9, 10, 11, 13, 15, 16, 27, 28].includes(number)) return "energy";
     if ([1, 2, 3, 4, 19, 21, 22].includes(number)) return "industry";
     return "service";
   }
@@ -96,8 +102,9 @@ function topicFor(subject, id, table) {
   if (chapter === 4) return "population";
   if (chapter === 5) return "food";
   if (chapter === 6) return "energy";
+  if (/크리스트교|종교/.test(table.title)) return "religion";
   if (/제조업|산업 구조|공업/.test(table.title)) return "industry";
-  if (/수출|경제 블록/.test(table.title)) return "trade";
+  if (/무역|수출|수입|경제 블록/.test(table.title)) return "trade";
   return "region";
 }
 function regionFor(subject, id) {
@@ -109,11 +116,15 @@ function regionFor(subject, id) {
 }
 function flatten(table, patch, subject, correction) {
   const result = [];
+  const names = { ...correction.names, ...patch.names };
+  const rename = value => names[value] || value;
   function add(row, section, subgroup) {
     const label = row.label || row.name;
-    if (!label || patch.dropRows?.includes(label)) return;
-    const renamed = patch.rows?.[label] || label;
-    const item = { label: renamed, values: row.values };
+    const renamed = rename(patch.rows?.[label] || label);
+    if (!label || patch.dropRows?.includes(label) || patch.dropRows?.includes(renamed)) return;
+    const values = row.values?.map(value => value && typeof value === "object" && value.name
+      ? { name: rename(value.name), value: value.value ?? null } : typeof value === "string" ? rename(value) : value);
+    const item = { label: renamed, values };
     if (section === "전국" || renamed === "전국") item.group = "national";
     if (section === "대륙") item.group = "continent";
     if (section === "국가" || subgroup && subject === "world") {
@@ -128,14 +139,15 @@ function flatten(table, patch, subject, correction) {
   }
   for (const row of table.rows || []) add(row);
   for (const group of table.groups || []) {
-    if (patch.dropGroups?.includes(group.label)) continue;
+    if (patch.dropGroups?.includes(group.label) || patch.dropGroups?.includes(patch.groups?.[group.label])) continue;
     for (const row of group.rows || []) add(row, "", patch.groups?.[group.label] || group.label);
   }
   for (const section of table.sections || []) {
     const sectionName = patch.sections?.[section.label] || correction.sectionLabels?.[section.label] || section.label;
+    if (patch.dropSections?.includes(section.label) || patch.dropSections?.includes(sectionName)) continue;
     for (const row of section.rows || []) add(row, sectionName);
     for (const group of section.groups || []) {
-      if (patch.dropGroups?.includes(group.label)) continue;
+      if (patch.dropGroups?.includes(group.label) || patch.dropGroups?.includes(patch.groups?.[group.label])) continue;
       const subgroup = patch.groups?.[group.label] || correction.sectionLabels?.[group.label] || group.label;
       for (const row of group.rows || []) add(row, sectionName, subgroup);
     }
@@ -149,12 +161,13 @@ function convert(table, subject, correction) {
   if (subject === "world" && table.id.startsWith("1-")) return { skip: "기후 관측값은 Climate 도구 대상" };
   if (subject === "world" && table.id === "6-20") return { skip: "광물 매장량의 공통 기준 연도가 명시되지 않음" };
   const title = replaceText(patch.title || table.title, correction.titleReplace);
-  const rowLabel = (patch.rowLabel || table.rowLabel || "지역").replaceAll("시·도", "시도");
+  const rowLabel = (patch.rowLabel || table.rowLabel || "지역")
+    .replaceAll("시·군·구", "시군구").replaceAll("시·도", "시도").replaceAll("시·군", "시군");
   const columns = (table.columns || []).map((column, index) => ({ ...column, index,
-    label: patch.columns?.[column.label] || replaceText(column.label, correction.columnReplace),
+    label: replaceText(patch.columns?.[column.label] || column.label, correction.columnReplace),
     group: patch.groups?.[column.group] || column.group }));
   for (const column of columns) if (patch.setGroup?.[column.label]) column.group = patch.setGroup[column.label];
-  let selected = columns.filter(column => !patch.dropColumns?.includes(column.label));
+  let selected = columns.filter(column => !patch.dropColumns?.includes(column.label) && !patch.dropColumns?.includes(table.columns[column.index].label));
   if (patch.columnOrder) selected.sort((a,b) => {
     const ai = patch.columnOrder.indexOf(a.label), bi = patch.columnOrder.indexOf(b.label);
     return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi) || a.index - b.index;
@@ -176,7 +189,8 @@ function convert(table, subject, correction) {
     const years = String(table.year || "").match(/(?:19|20)\d{2}/g) || [];
     return { id: group || `view-${viewIndex+1}`, label: group || (groups.length > 1 && subset.length === 1 ? subset[0].label : "기본"), rowLabel,
       columns: [...subset.map(column => ({ label: column.label.replace(/((?:19|20)\d{2})[–-]((?:19|20)\d{2})/g, "$1~$2"), unit: column.unit || "",
-        ...(Number.isInteger(column.decimals) ? { digits: column.decimals } : {}),
+        ...(Number.isInteger(column.decimals) ? { digits: subject === "korea" &&
+          (table.id === "2-12" || /합계\s*출산율/.test(column.label)) ? 2 : column.decimals } : {}),
         ...(column.year && /^\d{4}$/.test(String(column.year)) ? { year: column.year + "년" } : {}),
         ...(column.type === "text" ? { barEligible: false } : {}) })),
         ...(hasRowYears ? [{ label: "기준", unit: "", barEligible: false }] : [])],
@@ -184,15 +198,16 @@ function convert(table, subject, correction) {
       ...(years.length === 1 && /^\d{4}$/.test(String(table.year)) ? { year: years[0] + "년" } : {}) };
   }).filter(Boolean);
   if (table.type === "rank" && table.groups?.length) {
-    views = table.groups.filter(group => !patch.dropGroups?.includes(group.label)).flatMap(group => {
-      const label = patch.groups?.[group.label] || group.label;
+    views = table.groups.filter(group => !patch.dropGroups?.includes(group.label) && !patch.dropGroups?.includes(patch.groups?.[group.label])).flatMap(group => {
+      const label = patch.nameLabels?.[patch.groups?.[group.label] || group.label] || patch.groups?.[group.label] || group.label;
       const groupColumns = group.columns || table.columns;
       return groupColumns.map((column, columnIndex) => {
         const corrected = patch.columns?.[column.label] || replaceText(column.label, correction.columnReplace);
         if (patch.dropColumns?.includes(corrected)) return null;
         const rankRows = (group.rows || []).filter(row => !patch.dropRows?.includes(row.name || row.label))
           .map((row, index) => ({ label: `${row.rank || index + 1}위`,
-            values: [{ name: row.name || row.label, value: row.values?.[columnIndex] ?? null }] }));
+            values: [{ name: patch.names?.[row.name || row.label] || correction.names?.[row.name || row.label] || row.name || row.label,
+              value: row.values?.[columnIndex] ?? null }] }));
         if (!rankRows.length || rankRows.every(row => row.values[0].value == null)) return null;
         return { id: `${label}-${columnIndex}`, label: groupColumns.length === 1 ? label : `${label} ${corrected}`,
           rowLabel: "순위", columns: [{ label: corrected, unit: column.unit || "",
@@ -205,7 +220,8 @@ function convert(table, subject, correction) {
     views = selected.filter(column => column.index !== rankIndex && column.type !== "text").map(column => {
       const rankRows = table.rows.map((row, index) => ({
         label: `${row.rank || row.values?.[rankIndex] || index + 1}위`,
-        values: [{ name: patch.rows?.[row.label] || row.label, value: row.values?.[column.index] ?? null }],
+        values: [{ name: patch.names?.[row.label] || correction.names?.[row.label] || patch.rows?.[row.label] || row.label,
+          value: row.values?.[column.index] ?? null }],
       })).filter(row => typeof row.values[0].value === "number" && Number.isFinite(row.values[0].value));
       if (!rankRows.length) return null;
       return { id: `rank-${column.index}`, label: column.label, rowLabel: "순위",
@@ -237,6 +253,8 @@ function validate(snapshot) {
   for (const subject of ["korea", "world"]) {
     for (const table of snapshot.subjects[subject] || []) {
       if (!table.bookId || !table.title || !table.topic || !table.views?.length) throw new Error("표 메타 오류");
+      if (JSON.stringify(table).includes("/Users/") || JSON.stringify(table).includes("data_downloads/"))
+        throw new Error(`${subject} ${table.bookId}: 스냅숏에 로컬 경로가 있습니다`);
       for (const view of table.views) {
         if (!view.columns?.length || !view.rows?.length || !view.sources?.length) throw new Error(`보기 오류: ${table.bookId}`);
         for (const row of view.rows) if (!row.label || row.values.length !== view.columns.length) throw new Error(`행 오류: ${table.bookId}`);

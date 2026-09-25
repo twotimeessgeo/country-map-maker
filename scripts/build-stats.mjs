@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { subjects as inventory } from "../tools/stats/spec/tables.mjs";
 import { compose, slugFor, topicFor } from "../tools/stats/spec/compose.mjs";
 import { polishStatisticsCopy } from "../tools/stats/spec/copy.mjs";
+import { dedupeStatistics } from "../tools/stats/spec/dedupe.mjs";
 import { mergeBookStats } from "../tools/stats/spec/book-merge.mjs";
 import { majorCountryRows, busanDistrictRows } from "../tools/stats/spec/major-country-rows.mjs";
 
@@ -1094,7 +1095,7 @@ for (const [subject, definition] of Object.entries(inventory)) {
 }
 const bookSnapshot = JSON.parse(fs.readFileSync(path.join(root, "data/book-stats.json"), "utf8"));
 const { result: mergedStats, report: bookReport } = mergeBookStats(compose(rawTables, gaps), bookSnapshot);
-const result = polishStatisticsCopy(mergedStats);
+const { result, report: duplicateReport } = dedupeStatistics(polishStatisticsCopy(mergedStats));
 const json = JSON.stringify(result, null, 2) + "\n";
 const gapEvidence = {
   "k-x-01": ["시군 취업자 지표에는 광역시가 없고 2020년 원표는 통근·통학 인구를 합쳐 취업자만의 통근 비율을 계산할 수 없음", "data/korea-stats.js; data_downloads/kosis/raw/DT_1PA2021/101_DT_1PA2021_F_2020.csv"],
@@ -1149,3 +1150,4 @@ if (check) {
 }
 console.log("Statistics: 한국 " + result.meta.tableCount.korea + "표, 세계 " + result.meta.tableCount.world + "표, GAPS " + gaps.length + "건");
 console.log("통계집: 한국 추가 " + bookReport.korea.imported + "표·병합 " + bookReport.korea.merged + "표, 세계 추가 " + bookReport.world.imported + "표·병합 " + bookReport.world.merged + "표");
+console.log("중복 정리: " + duplicateReport.length + "표 병합·교체·삭제");

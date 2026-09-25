@@ -224,13 +224,20 @@ if (isSourceCheck) {
   }
   const statsPath = path.join(rootDir, "tools", "stats", "data", "stats.json");
   const stats = JSON.parse(fs.readFileSync(statsPath, "utf8"));
+  const numberContext = vm.createContext({ window: {} });
+  vm.runInContext(fs.readFileSync(path.join(rootDir, "tools", "stats", "number-format.js"), "utf8"), numberContext);
+  const numbers = numberContext.window.TWStatsNumbers;
+  if (numbers.spec({ unit: "천 명", digits: 1 }, [-12, 0, 24]).unit !== "천 명" ||
+      numbers.format(-0.001, { unit: "천 명", divisor: 1, digits: 1 }) !== "0.0" ||
+      numbers.format(3.43, { unit: "명", divisor: 1, digits: 2 }) !== "3.43")
+    errors.push("Statistics 숫자 확대·반올림 규칙 오류");
   const seenIds = new Set();
   const checkView = (view, tableId) => {
     if (!view?.rows?.length || !view.columns?.length || !view.sources?.length || view.sources.some(source=>
       !source.name || !source.url || !/^\d{4}$/.test(source.year))) {
       errors.push("Statistics 표 내용·출처가 비었습니다: " + tableId); return;
     }
-    const sourceNames=new Set(["행정안전부","국가데이터처","국토교통부","농림축산식품부","서울특별시","에너지경제연구원","한국에너지공단","한국전력공사","한국전력거래소","한국교통연구원","FAOSTAT","UN","World Bank","Energy Institute","Ember","Pew Research Center","U.S. Census Bureau","WTO","IRENA","UNHCR","IEA","U.S. Geological Survey","UN Statistics Division","OEC","UNCTAD","World Mining Data","CIA World Factbook","OPEC"]);
+    const sourceNames=new Set(["행정안전부","국가데이터처","국토교통부","농림축산식품부","서울특별시","한국지질자원연구원","에너지경제연구원","한국에너지공단","한국전력공사","한국전력거래소","한국교통연구원","FAOSTAT","UN","World Bank","Energy Institute","Ember","Pew Research Center","U.S. Census Bureau","WTO","Australian DFAT","IRENA","UNHCR","IEA","U.S. Geological Survey","UN Statistics Division","OEC","UNCTAD","World Mining Data","CIA World Factbook","OPEC"]);
     if(view.sources.some(source=>!sourceNames.has(source.name))) errors.push("Statistics 출처 기관명이 올바르지 않습니다: "+tableId);
     if(view.note && (view.note.length>30 || view.note.includes(";"))) errors.push("Statistics 화면 주석이 깁니다: "+tableId);
     const checkTime = (time) => !time || /^\d{4}년(?: \d{1,2}(?:~\d{1,2})?월(?: \d{1,2}일)?| 하반기)?$/.test(time);
@@ -245,6 +252,21 @@ if (isSourceCheck) {
         typeof cell === "string" && /^(?:NaN|undefined|null)$/i.test(cell) ||
         cell && typeof cell === "object" && (!cell.name || !Number.isFinite(cell.value)))) {
         errors.push("Statistics 행 값이 올바르지 않습니다: " + tableId + " / " + row.label);
+      }
+    }
+    const display = numbers.specsForView(view);
+    for (let index = 0; index < view.columns.length; index += 1) {
+      const spec = display[index];
+      for (const row of view.rows) {
+        const cell = row.values[index];
+        const value = cell && typeof cell === "object" ? cell.value : cell;
+        if (typeof value !== "number") continue;
+        const formatted = numbers.format(value, spec);
+        const decimals = formatted.split(".")[1]?.length || 0;
+        if (decimals !== spec.digits || /^−0(?:\.0+)?$/.test(formatted)) {
+          errors.push(`Statistics 숫자 자리수·영(0) 표기 오류: ${tableId} / ${view.columns[index].label}`);
+          break;
+        }
       }
     }
     for (const sub of view.subviews || []) checkView(sub, tableId);
@@ -267,6 +289,32 @@ if (isSourceCheck) {
       }
     }
     if (count !== stats.meta?.tableCount?.[subject]) errors.push("Statistics 표 수가 메타와 다릅니다: " + subject);
+  }
+  const chartContext=vm.createContext({window:{TWStatsNumbers:numbers},matchMedia:()=>({matches:false})});
+  vm.runInContext(fs.readFileSync(path.join(rootDir,"tools","stats","charts.js"),"utf8"),chartContext);
+  const chart=chartContext.window.TWStatsCharts;
+  const chartCases=[
+    ["korea","korea-population-compare","규모","bar"],
+    ["korea","korea-population-compare","기간별 순 이동","diverging"],
+    ["world","world-religion-compare","대륙","stacked"],
+    ["world","world-population-history","수","line"],
+    ["korea","korea-book-3-1","기본","line"],
+    ["korea","korea-crop-share-national","작물별 재배 면적","bar"],
+  ];
+  for(const [subject,id,label,expected] of chartCases) {
+    const table=stats.subjects[subject].topics.flatMap(topic=>topic.regions?topic.regions.flatMap(region=>region.tables):topic.tables||[])
+      .find(item=>item.id===id);
+    const view=table?.views.find(item=>item.label===label);
+    if(!view) {errors.push(`Statistics 그래프 검증 표 누락: ${id}/${label}`);continue;}
+    const groups={continent:view.rows.filter(row=>row.group==="continent"),country:view.rows.filter(row=>row.group==="country"),
+      ordinary:view.rows.filter(row=>!['continent','country'].includes(row.group))};
+    const sort={index:view.columns.length,direction:"desc"};
+    const kind=chart.type(table,view,groups,false,sort);
+    if(kind!==expected)errors.push(`Statistics 그래프 종류 오류: ${id}/${label} ${kind}`);
+    if(id==="korea-crop-share-national"&&kind==="bar") {
+      const svg=chart.render({table,view,groups,sort,bar:null,kind,display:numbers.specsForView(view)},720);
+      if(svg.includes('data-row-key="전국"'))errors.push("Statistics 전국 합계 막대가 남았습니다");
+    }
   }
   if (stats.meta?.gapCount > 20) errors.push("Statistics 미수록 표가 20건을 초과합니다.");
   if (isSourceCheck) {

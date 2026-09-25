@@ -354,36 +354,14 @@
     }
     return groups;
   }
-  function formatNumber(value,unit,digitsOverride) {
-    if(value===null||value===undefined||value==="")return "–";
-    if(typeof value!=="number")return String(value);
-    const digits=Number.isInteger(digitsOverride)?digitsOverride:["%","‰","지수"].includes(unit)?1:/^(명|개|가구|마리|t|천 명|MWh|천 toe)$/.test(unit)?0:1;
-    return new Intl.NumberFormat("ko-KR",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(value).replaceAll("-","−");
-  }
-  function displaySpec(unit,values) {
-    const max=Math.max(0,...values.map(value=>Math.abs(typeof value==="object"&&value?value.value:value)).filter(Number.isFinite));
-    if(unit==="명")return max>=1e6?{unit:"백만 명",divisor:1e6}:max>=1e3?{unit:"천 명",divisor:1e3}:{unit,divisor:1};
-    if(unit==="천 명"&&max>=1e3)return {unit:"백만 명",divisor:1e3};
-    if(unit==="t")return max>=1e6?{unit:"백만 t",divisor:1e6}:max>=1e3?{unit:"천 t",divisor:1e3}:{unit,divisor:1};
-    if(unit==="만 t"&&max>=100)return {unit:"백만 t",divisor:100};
-    return {unit,divisor:1};
-  }
-  function displayColumns(view) {
-    if(view.columns.length>=2&&view.columns.every(column=>/^(?:19|20)\d{2}(?:[.~-]\d+)*(?:년)?$/.test(column.label)&&column.unit===view.columns[0].unit)) {
-      const common=displaySpec(view.columns[0].unit||"",view.rows.flatMap(row=>row.values));
-      return view.columns.map(()=>common);
-    }
-    return view.columns.map((column,index)=>displaySpec(column.unit||"",view.rows.map(row=>row.values[index])));
-  }
-  function formatDisplayNumber(value,column,spec,digitsOverride) {
-    if(spec.divisor===1)return formatNumber(value,column.unit,digitsOverride);
-    if(typeof value!=="number")return formatNumber(value,column.unit,digitsOverride);
-    return new Intl.NumberFormat("ko-KR",{maximumFractionDigits:2}).format(value/spec.divisor).replaceAll("-","−");
-  }
-  function cellHtml(value,column,spec,digitsOverride) {
+  const numbers=window.TWStatsNumbers;
+  const formatNumber=(value,column)=>numbers.format(value,{unit:column.unit||"",divisor:1,digits:numbers.defaultDigits(column)});
+  const displayColumns=view=>numbers.specsForView(view);
+  const formatDisplayNumber=(value,column,spec)=>numbers.format(value,spec);
+  function cellHtml(value,column,spec) {
     if(value===null||value===undefined)return '<span class="stats-missing">–</span>';
     if(typeof value==="object"&&value.name) return '<span class="stats-rank-cell"><strong>'+escapeHtml(value.name)+'</strong><small>'+escapeHtml(formatDisplayNumber(value.value,column,spec))+'</small></span>';
-    const display=escapeHtml(formatDisplayNumber(value,column,spec,digitsOverride));
+    const display=escapeHtml(formatDisplayNumber(value,column,spec));
     if(typeof value!=="number")return display;
     return '<span class="stats-value">'+display+'</span>';
   }
@@ -411,9 +389,9 @@
   function rowMarkup(row,view,display,bar,tableId) {
     const matched=highlight&&normalize(row.label).includes(highlight);
     const aggregate=row.group==="continent"||row.group==="national"||row.group==="region";
-    return '<tr data-row-key="'+escapeHtml(row.label)+'" class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
-      row.values.map((value,index)=>{const spec=row.valueUnit&&index===0?displaySpec(row.valueUnit,[value]):display[index];
-        return '<td>'+cellHtml(value,view.columns[index],spec,/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].digits??(view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined))+
+    return '<tr data-row-key="'+escapeHtml(row.label)+'" class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row" title="'+escapeHtml(row.label)+'">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
+      row.values.map((value,index)=>{const spec=row.valueUnit&&index===0?numbers.spec({...view.columns[index],unit:row.valueUnit},[value]):display[index];
+        return '<td>'+cellHtml(value,view.columns[index],spec)+
         (row.valueUnit&&index===0?'<small class="stats-value-unit">'+escapeHtml(spec.unit)+'</small>':"")+'</td>';}).join("")+barMarkup(row,bar,tableId)+'</tr>';
   }
   function tbodyMarkup(view,display,groups,bar,tableId) {
@@ -439,33 +417,53 @@
       return heading+rowMarkup(row,view,display,bar,tableId);
     }).join("")+'</tbody>';
   }
-  function isRankCards(table) {
-    return (table.views.length>1||table.rank)&&table.views.every(view=>view.columns.length===1&&view.rows.length>=5&&/^1위$/.test(view.rows[0].label));
+  function isRankCardView(view) {
+    return view.columns.length===1&&view.rows.length>=5&&/^1위$/.test(view.rows[0].label)&&
+      view.rows.every(row=>row.values[0]&&typeof row.values[0]==="object"&&row.values[0].name);
   }
-  function rankCardsMarkup(table) {
-    return '<div class="stats-rank-scroll">'+table.views.map(view=>{
+  function isRankCards(table) {return (table.views.length>1||table.rank)&&table.views.every(isRankCardView);}
+  function rankCardsMarkup(table,active) {
+    return '<div class="stats-rank-scroll">'+(isRankCards(table)?table.views:[active]).map(view=>{
       const measure=view.columns[0].label.replace(/^.*? · /,"");
-      const spec=displaySpec(view.columns[0].unit||"",view.rows.map(row=>row.values[0]));
-      return '<article class="stats-rank-card"><h3>'+escapeHtml(view.label)+'</h3><table><thead><tr><th>순위</th><th>국가</th><th>'+escapeHtml(measure)+
+      const spec=numbers.spec(view.columns[0],view.rows.map(row=>row.values[0]));
+      const entity=table.id.startsWith("korea-")?"시군구":table.title.includes("도시")?"도시":"국가";
+      return '<article class="stats-rank-card"><h3>'+escapeHtml(view.label)+'</h3><table><thead><tr><th>순위</th><th>'+entity+'</th><th>'+escapeHtml(measure)+
         '<small>'+escapeHtml(spec.unit)+'</small></th></tr></thead><tbody>'+view.rows.map(row=>{
           const value=row.values[0];
           return '<tr><th scope="row">'+escapeHtml(row.label)+'</th><td>'+escapeHtml(value?.name||"–")+'</td><td>'+escapeHtml(formatDisplayNumber(value?.value,view.columns[0],spec))+'</td></tr>';
         }).join("")+'</tbody></table></article>';
     }).join("")+'</div>';
   }
+  function labelWidth(view) {
+    const context=document.createElement("canvas").getContext("2d");
+    context.font='14px "TWK Lausanne", "Pretendard Variable", Pretendard, sans-serif';
+    return Math.ceil(Math.max(120,...view.rows.map(row=>context.measureText(row.label).width),context.measureText(view.rowLabel).width)+32);
+  }
+  function sourceMeta(sources) {
+    const grouped=new Map();
+    for(const source of sources||[]) {
+      if(!grouped.has(source.name))grouped.set(source.name,{url:source.url,years:new Set()});
+      grouped.get(source.name).years.add(source.year);
+    }
+    return '<div class="tw-meta-list stats-table-meta">'+[...grouped].map(([name,item])=>{
+      const years=[...item.years].sort((a,b)=>Number(a)-Number(b));
+      const period=years.length>=3?years[0]+"–"+years.at(-1):years.join(", ");
+      return '<span><a href="'+escapeHtml(item.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(name)+'</a>, '+escapeHtml(period)+'</span>';
+    }).join(" ")+'</div>';
+  }
   function renderTable(table) {
     const state=stateFor(table.id),base=table.views[Math.min(state.view,table.views.length-1)],view=activeView(table,state);
     const groups=visibleRows(table,view,state),sort=effectiveSort(table,view,state);
     const display=displayColumns(view);
-    const rankCards=isRankCards(table);
+    const rankCards=isRankCardView(view);
     const bar=table.comparison?comparisonBar(table,view,groups,state):null;
-    const kind=window.TWStatsCharts.type(table,view,groups,rankCards);
+    const kind=window.TWStatsCharts.type(table,view,groups,rankCards,sort);
     const showChart=kind&&chartMode(table.id)==="graph";
     if(showChart)chartModels.set(table.id,{table,view,groups,sort,bar,kind,display});
     const wide=table.comparison||rankCards||(table.id!=="world-global-primary-energy"&&table.views.some(item=>item.columns.length>=5))||
       /(?:-history|-city-change|-generation-mix)$/.test(table.id);
     const hasBoth=groupRows(view.rows,null).continent.length>1&&groupRows(view.rows,null).country.length>0;
-    const viewNav=table.views.length>1&&!rankCards?segmented("stats-views",table.title+" 지표",table.views,state.view,"view",table.id):"";
+    const viewNav=table.views.length>1&&!isRankCards(table)?segmented("stats-views",table.title+" 지표",table.views,state.view,"view",table.id):"";
     const subNav=base.subviews?.length>1?segmented("stats-subviews",table.title+" 단위",base.subviews,state.subview,"subview",table.id):"";
     const scopeNav=table.comparison&&hasBoth?'<nav class="tw-segmented stats-scope" aria-label="행 범위">'+
       [["all","모두"],["continent","대륙"],["country","국가"]].map(([id,label])=>'<button type="button" data-table="'+table.id+'" data-scope="'+id+
@@ -487,27 +485,30 @@
           '</span><span class="stats-sort-unit">'+escapeHtml(display[index].unit)+'</span>'+
           (column.qualifier?'<span class="stats-sort-qualifier">'+escapeHtml(column.qualifier)+'</span>':"")+'</button></th>';
       }).join("")+(bar?'<th scope="col" class="stats-bar-head"><span>'+escapeHtml(bar.label)+'</span></th>':"");
-    const meta='<div class="tw-meta-list stats-table-meta">'+(view.sources||[]).map(source=>
-      '<span><a href="'+escapeHtml(source.url)+'" target="_blank" rel="noopener noreferrer">'+escapeHtml(source.name)+'</a>, '+escapeHtml(source.year)+'</span>').join(" ")+'</div>';
+    const meta=sourceMeta(view.sources);
     const note=view.note?'<p class="stats-note">'+escapeHtml(view.note)+'</p>':"";
     const colgroup='<colgroup><col class="stats-label-col">'+view.columns.map(()=>'<col class="stats-number-col">').join("")+
       (bar?'<col class="stats-bar-col">':"")+'</colgroup>';
-    const body=showChart?'<div class="stats-chart" data-table="'+table.id+'"></div>':rankCards?rankCardsMarkup(table):'<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table" style="--stats-numeric-cols:'+view.columns.length+
-      ';--stats-bar-width:'+(bar?"220px":"0px")+';min-width:'+(120+88*view.columns.length+(bar?220:0))+'px">'+colgroup+'<thead><tr>'+headers+'</tr></thead>'+tbodyMarkup(view,display,groups,bar,table.id)+'</table></div>';
+    const minNumericWidth=88*view.columns.length+(bar?220:0);
+    const body=showChart?'<div class="stats-chart" data-table="'+table.id+'"></div>':rankCards?rankCardsMarkup(table,view):'<div class="tw-table-wrap stats-table-wrap"><table class="tw-table stats-table" style="--stats-numeric-cols:'+view.columns.length+
+      ';--stats-bar-width:'+(bar?"220px":"0px")+';min-width:calc(var(--stats-mobile-label-width, var(--stats-label-width)) + '+minNumericWidth+'px)">'+colgroup+'<thead><tr>'+headers+'</tr></thead>'+tbodyMarkup(view,display,groups,bar,table.id)+'</table></div>';
     const more=table.id==="world-us-state-manufacturing"?'<button type="button" class="tw-button is-ghost is-sm stats-more" data-table="'+table.id+
       '" data-action="more">'+(state.expanded?"접기":"더 보기")+'</button>':"";
-    return '<section class="stats-table-section'+(wide?' is-wide':'')+'" id="'+escapeHtml(table.id)+'"><div class="stats-table-top"><h2 class="stats-table-title"><a href="#'+
+    return '<section class="stats-table-section'+(wide?' is-wide':'')+'" id="'+escapeHtml(table.id)+'" style="--stats-label-width:'+labelWidth(view)+'px"><div class="stats-table-top"><h2 class="stats-table-title"><a href="#'+
       escapeHtml(table.id)+'">'+escapeHtml(table.title)+'</a></h2>'+chartSwitch+'<div class="stats-actions">'+actions+'</div></div>'+
       viewNav+subNav+scopeNav+body+more+meta+note+'</section>';
   }
   function exportMatrix(table,state) {
     if(isRankCards(table))return [["구분","순위","국가","값"],...table.views.flatMap(view=>view.rows.map(row=>[
-      view.label,row.label,row.values[0]?.name||"",formatNumber(row.values[0]?.value,view.columns[0].unit)
+      view.label,row.label,row.values[0]?.name||"",formatNumber(row.values[0]?.value,view.columns[0])
     ]))];
     const view=activeView(table,state),groups=visibleRows(table,view,state);
+    if(isRankCardView(view))return [["순위",table.id.startsWith("korea-")?"시군구":"국가",view.columns[0].label],...view.rows.map(row=>[
+      row.label,row.values[0]?.name||"",formatNumber(row.values[0]?.value,view.columns[0])
+    ])];
     const result=[[view.rowLabel,...view.columns.map(c=>c.label+(c.unit?" ("+c.unit+")":""))]];
     const append=row=>result.push([row.label+(row.aggregateMark?"*":""),...row.values.map((value,index)=>value&&typeof value==="object"?value.name+" "+value.value:
-      typeof value==="number"?formatNumber(value,row.valueUnit&&index===0?row.valueUnit:view.columns[index].unit,/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].digits??(view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined)).replaceAll(",","").replaceAll("−","-")+(row.valueUnit&&index===0?" "+row.valueUnit:""):value??"–")]);
+      typeof value==="number"?formatNumber(value,row.valueUnit&&index===0?{...view.columns[index],unit:row.valueUnit}:view.columns[index]).replaceAll(",","").replaceAll("−","-")+(row.valueUnit&&index===0?" "+row.valueUnit:""):value??"–")]);
     if(groups.continent.length) {result.push(["대륙"]);groups.continent.forEach(append);}
     if(groups.country.length) {
       result.push(["국가"]);
