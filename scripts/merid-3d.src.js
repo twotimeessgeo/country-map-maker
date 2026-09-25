@@ -78,7 +78,11 @@ function start(host) {
   renderer.toneMapping = THREE.NoToneMapping;       // tone mapping happens in the post pass
   if (EFFECT >= 2) canvas.classList.add("is-dither");
 
-  const pivot = new THREE.Group(); scene.add(pivot);
+  // tilt > pivot (the turn) > orient > model. Wide screens: the sundial as built, turning about the vertical.
+  // Tall screens: the polar axis stands straight up the page and the sculpture turns about it, leaning 16° toward the viewer
+  const tilt = new THREE.Group(), pivot = new THREE.Group(), orient = new THREE.Group();
+  scene.add(tilt); tilt.add(pivot); pivot.add(orient);
+  let axis = null, portrait = null;
 
   const steel = new THREE.MeshStandardMaterial({ color: 0xf4f5f7, metalness: 1, roughness: 0.035 });
   const band = new THREE.MeshStandardMaterial({ color: 0xeef0f2, metalness: 1, roughness: 0.07 });
@@ -96,13 +100,9 @@ function start(host) {
     const box = new THREE.Box3().setFromObject(model);
     box.getSize(size); const c = box.getCenter(new THREE.Vector3());
     model.position.sub(c);                       // turn about the sculpture's own centre
-    pivot.add(model);
-    // extents that do not change as it turns about the vertical: lowest and highest point, widest radius from the axis
-    pivot.updateMatrixWorld(true);
-    const v = new THREE.Vector3(); ext = { minY: Infinity, maxY: -Infinity, r: 0 };
-    model.traverse(o => { if (!o.isMesh) return; const pos = o.geometry.attributes.position;
-      for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
-        ext.minY = Math.min(ext.minY, v.y); ext.maxY = Math.max(ext.maxY, v.y); ext.r = Math.max(ext.r, Math.hypot(v.x, v.z)); } });
+    orient.add(model);
+    const rod = model.getObjectByName("Rod");
+    if (rod) { model.updateMatrixWorld(true); const a = new THREE.Vector3(0, 0, 0), b = new THREE.Vector3(0, 1, 0); rod.localToWorld(a); rod.localToWorld(b); axis = b.sub(a).normalize(); }
     fit();
     host.appendChild(canvas);
     requestAnimationFrame(() => { canvas.classList.add("is-live"); host.classList.add("has-3d"); });
@@ -110,6 +110,33 @@ function start(host) {
   }, undefined, () => {});
 
   // the spike sits near the top; the foot always runs past the bottom edge (desktop and phone)
+  // extents sampled over a full turn: lowest and highest point, widest reach left or right of the centre
+  function measure() {
+    const pts = [], v = new THREE.Vector3();
+    tilt.updateMatrixWorld(true);
+    model.traverse(o => { if (!o.isMesh) return; const pos = o.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i += 3) pts.push(v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld).clone()); });
+    const inv = new THREE.Matrix4().copy(pivot.matrixWorld).invert(), local = pts.map(p => p.clone().applyMatrix4(inv));
+    const e = { minY: Infinity, maxY: -Infinity, r: 0 }, m = new THREE.Matrix4(), keep = pivot.rotation.y;
+    for (let k = 0; k < 24; k++) {
+      pivot.rotation.y = k / 24 * Math.PI * 2; tilt.updateMatrixWorld(true); m.copy(pivot.matrixWorld);
+      for (const q of local) { v.copy(q).applyMatrix4(m); e.minY = Math.min(e.minY, v.y); e.maxY = Math.max(e.maxY, v.y); e.r = Math.max(e.r, Math.abs(v.x)); }
+    }
+    pivot.rotation.y = keep; tilt.updateMatrixWorld(true);
+    return e;
+  }
+  function setPortrait(on) {
+    if (on === portrait) return; portrait = on;
+    orient.quaternion.identity(); orient.position.set(0, 0, 0); tilt.rotation.set(0, 0, 0);
+    if (on && axis) {
+      orient.quaternion.setFromUnitVectors(axis, new THREE.Vector3(0, 1, 0));
+      orient.updateMatrixWorld(true);
+      const c = new THREE.Box3().setFromObject(orient).getCenter(new THREE.Vector3());
+      orient.position.set(-c.x, 0, -c.z);            // turn about the polar axis itself
+      tilt.rotation.x = THREE.MathUtils.degToRad(16);
+    }
+    ext = measure();
+  }
   function fit() {
     const r = host.getBoundingClientRect();
     const w = Math.max(1, r.width), h = Math.max(1, r.height);
@@ -118,10 +145,12 @@ function start(host) {
     post.uniforms.uRes.value.set(rt.width, rt.height);
     post.uniforms.uDpr.value = renderer.getPixelRatio();
     camera.aspect = w / h;
-    if (!ext) return;
-    const H = ext.maxY - ext.minY, phone = w / h < 0.8, aspect = w / h;
+    if (!model) return;
+    const phone = w / h < 0.8, aspect = w / h;
+    setPortrait(phone);
+    const H = ext.maxY - ext.minY;
     const cx = phone ? 0 : 0.10;                  // model centre sits 10% right of the middle on wide screens
-    const cut = H * 0.14;                          // the foot: always below the bottom edge
+    const cut = H * (phone ? 0.05 : 0.06);         // only the very foot runs below the bottom edge
     // tall enough for spike + margin; wide enough that the widest ring never leaves the sides, whatever the turn
     const needH = (H - cut) * 1.10;
     const needW = (ext.r * 1.12) / ((0.5 - cx) * aspect);
