@@ -10,7 +10,7 @@
     ],
     "tableCount": {
       "korea": 50,
-      "world": 81
+      "world": 80
     },
     "gapCount": 16,
     "bookSync": {
@@ -20,9 +20,9 @@
         "skipped": 7
       },
       "world": {
-        "imported": 73,
+        "imported": 72,
         "merged": 8,
-        "skipped": 16
+        "skipped": 17
       }
     },
     "duplicateMerges": 48
@@ -62295,171 +62295,6 @@
                           "name": "FAOSTAT",
                           "year": "2024",
                           "url": "https://www.fao.org/faostat/"
-                        }
-                      ]
-                    }
-                  ],
-                  "rank": false,
-                  "defaultSort": {
-                    "mode": "firstNumeric",
-                    "direction": "desc"
-                  }
-                },
-                {
-                  "id": "world-book-8-5",
-                  "title": "중·남부 아메리카 주요 국가의 인종과 민족 구성",
-                  "views": [
-                    {
-                      "id": "view-1",
-                      "label": "기본",
-                      "rowLabel": "국가",
-                      "columns": [
-                        {
-                          "label": "원주민",
-                          "unit": "%",
-                          "digits": 1
-                        },
-                        {
-                          "label": "아프리카계",
-                          "unit": "%",
-                          "digits": 1
-                        },
-                        {
-                          "label": "유럽계",
-                          "unit": "%",
-                          "digits": 1
-                        },
-                        {
-                          "label": "혼혈",
-                          "unit": "%",
-                          "digits": 1
-                        },
-                        {
-                          "label": "기타",
-                          "unit": "%",
-                          "digits": 1
-                        },
-                        {
-                          "label": "기준",
-                          "unit": "",
-                          "barEligible": false
-                        }
-                      ],
-                      "rows": [
-                        {
-                          "label": "멕시코",
-                          "values": [
-                            28,
-                            null,
-                            null,
-                            62,
-                            10,
-                            "2012"
-                          ],
-                          "section": "라틴 아메리카"
-                        },
-                        {
-                          "label": "쿠바",
-                          "values": [
-                            null,
-                            9.3,
-                            64.1,
-                            26.6,
-                            null,
-                            "2012"
-                          ],
-                          "section": "라틴 아메리카"
-                        },
-                        {
-                          "label": "콜롬비아",
-                          "values": [
-                            1,
-                            4,
-                            20,
-                            75,
-                            null,
-                            "2003"
-                          ],
-                          "section": "라틴 아메리카"
-                        },
-                        {
-                          "label": "베네수엘라",
-                          "values": [
-                            2.7,
-                            3.5,
-                            42.2,
-                            49.9,
-                            1.7,
-                            "2011"
-                          ],
-                          "section": "라틴 아메리카"
-                        },
-                        {
-                          "label": "페루",
-                          "values": [
-                            25.8,
-                            3.6,
-                            5.9,
-                            60.2,
-                            4.5,
-                            "2017"
-                          ],
-                          "section": "라틴 아메리카"
-                        },
-                        {
-                          "label": "볼리비아",
-                          "values": [
-                            20,
-                            1,
-                            5,
-                            68,
-                            6,
-                            "2009"
-                          ],
-                          "section": "라틴 아메리카"
-                        },
-                        {
-                          "label": "칠레",
-                          "values": [
-                            10.8,
-                            null,
-                            null,
-                            null,
-                            0.3,
-                            "2012"
-                          ],
-                          "section": "라틴 아메리카"
-                        },
-                        {
-                          "label": "아르헨티나",
-                          "values": [
-                            2.4,
-                            0.4,
-                            null,
-                            null,
-                            null,
-                            "2010"
-                          ],
-                          "section": "라틴 아메리카"
-                        },
-                        {
-                          "label": "브라질",
-                          "values": [
-                            0.4,
-                            7.6,
-                            47.7,
-                            43.1,
-                            1.1,
-                            "2010"
-                          ],
-                          "section": "라틴 아메리카"
-                        }
-                      ],
-                      "sources": [
-                        {
-                          "name": "CIA World Factbook",
-                          "year": "2017",
-                          "url": "https://www.cia.gov/the-world-factbook/"
                         }
                       ]
                     }
