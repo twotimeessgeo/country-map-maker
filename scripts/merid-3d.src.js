@@ -1,7 +1,7 @@
 // Source of ds/merid-3d.js. Rebuild: npx esbuild scripts/merid-3d.src.js --bundle --minify --format=iife --target=es2020 --legal-comments=none --outfile=ds/merid-3d.js  (needs three@0.170)
 /* Home: the armillary sundial (ds/armillary.glb) in polished steel on black.
    three.js + GLTFLoader and a small strip-light studio for reflections, bundled into one file (ds/merid-3d.js).
-   Slow turntable spin, drag to turn; still with reduced motion; the stipple drawing stays as the fallback. */
+   An entrance, then still; drag to turn a little; no entrance with reduced motion; the stipple drawing stays as the fallback. */
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
@@ -42,13 +42,48 @@ function start(host) {
   lamp(14, 7, 3, 1, -9, 0, 0, 0.12);
   scene.environment = pmrem.fromScene(studio, 0.015).texture;
   scene.environmentIntensity = 1.0;
-  const camera = new THREE.PerspectiveCamera(26, 1, 0.1, 100);
+  const camera = new THREE.PerspectiveCamera(12, 1, 0.1, 200);   // long lens: near-orthographic, so the turning model keeps the same height on screen
+  // post: the scene renders into a float target, then one full-screen pass prints it.
+  //   stipple (default): 1-bit random dots like the Meridian cover drawings, re-seeded a few times a second so the metal shimmers
+  //   bayer: ordered 1-bit dither    grain: continuous tone with film grain    none: plain
+  const EFFECT = { none: 0, grain: 1, stipple: 2, bayer: 3 }[host.dataset.effect || "stipple"] ?? 2;
+  const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 });
+  const post = new THREE.ShaderMaterial({
+    uniforms: { tScene: { value: rt.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uDpr: { value: 1 }, uSeed: { value: 0 }, uMode: { value: EFFECT }, uExposure: { value: 1.05 } },
+    vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }",
+    fragmentShader: `precision highp float; varying vec2 vUv;
+      uniform sampler2D tScene; uniform vec2 uRes; uniform float uDpr, uSeed, uExposure; uniform int uMode;
+      vec3 aces(vec3 x){ return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.); }
+      float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21) + uSeed); p += dot(p, p+45.32); return fract(p.x*p.y); }
+      float bayer(vec2 p){ vec2 q = mod(p, 4.);
+        int i = int(q.x) + 4*int(q.y); float m[16];
+        m[0]=0.;m[1]=8.;m[2]=2.;m[3]=10.;m[4]=12.;m[5]=4.;m[6]=14.;m[7]=6.;m[8]=3.;m[9]=11.;m[10]=1.;m[11]=9.;m[12]=15.;m[13]=7.;m[14]=13.;m[15]=5.;
+        for(int k=0;k<16;k++){ if(k==i) return (m[k]+.5)/16.; } return .5; }
+      void main(){
+        vec3 c = aces(texture2D(tScene, vUv).rgb * uExposure);
+        float L = pow(dot(c, vec3(.2126,.7152,.0722)), 1./2.2);
+        vec2 cell = floor(gl_FragCoord.xy / max(1., floor(uDpr+.25)));   // one dot per CSS pixel
+        float o = L;
+        if (L < .012) { gl_FragColor = vec4(0.,0.,0.,1.); return; }   // pure black stays black: no stray dots
+        if (uMode == 2) o = step(hash(cell), pow(L, 1.15) * 1.08);
+        else if (uMode == 3) o = step(bayer(cell), L);
+        else if (uMode == 1) o = clamp(L + (hash(cell) - .5) * .09, 0., 1.);
+        gl_FragColor = vec4(vec3(o), 1.);
+      }`,
+    depthTest: false, depthWrite: false,
+  });
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), post);
+  const postScene = new THREE.Scene(); postScene.add(quad);
+  const postCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  renderer.toneMapping = THREE.NoToneMapping;       // tone mapping happens in the post pass
+  if (EFFECT >= 2) canvas.classList.add("is-dither");
+
   const pivot = new THREE.Group(); scene.add(pivot);
 
   const steel = new THREE.MeshStandardMaterial({ color: 0xf4f5f7, metalness: 1, roughness: 0.035 });
   const band = new THREE.MeshStandardMaterial({ color: 0xeef0f2, metalness: 1, roughness: 0.07 });
 
-  let model = null, size = new THREE.Vector3();
+  let model = null, size = new THREE.Vector3(), ext = null;
   new GLTFLoader().load(host.dataset.armillary, gltf => {
     model = gltf.scene;
     const drop = [];
@@ -62,42 +97,88 @@ function start(host) {
     box.getSize(size); const c = box.getCenter(new THREE.Vector3());
     model.position.sub(c);                       // turn about the sculpture's own centre
     pivot.add(model);
+    // extents that do not change as it turns about the vertical: lowest and highest point, widest radius from the axis
+    pivot.updateMatrixWorld(true);
+    const v = new THREE.Vector3(); ext = { minY: Infinity, maxY: -Infinity, r: 0 };
+    model.traverse(o => { if (!o.isMesh) return; const pos = o.geometry.attributes.position;
+      for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld);
+        ext.minY = Math.min(ext.minY, v.y); ext.maxY = Math.max(ext.maxY, v.y); ext.r = Math.max(ext.r, Math.hypot(v.x, v.z)); } });
     fit();
     host.appendChild(canvas);
     requestAnimationFrame(() => { canvas.classList.add("is-live"); host.classList.add("has-3d"); });
     loop(performance.now());
   }, undefined, () => {});
 
-  // fill the height (a little cut at the bottom) and sit a touch right of centre
+  // the spike sits near the top; the foot always runs past the bottom edge (desktop and phone)
   function fit() {
     const r = host.getBoundingClientRect();
     const w = Math.max(1, r.width), h = Math.max(1, r.height);
     renderer.setSize(w, h, false);
+    rt.setSize(Math.round(w * renderer.getPixelRatio()), Math.round(h * renderer.getPixelRatio()));
+    post.uniforms.uRes.value.set(rt.width, rt.height);
+    post.uniforms.uDpr.value = renderer.getPixelRatio();
     camera.aspect = w / h;
-    const tall = Math.max(size.y, size.x * 0.7) || 4;
-    const phone = w / h < 0.8;
-    const fill = phone ? 0.78 : 1.08;            // share of the viewport height the sculpture takes
-    const dist = (tall / fill) / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-    camera.position.set(0, tall * 0.02, dist);
-    camera.lookAt(0, 0, 0);
-    camera.setViewOffset(w, h, phone ? w * 0.03 : -w * 0.10, h * (phone ? 0.0 : 0.05), w, h);
+    if (!ext) return;
+    const H = ext.maxY - ext.minY, phone = w / h < 0.8, aspect = w / h;
+    const cx = phone ? 0 : 0.10;                  // model centre sits 10% right of the middle on wide screens
+    const cut = H * 0.14;                          // the foot: always below the bottom edge
+    // tall enough for spike + margin; wide enough that the widest ring never leaves the sides, whatever the turn
+    const needH = (H - cut) * 1.10;
+    const needW = (ext.r * 1.12) / ((0.5 - cx) * aspect);
+    const vis = Math.max(needH, needW);
+    const dist = vis / 2 / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+    const yc = ext.minY + cut + vis / 2;           // bottom edge fixed above the foot; any spare room goes to the top
+    camera.position.set(0, yc, dist);
+    camera.lookAt(0, yc, 0);
+    camera.clearViewOffset();
+    if (cx) camera.setViewOffset(w, h, -w * cx, 0, w, h);
     camera.updateProjectionMatrix();
     draw();
   }
   new ResizeObserver(fit).observe(host);
 
-  let yaw = -0.6, vel = reduced ? 0 : 0.12, drag = null, last = 0, raf = 0, visible = true;
-  function draw() { pivot.rotation.y = yaw; renderer.render(scene, camera); }
+  // motion: one entrance, then it holds still. Drag turns it (with a little glide); it never spins on its own.
+  //   entrance (2.8 s): the light sweeps across the steel while the sculpture turns a third of the way into its pose
+  //   and the exposure rises out of black. Reduced motion: the pose, straight away.
+  const POSE = -0.6, INTRO = 2800;
+  let yaw = reduced ? POSE : POSE - 1.25, vel = 0, drag = null, last = 0, raf = 0, visible = true, t0 = 0, introDone = reduced, seedT = 0;
+  const ease = t => 1 - Math.pow(1 - t, 4);
+  function draw(ts) {
+    pivot.rotation.y = yaw;
+    if (ts !== undefined && ts - seedT > 110) { seedT = ts; post.uniforms.uSeed.value = Math.random() * 10; }  // stipple re-seeds ~9 times a second
+    renderer.setRenderTarget(rt); renderer.render(scene, camera);
+    renderer.setRenderTarget(null); renderer.render(postScene, postCam);
+  }
   function loop(ts) {
     const dt = last ? Math.min(0.05, (ts - last) / 1000) : 0; last = ts;
-    if (!drag) yaw += vel * dt;
-    draw();
-    if (!reduced && visible && !document.hidden) raf = requestAnimationFrame(loop);
+    let busy = false;
+    if (!introDone) {
+      t0 = t0 || ts;
+      const k = Math.min(1, (ts - t0) / INTRO), e = ease(k);
+      yaw = POSE - 1.25 * (1 - e);
+      scene.environmentRotation.y = -2.2 * (1 - e);                   // the light sweeps across
+      post.uniforms.uExposure.value = 1.05 * Math.min(1, k * 1.6);     // out of black
+      if (k >= 1) { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; }
+      busy = true;
+    } else if (!drag && Math.abs(vel) > 0.002) {
+      yaw += vel * dt; vel *= Math.pow(0.04, dt); busy = true;        // glide after a drag, then stop
+    }
+    if (drag) busy = true;
+    draw(ts);
+    // keep rendering while moving; when still, only the stipple needs frames (its dots re-seed), and only while on screen
+    const shimmer = EFFECT === 2 && !reduced;
+    if (visible && !document.hidden && (busy || shimmer)) raf = requestAnimationFrame(loop);
   }
-  function resume() { cancelAnimationFrame(raf); last = 0; if (model && !reduced) raf = requestAnimationFrame(loop); }
-  canvas.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: yaw }; canvas.setPointerCapture(e.pointerId); canvas.classList.add("is-dragging"); });
-  canvas.addEventListener("pointermove", e => { if (!drag) return; yaw = drag.y + (e.clientX - drag.x) * 0.006; if (reduced) draw(); });
-  const end = () => { drag = null; canvas.classList.remove("is-dragging"); };
+  function resume() { cancelAnimationFrame(raf); last = 0; if (model) raf = requestAnimationFrame(loop); }
+  if (!reduced) post.uniforms.uExposure.value = 0;
+  let px = 0, pt = 0;
+  canvas.addEventListener("pointerdown", e => { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05;
+    drag = { x: e.clientX, y: yaw }; px = e.clientX; pt = performance.now(); vel = 0; canvas.setPointerCapture(e.pointerId); canvas.classList.add("is-dragging"); resume(); });
+  canvas.addEventListener("pointermove", e => { if (!drag) return;
+    const now = performance.now(), ny = drag.y + (e.clientX - drag.x) * 0.006;
+    if (now > pt) vel = (e.clientX - px) * 0.006 / ((now - pt) / 1000);
+    px = e.clientX; pt = now; yaw = ny; });
+  const end = () => { if (!drag) return; drag = null; if (reduced || performance.now() - pt > 80) vel = 0; vel = Math.max(-3, Math.min(3, vel)); canvas.classList.remove("is-dragging"); resume(); };
   canvas.addEventListener("pointerup", end); canvas.addEventListener("pointercancel", end);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) resume(); });
   new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) resume(); }).observe(host);
