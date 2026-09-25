@@ -26,10 +26,6 @@ export const duplicateResolutions = [
   // World · religion, population and cities
   ["world","world-book-3-3","world-religion-distribution",{replace:"기본",title:"종교별 신자의 대륙별 분포"}],
   ["world","world-book-3-4","world-religion-rank",{replaceAll:true,title:"종교별 신자 수 상위 국가"}],
-  ["world","world-book-7-10","world-book-3-5",{label:"유럽·북부 아메리카"}],
-  ["world","world-book-8-7","world-book-3-5",{label:"아프리카·중남미"}],
-  ["world","world-book-9-8","world-book-3-5",{label:"몬순 아시아·오세아니아"}],
-  ["world","world-book-10-7","world-book-3-5",{label:"건조 아시아·북부 아프리카"}],
   ["world","world-birth-death","world-population-compare",{discard:"대륙 출생·사망은 비교 표에 이미 있고 비교 표의 국가 행이 더 많음"}],
   ["world","world-book-4-2","world-population-history",{label:"대륙별 장기 변화"}],
   ["world","world-book-4-7","world-migration-history",{prefix:"대륙별"}],

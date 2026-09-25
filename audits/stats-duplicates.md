@@ -2,7 +2,7 @@
 
 행 이름 집합은 작은 표 대비 공통 행 비율 80% 초과, 열 이름은 한 개 이상 일치한 쌍을 전수로 추렸습니다. 순위 숫자처럼 이름만 같은 쌍은 값의 정의를 대조해 유지했습니다.
 
-## 병합·교체·삭제 (52)
+## 병합·교체·삭제 (48)
 
 | 과목 | 기존 표 | 합친 표 | 처리 | 이유 |
 | --- | --- | --- | --- | --- |
@@ -29,10 +29,6 @@
 | 한국 | korea-manufacturing-sectors | korea-book-4-19 | 보기 병합 | 다른 열·기간을 보기로 보존 |
 | 세계 | world-religion-distribution | world-book-3-3 | 교체 | 행·기간이 더 넓은 쪽 선택 |
 | 세계 | world-religion-rank | world-book-3-4 | 교체 | 행·항목이 더 많은 쪽 선택 |
-| 세계 | world-book-3-5 | world-book-7-10 | 보기 병합 | 다른 열·기간을 보기로 보존 |
-| 세계 | world-book-3-5 | world-book-8-7 | 보기 병합 | 다른 열·기간을 보기로 보존 |
-| 세계 | world-book-3-5 | world-book-9-8 | 보기 병합 | 다른 열·기간을 보기로 보존 |
-| 세계 | world-book-3-5 | world-book-10-7 | 보기 병합 | 다른 열·기간을 보기로 보존 |
 | 세계 | world-population-compare | world-birth-death | 삭제 | 대륙 출생·사망은 비교 표에 이미 있고 비교 표의 국가 행이 더 많음 |
 | 세계 | world-population-history | world-book-4-2 | 보기 병합 | 다른 열·기간을 보기로 보존 |
 | 세계 | world-migration-history | world-book-4-7 | 보기 병합 | 다른 열·기간을 보기로 보존 |
@@ -59,7 +55,7 @@
 | 세계 | world-book-7-2 | world-book-9-2 | 보기 병합 | 다른 열·기간을 보기로 보존 |
 | 세계 | world-book-7-2 | world-book-10-2 | 보기 병합 | 다른 열·기간을 보기로 보존 |
 
-## 남긴 후보 (49)
+## 남긴 후보 (51)
 
 | 과목·주제 | 표 1 | 표 2 | 행 겹침 | 공통 열 | 판단 |
 | --- | --- | --- | ---: | --- | --- |
@@ -73,6 +69,7 @@
 | 세계 population | world-population-history | world-migration-history | 100% | 1950년, 1970년, 1990년, 2010년, 2020년, 2025년, 1990, 2000, 2010, 2023 | 인구 규모와 순 이동은 서로 다른 지표 |
 | 세계 population | world-migrant-origins | world-book-4-8 | 100% | 이주자수 | 순위 이름만 같음; 품목과 지표 정의가 달라 별도 유지 |
 | 세계 population | world-book-4-8 | world-book-4-11 | 100% | 인구대비 | 순위 이름만 같음; 품목과 지표 정의가 달라 별도 유지 |
+| 세계 population | world-book-4-10 | world-book-4-14 | 100% | 아시아, 아프리카, 유럽, 라틴아메리카, 앵글로아메리카, 오세아니아 | 지역 행과 일부 열 이름이 같지만 지표·집계 범위가 달라 별도 유지 |
 | 세계 food | world-world-crops | world-book-5-2 | 100% | 생산량, 재배면적 | 지역 행과 일부 열 이름이 같지만 지표·집계 범위가 달라 별도 유지 |
 | 세계 food | world-crop-yield-trade | world-book-5-2 | 100% | 단위면적당생산량, 수출비율 | 지역 행과 일부 열 이름이 같지만 지표·집계 범위가 달라 별도 유지 |
 | 세계 food | world-crop-use | world-book-5-2 | 100% | 식용, 사료용, 기타 | 지역 행과 일부 열 이름이 같지만 지표·집계 범위가 달라 별도 유지 |
@@ -97,6 +94,7 @@
 | 세계 food | world-book-5-10 | world-book-5-11 | 100% | 생산량, 비율 | 순위 이름만 같음; 품목과 지표 정의가 달라 별도 유지 |
 | 세계 food | world-book-5-10 | world-book-5-12 | 100% | 생산량, 비율 | 순위 이름만 같음; 품목과 지표 정의가 달라 별도 유지 |
 | 세계 food | world-book-5-11 | world-book-5-12 | 100% | 생산량, 비율 | 순위 이름만 같음; 품목과 지표 정의가 달라 별도 유지 |
+| 세계 energy | world-energy-compare | world-book-6-16 | 100% | 기타, 발전량 | 공급·소비·발전의 분모와 단위가 달라 별도 유지 |
 | 세계 energy | world-global-primary-energy | world-book-6-9 | 100% | 석유, 석탄, 천연가스, 원자력, 수력, 신·재생 | 공급·소비·발전의 분모와 단위가 달라 별도 유지 |
 | 세계 energy | world-global-primary-energy | world-book-6-19 | 100% | 석유, 석탄, 천연가스, 원자력, 수력, 신·재생 | 공급·소비·발전의 분모와 단위가 달라 별도 유지 |
 | 세계 energy | world-renewable-generation-rank | world-book-6-8 | 100% | 발전량 | 순위 이름만 같음; 품목과 지표 정의가 달라 별도 유지 |

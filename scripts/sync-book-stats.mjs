@@ -144,6 +144,7 @@ function flatten(table, patch, subject, correction) {
   }
   for (const section of table.sections || []) {
     const sectionName = patch.sections?.[section.label] || correction.sectionLabels?.[section.label] || section.label;
+    if (patch.dropSections?.includes(section.label) || patch.dropSections?.includes(sectionName)) continue;
     for (const row of section.rows || []) add(row, sectionName);
     for (const group of section.groups || []) {
       if (patch.dropGroups?.includes(group.label) || patch.dropGroups?.includes(patch.groups?.[group.label])) continue;
