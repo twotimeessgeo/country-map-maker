@@ -1,7 +1,7 @@
 // Source of ds/merid-3d.js. Rebuild: npx esbuild scripts/merid-3d.src.js --bundle --minify --format=iife --target=es2020 --legal-comments=none --outfile=ds/merid-3d.js  (needs three@0.170)
 /* Home: the armillary sundial (ds/armillary.glb) in polished steel on black.
    three.js + GLTFLoader and a small strip-light studio for reflections, bundled into one file (ds/merid-3d.js).
-   A camera flight in, then still at the Meridian cover angle, mirrored so the needle points up to the right; drag turns the rings about the rod; no entrance with reduced motion. */
+   A camera swoop in, then still at the Meridian cover angle, mirrored so the needle points up to the right; drag turns the rings about the rod; no entrance with reduced motion. */
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
@@ -32,8 +32,8 @@ function start(host) {
     const q = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
     q.position.set(x, y, z); q.lookAt(0, 0, 0); q.rotateZ(rz || 0); studio.add(q);
   };
-  lamp(0.5, 9, -4.5, 1.5, 3.5, 0, 0, 5.5);     // tall strip, front left
-  lamp(0.35, 9, 5, 1, 2.5, 0, 0, 3.5);         // tall strip, front right
+  lamp(0.5, 9, -4.5, 1.5, 3.5, 0, 0, 7.5);     // tall strip, front left
+  lamp(0.35, 9, 5, 1, 2.5, 0, 0, 5);           // tall strip, front right
   lamp(0.3, 10, 1.5, 0, -6, 0, 0, 2.5);        // back strip for rims
   lamp(6, 3, 0, 6.5, 1.5, 0, 0, 2.2);          // overhead softbox
   lamp(9, 0.25, 0, -1.2, 6, 0, 0, 1.4);        // low horizontal line
@@ -49,10 +49,10 @@ function start(host) {
   const EFFECT = { none: 0, grain: 1, stipple: 2, bayer: 3 }[host.dataset.effect || "stipple"] ?? 2;
   const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 });
   const post = new THREE.ShaderMaterial({
-    uniforms: { tScene: { value: rt.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uDpr: { value: 1 }, uSeed: { value: 0 }, uMode: { value: EFFECT }, uExposure: { value: 1.05 }, uFloor: { value: -1 }, uFade: { value: .3 }, uReveal: { value: 1 } },
+    uniforms: { tScene: { value: rt.texture }, uRes: { value: new THREE.Vector2(1, 1) }, uDpr: { value: 1 }, uSeed: { value: 0 }, uMode: { value: EFFECT }, uExposure: { value: 1.05 }, uFloor: { value: -1 }, uFade: { value: .3 }, uGlint: { value: -9 } },
     vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0., 1.); }",
     fragmentShader: `precision highp float; varying vec2 vUv;
-      uniform sampler2D tScene; uniform vec2 uRes; uniform float uDpr, uSeed, uExposure, uFloor, uFade, uReveal; uniform int uMode;
+      uniform sampler2D tScene; uniform vec2 uRes; uniform float uDpr, uSeed, uExposure, uFloor, uFade, uGlint; uniform int uMode;
       vec3 aces(vec3 x){ return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.); }
       float hash(vec2 p){ p = fract(p*vec2(123.34, 456.21) + uSeed); p += dot(p, p+45.32); return fract(p.x*p.y); }
       float bayer(vec2 p){ vec2 q = mod(p, 4.);
@@ -66,15 +66,11 @@ function start(host) {
         if (vUv.y < uFloor) L *= .5 * (1. - smoothstep(0., uFade, uFloor - vUv.y));
         vec2 cell = floor(gl_FragCoord.xy / max(1., floor(uDpr+.25)));   // one dot per CSS pixel
         float o = L;
-        // entrance: the print develops from the spike down, a ragged bright front leading the dots in
-        if (uReveal < 1.) {
-          float n = hash(floor(gl_FragCoord.xy / 6.) + 7.1);
-          float front = 1.15 - uReveal * 1.35 + n * .08;      // screen height of the front, falling from above the top to below the bottom
-          float d = vUv.y - front;                            // > 0: already developed
-          L = d < 0. ? 0. : L * smoothstep(0., .12, d) + (1. - smoothstep(0., .035, d)) * L * 2.2;
-        }
+        // entrance: a sheen runs diagonally across the steel as it lands; only lit metal catches it
+        float g = (vUv.x * uRes.x / uRes.y + vUv.y) * .5 - uGlint;
+        L += exp(-g * g / .0022) * smoothstep(.04, .35, L) * 1.1;
         if (L < .012) { gl_FragColor = vec4(0.,0.,0.,1.); return; }   // pure black stays black: no stray dots
-        if (uMode == 2) o = step(hash(cell), pow(L, 1.15) * 1.08);
+        if (uMode == 2) o = step(hash(cell), pow(L, 1.35) * 1.28);
         else if (uMode == 3) o = step(bayer(cell), L);
         else if (uMode == 1) o = clamp(L + (hash(cell) - .5) * .09, 0., 1.);
         gl_FragColor = vec4(vec3(o), 1.);
@@ -169,7 +165,7 @@ function start(host) {
     let cut = Infinity; pts.forEach((p, i) => { if (!isRod[i]) cut = Math.min(cut, along(p)); });
     const keepTop = pts.map((p, i) => !isRod[i] || along(p) >= cut);
     const box = () => ({ minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
-    const e = { all: box(), top: box(), foot: { y: Infinity, x: 0 }, minPivotY: Infinity };
+    const e = { all: box(), top: box(), foot: { y: Infinity, x: 0 }, minPivotY: Infinity, footPts: [] };
     const grow = (b, p) => { b.minX = Math.min(b.minX, p.x); b.maxX = Math.max(b.maxX, p.x); b.minY = Math.min(b.minY, p.y); b.maxY = Math.max(b.maxY, p.y); };
     const toP = new THREE.Matrix4();
     for (let k = 0; k < 36; k++) {
@@ -179,6 +175,10 @@ function start(host) {
         else if (v.y < e.foot.y) { e.foot.y = v.y; e.foot.x = v.x; }
         e.minPivotY = Math.min(e.minPivotY, v.applyMatrix4(toP).y); });
     }
+    // the last stretch of the rod at its foot, in world space (the rod turns about itself, so one turn is enough)
+    let low = Infinity, high = -Infinity; pts.forEach((p, i) => { if (isRod[i]) { low = Math.min(low, along(p)); high = Math.max(high, along(p)); } });
+    setSpin(0); flip.updateMatrixWorld(true);
+    pts.forEach((p, i) => { if (isRod[i] && along(p) < low + (high - low) * 0.06 && e.footPts.length < 60) e.footPts.push(p.clone().applyMatrix4(orient.matrixWorld)); });
     spin.quaternion.copy(keep); mSpin.quaternion.copy(keep); flip.updateMatrixWorld(true);
     return e;
   }
@@ -198,7 +198,7 @@ function start(host) {
   const FOV = 12;
   function applyCamera() {                          // the resting (hero) camera
     if (!frame) return;
-    camera.fov = FOV; camera.position.set(frame.xc, frame.yc, frame.dist); camera.lookAt(frame.xc, frame.yc, 0);
+    camera.fov = FOV; camera.up.set(0, 1, 0); camera.position.set(frame.xc, frame.yc, frame.dist); camera.lookAt(frame.xc, frame.yc, 0);
     camera.clearViewOffset(); camera.updateProjectionMatrix();
   }
   function fit() {
@@ -243,12 +243,12 @@ function start(host) {
 
   // motion: one entrance, then it holds still. Drag turns the rings about the rod (with a little glide); it never spins on its own.
   //   Reduced motion: the resting view, straight away.
-  const INTRO = +host.dataset.introMs || 3000;
+  const INTRO = +host.dataset.introMs || 2200;
   let turn = +host.dataset.turn || 0, vel = 0, drag = null, last = 0, raf = 0, visible = true, t0 = 0, introDone = reduced, shot = null;
-  const ease = t => t * t * t * (t * (t * 6 - 15) + 10);                      // smootherstep: eases in and out
   const settle = t => 1 - Math.pow(1 - t, 4);
+  let shown = turn;                                   // the turn on screen: the rest turn, or the entrance's spin-down into it
   function draw() {
-    setSpin(turn);
+    setSpin(introDone ? turn : shown);
     renderer.setRenderTarget(rt); renderer.render(scene, camera);
     renderer.setRenderTarget(null); renderer.render(postScene, postCam);
   }
@@ -257,18 +257,16 @@ function start(host) {
     let busy = false;
     if (!introDone) {
       t0 = t0 || ts;
-      // entrance (3 s), one continuous flight: from a macro shot of the needle tip, down the shaft
-      // past the hub, out through a wide arc around the rings, and back to the resting view.
-      // The lens widens then closes (a slow dolly zoom), and the light sweeps across the steel.
+      // entrance (2.2 s): the camera swoops in from far off and high to one side, orbiting down onto the resting view,
+      // while the rings spin down into place about the rod and a sheen runs across the steel.
       if (!shot) shot = flight();
-      const k = Math.max(0, Math.min(1, (ts - t0) / INTRO)), u = ease(k);   // rAF time can trail the first call
-      camera.position.copy(shot.pos.getPoint(u));
-      camera.lookAt(shot.tgt.getPoint(u));
-      camera.fov = shot.fov(u);
-      camera.clearViewOffset(); camera.updateProjectionMatrix();
+      const k = host.dataset.introAt ? +host.dataset.introAt : Math.max(0, Math.min(1, (ts - t0) / INTRO));   // rAF time can trail the first call; data-intro-at holds one moment (for checking)
+      shot.at(k);
+      shown = turn + shot.spin * Math.pow(1 - k, 3);
       scene.environmentRotation.y = -2.4 * SIDE * (1 - settle(k));
-      post.uniforms.uExposure.value = 1.05 * Math.min(1, k * 5);        // up from black in the first ~0.6 s
-      if (k >= 1) { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; applyCamera(); }
+      post.uniforms.uExposure.value = 1.05 * Math.min(1, k * 6);        // up from black in the first ~0.35 s
+      post.uniforms.uGlint.value = -0.3 + k * 1.9;
+      if (k >= 1) { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; post.uniforms.uGlint.value = -9; applyCamera(); }
       busy = true;
     } else if (!drag && Math.abs(vel) > 0.002) {
       turn += vel * dt; vel *= Math.pow(0.04, dt); busy = true;        // glide after a drag, then stop
@@ -279,29 +277,31 @@ function start(host) {
   }
   function resume() { cancelAnimationFrame(raf); last = 0; if (model) raf = requestAnimationFrame(loop); }
   if (!reduced) post.uniforms.uExposure.value = 0;
-  // the path, in world space, for the current layout
+  // the path, in world space, for the current layout: an orbit about the resting view's target that closes in on it.
+  // On wide screens the rod's foot must stay off screen the whole way, so the frame rises whenever the foot would show.
   function flight() {
-    setSpin(turn); flip.updateMatrixWorld(true);
-    const rod = model.getObjectByName("Rod"), hubN = model.getObjectByName("Hub_N");
-    const b = portrait ? ext.all : ext.top;
-    const tip = rod ? rod.localToWorld(new THREE.Vector3(0, 2.05, 0)) : new THREE.Vector3(frame.xc, b.maxY, 0);
-    const hub = hubN ? hubN.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(frame.xc, frame.yc, 0);
-    const kw = Math.min(2.6, Math.max(1, 1.2 * frame.h / frame.w));   // a tall screen sees far less sideways: pull the wide arc out
-    const R = (b.maxX - b.minX) / 2, X = frame.xc;
-    const end = new THREE.Vector3(X, frame.yc, frame.dist), endT = new THREE.Vector3(X, frame.yc, 0);
-    const pos = new THREE.CatmullRomCurve3([
-      tip.clone().add(new THREE.Vector3(-0.35 * SIDE, -0.25, 0.55)),  // macro on the tip, looking up it
-      hub.clone().add(new THREE.Vector3(-0.9 * SIDE, 0.35, 1.1)),     // down along the shaft to the hub
-      new THREE.Vector3(X + R * 2.6 * kw * SIDE, hub.y + R * 0.6, R * 3.2 * kw),   // out wide, round the far side of the rings
-      new THREE.Vector3(X + R * 1.2 * kw * SIDE, frame.yc + R * 0.3, frame.dist * 0.55),
-      end,
-    ], false, "centripetal");
-    const tgt = new THREE.CatmullRomCurve3([tip.clone(), tip.clone().lerp(hub, 0.7), hub.clone(), endT.clone().lerp(hub, 0.3), endT], false, "centripetal");
-    const fov = u => u < 0.35 ? THREE.MathUtils.lerp(38, 30, u / 0.35) : u < 0.7 ? THREE.MathUtils.lerp(30, 22, (u - 0.35) / 0.35) : THREE.MathUtils.lerp(22, FOV, Math.pow((u - 0.7) / 0.3, 0.7));
-    return { pos, tgt, fov };
+    const T = new THREE.Vector3(frame.xc, frame.yc, 0), D = frame.dist, P = new THREE.Vector3(), L = new THREE.Vector3(), q = new THREE.Vector3();
+    const b = portrait ? ext.all : ext.top, C = new THREE.Vector3((b.minX + b.maxX) / 2, (b.minY + b.maxY) / 2, 0);
+    const az0 = 1.4 * SIDE, el0 = 0.6, r0 = 2.8, roll0 = -0.22 * SIDE;
+    // the push-in lands fast (quartic ease-out); the orbit and roll take the whole run (quadratic), so the swing stays on screen
+    const at = k => {
+      const u = 1 - Math.pow(1 - k, 4), s = Math.pow(1 - k, 2);
+      const az = az0 * s, el = el0 * s, r = D * (1 + (r0 - 1) * (1 - u));
+      L.copy(C).lerp(T, 1 - s);
+      P.set(Math.sin(az) * Math.cos(el), Math.sin(el), Math.cos(az) * Math.cos(el)).multiplyScalar(r).add(L);
+      camera.position.copy(P); camera.up.set(Math.sin(roll0 * s), Math.cos(roll0 * s), 0); camera.lookAt(L);
+      camera.fov = FOV; camera.clearViewOffset(); camera.updateProjectionMatrix();
+      if (portrait || !ext.footPts.length) return;
+      camera.updateMatrixWorld();
+      let top = -Infinity;
+      for (const p of ext.footPts) { q.copy(p).project(camera); if (Math.abs(q.x) < 1.05) top = Math.max(top, q.y); }
+      const drop = top + 1.06;                      // how far the foot sits above the bottom edge, in NDC, with a margin
+      if (drop > 0) { camera.setViewOffset(frame.w, frame.h, 0, -drop * frame.h / 2, frame.w, frame.h); camera.updateProjectionMatrix(); }   // raise the window: the sculpture sinks until the foot is below the edge
+    };
+    return { at, spin: -2.2 * SIDE };
   }
   let px = 0, pt = 0;
-  canvas.addEventListener("pointerdown", e => { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; applyCamera();
+  canvas.addEventListener("pointerdown", e => { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; post.uniforms.uGlint.value = -9; applyCamera();
     drag = { x: e.clientX, a: turn }; px = e.clientX; pt = performance.now(); vel = 0; canvas.setPointerCapture(e.pointerId); canvas.classList.add("is-dragging"); resume(); });
   canvas.addEventListener("pointermove", e => { if (!drag) return;
     const now = performance.now(), na = drag.a + (e.clientX - drag.x) * 0.006;
