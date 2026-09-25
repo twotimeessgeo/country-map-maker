@@ -10,21 +10,26 @@
     <link rel="stylesheet" href="./ds/tokens.css?v=ds31p" />
     <link rel="stylesheet" href="./ds/base.css?v=ds31p" />
     <link rel="stylesheet" href="./ds/components.css?v=ds31p" />
-    <link rel="stylesheet" href="./portal.css?v=merid3" />
+    <link rel="stylesheet" href="./portal.css?v=merid5" />
   </head>
   <body class="portal-home">
     <header class="home-header" id="homeHeader">
-      <nav class="home-links" id="homeLinks" aria-label="Promenade Geography">
-        <a class="tw-button is-sm home-link" href="./tools/climate/index.html" lang="en">Climate Atlas</a>
-        <a class="tw-button is-sm home-link" href="./tools/stats/index.html" lang="en">Statistics</a>
-        <a class="tw-button is-sm home-link" href="./tools/cut/index.html" lang="en">Archive</a>
-        <a class="tw-button is-sm home-link" href="./notes/index.html" lang="en">Notes</a>
-      </nav>
+      <div class="home-bar-inner">
+        <h1 class="home-brand" id="homeBrand" lang="en">Promenade</h1>
+      </div>
     </header>
     <main class="home-main">
-      <img class="home-merid" src="./ds/merid.png?v=1" width="723" height="1219" alt="자오선 조형물" decoding="async" fetchpriority="high" />
-      <h1 class="home-brand" id="homeBrand" lang="en">Promenade</h1>
+      <div class="home-art">
+        <span class="home-meridian" aria-hidden="true"></span>
+        <img class="home-merid" src="./ds/merid.png?v=1" width="723" height="1219" alt="자오선 조형물" decoding="async" fetchpriority="high" />
+      </div>
+      <nav class="home-index" id="homeLinks" aria-label="Promenade Geography">
+        <a href="./tools/climate/index.html" lang="en"><i>01</i><span>Climate Atlas</span></a>
+        <a href="./tools/stats/index.html" lang="en"><i>02</i><span>Statistics</span></a>
+        <a href="./tools/cut/index.html" lang="en"><i>03</i><span>Archive</span></a>
+        <a href="./notes/index.html" lang="en"><i>04</i><span>Notes</span></a>
+      </nav>
     </main>
-    <script src="./portal.js?v=merid2" defer></script>
+    <script src="./portal.js?v=merid4" defer></script>
   </body>
 </html>
