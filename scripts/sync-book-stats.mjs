@@ -160,6 +160,7 @@ function convert(table, subject, correction) {
   if (subject === "korea" && table.id.startsWith("1-") && table.id !== "1-8") return { skip: "기후 관측값은 Climate 도구 대상" };
   if (subject === "world" && table.id.startsWith("1-")) return { skip: "기후 관측값은 Climate 도구 대상" };
   if (subject === "world" && table.id === "6-20") return { skip: "광물 매장량의 공통 기준 연도가 명시되지 않음" };
+  if ((table.sources || []).some(source => /\bEBS\b/.test(source.institution || ""))) return { skip: "EBS 자료를 옮긴 표는 사이트에 싣지 않음" };
   const title = replaceText(patch.title || table.title, correction.titleReplace);
   const rowLabel = (patch.rowLabel || table.rowLabel || "지역")
     .replaceAll("시·군·구", "시군구").replaceAll("시·도", "시도").replaceAll("시·군", "시군");
