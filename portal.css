@@ -14,10 +14,11 @@ body.portal-home .tw-nav-link:hover { background: var(--tw-surface); }
 .home-3d { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: grab; touch-action: pan-y; transition: opacity 1200ms var(--tw-ease-out); }
 .home-3d.is-live { opacity: 1; }
 .home-3d.is-dragging { cursor: grabbing; }
-.home-stage.has-3d @keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
 @media (max-width: 719px) {
   .home-main { min-height: 460px; }
   }
 @media (prefers-reduced-motion: reduce) {
   #homeBrand.is-intro > span > span { animation: none; }
-  .home-3d, }
+  .home-3d { transition: none; }
+}

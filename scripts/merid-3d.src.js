@@ -1,7 +1,7 @@
 // Source of ds/merid-3d.js. Rebuild: npx esbuild scripts/merid-3d.src.js --bundle --minify --format=iife --target=es2020 --legal-comments=none --outfile=ds/merid-3d.js  (needs three@0.170)
 /* Home: the armillary sundial (ds/armillary.glb) in polished steel on black.
    three.js + GLTFLoader and a small strip-light studio for reflections, bundled into one file (ds/merid-3d.js).
-   An entrance, then still; drag to turn a little; no entrance with reduced motion; the stipple drawing stays as the fallback. */
+   A camera flight in, then still at the Meridian cover angle; drag turns the rings about the rod; no entrance with reduced motion. */
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
@@ -87,11 +87,15 @@ function start(host) {
   renderer.toneMapping = THREE.NoToneMapping;       // tone mapping happens in the post pass
   if (EFFECT >= 2) canvas.classList.add("is-dither");
 
-  // tilt (the pose) > pivot (the turn, about the sculpture's own vertical) > orient > model (+ its mirror twin on phones)
-  const tilt = new THREE.Group(), pivot = new THREE.Group(), orient = new THREE.Group();
-  scene.add(tilt); tilt.add(pivot); pivot.add(orient);
+  // tilt (the pose) > pivot (the quarter it is seen from) > spin (the turn, about the polar rod itself) > orient > model.
+  // Turning about the rod keeps the needle where the Meridian drawing puts it: only the rings swing round it, like the sky round the pole.
+  const tilt = new THREE.Group(), pivot = new THREE.Group(), spin = new THREE.Group(), orient = new THREE.Group();
+  scene.add(tilt); tilt.add(pivot); pivot.add(spin); spin.add(orient);
   let portrait = null;
   const TILT_X = 0.35, TILT_Z = -0.28;   // the resting pose: the angle of the Meridian cover drawing
+  const POSE = host.dataset.pose ? +host.dataset.pose : 1.2;
+  pivot.rotation.y = POSE;
+  const axisP = new THREE.Vector3(), axisD = new THREE.Vector3(0, 1, 0);   // the rod's line, in orient space
 
   const steel = new THREE.MeshStandardMaterial({ color: 0xf4f5f7, metalness: 1, roughness: 0.035 });
   const band = new THREE.MeshStandardMaterial({ color: 0xeef0f2, metalness: 1, roughness: 0.07 });
@@ -109,9 +113,11 @@ function start(host) {
     sh.fragmentShader = "varying vec3 vWp; uniform vec4 uPlane; uniform float uFadeLen;\n" + sh.fragmentShader.replace("#include <dithering_fragment>",
       "#include <dithering_fragment>\nfloat dd = -(dot(uPlane.xyz, vWp) + uPlane.w);\ngl_FragColor.rgb *= .45 * pow(1. - smoothstep(0., uFadeLen, dd), 1.6);");
   };
+  // phones: the mirror twin turns with the sculpture but is reflected across the fixed floor
+  const mSpin = new THREE.Group(), mOrient = new THREE.Group(); mirror.add(mSpin); mSpin.add(mOrient);
   let floorY = 0;
 
-  let model = null, size = new THREE.Vector3(), ext = null;
+  let model = null, size = new THREE.Vector3(), ext = null, rodMesh = null;
   new GLTFLoader().load(host.dataset.armillary, gltf => {
     model = gltf.scene;
     const drop = [];
@@ -123,32 +129,54 @@ function start(host) {
     drop.forEach(o => o.parent.remove(o));
     const box = new THREE.Box3().setFromObject(model);
     box.getSize(size); const c = box.getCenter(new THREE.Vector3());
-    model.position.sub(c);                       // turn about the sculpture's own centre
+    model.position.sub(c);
     floorY = -c.y;                               // Blender's ground (z = 0) after centring
     orient.add(model);
+    model.updateMatrixWorld(true);
+    const rod = model.getObjectByName("Rod");
+    if (rod) {                                   // the rod's axis in orient space
+      const toO = new THREE.Matrix4().copy(orient.matrixWorld).invert().multiply(rod.matrixWorld);
+      axisP.set(0, 0, 0).applyMatrix4(toO); axisD.set(0, 1, 0).applyMatrix4(toO).sub(axisP).normalize();
+      rod.traverse(o => { if (o.isMesh) rodMesh = rodMesh || o; });
+    }
+    spin.position.copy(axisP); orient.position.copy(axisP).negate();
     const twin = model.clone(true);
     twin.traverse(o => { if (o.isMesh) o.material = o.material === band ? mBand : mSteel; });
-    mirror.add(twin); mirror.scale.y = -1; mirror.position.y = 2 * floorY; orient.add(mirror);
+    mOrient.add(twin); mSpin.position.copy(spin.position); mOrient.position.copy(orient.position);
+    mirror.scale.y = -1; mirror.position.y = 2 * floorY; pivot.add(mirror);
     fit();
     host.appendChild(canvas);
     requestAnimationFrame(() => { canvas.classList.add("is-live"); host.classList.add("has-3d"); });
     loop(performance.now());
   }, undefined, () => {});
 
-  // the spike sits near the top; the foot always runs past the bottom edge (desktop and phone)
-  // extents sampled over a full turn: lowest and highest point, widest reach left or right of the centre
+  // extents on screen, sampled over a full turn about the rod (the camera looks straight down -z, so screen = world x, y).
+  //   all: every point (phones, where the whole sculpture stands on its floor)
+  //   top: everything but the lower rod — the rod below the lowest ring may run off the bottom edge
+  //   foot: the rod's lower end, which must always stay off screen on wide layouts
+  function setSpin(a) { spin.quaternion.setFromAxisAngle(axisD, a); mSpin.quaternion.copy(spin.quaternion); }
   function measure() {
-    const pts = [], v = new THREE.Vector3();
-    tilt.updateMatrixWorld(true);
-    model.traverse(o => { if (!o.isMesh) return; const pos = o.geometry.attributes.position;
-      for (let i = 0; i < pos.count; i += 3) pts.push(v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld).clone()); });
-    const inv = new THREE.Matrix4().copy(pivot.matrixWorld).invert(), local = pts.map(p => p.clone().applyMatrix4(inv));
-    const e = { minY: Infinity, maxY: -Infinity, r: 0 }, m = new THREE.Matrix4(), keep = pivot.rotation.y;
-    for (let k = 0; k < 24; k++) {
-      pivot.rotation.y = k / 24 * Math.PI * 2; tilt.updateMatrixWorld(true); m.copy(pivot.matrixWorld);
-      for (const q of local) { v.copy(q).applyMatrix4(m); e.minY = Math.min(e.minY, v.y); e.maxY = Math.max(e.maxY, v.y); e.r = Math.max(e.r, Math.abs(v.x)); }
+    const keep = spin.quaternion.clone(), v = new THREE.Vector3(), q = new THREE.Vector3();
+    setSpin(0); tilt.updateMatrixWorld(true);
+    const toO = new THREE.Matrix4().copy(orient.matrixWorld).invert();
+    const pts = [], isRod = [];
+    model.traverse(o => { if (!o.isMesh) return; const pos = o.geometry.attributes.position, rodPart = o === rodMesh || /rod/i.test(o.name);
+      for (let i = 0; i < pos.count; i += 2) { pts.push(v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld).applyMatrix4(toO).clone()); isRod.push(rodPart); } });
+    const along = p => q.copy(p).sub(axisP).dot(axisD);
+    let cut = Infinity; pts.forEach((p, i) => { if (!isRod[i]) cut = Math.min(cut, along(p)); });
+    const keepTop = pts.map((p, i) => !isRod[i] || along(p) >= cut);
+    const box = () => ({ minX: Infinity, maxX: -Infinity, minY: Infinity, maxY: -Infinity });
+    const e = { all: box(), top: box(), foot: { y: Infinity, x: 0 }, minPivotY: Infinity };
+    const grow = (b, p) => { b.minX = Math.min(b.minX, p.x); b.maxX = Math.max(b.maxX, p.x); b.minY = Math.min(b.minY, p.y); b.maxY = Math.max(b.maxY, p.y); };
+    const toP = new THREE.Matrix4();
+    for (let k = 0; k < 36; k++) {
+      setSpin(k / 36 * Math.PI * 2); tilt.updateMatrixWorld(true);
+      const m = orient.matrixWorld; toP.copy(pivot.matrixWorld).invert();
+      pts.forEach((p, i) => { v.copy(p).applyMatrix4(m); grow(e.all, v); if (keepTop[i]) grow(e.top, v);
+        else if (v.y < e.foot.y) { e.foot.y = v.y; e.foot.x = v.x; }
+        e.minPivotY = Math.min(e.minPivotY, v.applyMatrix4(toP).y); });
     }
-    pivot.rotation.y = keep; tilt.updateMatrixWorld(true);
+    spin.quaternion.copy(keep); mSpin.quaternion.copy(keep); tilt.updateMatrixWorld(true);
     return e;
   }
   // wide screens: the Meridian cover angle (looking down on it, the frame rolled so the needle leans left).
@@ -157,8 +185,8 @@ function start(host) {
     if (phone === portrait) return; portrait = phone;
     tilt.rotation.set(+host.dataset.tilt || TILT_X, 0, phone ? 0 : (host.dataset.roll ? +host.dataset.roll : TILT_Z));
     tilt.updateMatrixWorld(true);
-    // the floor (Blender's ground) in world space; it only depends on the tilt, since the turn is about its normal
-    const n = new THREE.Vector3(0, 1, 0).applyQuaternion(tilt.quaternion), p = new THREE.Vector3(0, floorY, 0).applyMatrix4(tilt.matrixWorld);
+    // the floor (Blender's ground) in world space; it only depends on the tilt and the quarter, not on the turn
+    const n = new THREE.Vector3(0, 1, 0).transformDirection(pivot.matrixWorld), p = new THREE.Vector3(0, floorY, 0).applyMatrix4(pivot.matrixWorld);
     above.setFromNormalAndCoplanarPoint(n, p); below.setFromNormalAndCoplanarPoint(n.clone().negate(), p);
     uPlane.value.set(above.normal.x, above.normal.y, above.normal.z, above.constant);
     ext = measure();
@@ -167,9 +195,8 @@ function start(host) {
   const FOV = 12;
   function applyCamera() {                          // the resting (hero) camera
     if (!frame) return;
-    camera.fov = FOV; camera.position.set(0, frame.yc, frame.dist); camera.lookAt(0, frame.yc, 0);
-    camera.clearViewOffset(); if (frame.cx) camera.setViewOffset(frame.w, frame.h, -frame.w * frame.cx, 0, frame.w, frame.h);
-    camera.updateProjectionMatrix();
+    camera.fov = FOV; camera.position.set(frame.xc, frame.yc, frame.dist); camera.lookAt(frame.xc, frame.yc, 0);
+    camera.clearViewOffset(); camera.updateProjectionMatrix();
   }
   function fit() {
     const r = host.getBoundingClientRect();
@@ -182,43 +209,42 @@ function start(host) {
     if (!model) return;
     const phone = w / h < 0.8, aspect = w / h;
     setPose(phone);
-    const cx = phone ? 0 : 0.10;                  // model centre sits 10% right of the middle on wide screens
-    let vis, yc;
-    // phones: the whole sculpture stands on a mirror floor; the reflection fills the lower part of the tall screen
     mirror.visible = phone;
     const clip = phone ? [above] : [], clipM = phone ? [below] : [];
     for (const m of [steel, band]) { m.clippingPlanes = clip; m.needsUpdate = true; }
     for (const m of [mSteel, mBand]) { m.clippingPlanes = clipM; m.needsUpdate = true; }
+    // a long lens is nearly flat, but the nearest ring still grows a little: keep a small margin on every side
+    let vis, xc, yc;
     if (phone) {
-      const up = ext.maxY - ext.minY;
-      uFadeLen.value = up * 0.5;                         // the reflection is gone a little over half the sculpture's height down
-      const needW = (ext.r * 1.04) / (0.5 * aspect);
-      vis = Math.max(up * 1.52, needW);                  // the sculpture, its fading reflection, and a margin
-      const top = ext.maxY + up * 0.06;
-      yc = top - vis / 2;
-      post.uniforms.uFloor.value = -1;
+      // the whole sculpture stands on its black mirror floor; the reflection fills the lower part of the tall screen
+      const a = ext.all, up = a.maxY - a.minY;
+      uFadeLen.value = up * 0.5;
+      vis = Math.max(up * 1.52, (a.maxX - a.minX) * 1.1 / aspect);
+      xc = (a.minX + a.maxX) / 2;
+      yc = a.maxY + up * 0.05 - vis / 2;
     } else {
-      const H = ext.maxY - ext.minY, cut = H * 0.06;     // only the very foot runs below the bottom edge
-      // tall enough for spike + margin; wide enough that the widest ring never leaves the sides, whatever the turn
-      vis = Math.max((H - cut) * 1.10, (ext.r * 1.12) / ((0.5 - cx) * aspect));
-      yc = ext.minY + cut + vis / 2;                     // bottom edge fixed above the foot; any spare room goes to the top
-      post.uniforms.uFloor.value = -1;
+      // as large as the stage allows with nothing cut, whichever way it has been turned; the rod's foot always stays below the edge
+      const t = ext.top, H = t.maxY - t.minY, m = 0.045;
+      vis = Math.max(H * (1 + 2 * m), (t.maxX - t.minX) * (1 + 2 * m) / aspect);
+      xc = (t.minX + t.maxX) / 2;
+      const hi = t.minY - H * m, lo = Math.max(t.maxY + H * m - vis, ext.foot.y + vis * 0.03);
+      yc = Math.min(hi, Math.max(lo, (t.minY + t.maxY) / 2 - vis / 2)) + vis / 2;   // centred, unless that would show the foot
     }
-    frame = { dist: vis / 2 / Math.tan(THREE.MathUtils.degToRad(FOV / 2)), yc, cx, w, h };
+    post.uniforms.uFloor.value = -1;
+    frame = { dist: vis / 2 / Math.tan(THREE.MathUtils.degToRad(FOV / 2)), xc, yc, w, h };
     if (introDone) applyCamera(); else shot = null;   // mid-entrance: rebuild the flight for the new size
     draw();
   }
   new ResizeObserver(fit).observe(host);
 
-  // motion: one entrance, then it holds still. Drag turns it (with a little glide); it never spins on its own.
-  //   entrance (2.8 s): the light sweeps across the steel while the sculpture turns a third of the way into its pose
-  //   and the exposure rises out of black. Reduced motion: the pose, straight away.
-  const POSE = host.dataset.pose ? +host.dataset.pose : 1.2, INTRO = +host.dataset.introMs || 4600;
-  let yaw = POSE, vel = 0, drag = null, last = 0, raf = 0, visible = true, t0 = 0, introDone = reduced, shot = null;
+  // motion: one entrance, then it holds still. Drag turns the rings about the rod (with a little glide); it never spins on its own.
+  //   Reduced motion: the resting view, straight away.
+  const INTRO = +host.dataset.introMs || 4600;
+  let turn = +host.dataset.turn || 0, vel = 0, drag = null, last = 0, raf = 0, visible = true, t0 = 0, introDone = reduced, shot = null;
   const ease = t => t * t * t * (t * (t * 6 - 15) + 10);                      // smootherstep: eases in and out
   const settle = t => 1 - Math.pow(1 - t, 4);
-  function draw(ts) {
-    pivot.rotation.y = yaw;
+  function draw() {
+    setSpin(turn);
     renderer.setRenderTarget(rt); renderer.render(scene, camera);
     renderer.setRenderTarget(null); renderer.render(postScene, postCam);
   }
@@ -235,36 +261,35 @@ function start(host) {
       camera.position.copy(shot.pos.getPoint(u));
       camera.lookAt(shot.tgt.getPoint(u));
       camera.fov = shot.fov(u);
-      const off = Math.pow(u, 3) * (frame?.cx || 0);
-      camera.clearViewOffset(); if (off && frame) camera.setViewOffset(frame.w, frame.h, -frame.w * off, 0, frame.w, frame.h);
-      camera.updateProjectionMatrix();
+      camera.clearViewOffset(); camera.updateProjectionMatrix();
       scene.environmentRotation.y = -2.4 * (1 - settle(k));
       post.uniforms.uExposure.value = 1.05 * Math.min(1, k * 5);        // up from black in the first ~0.9 s
       if (k >= 1) { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; applyCamera(); }
       busy = true;
     } else if (!drag && Math.abs(vel) > 0.002) {
-      yaw += vel * dt; vel *= Math.pow(0.04, dt); busy = true;        // glide after a drag, then stop
+      turn += vel * dt; vel *= Math.pow(0.04, dt); busy = true;        // glide after a drag, then stop
     }
     if (drag) busy = true;
-    draw(ts);
-    // keep rendering while moving; when still, only the stipple needs frames (its dots re-seed), and only while on screen
+    draw();
     if (visible && !document.hidden && busy) raf = requestAnimationFrame(loop);   // idle: no frames at all
   }
   function resume() { cancelAnimationFrame(raf); last = 0; if (model) raf = requestAnimationFrame(loop); }
   if (!reduced) post.uniforms.uExposure.value = 0;
   // the path, in world space, for the current layout
   function flight() {
-    pivot.rotation.y = yaw; tilt.updateMatrixWorld(true);
+    setSpin(turn); tilt.updateMatrixWorld(true);
     const rod = model.getObjectByName("Rod"), hubN = model.getObjectByName("Hub_N");
-    const tip = rod ? rod.localToWorld(new THREE.Vector3(0, 2.05, 0)) : new THREE.Vector3(0, ext.maxY, 0);
-    const hub = hubN ? hubN.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3();
+    const b = portrait ? ext.all : ext.top;
+    const tip = rod ? rod.localToWorld(new THREE.Vector3(0, 2.05, 0)) : new THREE.Vector3(frame.xc, b.maxY, 0);
+    const hub = hubN ? hubN.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(frame.xc, frame.yc, 0);
     const kw = Math.min(2.6, Math.max(1, 1.2 * frame.h / frame.w));   // a tall screen sees far less sideways: pull the wide arc out
-    const R = ext.r, end = new THREE.Vector3(0, frame.yc, frame.dist), endT = new THREE.Vector3(0, frame.yc, 0);
+    const R = (b.maxX - b.minX) / 2, X = frame.xc;
+    const end = new THREE.Vector3(X, frame.yc, frame.dist), endT = new THREE.Vector3(X, frame.yc, 0);
     const pos = new THREE.CatmullRomCurve3([
       tip.clone().add(new THREE.Vector3(0.35, -0.25, 0.55)),          // macro on the tip, looking up it
       hub.clone().add(new THREE.Vector3(0.9, 0.35, 1.1)),             // down along the shaft to the hub
-      new THREE.Vector3(-R * 2.6 * kw, hub.y + R * 0.6, R * 3.2 * kw),          // out wide, round the far side of the rings
-      new THREE.Vector3(-R * 1.2 * kw, frame.yc + R * 0.3, frame.dist * 0.55),
+      new THREE.Vector3(X - R * 2.6 * kw, hub.y + R * 0.6, R * 3.2 * kw),   // out wide, round the far side of the rings
+      new THREE.Vector3(X - R * 1.2 * kw, frame.yc + R * 0.3, frame.dist * 0.55),
       end,
     ], false, "centripetal");
     const tgt = new THREE.CatmullRomCurve3([tip.clone(), tip.clone().lerp(hub, 0.7), hub.clone(), endT.clone().lerp(hub, 0.3), endT], false, "centripetal");
@@ -273,11 +298,11 @@ function start(host) {
   }
   let px = 0, pt = 0;
   canvas.addEventListener("pointerdown", e => { introDone = true; scene.environmentRotation.y = 0; post.uniforms.uExposure.value = 1.05; applyCamera();
-    drag = { x: e.clientX, y: yaw }; px = e.clientX; pt = performance.now(); vel = 0; canvas.setPointerCapture(e.pointerId); canvas.classList.add("is-dragging"); resume(); });
+    drag = { x: e.clientX, a: turn }; px = e.clientX; pt = performance.now(); vel = 0; canvas.setPointerCapture(e.pointerId); canvas.classList.add("is-dragging"); resume(); });
   canvas.addEventListener("pointermove", e => { if (!drag) return;
-    const now = performance.now(), ny = drag.y + (e.clientX - drag.x) * 0.006;
+    const now = performance.now(), na = drag.a + (e.clientX - drag.x) * 0.006;
     if (now > pt) vel = (e.clientX - px) * 0.006 / ((now - pt) / 1000);
-    px = e.clientX; pt = now; yaw = ny; });
+    px = e.clientX; pt = now; turn = na; });
   const end = () => { if (!drag) return; drag = null; if (reduced || performance.now() - pt > 80) vel = 0; vel = Math.max(-3, Math.min(3, vel)); canvas.classList.remove("is-dragging"); resume(); };
   canvas.addEventListener("pointerup", end); canvas.addEventListener("pointercancel", end);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) resume(); });
