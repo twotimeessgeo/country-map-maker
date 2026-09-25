@@ -188,7 +188,8 @@ function convert(table, subject, correction) {
     const years = String(table.year || "").match(/(?:19|20)\d{2}/g) || [];
     return { id: group || `view-${viewIndex+1}`, label: group || (groups.length > 1 && subset.length === 1 ? subset[0].label : "기본"), rowLabel,
       columns: [...subset.map(column => ({ label: column.label.replace(/((?:19|20)\d{2})[–-]((?:19|20)\d{2})/g, "$1~$2"), unit: column.unit || "",
-        ...(Number.isInteger(column.decimals) ? { digits: column.decimals } : {}),
+        ...(Number.isInteger(column.decimals) ? { digits: subject === "korea" &&
+          (table.id === "2-12" || /합계\s*출산율/.test(column.label)) ? 2 : column.decimals } : {}),
         ...(column.year && /^\d{4}$/.test(String(column.year)) ? { year: column.year + "년" } : {}),
         ...(column.type === "text" ? { barEligible: false } : {}) })),
         ...(hasRowYears ? [{ label: "기준", unit: "", barEligible: false }] : [])],

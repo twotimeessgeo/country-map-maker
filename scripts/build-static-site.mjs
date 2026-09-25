@@ -39,6 +39,7 @@ const requiredOutputs = [
   "tools/cut/index.html",
   "tools/stats/index.html",
   "tools/stats/charts.js",
+  "tools/stats/number-format.js",
   "tools/stats/data/stats.json",
   "notes/index.html",
   "notes/2027-09-world/index.html",
@@ -69,7 +70,7 @@ const forbiddenOutputs = [
 ];
 const unpublishedToolRoots = ["tools/choices"];
 const publicStatsFiles = new Set([
-  "tools/stats", "tools/stats/index.html", "tools/stats/app.js", "tools/stats/charts.js", "tools/stats/styles.css",
+  "tools/stats", "tools/stats/index.html", "tools/stats/app.js", "tools/stats/charts.js", "tools/stats/number-format.js", "tools/stats/styles.css",
   "tools/stats/data", "tools/stats/data/stats.json",
 ]);
 const publicDataFiles = new Set([

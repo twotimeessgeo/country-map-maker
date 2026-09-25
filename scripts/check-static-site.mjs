@@ -224,6 +224,13 @@ if (isSourceCheck) {
   }
   const statsPath = path.join(rootDir, "tools", "stats", "data", "stats.json");
   const stats = JSON.parse(fs.readFileSync(statsPath, "utf8"));
+  const numberContext = vm.createContext({ window: {} });
+  vm.runInContext(fs.readFileSync(path.join(rootDir, "tools", "stats", "number-format.js"), "utf8"), numberContext);
+  const numbers = numberContext.window.TWStatsNumbers;
+  if (numbers.spec({ unit: "천 명", digits: 1 }, [-12, 0, 24]).unit !== "천 명" ||
+      numbers.format(-0.001, { unit: "천 명", divisor: 1, digits: 1 }) !== "0.0" ||
+      numbers.format(3.43, { unit: "명", divisor: 1, digits: 2 }) !== "3.43")
+    errors.push("Statistics 숫자 확대·반올림 규칙 오류");
   const seenIds = new Set();
   const checkView = (view, tableId) => {
     if (!view?.rows?.length || !view.columns?.length || !view.sources?.length || view.sources.some(source=>
@@ -245,6 +252,21 @@ if (isSourceCheck) {
         typeof cell === "string" && /^(?:NaN|undefined|null)$/i.test(cell) ||
         cell && typeof cell === "object" && (!cell.name || !Number.isFinite(cell.value)))) {
         errors.push("Statistics 행 값이 올바르지 않습니다: " + tableId + " / " + row.label);
+      }
+    }
+    const display = numbers.specsForView(view);
+    for (let index = 0; index < view.columns.length; index += 1) {
+      const spec = display[index];
+      for (const row of view.rows) {
+        const cell = row.values[index];
+        const value = cell && typeof cell === "object" ? cell.value : cell;
+        if (typeof value !== "number") continue;
+        const formatted = numbers.format(value, spec);
+        const decimals = formatted.split(".")[1]?.length || 0;
+        if (decimals !== spec.digits || /^−0(?:\.0+)?$/.test(formatted)) {
+          errors.push(`Statistics 숫자 자리수·영(0) 표기 오류: ${tableId} / ${view.columns[index].label}`);
+          break;
+        }
       }
     }
     for (const sub of view.subviews || []) checkView(sub, tableId);

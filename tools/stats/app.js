@@ -354,36 +354,14 @@
     }
     return groups;
   }
-  function formatNumber(value,unit,digitsOverride) {
-    if(value===null||value===undefined||value==="")return "–";
-    if(typeof value!=="number")return String(value);
-    const digits=Number.isInteger(digitsOverride)?digitsOverride:["%","‰","지수"].includes(unit)?1:/^(명|개|가구|마리|t|천 명|MWh|천 toe)$/.test(unit)?0:1;
-    return new Intl.NumberFormat("ko-KR",{minimumFractionDigits:digits,maximumFractionDigits:digits}).format(value).replaceAll("-","−");
-  }
-  function displaySpec(unit,values) {
-    const max=Math.max(0,...values.map(value=>Math.abs(typeof value==="object"&&value?value.value:value)).filter(Number.isFinite));
-    if(unit==="명")return max>=1e6?{unit:"백만 명",divisor:1e6}:max>=1e3?{unit:"천 명",divisor:1e3}:{unit,divisor:1};
-    if(unit==="천 명"&&max>=1e3)return {unit:"백만 명",divisor:1e3};
-    if(unit==="t")return max>=1e6?{unit:"백만 t",divisor:1e6}:max>=1e3?{unit:"천 t",divisor:1e3}:{unit,divisor:1};
-    if(unit==="만 t"&&max>=100)return {unit:"백만 t",divisor:100};
-    return {unit,divisor:1};
-  }
-  function displayColumns(view) {
-    if(view.columns.length>=2&&view.columns.every(column=>/^(?:19|20)\d{2}(?:[.~-]\d+)*(?:년)?$/.test(column.label)&&column.unit===view.columns[0].unit)) {
-      const common=displaySpec(view.columns[0].unit||"",view.rows.flatMap(row=>row.values));
-      return view.columns.map(()=>common);
-    }
-    return view.columns.map((column,index)=>displaySpec(column.unit||"",view.rows.map(row=>row.values[index])));
-  }
-  function formatDisplayNumber(value,column,spec,digitsOverride) {
-    if(spec.divisor===1)return formatNumber(value,column.unit,digitsOverride);
-    if(typeof value!=="number")return formatNumber(value,column.unit,digitsOverride);
-    return new Intl.NumberFormat("ko-KR",{maximumFractionDigits:2}).format(value/spec.divisor).replaceAll("-","−");
-  }
-  function cellHtml(value,column,spec,digitsOverride) {
+  const numbers=window.TWStatsNumbers;
+  const formatNumber=(value,column)=>numbers.format(value,{unit:column.unit||"",divisor:1,digits:numbers.defaultDigits(column)});
+  const displayColumns=view=>numbers.specsForView(view);
+  const formatDisplayNumber=(value,column,spec)=>numbers.format(value,spec);
+  function cellHtml(value,column,spec) {
     if(value===null||value===undefined)return '<span class="stats-missing">–</span>';
     if(typeof value==="object"&&value.name) return '<span class="stats-rank-cell"><strong>'+escapeHtml(value.name)+'</strong><small>'+escapeHtml(formatDisplayNumber(value.value,column,spec))+'</small></span>';
-    const display=escapeHtml(formatDisplayNumber(value,column,spec,digitsOverride));
+    const display=escapeHtml(formatDisplayNumber(value,column,spec));
     if(typeof value!=="number")return display;
     return '<span class="stats-value">'+display+'</span>';
   }
@@ -412,8 +390,8 @@
     const matched=highlight&&normalize(row.label).includes(highlight);
     const aggregate=row.group==="continent"||row.group==="national"||row.group==="region";
     return '<tr data-row-key="'+escapeHtml(row.label)+'" class="'+(matched?"is-match ":"")+(aggregate?"is-aggregate":"")+'"><th scope="row">'+escapeHtml(row.label)+(row.aggregateMark?'<sup class="stats-aggregate-mark">*</sup>':"")+'</th>'+
-      row.values.map((value,index)=>{const spec=row.valueUnit&&index===0?displaySpec(row.valueUnit,[value]):display[index];
-        return '<td>'+cellHtml(value,view.columns[index],spec,/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].digits??(view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined))+
+      row.values.map((value,index)=>{const spec=row.valueUnit&&index===0?numbers.spec({...view.columns[index],unit:row.valueUnit},[value]):display[index];
+        return '<td>'+cellHtml(value,view.columns[index],spec)+
         (row.valueUnit&&index===0?'<small class="stats-value-unit">'+escapeHtml(spec.unit)+'</small>':"")+'</td>';}).join("")+barMarkup(row,bar,tableId)+'</tr>';
   }
   function tbodyMarkup(view,display,groups,bar,tableId) {
@@ -445,7 +423,7 @@
   function rankCardsMarkup(table) {
     return '<div class="stats-rank-scroll">'+table.views.map(view=>{
       const measure=view.columns[0].label.replace(/^.*? · /,"");
-      const spec=displaySpec(view.columns[0].unit||"",view.rows.map(row=>row.values[0]));
+      const spec=numbers.spec(view.columns[0],view.rows.map(row=>row.values[0]));
       return '<article class="stats-rank-card"><h3>'+escapeHtml(view.label)+'</h3><table><thead><tr><th>순위</th><th>국가</th><th>'+escapeHtml(measure)+
         '<small>'+escapeHtml(spec.unit)+'</small></th></tr></thead><tbody>'+view.rows.map(row=>{
           const value=row.values[0];
@@ -502,12 +480,12 @@
   }
   function exportMatrix(table,state) {
     if(isRankCards(table))return [["구분","순위","국가","값"],...table.views.flatMap(view=>view.rows.map(row=>[
-      view.label,row.label,row.values[0]?.name||"",formatNumber(row.values[0]?.value,view.columns[0].unit)
+      view.label,row.label,row.values[0]?.name||"",formatNumber(row.values[0]?.value,view.columns[0])
     ]))];
     const view=activeView(table,state),groups=visibleRows(table,view,state);
     const result=[[view.rowLabel,...view.columns.map(c=>c.label+(c.unit?" ("+c.unit+")":""))]];
     const append=row=>result.push([row.label+(row.aggregateMark?"*":""),...row.values.map((value,index)=>value&&typeof value==="object"?value.name+" "+value.value:
-      typeof value==="number"?formatNumber(value,row.valueUnit&&index===0?row.valueUnit:view.columns[index].unit,/합계\s*출산율/.test(view.columns[index].label)?3:view.columns[index].digits??(view.columns[index].label==="순위"||row.valueUnit&&index===0?0:undefined)).replaceAll(",","").replaceAll("−","-")+(row.valueUnit&&index===0?" "+row.valueUnit:""):value??"–")]);
+      typeof value==="number"?formatNumber(value,row.valueUnit&&index===0?{...view.columns[index],unit:row.valueUnit}:view.columns[index]).replaceAll(",","").replaceAll("−","-")+(row.valueUnit&&index===0?" "+row.valueUnit:""):value??"–")]);
     if(groups.continent.length) {result.push(["대륙"]);groups.continent.forEach(append);}
     if(groups.country.length) {
       result.push(["국가"]);

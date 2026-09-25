@@ -6,12 +6,9 @@
   const FONT="TWK Lausanne, Pretendard Variable, Pretendard, sans-serif";
   const esc=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const finite=value=>typeof value==="number"&&Number.isFinite(value);
-  const num=(value,digits=1)=>new Intl.NumberFormat("ko-KR",{maximumFractionDigits:digits,minimumFractionDigits:digits})
-    .format(value).replaceAll("-","−");
-  const displayNum=(value,spec,digits=1)=>spec?.divisor>1
-    ?new Intl.NumberFormat("ko-KR",{maximumFractionDigits:2}).format(value/spec.divisor).replaceAll("-","−")
-    :num(value,digits);
-  const digitsFor=column=>column.digits??(/^(명|개|가구|마리|t|ha|MWh|천 toe)$/.test(column.unit||"")?0:1);
+  const numbers=window.TWStatsNumbers;
+  const num=(value,digits=1)=>numbers.format(value,{unit:"",divisor:1,digits});
+  const displayNum=(value,spec,digits)=>numbers.format(value,spec,digits);
   const timeColumns=view=>view.columns.length>=2&&view.columns.every(column=>/^(?:19|20)\d{2}(?:[.~-]\d+)*(?:년)?$/.test(column.label));
   const allRows=groups=>[...groups.continent,...groups.country,...groups.ordinary];
 
@@ -91,8 +88,8 @@
       body+=`<g data-row-key="${rowKey(row)}"><text x="4" y="${y+22}" fill="#0d0d0d" font-size="12">${esc(labelText(name,width<450?12:20))}</text>`;
       if(finite(value)) {
         const x0=x(0),x1=x(value),start=Math.min(x0,x1),barW=Math.max(1,Math.abs(x1-x0));
-        body+=`<g data-tooltip="${esc(`${row.label}  ${displayNum(value,spec,digitsFor(view.columns[chosen]))}${unit}`)}" tabindex="0" aria-label="${esc(`${row.label} ${displayNum(value,spec,digitsFor(view.columns[chosen]))}${unit}`)}"><rect x="${start}" y="${y+11}" width="${barW}" height="13" rx="2" fill="#0d0d0d"/></g>`;
-        body+=`<text x="${width-4}" y="${y+22}" text-anchor="end" fill="#0d0d0d" font-size="11">${displayNum(value,spec,digitsFor(view.columns[chosen]))}</text>`;
+        body+=`<g data-tooltip="${esc(`${row.label}  ${displayNum(value,spec)}${unit}`)}" tabindex="0" aria-label="${esc(`${row.label} ${displayNum(value,spec)}${unit}`)}"><rect x="${start}" y="${y+11}" width="${barW}" height="13" rx="2" fill="#0d0d0d"/></g>`;
+        body+=`<text x="${width-4}" y="${y+22}" text-anchor="end" fill="#0d0d0d" font-size="11">${displayNum(value,spec)}</text>`;
       }
       body+="</g>";
     }
@@ -184,11 +181,11 @@
       }
       const points=linePoints(row,view,x,y);
       if(points.length>1)body+=`<polyline fill="none" stroke="#0d0d0d" stroke-width="1.8" stroke-linejoin="round" points="${points.map(point=>`${point.x},${point.y}`).join(" ")}"/>`;
-      for(const point of points)body+=`<circle cx="${point.x}" cy="${point.y}" r="2.5" fill="#0d0d0d" tabindex="0" data-tooltip="${esc(`${row.label} ${point.label} ${displayNum(point.value,spec,digitsFor(view.columns[0]))}${spec.unit}`)}"/>`;
+      for(const point of points)body+=`<circle cx="${point.x}" cy="${point.y}" r="2.5" fill="#0d0d0d" tabindex="0" data-tooltip="${esc(`${row.label} ${point.label} ${displayNum(point.value,spec)}${spec.unit}`)}"/>`;
       body+=`<line x1="${left}" y1="${top+plotH}" x2="${panelWidth-right}" y2="${top+plotH}" stroke="#0d0d0d"/>`;
       for(const yearIndex of [0,view.columns.length-1])body+=`<text x="${x(yearIndex)}" y="${height-8}" text-anchor="${yearIndex===0?"start":"end"}" fill="#737373" font-size="9">${esc(view.columns[yearIndex].label.replace(/년$/, ""))}</text>`;
       const name=row.label+(row.aggregateMark?"*":"");
-      return `<article class="stats-small-panel" data-row-key="${rowKey(row)}"><div class="stats-small-heading"><strong>${esc(name)}</strong><span>${finite(latest)?displayNum(latest,spec,digitsFor(view.columns[0])):"–"}${spec.unit&&spec.unit!=="지수"?`<small>${esc(spec.unit)}</small>`:""}</span></div>${frame(panelWidth,height,body,`${table.title} ${name}`)}</article>`;
+      return `<article class="stats-small-panel" data-row-key="${rowKey(row)}"><div class="stats-small-heading"><strong>${esc(name)}</strong><span>${finite(latest)?displayNum(latest,spec):"–"}${spec.unit&&spec.unit!=="지수"?`<small>${esc(spec.unit)}</small>`:""}</span></div>${frame(panelWidth,height,body,`${table.title} ${name}`)}</article>`;
     });
     return `<div class="stats-small-multiples">${panels.join("")}</div>`;
   }
@@ -216,7 +213,7 @@
       if(!points.length)return;
       const dash=DASHES[index%DASHES.length],shape=MARKERS[index%MARKERS.length];
       body+=`<g class="stats-line-series" data-series-index="${index}" data-row-key="${rowKey(row)}"><polyline fill="none" stroke="#0d0d0d" stroke-width="1.7" stroke-dasharray="${dash}" stroke-linejoin="round" points="${points.map(point=>`${point.x},${point.y}`).join(" ")}"/>`;
-      for(const point of points)body+=`<g data-tooltip="${esc(`${row.label} ${point.label} ${displayNum(point.value,spec,digitsFor(view.columns[0]))}${spec.unit}`)}" tabindex="0">${marker(shape,point.x,point.y)}</g>`;
+      for(const point of points)body+=`<g data-tooltip="${esc(`${row.label} ${point.label} ${displayNum(point.value,spec)}${spec.unit}`)}" tabindex="0">${marker(shape,point.x,point.y)}</g>`;
       body+="</g>";
       endpoints.push({row,point:points.at(-1),labelY:points.at(-1).y});
     });
