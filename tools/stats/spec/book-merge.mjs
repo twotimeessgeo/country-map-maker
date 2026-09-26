@@ -12,17 +12,18 @@ const matches = {
     // same rows and a newer year than the site's own views: the book view takes their place instead of sitting beside them
     "2-3": { target: "korea-population-compare", replaceView: "연령", year: "2025년" },
     "2-4": { target: "korea-population-compare", replaceView: "출생과 사망", year: "2025년" },
-    "2-6": { target: "korea-multicultural-compare", label: "2024년 외국인주민 구성" },
-    "4-1": { target: "korea-industry-compare", label: "지역 내 총생산과 산업 구조" },
-    "4-2": { target: "korea-industry-compare", label: "제조업 세부 지표" },
-    "4-5": { target: "korea-agriculture-compare", label: "농업 세부 지표" },
+    "2-6": { target: "korea-multicultural-compare", replaceView: "규모", year: "2024년 11월 1일" },
+    "4-1": { target: "korea-industry-compare", replaceView: "생산", year: "2024년", label: "지역 내 총생산과 산업 구조" },
+    "4-2": { target: "korea-industry-compare", replaceView: "제조업" },
+    // The site's land ratio uses 2025 cultivated area; the book's ratio uses 2024.
+    "4-5": { target: "korea-agriculture-compare", replaceView: "농가와 경지", keepColumns: ["경지율"] },
     "4-13": { target: "korea-energy-compare", label: "에너지원별 공급" },
     "4-16": { target: "korea-renewable-production", label: "에너지원별 생산" },
     "5-11": { target: "korea-capital-compare", label: "시군 토지 이용" },
   },
   world: {
     "2-1": { target: "world-urbanization-history", replace: true },
-    "3-1": { target: "world-religion-compare", label: "대륙별 종교" },
+    "3-1": { target: "world-religion-compare", replaceView: "대륙" },
     "3-2": { target: "world-religion-compare", label: "주요국 종교" },
     "4-1": { target: "world-population-compare", label: "대륙과 주요국 인구" },
     "4-4": { target: "world-population-compare", skip: "사이트 출생·사망 지표가 더 최신" },
@@ -65,9 +66,36 @@ export function mergeBookStats(result, snapshot) {
           const index = target.views.findIndex(view => view.label === match.replaceView);
           if (index < 0) throw new Error(`교체할 보기 없음: ${match.target}/${match.replaceView}`);
           const old = target.views[index], candidate = book.views[0];
-          if (book.views.length !== 1 || candidate.rows.length < old.rows.length || candidate.columns.length < old.columns.length)
+          if (candidate.rows.length < old.rows.length || candidate.columns.length < old.columns.length)
             throw new Error(`교체 후보 범위가 좁음: ${book.bookId}`);
-          target.views[index] = { ...candidate, id: old.id, label: old.label, year: match.year || candidate.year, bookSource: true };
+          const replacement = { ...candidate, id: old.id, label: old.label, year: match.year || candidate.year,
+            ...(candidate.note || old.note ? { note: candidate.note || old.note } : {}), bookSource: true };
+          if (match.keepColumns) {
+            const kept = match.keepColumns.map(label => {
+              const column = old.columns.findIndex(item => item.label === label);
+              if (column < 0) throw new Error(`보존할 열 없음: ${match.target}/${label}`);
+              return column;
+            });
+            const oldRows = new Map(old.rows.map(row => [row.label, row]));
+            if (old.rows.some(row => !candidate.rows.some(item => item.label === row.label)))
+              throw new Error(`보존할 행 없음: ${match.target}`);
+            // Column years are metadata, so include them in labels when retaining both periods.
+            const dated = (column, year) => ({ ...column, label: `${column.label} (${column.year || year})` });
+            replacement.columns = [
+              ...candidate.columns.map(column => match.keepColumns.includes(column.label) ? dated(column, candidate.year) : column),
+              ...kept.map(column => dated(old.columns[column], old.year)),
+            ];
+            replacement.rows = candidate.rows.map(row => ({ ...row,
+              values: [...row.values, ...kept.map(column => oldRows.get(row.label)?.values[column] ?? null)] }));
+            replacement.sources = [...new Map([...candidate.sources, ...old.sources]
+              .map(source => [JSON.stringify(source), source])).values()];
+          }
+          target.views[index] = replacement;
+          // Replace only the matching view; retain the book's distinct industry-structure views.
+          for (const [extraIndex, view] of book.views.slice(1).entries()) {
+            target.views.push({ ...view, id: `book-${book.bookId}-${slug(view.id || extraIndex + 1)}`,
+              label: `${match.label} ${view.label}`, bookSource: true });
+          }
         } else if (match.replace) {
           const old = target.views[0];
           const candidate = book.views[0];

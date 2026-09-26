@@ -296,7 +296,9 @@ if (isSourceCheck) {
   const chartCases=[
     ["korea","korea-population-compare","규모","bar"],
     ["korea","korea-population-compare","기간별 순 이동","diverging"],
-    ["world","world-religion-compare","대륙","stacked"],
+    // The book leaves three religion shares missing; do not treat them as zero in a 100% stack.
+    ["world","world-religion-compare","대륙","bar"],
+    ["korea","korea-population-compare","연령","stacked"],
     ["world","world-population-history","수","line"],
     ["korea","korea-book-3-1","기본","line"],
     ["korea","korea-crop-share-national","작물별 재배 면적","bar"],
