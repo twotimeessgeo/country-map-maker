@@ -55,7 +55,7 @@
 | 세계 | world-book-7-2 | world-book-9-2 | 보기 병합 | 다른 열·기간을 보기로 보존 |
 | 세계 | world-book-7-2 | world-book-10-2 | 보기 병합 | 다른 열·기간을 보기로 보존 |
 
-## 남긴 후보 (51)
+## 남긴 후보 (52)
 
 | 과목·주제 | 표 1 | 표 2 | 행 겹침 | 공통 열 | 판단 |
 | --- | --- | --- | ---: | --- | --- |
@@ -66,10 +66,11 @@
 | 한국 energy | korea-energy-compare | korea-renewable-production | 95% | 수력 | 공급·소비·발전의 분모와 단위가 달라 별도 유지 |
 | 한국 energy | korea-generation-mix | korea-book-4-9 | 100% | 석탄, 천연가스, 원자력, 석유, 수력, 신·재생및기타 | 공급·소비·발전의 분모와 단위가 달라 별도 유지 |
 | 한국 energy | korea-renewable-production | korea-book-4-27 | 90% | 생산량 | 공급·소비·발전의 분모와 단위가 달라 별도 유지 |
-| 세계 population | world-population-history | world-migration-history | 100% | 1950년, 1970년, 1990년, 2010년, 2020년, 2025년, 1990, 2000, 2010, 2023 | 인구 규모와 순 이동은 서로 다른 지표 |
+| 세계 population | world-population-history | world-migration-history | 100% | 1950년, 1970년, 1990년, 2010년, 2020년, 2025년, 1970, 1990, 2000, 2010, 2023 | 인구 규모와 순 이동은 서로 다른 지표 |
 | 세계 population | world-migrant-origins | world-book-4-8 | 100% | 이주자수 | 순위 이름만 같음; 품목과 지표 정의가 달라 별도 유지 |
 | 세계 population | world-book-4-8 | world-book-4-11 | 100% | 인구대비 | 순위 이름만 같음; 품목과 지표 정의가 달라 별도 유지 |
 | 세계 population | world-book-4-10 | world-book-4-14 | 100% | 아시아, 아프리카, 유럽, 라틴아메리카, 앵글로아메리카, 오세아니아 | 지역 행과 일부 열 이름이 같지만 지표·집계 범위가 달라 별도 유지 |
+| 세계 urban | world-urban-compare | world-book-2-8 | 83% | 도시인구, 촌락인구 | 지역 행과 일부 열 이름이 같지만 지표·집계 범위가 달라 별도 유지 |
 | 세계 food | world-world-crops | world-book-5-2 | 100% | 생산량, 재배면적 | 지역 행과 일부 열 이름이 같지만 지표·집계 범위가 달라 별도 유지 |
 | 세계 food | world-crop-yield-trade | world-book-5-2 | 100% | 단위면적당생산량, 수출비율 | 지역 행과 일부 열 이름이 같지만 지표·집계 범위가 달라 별도 유지 |
 | 세계 food | world-crop-use | world-book-5-2 | 100% | 식용, 사료용, 기타 | 지역 행과 일부 열 이름이 같지만 지표·집계 범위가 달라 별도 유지 |
