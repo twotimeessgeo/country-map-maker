@@ -1,0 +1,4679 @@
+const DEFAULT_WORLD_SAMPLE_NAMES = ["케이프타운", "브라질리아", "파리", "양곤"];
+const CONTINENT_ORDER = ["전체", "아프리카", "아메리카", "오세아니아", "유라시아"];
+const HEMISPHERE_ORDER = ["전체", "북반구", "남반구"];
+const CLIMATE_FILTER_ORDER = [
+  "전체",
+  "Af",
+  "Am",
+  "Aw",
+  "BS",
+  "Bw",
+  "Cfa",
+  "Cfb",
+  "Cs",
+  "Cw",
+  "Df",
+  "Dw",
+  "ET",
+  "EF",
+  "H",
+];
+const MAP_SCOPE_ORDER = ["all", "selected"];
+const MAP_SCOPE_LABELS = {
+  all: "전체",
+  selected: "선택한 곳",
+};
+const CUSTOM_REGIONS_STORAGE_KEY = "climate-atlas-custom-regions-v1";
+const URL_STATE_KEYS = [
+  "regions",
+  "continent",
+  "hemisphere",
+  "climate",
+  "query",
+  "sort",
+  "map",
+  "baseline",
+];
+const REGION_SORT_VALUES = new Set([
+  "default",
+  "name",
+  "annualPrecipitationDesc",
+  "annualRangeDesc",
+  "warmestMonthDesc",
+  "coldestMonthAsc",
+]);
+const RANDOM_CLIMATE_SELECTION_SIZE = 4;
+const COMPARISON_LINE_STYLES = [
+  { dasharray: "", marker: "circle" },
+  { dasharray: "10 6", marker: "square" },
+  { dasharray: "4 4", marker: "triangle" },
+  { dasharray: "2 4", marker: "diamond" },
+  { dasharray: "14 5 3 5", marker: "circle" },
+  { dasharray: "1 5", marker: "square" },
+];
+const API_SEARCH_URL = "https://geocoding-api.open-meteo.com/v1/search";
+const API_ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive";
+const API_NORMAL_PERIOD = {
+  start: "1991-01-01",
+  end: "2020-12-31",
+  label: "1991-2020",
+};
+const SOLAR_DECLINATION_MONTH_DAY = {
+  january: 15,
+  july: 196,
+};
+const EXAM_MONTH_OPTIONS = [
+  { value: 0, label: "1월", dayOfYear: SOLAR_DECLINATION_MONTH_DAY.january },
+  { value: 6, label: "7월", dayOfYear: SOLAR_DECLINATION_MONTH_DAY.july },
+];
+const EXAM_VARIABLE_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const EXAM_LATITUDE_VARIABLE_PRIORITY_DIFFERENCE = 10;
+const EXAM_POSITIVE_DIRECTION_WEIGHT = 0.72;
+const EXAM_DUPLICATE_CATEGORY_GROUPS = {
+  tropicOfCancerDistance: "tropicDistance",
+  tropicOfCapricornDistance: "tropicDistance",
+  janJulTemperatureRange: "temperatureRange",
+  annualTemperatureRange: "temperatureRange",
+  janJulPrecipitationRange: "precipitationRange",
+  monthlyPrecipitationRange: "precipitationRange",
+  winterPrecipitationShare: "seasonalPrecipitationShare",
+  summerPrecipitationShare: "seasonalPrecipitationShare",
+};
+const EXAM_STATEMENT_PERIOD_LABELS = {
+  "2021-suneung-q17-opt-03": { 가: "7월" },
+  "2021-suneung-q17-opt-04": { 나: "1월" },
+  "2025-suneung-q19-opt-03": { 가: "1월" },
+};
+const EXAM_SOURCE_PREVIEW_LIMIT = 4;
+const EXAM_GROUP_EXAMPLE_LIMIT = 6;
+const EXAM_FEATURE_REGION_LIMIT = 12;
+const EXAM_EVIDENCE_HIDDEN_ROW_LABELS = new Set(["차이", "판정 기준"]);
+const EXAM_LATITUDE_CATEGORY_KEYS = new Set(["equatorDistance", "tropicOfCancerDistance", "tropicOfCapricornDistance"]);
+const EXAM_FEATURE_PREDICATES = {
+  coldestMonthAtLeast18: (region) => getColdestMonthTemperature(region) >= 18,
+  coldestMonthBelow18: (region) => getColdestMonthTemperature(region) < 18,
+  southernHemisphere: (region) => Number(region.coordinates?.latitude) < 0,
+  warmestMonthBelow0: (region) => getWarmestMonthTemperature(region) < 0,
+  tropicalHighlandSteady: (region) => {
+    const temps = region.monthlyTemperatureC;
+    const mean = temps.reduce((sum, value) => sum + value, 0) / temps.length;
+    return (
+      Math.abs(Number(region.coordinates?.latitude)) < 23.5 &&
+      Math.max(...temps) - Math.min(...temps) <= 4 &&
+      mean >= 11 &&
+      mean <= 19
+    );
+  },
+};
+const EXAM_COMPARISON_TEMPLATES = [
+  {
+    sourceIds: [
+      "2021-06-q03-opt-02",
+      "2023-06-q16-opt-05",
+      "2023-09-q15-opt-04",
+      "2023-suneung-q19-opt-04",
+      "2025-suneung-q13-opt-02",
+      "2026-suneung-q19-opt-04",
+    ],
+    categoryKey: "monthlyPrecipitation",
+    title: "월 강수량",
+    label: (context) => `${context.monthLabel} 강수량`,
+    pattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 강수량이 많다.`,
+    reversePattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 강수량이 적다.`,
+    unit: "mm",
+    minDifference: 20,
+    usesMonth: true,
+    getValue: (region, context) => region.monthlyPrecipitationMm[context.monthIndex],
+    renderPositive: (higher, lower, context) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 ${context.monthLabel} 강수량이 많다.`,
+    renderReverse: (higher, lower, context) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 ${context.monthLabel} 강수량이 적다.`,
+    renderFalse: (higher, lower, context) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 ${context.monthLabel} 강수량이 적다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 ${context.monthLabel} 강수량이 가장 많은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 ${context.monthLabel} 강수량이 가장 적은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2021-06-q03-opt-01", "2021-09-q04-opt-03", "2022-06-q18-opt-03"],
+    categoryKey: "monthlyTemperature",
+    title: "월평균 기온",
+    label: (context) => `${context.monthLabel} 평균 기온`,
+    pattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 평균 기온이 높다.`,
+    reversePattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 평균 기온이 낮다.`,
+    unit: "°C",
+    minDifference: 1.5,
+    usesMonth: true,
+    getValue: (region, context) => region.monthlyTemperatureC[context.monthIndex],
+    renderPositive: (higher, lower, context) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 ${context.monthLabel} 평균 기온이 높다.`,
+    renderReverse: (higher, lower, context) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 ${context.monthLabel} 평균 기온이 낮다.`,
+    renderFalse: (higher, lower, context) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 ${context.monthLabel} 평균 기온이 낮다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 ${context.monthLabel} 평균 기온이 가장 높은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 ${context.monthLabel} 평균 기온이 가장 낮은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2021-09-q04-opt-04",
+      "2026-suneung-q19-opt-03",
+    ],
+    categoryKey: "annualPrecipitation",
+    title: "연 강수량",
+    label: "연 강수량",
+    pattern: "한 지역은 다른 지역보다 연 강수량이 많다.",
+    reversePattern: "한 지역은 다른 지역보다 연 강수량이 적다.",
+    unit: "mm",
+    minDifference: 150,
+    getValue: (region) => region.annualPrecipitationMm,
+    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연 강수량이 많다.`,
+    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 연 강수량이 적다.`,
+    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연 강수량이 적다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 연 강수량이 가장 많은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 연 강수량이 가장 적은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2021-06-q03-opt-05",
+      "2022-06-q18-opt-04",
+      "2022-suneung-q19-opt-03",
+    ],
+    categoryKey: "janJulPrecipitationRange",
+    title: "1월과 7월 강수량 차이",
+    label: "1월과 7월 강수량 차이",
+    pattern: "한 지역은 다른 지역보다 1월과 7월의 강수량 차이가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 1월과 7월의 강수량 차이가 작다.",
+    unit: "mm",
+    minDifference: 20,
+    getValue: getJanuaryJulyPrecipitationRange,
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 강수량 차이가 크다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 1월과 7월의 강수량 차이가 작다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 강수량 차이가 작다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 강수량 차이가 가장 큰 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 강수량 차이가 가장 작은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2021-09-q07-opt-04",
+      "2027-09-q19-opt-04",
+    ],
+    categoryKey: "monthlyPrecipitationRange",
+    title: "최다 강수 월과 최소 강수 월의 차이",
+    label: "최다 강수 월과 최소 강수 월의 차이",
+    pattern: "한 지역은 다른 지역보다 강수량이 가장 많은 달과 가장 적은 달의 강수량 차이가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 강수량이 가장 많은 달과 가장 적은 달의 강수량 차이가 작다.",
+    unit: "mm",
+    minDifference: 30,
+    getValue: getMonthlyPrecipitationRange,
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 강수량이 가장 많은 달과 가장 적은 달의 강수량 차이가 크다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 강수량이 가장 많은 달과 가장 적은 달의 강수량 차이가 작다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 강수량이 가장 많은 달과 가장 적은 달의 강수량 차이가 작다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 강수량이 가장 많은 달과 가장 적은 달의 강수량 차이가 가장 큰 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 강수량이 가장 많은 달과 가장 적은 달의 강수량 차이가 가장 작은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2022-09-q13-opt-02",
+      "2024-09-q06-opt-01",
+      "2026-06-q12-opt-02",
+      "2027-06-q18-opt-04",
+    ],
+    categoryKey: "winterPrecipitationShare",
+    title: "겨울 강수 집중률",
+    label: "겨울 강수 집중률",
+    pattern: "한 지역은 다른 지역보다 겨울 강수 집중률이 높다.",
+    reversePattern: "한 지역은 다른 지역보다 겨울 강수 집중률이 낮다.",
+    unit: "%",
+    minDifference: 5,
+    getValue: (region) => getLocalSeasonPrecipitationShare(region, "winter"),
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 겨울 강수 집중률이 높다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 겨울 강수 집중률이 낮다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 겨울 강수 집중률이 낮다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 겨울 강수 집중률이 가장 높은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 겨울 강수 집중률이 가장 낮은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2025-09-q19-opt-03"],
+    categoryKey: "summerPrecipitation",
+    title: "여름 강수량",
+    label: "여름 강수량",
+    pattern: "한 지역은 다른 지역보다 여름 강수량이 많다.",
+    reversePattern: "한 지역은 다른 지역보다 여름 강수량이 적다.",
+    unit: "mm",
+    minDifference: 50,
+    getValue: (region) => getLocalSeasonPrecipitation(region, "summer"),
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 강수량이 많다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 여름 강수량이 적다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 강수량이 적다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 여름 강수량이 가장 많은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 여름 강수량이 가장 적은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2024-suneung-q19-opt-03",
+      "2025-06-q07-opt-04",
+      "2026-06-q03-opt-03",
+    ],
+    categoryKey: "summerPrecipitationShare",
+    title: "여름 강수 집중률",
+    label: "여름 강수 집중률",
+    pattern: "한 지역은 다른 지역보다 여름 강수 집중률이 높다.",
+    reversePattern: "한 지역은 다른 지역보다 여름 강수 집중률이 낮다.",
+    unit: "%",
+    minDifference: 5,
+    getValue: (region) => getLocalSeasonPrecipitationShare(region, "summer"),
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 강수 집중률이 높다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 여름 강수 집중률이 낮다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 여름 강수 집중률이 낮다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 여름 강수 집중률이 가장 높은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 여름 강수 집중률이 가장 낮은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2021-06-q03-opt-04"],
+    categoryKey: "janJulTemperatureRange",
+    title: "1월과 7월 기온 차이",
+    label: "1월과 7월 월평균 기온 차이",
+    pattern: "한 지역은 다른 지역보다 1월과 7월의 평균 기온 차이가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 1월과 7월의 평균 기온 차이가 작다.",
+    unit: "°C",
+    minDifference: 1.5,
+    getValue: getJanuaryJulyTemperatureRange,
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 평균 기온 차이가 크다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 1월과 7월의 평균 기온 차이가 작다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 평균 기온 차이가 작다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 평균 기온 차이가 가장 큰 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 평균 기온 차이가 가장 작은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2023-06-q16-opt-03",
+      "2023-suneung-q19-opt-02",
+      "2025-06-q07-opt-03",
+      "2025-09-q19-opt-02",
+      "2025-suneung-q19-opt-04",
+      "2026-06-q03-opt-04",
+      "2026-09-q19-opt-04",
+      "2026-suneung-q19-opt-02",
+      "2027-09-q19-opt-03",
+    ],
+    categoryKey: "annualTemperatureRange",
+    title: "기온의 연교차",
+    label: "기온의 연교차",
+    pattern: "한 지역은 다른 지역보다 기온의 연교차가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 기온의 연교차가 작다.",
+    unit: "°C",
+    minDifference: 1.5,
+    getValue: getWorldAnnualTemperatureRange,
+    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 기온의 연교차가 크다.`,
+    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 기온의 연교차가 작다.`,
+    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 기온의 연교차가 작다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 기온의 연교차가 가장 큰 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 기온의 연교차가 가장 작은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2024-09-q06-opt-03"],
+    categoryKey: "annualMeanTemperature",
+    title: "연평균 기온",
+    label: "연평균 기온",
+    pattern: "한 지역은 다른 지역보다 연평균 기온이 높다.",
+    reversePattern: "한 지역은 다른 지역보다 연평균 기온이 낮다.",
+    unit: "°C",
+    minDifference: 1.5,
+    getValue: (region) => region.annualMeanTemperatureC,
+    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연평균 기온이 높다.`,
+    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 연평균 기온이 낮다.`,
+    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 연평균 기온이 낮다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 연평균 기온이 가장 높은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 연평균 기온이 가장 낮은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2021-09-q04-opt-01",
+      "2022-suneung-q19-opt-02",
+      "2024-09-q06-opt-04",
+      "2025-06-q07-opt-02",
+      "2025-suneung-q19-opt-01",
+    ],
+    categoryKey: "coldestMonthTemperature",
+    title: "최한월 평균 기온",
+    label: "최한월 평균 기온",
+    pattern: "한 지역은 다른 지역보다 최한월 평균 기온이 높다.",
+    reversePattern: "한 지역은 다른 지역보다 최한월 평균 기온이 낮다.",
+    unit: "°C",
+    minDifference: 1.5,
+    getValue: getColdestMonthTemperature,
+    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 최한월 평균 기온이 높다.`,
+    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 최한월 평균 기온이 낮다.`,
+    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 최한월 평균 기온이 낮다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 최한월 평균 기온이 가장 높은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 최한월 평균 기온이 가장 낮은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2027-09-q19-opt-02"],
+    categoryKey: "warmestMonthTemperature",
+    title: "최난월 평균 기온",
+    label: "최난월 평균 기온",
+    pattern: "한 지역은 다른 지역보다 최난월 평균 기온이 높다.",
+    reversePattern: "한 지역은 다른 지역보다 최난월 평균 기온이 낮다.",
+    unit: "°C",
+    minDifference: 1.5,
+    getValue: getWarmestMonthTemperature,
+    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 최난월 평균 기온이 높다.`,
+    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 최난월 평균 기온이 낮다.`,
+    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 최난월 평균 기온이 낮다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 최난월 평균 기온이 가장 높은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 최난월 평균 기온이 가장 낮은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2021-06-q03-opt-03",
+      "2021-suneung-q17-opt-05",
+      "2022-06-q18-opt-05",
+      "2022-09-q13-opt-01",
+      "2023-06-q16-opt-02",
+      "2023-09-q15-opt-03",
+      "2023-suneung-q19-opt-03",
+      "2024-09-q06-opt-05",
+      "2024-suneung-q19-opt-05",
+      "2025-09-q19-opt-04",
+      "2025-suneung-q13-opt-04",
+      "2026-06-q12-opt-03",
+    ],
+    categoryKey: "dayLength",
+    title: (context) => context.dayNightLabel,
+    label: (context) => `${context.monthLabel} ${context.dayNightLabel}`,
+    pattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} ${context.dayNightLabel}가 길다.`,
+    reversePattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} ${context.dayNightLabel}가 짧다.`,
+    unit: "시간",
+    minDifference: 0.5,
+    usesMonth: true,
+    supportsNightToggle: true,
+    getValue: (region, context) => {
+      const dayLength = getApproximateDayLength(region, context.dayOfYear);
+      return context.useNightLength ? 24 - dayLength : dayLength;
+    },
+    renderPositive: (higher, lower, context) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 ${context.monthLabel} ${context.dayNightLabel}가 길다.`,
+    renderReverse: (higher, lower, context) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 ${context.monthLabel} ${context.dayNightLabel}가 짧다.`,
+    renderFalse: (higher, lower, context) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 ${context.monthLabel} ${context.dayNightLabel}가 짧다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 ${context.monthLabel} ${context.dayNightLabel}가 가장 긴 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 ${context.monthLabel} ${context.dayNightLabel}가 가장 짧은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2027-09-q19-data-01"],
+    categoryKey: "janJulDayLengthRange",
+    title: "1월과 7월 낮 길이 차이",
+    label: "1월과 7월 낮 길이 차이",
+    pattern: "한 지역은 다른 지역보다 1월과 7월의 낮 길이 차이가 크다.",
+    reversePattern: "한 지역은 다른 지역보다 1월과 7월의 낮 길이 차이가 작다.",
+    unit: "시간",
+    minDifference: 0.5,
+    getValue: (region) =>
+      Math.abs(
+        getApproximateDayLength(region, SOLAR_DECLINATION_MONTH_DAY.january) -
+          getApproximateDayLength(region, SOLAR_DECLINATION_MONTH_DAY.july)
+      ),
+    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 낮 길이 차이가 크다.`,
+    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 1월과 7월의 낮 길이 차이가 작다.`,
+    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 1월과 7월의 낮 길이 차이가 작다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 낮 길이 차이가 가장 큰 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 1월과 7월의 낮 길이 차이가 가장 작은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2022-suneung-q19-opt-01",
+      "2024-suneung-q19-opt-04",
+      "2025-suneung-q19-opt-03",
+      "2026-06-q03-opt-02",
+    ],
+    categoryKey: "solarNoonAltitude",
+    title: "정오 태양 고도",
+    label: (context) => `${context.monthLabel} 정오 태양 고도`,
+    pattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 정오의 태양 고도가 높다.`,
+    reversePattern: (context) => `한 지역은 다른 지역보다 ${context.monthLabel} 정오의 태양 고도가 낮다.`,
+    unit: "°",
+    minDifference: 3,
+    usesMonth: true,
+    getValue: (region, context) => getApproximateSolarNoonAltitude(region, context.dayOfYear),
+    renderPositive: (higher, lower, context) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 ${context.monthLabel} 정오의 태양 고도가 높다.`,
+    renderReverse: (higher, lower, context) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 ${context.monthLabel} 정오의 태양 고도가 낮다.`,
+    renderFalse: (higher, lower, context) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 ${context.monthLabel} 정오의 태양 고도가 낮다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 ${context.monthLabel} 정오의 태양 고도가 가장 높은 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 ${context.monthLabel} 정오의 태양 고도가 가장 낮은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2022-09-q13-opt-04", "2023-06-q16-opt-04", "2023-09-q15-opt-02"],
+    categoryKey: "equatorDistance",
+    title: "위도",
+    label: "위도",
+    pattern: "한 지역은 다른 지역보다 고위도에 위치한다.",
+    reversePattern: "한 지역은 다른 지역보다 저위도에 위치한다.",
+    unit: "°",
+    minDifference: 3,
+    getValue: (region) => Math.abs(region.coordinates?.latitude ?? NaN),
+    renderPositive: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 고위도에 위치한다.`,
+    renderReverse: (higher, lower) => `${withTopicParticle(lower.name)} ${higher.name}보다 저위도에 위치한다.`,
+    renderFalse: (higher, lower) => `${withTopicParticle(higher.name)} ${lower.name}보다 저위도에 위치한다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 가장 고위도에 위치한 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 가장 저위도에 위치한 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: ["2024-09-q06-opt-02", "2025-06-q07-opt-05"],
+    categoryKey: "tropicOfCancerDistance",
+    title: "북회귀선과의 거리",
+    label: "북회귀선과의 거리",
+    pattern: "한 지역은 다른 지역보다 북회귀선과의 최단 거리가 멀다.",
+    reversePattern: "한 지역은 다른 지역보다 북회귀선과의 최단 거리가 짧다.",
+    unit: "°",
+    minDifference: 3,
+    getValue: (region) => Math.abs((region.coordinates?.latitude ?? NaN) - 23.44),
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 북회귀선과의 최단 거리가 멀다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 북회귀선과의 최단 거리가 짧다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 북회귀선과의 최단 거리가 짧다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 북회귀선과의 최단 거리가 가장 먼 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 북회귀선과의 최단 거리가 가장 짧은 곳은 ${region.name}이다.`,
+  },
+  {
+    sourceIds: [
+      "2024-06-q20-opt-05",
+      "2026-06-q12-opt-01",
+    ],
+    categoryKey: "tropicOfCapricornDistance",
+    title: "남회귀선과의 거리",
+    label: "남회귀선과의 거리",
+    pattern: "한 지역은 다른 지역보다 남회귀선과의 최단 거리가 멀다.",
+    reversePattern: "한 지역은 다른 지역보다 남회귀선과의 최단 거리가 짧다.",
+    unit: "°",
+    minDifference: 3,
+    getValue: (region) => Math.abs((region.coordinates?.latitude ?? NaN) + 23.44),
+    renderPositive: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 남회귀선과의 최단 거리가 멀다.`,
+    renderReverse: (higher, lower) =>
+      `${withTopicParticle(lower.name)} ${higher.name}보다 남회귀선과의 최단 거리가 짧다.`,
+    renderFalse: (higher, lower) =>
+      `${withTopicParticle(higher.name)} ${lower.name}보다 남회귀선과의 최단 거리가 짧다.`,
+    renderSuperlativePositive: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 남회귀선과의 최단 거리가 가장 먼 곳은 ${region.name}이다.`,
+    renderSuperlativeReverse: (region, context, scopeLabel) =>
+      `${scopeLabel} 중에서 남회귀선과의 최단 거리가 가장 짧은 곳은 ${region.name}이다.`,
+  },
+];
+const MONTH_LABELS = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+const COLORS = {
+  rain: "#5d5d5d",
+  rainLight: "#d4d4d4",
+  temperature: "#0d0d0d",
+  grid: "rgba(0, 0, 0, 0.22)",
+  gridSoft: "rgba(0, 0, 0, 0.08)",
+  ink: "#0d0d0d",
+  barNeutral: "#c4c4c4",
+  zero: "#0d0d0d",
+  white: "#ffffff",
+};
+const AFRICA_COUNTRY_CODES = new Set([
+  "AO", "BF", "BI", "BJ", "BW", "CD", "CF", "CG", "CI", "CM", "CV", "DJ", "DZ", "EG",
+  "EH", "ER", "ET", "GA", "GH", "GM", "GN", "GQ", "GW", "KE", "KM", "LR", "LS", "LY",
+  "MA", "MG", "ML", "MR", "MU", "MW", "MZ", "NA", "NE", "NG", "RE", "RW", "SC", "SD",
+  "SH", "SL", "SN", "SO", "SS", "ST", "SZ", "TD", "TG", "TN", "TZ", "UG", "YT", "ZA",
+  "ZM", "ZW",
+]);
+const AMERICAS_COUNTRY_CODES = new Set([
+  "AG", "AI", "AR", "AW", "BB", "BL", "BM", "BO", "BR", "BS", "BZ", "CA", "CL", "CO",
+  "CR", "CU", "DM", "DO", "EC", "FK", "GD", "GF", "GL", "GP", "GT", "GY", "HN", "HT",
+  "JM", "KN", "KY", "LC", "MF", "MQ", "MS", "MX", "NI", "PA", "PE", "PM", "PR", "PY",
+  "SR", "SV", "SX", "TC", "TT", "US", "UY", "VC", "VE", "VG", "VI",
+]);
+const OCEANIA_COUNTRY_CODES = new Set([
+  "AS", "AU", "CK", "FJ", "FM", "GU", "KI", "MH", "MP", "NC", "NF", "NR", "NU", "NZ",
+  "PF", "PG", "PN", "PW", "SB", "TK", "TO", "TV", "VU", "WF", "WS",
+]);
+const CLIMATE_COLORS = {
+  Af: "var(--tw-ink)",
+  Am: "#202020",
+  Aw: "#2f2f2f",
+  BS: "#404040",
+  Bw: "#525252",
+  Cfa: "#666666",
+  Cfb: "#787878",
+  Cs: "#8a8a8a",
+  Cw: "#9c9c9c",
+  Df: "#a8a8a8",
+  Dw: "#b3b3b3",
+  ET: "#c0c0c0",
+  EF: "#d8d8d8",
+  H: "#4a4a4a",
+};
+const MAP_VIEWBOX = {
+  width: 1000,
+  height: 520,
+  minLatitude: -60,
+  maxLatitude: 82,
+};
+const MAP_PROJECTION_PADDING = {
+  top: 18,
+  right: 20,
+  bottom: 18,
+  left: 20,
+};
+const WORLD_TOPOLOGY_URL = "./data/world-countries-50m.json";
+const WORLD_TOPOLOGY_FALLBACK_URL = "./data/world-countries-110m.json";
+const MAP_CANDIDATE_RADIUS_MIN = 7;
+const MAP_CANDIDATE_RADIUS_MAX = 9;
+const MAP_CANDIDATE_LIMIT = 12;
+
+
+const collator = new Intl.Collator("ko-KR");
+const climateCsvExports = new Map();
+let climateCsvExportId = 0;
+const numberFormatter = new Intl.NumberFormat("ko-KR", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 1,
+});
+const climateNumberFormatter = new Intl.NumberFormat("ko-KR", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+const coordinateFormatter = new Intl.NumberFormat("ko-KR", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
+let mapLayoutAnimationFrame = 0;
+let nextUrlSyncMode = "replace";
+let isRestoringUrlState = false;
+let utilityStatusTimer = 0;
+const APP_CONFIG = normalizeAppConfig(window.CLIMATE_APP_CONFIG ?? {});
+
+const state = {
+  dataset: null,
+  worldMapData: null,
+  mapLoadError: null,
+  regions: [],
+  selectedIds: new Set(),
+  comparisonBaseline: "mean",
+  comparisonMode: "value",
+  continent: "전체",
+  hemisphere: "전체",
+  climateGroup: "전체",
+  query: "",
+  regionSort: document.querySelector("#regionSortSelect")?.value || "default",
+  mapScope: "all",
+  examMonthIndex: 0,
+  examUseNightLength: false,
+  examUseVariableLabels: false,
+  examExpandedGroupIds: new Set(),
+  examQuestionSeed: 1,
+  apiResults: [],
+  apiLoading: false,
+  apiBusyKey: "",
+  apiMessage: "",
+  mapCandidatePicker: null,
+};
+
+const elements = {
+  searchInput: document.querySelector("#searchInput"),
+  regionSortSelect: document.querySelector("#regionSortSelect"),
+  clearSelectionButton: document.querySelector("#clearSelectionButton"),
+  randomClimateSelectionButton: document.querySelector("#randomClimateSelectionButton"),
+  continentChips: document.querySelector("#continentChips"),
+  hemisphereChips: document.querySelector("#hemisphereChips"),
+  climateChips: document.querySelector("#climateChips"),
+  regionList: document.querySelector("#regionList"),
+  selectionSummary: document.querySelector("#selectionSummary"),
+  selectedRegionsContent: document.querySelector("#selectedRegionsContent"),
+  comparisonContent: document.querySelector("#comparisonContent"),
+  heroCount: document.querySelector("#heroCount"),
+  heroCaption: document.querySelector("#heroCaption"),
+  worldMap: document.querySelector("#worldMap"),
+  mapSummary: document.querySelector("#mapSummary"),
+  mapScopeChips: document.querySelector("#mapScopeChips"),
+  mapCandidatePicker: document.querySelector("#mapCandidatePicker"),
+  apiSearchInput: document.querySelector("#apiSearchInput"),
+  apiSearchButton: document.querySelector("#apiSearchButton"),
+  resetCustomRegionsButton: document.querySelector("#resetCustomRegionsButton"),
+  apiStatusSummary: document.querySelector("#apiStatusSummary"),
+  apiStatusText: document.querySelector("#apiStatusText"),
+  apiResults: document.querySelector("#apiResults"),
+  copyShareLinkButton: document.querySelector("#copyShareLinkButton"),
+  downloadSelectedCsvButton: document.querySelector("#downloadSelectedCsvButton"),
+  selectionUtilityStatus: document.querySelector("#selectionUtilityStatus"),
+  selectedTray: document.querySelector("#selectedTray"),
+};
+
+init();
+
+async function init() {
+  try {
+    state.dataset = window.CLIMATE_DATA ?? (await loadDataset());
+    try {
+      state.worldMapData = await loadWorldMapData();
+    } catch (error) {
+      state.mapLoadError = "지도를 불러오지 못했습니다";
+      state.worldMapData = null;
+      console.warn("Failed to load projected world map data:", error);
+    }
+    state.regions = mergeRegions(state.dataset.regions, loadSavedCustomRegions()).sort(sortRegions);
+    applyUrlStateFromLocation();
+    bindEvents();
+    render();
+  } catch (error) {
+    console.warn("Climate data load failed:", error);
+    elements.selectedRegionsContent.innerHTML = renderEmptyState(
+      "자료를 불러오지 못했습니다",
+      ""
+    );
+    elements.comparisonContent.innerHTML = "";
+  }
+}
+
+async function loadDataset() {
+  const response = await fetch(APP_CONFIG.datasetPath);
+  if (!response.ok) {
+    throw new Error(`Climate data: ${response.status}`);
+  }
+  const data = await response.json();
+  return window.TwCodec ? window.TwCodec.unwrap(data) : data;
+}
+
+async function loadWorldMapData() {
+  if (!window.d3 || !window.topojson) {
+    throw new Error("지도 라이브러리를 불러오지 못했습니다.");
+  }
+
+  let topology = window.WORLD_COUNTRIES_TOPOLOGY ?? null;
+  let resolution = topology ? "50m" : "";
+
+  if (!topology) {
+    const loaded = await fetchWorldTopologyWithFallback([
+      WORLD_TOPOLOGY_URL,
+      WORLD_TOPOLOGY_FALLBACK_URL,
+    ]);
+    topology = loaded.topology;
+    resolution = loaded.resolution;
+  }
+  const countriesObject =
+    topology.objects?.countries ?? Object.values(topology.objects ?? {})[0] ?? null;
+  const landObject = topology.objects?.land ?? countriesObject;
+
+  if (!countriesObject || !landObject) {
+    throw new Error("세계 지도 Topology 구조를 해석하지 못했습니다.");
+  }
+
+  return {
+    topology,
+    land: window.topojson.feature(topology, landObject),
+    borders: window.topojson.mesh(topology, countriesObject, (left, right) => left !== right),
+    resolution,
+  };
+}
+
+async function fetchWorldTopologyWithFallback(urls) {
+  let lastError = null;
+
+  for (const url of urls) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`세계 지도 데이터를 불러오지 못했습니다. (${response.status})`);
+      }
+
+      return {
+        topology: await response.json(),
+        resolution: url.includes("50m") ? "50m" : "110m",
+      };
+    } catch (error) {
+      lastError = error;
+    }
+  }
+
+  throw lastError ?? new Error("세계 지도 데이터를 불러오지 못했습니다.");
+}
+
+let searchRenderTimer = 0;
+
+function bindEvents() {
+  elements.selectionSummary?.addEventListener("click", () => {
+    document.querySelector("#selectedPanel")?.scrollIntoView({
+      behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      block: "start",
+    });
+  });
+  let trayDrag = null;
+  let suppressTrayClick = false;
+  elements.selectedTray?.addEventListener("pointerdown", (event) => {
+    const chip = event.target.closest("[data-tray-remove-id]");
+    if (!chip || event.button !== 0) return;
+    trayDrag = { id: chip.dataset.trayRemoveId, x: event.clientX, y: event.clientY, active: false };
+  });
+  elements.selectedTray?.addEventListener("pointermove", (event) => {
+    if (!trayDrag) return;
+    if (!trayDrag.active && Math.hypot(event.clientX - trayDrag.x, event.clientY - trayDrag.y) < 8) return;
+    trayDrag.active = true;
+    elements.selectedTray.querySelector(`[data-tray-remove-id="${trayDrag.id}"]`)?.classList.add("is-dragging");
+    elements.selectedTray.querySelectorAll(".is-drop-target").forEach((item) => item.classList.remove("is-drop-target"));
+    document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-tray-remove-id]")?.classList.add("is-drop-target");
+  });
+  window.addEventListener("pointerup", (event) => {
+    if (!trayDrag) return;
+    const drag = trayDrag;
+    trayDrag = null;
+    elements.selectedTray?.querySelectorAll(".is-dragging, .is-drop-target").forEach((chip) => chip.classList.remove("is-dragging", "is-drop-target"));
+    if (!drag.active) return;
+    suppressTrayClick = true;
+    setTimeout(() => { suppressTrayClick = false; }, 0);
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest("[data-tray-remove-id]");
+    const ids = [...state.selectedIds];
+    const from = drag.id;
+    const to = target?.dataset.trayRemoveId;
+    if (!ids.includes(from) || !ids.includes(to) || from === to) return;
+    ids.splice(ids.indexOf(from), 1);
+    ids.splice(ids.indexOf(to), 0, from);
+    state.selectedIds = new Set(ids);
+    pushUrlStateOnNextRender();
+    renderSelection();
+  });
+  window.addEventListener("pointercancel", () => {
+    trayDrag = null;
+    elements.selectedTray?.querySelectorAll(".is-dragging, .is-drop-target").forEach((chip) => chip.classList.remove("is-dragging", "is-drop-target"));
+  });
+  elements.selectedTray?.addEventListener("click", (event) => {
+    if (!suppressTrayClick) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    suppressTrayClick = false;
+  }, true);
+  document.addEventListener("keydown", (event) => {
+    if ((event.key !== "/" && event.code !== "Slash") || event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName ?? "")) return;
+    event.preventDefault();
+    elements.searchInput?.focus();
+  });
+  elements.searchInput?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || !state.search && !state.query) return;
+    const results = sortDisplayedRegions(getVisibleRegions());
+    if (results.length !== 1) return;
+    event.preventDefault();
+    state.selectedIds.add(results[0].id);
+    pushUrlStateOnNextRender();
+    renderSelection();
+  });
+  for (const panel of [elements.selectedRegionsContent, elements.comparisonContent]) {
+    panel?.addEventListener("click", (event) => {
+      if (event.target.closest("[data-random-selection]")) elements.randomClimateSelectionButton.click();
+    });
+  }
+
+  elements.selectedTray?.addEventListener("click", (event) => {
+    const chip = event.target.closest("[data-tray-remove-id]");
+    if (!chip) return;
+    const chips = [...elements.selectedTray.querySelectorAll("[data-tray-remove-id]")];
+    const index = chips.indexOf(chip);
+    toggleRegion(chip.dataset.trayRemoveId, false);
+    pushUrlStateOnNextRender();
+    renderSelection();
+    focusSelectedTrayAfterRemoval(index);
+  });
+
+  elements.selectedRegionsContent?.addEventListener("click", (event) => {
+    const deleteButton = event.target.closest("[data-delete-custom-region-id]");
+    if (deleteButton) {
+      removeCustomRegion(deleteButton.dataset.deleteCustomRegionId);
+      return;
+    }
+
+    handleClimateCsvDownload(event);
+  });
+
+  elements.searchInput.addEventListener("input", (event) => {
+    state.query = event.target.value.trim();
+    clearTimeout(searchRenderTimer);
+    searchRenderTimer = setTimeout(renderBrowse, 120);
+  });
+
+  elements.regionSortSelect?.addEventListener("change", (event) => {
+    state.regionSort = event.target.value || "default";
+    pushUrlStateOnNextRender();
+    renderBrowse();
+  });
+
+  elements.clearSelectionButton.addEventListener("click", () => {
+    state.selectedIds = new Set();
+    state.comparisonBaseline = "mean";
+    pushUrlStateOnNextRender();
+    renderSelection();
+  });
+
+  elements.randomClimateSelectionButton.addEventListener("click", () => {
+    applyRandomClimateSelection();
+    pushUrlStateOnNextRender();
+    render();
+  });
+
+  elements.copyShareLinkButton?.addEventListener("click", () => {
+    void copyCurrentViewLink();
+  });
+
+  elements.downloadSelectedCsvButton?.addEventListener("click", downloadSelectedRegionsCsv);
+
+  elements.comparisonContent?.addEventListener("click", (event) => {
+    const modeButton = event.target.closest("[data-comparison-mode]");
+    if (!modeButton) return;
+    const oldTicks = window.TwMotion?.snapshotChartTicks(elements.comparisonContent);
+    state.comparisonMode = modeButton.dataset.comparisonMode === "deviation" ? "deviation" : "value";
+    renderComparisonOnly();
+    window.TwMotion?.animateChartTicks(elements.comparisonContent, oldTicks);
+    restoreFocusByDataAttribute("data-comparison-mode", state.comparisonMode);
+  });
+
+  elements.comparisonContent.addEventListener("change", (event) => {
+    const baselineSelect = event.target.closest("[data-baseline-select]");
+    if (baselineSelect) {
+      state.comparisonBaseline = baselineSelect.value || "mean";
+      pushUrlStateOnNextRender();
+      renderComparisonOnly();
+      return;
+    }
+
+    const examMonthSelect = event.target.closest("[data-exam-month-select]");
+    if (examMonthSelect) {
+      state.examMonthIndex = normalizeExamMonthIndex(Number(examMonthSelect.value));
+      state.examQuestionSeed += 1;
+      render();
+      return;
+    }
+  });
+
+  elements.comparisonContent.addEventListener(
+    "toggle",
+    (event) => {
+      if (event.target?.matches?.(".exam-source-panel") && event.target.open) {
+        resyncExamSegmentedThumbs(event.target);
+      }
+    },
+    true
+  );
+
+  elements.comparisonContent.addEventListener("click", (event) => {
+    const csvButton = event.target.closest("[data-climate-csv-download]");
+    if (csvButton) {
+      handleClimateCsvDownload(event);
+      return;
+    }
+
+    const examControl = event.target.closest(EXAM_CONTROL_SELECTOR);
+    if (examControl) {
+      handleExamControlClick(examControl);
+      return;
+    }
+
+    const moreButton = event.target.closest("[data-exam-more]");
+    if (moreButton) {
+      toggleExamMoreExamples(moreButton);
+      return;
+    }
+
+    const refreshButton = event.target.closest("[data-exam-question-refresh]");
+    if (!refreshButton) {
+      return;
+    }
+
+    state.examQuestionSeed += 1;
+    renderExamPanelOnly({ fadeQuestion: true });
+    elements.comparisonContent
+      .querySelector("[data-exam-question-refresh]")
+      ?.focus({ preventScroll: true });
+  });
+
+  elements.continentChips.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-continent]");
+    if (!button) {
+      return;
+    }
+
+    state.continent = button.dataset.continent;
+    pushUrlStateOnNextRender();
+    renderBrowse();
+    restoreFocusByDataAttribute("data-continent", button.dataset.continent);
+  });
+
+  elements.hemisphereChips.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-hemisphere]");
+    if (!button) {
+      return;
+    }
+
+    state.hemisphere = button.dataset.hemisphere;
+    pushUrlStateOnNextRender();
+    renderBrowse();
+    restoreFocusByDataAttribute("data-hemisphere", button.dataset.hemisphere);
+  });
+
+  elements.climateChips.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-climate-group]");
+    if (!button || button.disabled) {
+      return;
+    }
+
+    state.climateGroup = button.dataset.climateGroup;
+    pushUrlStateOnNextRender();
+    renderBrowse();
+    restoreFocusByDataAttribute("data-climate-group", button.dataset.climateGroup);
+  });
+
+  elements.mapScopeChips.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-map-scope]");
+    if (!button) {
+      return;
+    }
+
+    state.mapScope = button.dataset.mapScope;
+    pushUrlStateOnNextRender();
+    renderBrowse();
+    restoreFocusByDataAttribute("data-map-scope", button.dataset.mapScope);
+  });
+
+  elements.regionList.addEventListener("change", (event) => {
+    const input = event.target.closest("input[data-region-id]");
+    if (!input) {
+      return;
+    }
+
+    const regionId = input.dataset.regionId;
+    toggleRegion(regionId, input.checked);
+    pushUrlStateOnNextRender();
+    renderSelection();
+    restoreFocusByDataAttribute("data-region-id", regionId);
+  });
+
+  elements.worldMap.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-map-region-id]");
+    if (!button) {
+      return;
+    }
+
+    if (window.ClimateMapZoom?.focusMarkerOnMobile(button)) return;
+
+    // Direct selection; dense areas are handled by zoom (map-zoom.js).
+    const regionId = button.dataset.mapRegionId;
+    closeMapCandidatePicker();
+    toggleRegion(regionId, !state.selectedIds.has(regionId));
+    pushUrlStateOnNextRender();
+    renderSelection();
+    restoreFocusByDataAttribute("data-map-region-id", regionId);
+  });
+
+  elements.mapCandidatePicker?.addEventListener("click", (event) => {
+    const closeButton = event.target.closest("[data-map-candidate-close]");
+    if (closeButton) {
+      closeMapCandidatePicker(true);
+      return;
+    }
+
+    const candidateButton = event.target.closest("[data-map-candidate-id]");
+    if (!candidateButton) {
+      return;
+    }
+
+    const regionId = candidateButton.dataset.mapCandidateId;
+    toggleRegion(regionId, !state.selectedIds.has(regionId));
+    pushUrlStateOnNextRender();
+    renderSelection();
+    restoreFocusByDataAttribute("data-map-candidate-id", regionId);
+  });
+
+  elements.apiSearchButton.addEventListener("click", () => {
+    void searchApiRegions();
+  });
+
+  elements.resetCustomRegionsButton?.addEventListener("click", resetAllCustomRegions);
+
+  elements.apiSearchInput.addEventListener("input", () => {
+    elements.apiSearchButton.disabled =
+      state.apiLoading || elements.apiSearchInput.value.trim().length < 2;
+    if (!elements.apiSearchInput.value.trim()) {
+      state.apiMessage = "";
+      state.apiResults = [];
+      render();
+    }
+  });
+
+  elements.apiSearchInput.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter") {
+      return;
+    }
+
+    event.preventDefault();
+    void searchApiRegions();
+  });
+
+  elements.apiResults.addEventListener("click", (event) => {
+    const existingButton = event.target.closest("[data-existing-region-id]");
+    if (existingButton) {
+      const regionId = existingButton.dataset.existingRegionId;
+      toggleRegion(regionId, true);
+      state.query = existingButton.dataset.regionName ?? "";
+      elements.searchInput.value = state.query;
+      state.continent = "전체";
+      state.hemisphere = "전체";
+      state.climateGroup = "전체";
+      state.apiMessage = "이미 있는 지역을 선택했습니다.";
+      pushUrlStateOnNextRender();
+      render();
+      return;
+    }
+
+    const addButton = event.target.closest("[data-api-result-index]");
+    if (!addButton || addButton.disabled) {
+      return;
+    }
+
+    void addRegionFromApiResult(Number(addButton.dataset.apiResultIndex));
+  });
+
+  window.addEventListener("resize", () => {
+    if (mapLayoutAnimationFrame) {
+      cancelAnimationFrame(mapLayoutAnimationFrame);
+    }
+    mapLayoutAnimationFrame = requestAnimationFrame(() => {
+      applyMapMarkerLayout();
+      mapLayoutAnimationFrame = 0;
+    });
+  });
+
+  window.addEventListener("popstate", restoreUrlStateFromHistory);
+}
+
+function applyDefaultSelection() {
+  const defaultRegions = state.regions.filter((region) =>
+    APP_CONFIG.defaultSampleNames.includes(region.name)
+  );
+  if (defaultRegions.length > 0) {
+    state.selectedIds = new Set(defaultRegions.map((region) => region.id));
+    return;
+  }
+
+  const randomRegions = pickRandomClimateSelection();
+  state.selectedIds = new Set(randomRegions.map((region) => region.id));
+}
+
+function applyUrlStateFromLocation() {
+  const params = new URLSearchParams(window.location.search);
+  const knownRegionIds = new Set(state.regions.map((region) => region.id));
+  const knownContinents = new Set([
+    "전체",
+    ...APP_CONFIG.primaryFilterOrder,
+    ...state.regions.map((region) => region.continent),
+  ]);
+
+  state.continent = readUrlEnum(params, "continent", knownContinents, "전체");
+  state.hemisphere = readUrlEnum(params, "hemisphere", new Set(HEMISPHERE_ORDER), "전체");
+  state.climateGroup = readUrlEnum(params, "climate", new Set(CLIMATE_FILTER_ORDER), "전체");
+  state.regionSort = readUrlEnum(params, "sort", REGION_SORT_VALUES, "default");
+  state.mapScope = readUrlEnum(params, "map", new Set(MAP_SCOPE_ORDER), "all");
+  state.query = (params.get("query") ?? "").slice(0, 160);
+  state.comparisonBaseline = "mean";
+
+  if (params.has("regions")) {
+    state.selectedIds = new Set(
+      (params.get("regions") ?? "")
+        .split(",")
+        .map((regionId) => regionId.trim())
+        .filter((regionId) => knownRegionIds.has(regionId))
+    );
+  } else {
+    applyDefaultSelection();
+  }
+
+  const requestedBaseline = params.get("baseline") ?? "mean";
+  if (requestedBaseline === "mean" || state.selectedIds.has(requestedBaseline)) {
+    state.comparisonBaseline = requestedBaseline;
+  }
+
+  elements.searchInput.value = state.query;
+  if (elements.regionSortSelect) elements.regionSortSelect.value = state.regionSort;
+}
+
+function readUrlEnum(params, key, allowedValues, fallback) {
+  const value = params.get(key);
+  return value && allowedValues.has(value) ? value : fallback;
+}
+
+function buildCurrentViewUrl() {
+  const url = new URL(window.location.href);
+  URL_STATE_KEYS.forEach((key) => url.searchParams.delete(key));
+
+  const selectedIds = [...state.selectedIds];
+  url.searchParams.set("regions", selectedIds.join(","));
+  if (state.continent !== "전체") url.searchParams.set("continent", state.continent);
+  if (state.hemisphere !== "전체") url.searchParams.set("hemisphere", state.hemisphere);
+  if (state.climateGroup !== "전체") url.searchParams.set("climate", state.climateGroup);
+  if (state.query) url.searchParams.set("query", state.query);
+  if (state.regionSort !== "default") url.searchParams.set("sort", state.regionSort);
+  if (state.mapScope !== "all") url.searchParams.set("map", state.mapScope);
+  if (state.comparisonBaseline !== "mean") {
+    url.searchParams.set("baseline", state.comparisonBaseline);
+  }
+  return url;
+}
+
+function pushUrlStateOnNextRender() {
+  if (!isRestoringUrlState) nextUrlSyncMode = "push";
+}
+
+function syncUrlState(mode = "replace") {
+  if (isRestoringUrlState || !window.history?.replaceState) return;
+
+  const nextUrl = buildCurrentViewUrl();
+  if (nextUrl.href === window.location.href) return;
+
+  try {
+    const method = mode === "push" ? "pushState" : "replaceState";
+    window.history[method]({ climateView: "world" }, "", nextUrl);
+  } catch (error) {
+    console.warn("기후 비교 URL 상태를 갱신하지 못했습니다.", error);
+  }
+}
+
+function restoreUrlStateFromHistory() {
+  isRestoringUrlState = true;
+  nextUrlSyncMode = "replace";
+  try {
+    applyUrlStateFromLocation();
+    render();
+  } finally {
+    isRestoringUrlState = false;
+  }
+  syncUrlState("replace");
+}
+
+function normalizeComparisonBaseline(selectedRegions) {
+  if (state.comparisonBaseline === "mean") {
+    return;
+  }
+
+  if (!selectedRegions.some((region) => region.id === state.comparisonBaseline)) {
+    state.comparisonBaseline = "mean";
+  }
+}
+
+function applyRandomClimateSelection() {
+  const pickedRegions = pickRandomClimateSelection();
+  if (pickedRegions.length === 0) {
+    return;
+  }
+
+  state.selectedIds = new Set(pickedRegions.map((region) => region.id));
+  state.query = "";
+  elements.searchInput.value = "";
+  state.continent = "전체";
+  state.hemisphere = "전체";
+  state.climateGroup = "전체";
+  state.comparisonBaseline = "mean";
+}
+
+function pickRandomClimateSelection() {
+  const groups = new Map();
+  state.regions.forEach((region) => {
+    if (!region.climateGroup || region.climateGroup === "전체") {
+      return;
+    }
+
+    if (!groups.has(region.climateGroup)) {
+      groups.set(region.climateGroup, []);
+    }
+    groups.get(region.climateGroup).push(region);
+  });
+
+  const randomGroups = shuffleArray([...groups.keys()]).slice(0, RANDOM_CLIMATE_SELECTION_SIZE);
+  const pickedRegions = [];
+  randomGroups.forEach((climateGroup) => {
+    const candidates = groups.get(climateGroup) ?? [];
+    if (candidates.length === 0) {
+      return;
+    }
+    const pickedRegion = candidates[Math.floor(Math.random() * candidates.length)];
+    pickedRegions.push(pickedRegion);
+  });
+
+  if (pickedRegions.length >= RANDOM_CLIMATE_SELECTION_SIZE) {
+    return pickedRegions;
+  }
+
+  return shuffleArray(state.regions).slice(0, RANDOM_CLIMATE_SELECTION_SIZE);
+}
+
+function renderMetaList(parts) {
+  return `<span class="tw-meta-list">${parts
+    .filter((part) => part !== undefined && part !== null && part !== "")
+    .map((part) => `<span>${escapeHtml(part)}</span>`)
+    .join("")}</span>`;
+}
+
+function renderSelectedTray(selectedRegions) {
+  if (selectedRegions.length === 0) {
+    return `<span class="selected-tray-empty">선택한 곳이 없습니다</span>`;
+  }
+
+  return selectedRegions
+    .map(
+      (region) => `
+        <button
+          type="button"
+          class="selected-tray-chip"
+          data-tray-remove-id="${escapeHtml(region.id)}"
+          aria-label="${escapeHtml(region.name)} 선택 해제"
+          title="드래그로 순서 변경, 클릭하여 선택 해제"
+        >
+          <span>${escapeHtml(region.name)}</span>
+          <span class="selected-tray-x" aria-hidden="true"></span>
+        </button>
+      `
+    )
+    .join("");
+}
+
+function focusSelectedTrayAfterRemoval(index) {
+  const chips = elements.selectedTray?.querySelectorAll("[data-tray-remove-id]") ?? [];
+  const next = chips[Math.min(index, chips.length - 1)];
+  next?.focus({ preventScroll: true });
+}
+
+function toggleRegion(regionId, isChecked) {
+  const nextSelected = new Set(state.selectedIds);
+  if (isChecked) {
+    nextSelected.add(regionId);
+  } else {
+    nextSelected.delete(regionId);
+  }
+  state.selectedIds = nextSelected;
+}
+
+function getCustomRegions() {
+  return state.regions.filter((region) => region.source?.type === "open-meteo-live");
+}
+
+function removeCustomRegion(regionId) {
+  const region = state.regions.find(
+    (candidate) => candidate.id === regionId && candidate.source?.type === "open-meteo-live"
+  );
+  if (!region) return;
+
+  state.regions = state.regions.filter((candidate) => candidate.id !== regionId);
+  state.selectedIds.delete(regionId);
+  if (state.comparisonBaseline === regionId) state.comparisonBaseline = "mean";
+  if (normalizeText(state.query) === normalizeText(region.name)) {
+    state.query = "";
+    elements.searchInput.value = "";
+  }
+  persistCustomRegions();
+  state.apiMessage = `${withObjectParticle(region.name)} 지웠습니다`;
+  pushUrlStateOnNextRender();
+  render();
+}
+
+function resetAllCustomRegions() {
+  const customRegions = getCustomRegions();
+  if (customRegions.length === 0) return;
+
+  const shouldReset = window.confirm(
+    `직접 추가한 도시 ${customRegions.length}곳을 지울까요?`
+  );
+  if (!shouldReset) return;
+
+  const customIds = new Set(customRegions.map((region) => region.id));
+  state.regions = state.regions.filter((region) => !customIds.has(region.id));
+  state.selectedIds = new Set([...state.selectedIds].filter((regionId) => !customIds.has(regionId)));
+  if (customIds.has(state.comparisonBaseline)) state.comparisonBaseline = "mean";
+  state.query = "";
+  elements.searchInput.value = "";
+  persistCustomRegions();
+  state.apiMessage = "추가한 도시를 지웠습니다";
+  pushUrlStateOnNextRender();
+  render();
+}
+
+const EXAM_CONTROL_SELECTOR =
+  "[data-exam-month-value], [data-exam-night-value], [data-exam-variable-toggle]";
+
+function handleExamControlClick(control) {
+  const focusSelector = buildExamControlFocusSelector(control);
+
+  if (control.hasAttribute("data-exam-month-value")) {
+    const monthIndex = normalizeExamMonthIndex(Number(control.dataset.examMonthValue));
+    if (monthIndex === state.examMonthIndex) return;
+    state.examMonthIndex = monthIndex;
+    state.examQuestionSeed += 1;
+  } else if (control.hasAttribute("data-exam-night-value")) {
+    const useNight = control.dataset.examNightValue === "night";
+    if (useNight === state.examUseNightLength) return;
+    state.examUseNightLength = useNight;
+    state.examQuestionSeed += 1;
+  } else {
+    state.examUseVariableLabels = !state.examUseVariableLabels;
+  }
+
+  renderExamPanelOnly();
+  if (focusSelector) {
+    elements.comparisonContent.querySelector(focusSelector)?.focus({ preventScroll: true });
+  }
+}
+
+function buildExamControlFocusSelector(control) {
+  const attribute = [...control.attributes].find((item) => item.name.startsWith("data-exam-"));
+  if (!attribute) return "";
+  return `[${attribute.name}="${attribute.value.replace(/"/g, '\\"')}"]`;
+}
+
+function resyncExamSegmentedThumbs(panel) {
+  // Segmented thumbs measure 0 while the panel is closed; a class mutation makes the DS motion observer re-measure them.
+  panel.querySelectorAll(".exam-segmented").forEach((group) => {
+    group.classList.add("is-measured");
+  });
+}
+
+function toggleExamMoreExamples(button) {
+  const groupId = button.dataset.examMore;
+  const list = button.closest(".exam-group-card")?.querySelector(".exam-more-list");
+  if (!groupId || !list) return;
+
+  const isExpanded = !state.examExpandedGroupIds.has(groupId);
+  if (isExpanded) {
+    state.examExpandedGroupIds.add(groupId);
+  } else {
+    state.examExpandedGroupIds.delete(groupId);
+  }
+  list.hidden = !isExpanded;
+  button.setAttribute("aria-expanded", isExpanded ? "true" : "false");
+  button.innerHTML = renderExamMoreLabel(isExpanded, button.dataset.examMoreCount);
+}
+
+function restoreFocusByDataAttribute(attributeName, attributeValue) {
+  if (!attributeValue) return;
+
+  const nextTarget = [...document.querySelectorAll(`[${attributeName}]`)].find(
+    (element) => element.getAttribute(attributeName) === attributeValue
+  );
+  nextTarget?.focus({ preventScroll: true });
+}
+
+function resetClimateCsvExports() {
+  climateCsvExports.clear();
+  climateCsvExportId = 0;
+}
+
+function sanitizeClimateCsvExportId(rawValue) {
+  const text = String(rawValue ?? "").toLowerCase().trim();
+  const normalized = text.normalize("NFKC").replace(/[^a-z0-9가-힣._-]/gi, "-");
+  const collapsed = normalized.replace(/-+/g, "-").replace(/^-+|-+$/g, "");
+  return collapsed || `dataset-${climateCsvExportId + 1}`;
+}
+
+function buildClimateCsvFilename(label, index) {
+  const baseName = sanitizeClimateCsvExportId(label).replace(/[^a-z0-9가-힣._-]/gi, "-");
+  return `${baseName}-${String(index).padStart(3, "0")}`;
+}
+
+function buildClimateCsvLine(values) {
+  return values.map((value) => {
+    const text = String(value ?? "");
+    if (/[",\n\r]/.test(text)) {
+      return `"${text.replaceAll('"', '""')}"`;
+    }
+    return text;
+  }).join(",");
+}
+
+function registerClimateCsvExport(context, headers, rows, filename) {
+  climateCsvExportId += 1;
+  const key = `climate-csv-${sanitizeClimateCsvExportId(context)}-${String(climateCsvExportId).padStart(3, "0")}`;
+  const safeHeaders = headers.map((value) => String(value ?? ""));
+  const safeRows = rows.map((row) => row.map((value) => String(value ?? "")));
+  climateCsvExports.set(key, {
+    filename: buildClimateCsvFilename(filename || context, climateCsvExportId),
+    headers: safeHeaders,
+    rows: safeRows,
+  });
+  return key;
+}
+
+function handleClimateCsvDownload(event) {
+  const button = event.target.closest("[data-climate-csv-download]");
+  if (!button) return;
+  const key = button.dataset.climateCsvDownload;
+  const payload = climateCsvExports.get(key);
+  if (!payload) return;
+
+  downloadClimateCsvPayload(payload);
+}
+
+const CLIMATE_SOURCE_NOTE = "출처: twotimess, Promenade Geography (https://twotimeessgeo.github.io/country-map-maker/), CC BY-NC-SA 4.0 비영리";
+
+function downloadClimateCsvPayload(payload) {
+  if (window.TwCaptcha && !window.TwCaptcha.passed()) {
+    window.TwCaptcha.require().then((ok) => ok && downloadClimateCsvPayload(payload));
+    return;
+  }
+  const rows = [];
+  if (payload.headers.length) rows.push(buildClimateCsvLine(payload.headers));
+  payload.rows.forEach((row) => rows.push(buildClimateCsvLine(row)));
+  rows.push("", buildClimateCsvLine([CLIMATE_SOURCE_NOTE]));
+  if (window.TwCaptcha?.stamp()) rows.push(buildClimateCsvLine([window.TwCaptcha.stamp()]));
+
+  const blob = new Blob(["\uFEFF" + rows.join("\n")], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `${payload.filename || "climate-data"}.csv`;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+function downloadSelectedRegionsCsv() {
+  const selectedRegions = getSelectedRegions();
+  if (selectedRegions.length === 0) {
+    setSelectionUtilityStatus("지도나 목록에서 지역을 선택해 주세요", "warning");
+    return;
+  }
+
+  const headers = [
+    "지역 ID", "지역", "영문명", "대륙", "국가", "반구", "기후", "월", "월 번호",
+    "평균 기온(°C)", "강수량(mm)", "연평균 기온(°C)", "연 강수량(mm)", "위도", "경도",
+    "관측 지점", "평년 기간", "출처", "원자료 URL",
+  ];
+  const rows = selectedRegions.flatMap((region) =>
+    region.months.map((month, monthIndex) => [
+      region.id,
+      region.name,
+      region.englishName ?? "",
+      region.continent ?? "",
+      region.country || region.source?.country || "",
+      getHemisphere(region),
+      region.climateCode ?? region.climateGroup ?? "",
+      month,
+      monthIndex + 1,
+      region.monthlyTemperatureC[monthIndex],
+      region.monthlyPrecipitationMm[monthIndex],
+      region.annualMeanTemperatureC,
+      region.annualPrecipitationMm,
+      region.coordinates?.latitude ?? "",
+      region.coordinates?.longitude ?? "",
+      formatSourceStationLabel(region),
+      region.source?.period ?? "",
+      formatSourceLabel(region),
+      region.source?.apiUrl ?? region.source?.url ?? region.source?.weatherUrl ?? "",
+    ])
+  );
+
+  downloadClimateCsvPayload({
+    filename: `세계기후-선택지역-${selectedRegions.length}곳`,
+    headers,
+    rows,
+  });
+  setSelectionUtilityStatus("CSV를 저장했습니다");
+}
+
+async function copyCurrentViewLink() {
+  syncUrlState("replace");
+  const shareUrl = buildCurrentViewUrl().href;
+
+  try {
+    await writeClipboardText(shareUrl);
+    const hasCustomSelection = getSelectedRegions().some(
+      (region) => region.source?.type === "open-meteo-live"
+    );
+    setSelectionUtilityStatus(
+      hasCustomSelection
+        ? "링크를 복사했습니다. 직접 추가한 도시는 이 기기에서만 보입니다."
+        : "링크를 복사했습니다",
+      hasCustomSelection ? "warning" : "success"
+    );
+  } catch (error) {
+    console.warn("기후 비교 링크 복사 실패:", error);
+    setSelectionUtilityStatus("복사하지 못했습니다. 주소창의 주소를 복사해 주세요.", "error");
+  }
+}
+
+async function writeClipboardText(text) {
+  let clipboardAttempt = null;
+  if (navigator.clipboard?.writeText && window.isSecureContext) {
+    try {
+      clipboardAttempt = navigator.clipboard.writeText(text).then(
+        () => true,
+        () => false,
+      );
+    } catch (error) {
+      console.warn("Clipboard API 호출을 시작하지 못했습니다.", error);
+    }
+  }
+
+  try {
+    copyTextWithFallback(text);
+    return;
+  } catch (fallbackError) {
+    if (!clipboardAttempt) throw fallbackError;
+  }
+
+  const copied = await Promise.race([
+    clipboardAttempt,
+    new Promise((resolve) => {
+      window.setTimeout(() => resolve(false), 900);
+    }),
+  ]);
+  if (copied) {
+    return;
+  }
+  throw new Error("Clipboard copy failed");
+}
+
+function copyTextWithFallback(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.append(textarea);
+  textarea.select();
+  const copied = document.execCommand("copy");
+  textarea.remove();
+  if (!copied) throw new Error("Clipboard fallback failed");
+}
+
+function setSelectionUtilityStatus(message, tone = "success") {
+  if (!elements.selectionUtilityStatus) return;
+  window.clearTimeout(utilityStatusTimer);
+  elements.selectionUtilityStatus.textContent = message;
+  elements.selectionUtilityStatus.classList.toggle("is-warning", tone === "warning");
+  elements.selectionUtilityStatus.classList.toggle("is-error", tone === "error");
+  utilityStatusTimer = window.setTimeout(() => {
+    elements.selectionUtilityStatus.textContent = "";
+    elements.selectionUtilityStatus.classList.remove("is-warning", "is-error");
+  }, 4200);
+}
+
+function finishPartialRender() {
+  const urlSyncMode = nextUrlSyncMode;
+  nextUrlSyncMode = "replace";
+  syncUrlState(urlSyncMode);
+}
+
+function renderBrowse() {
+  clearTimeout(searchRenderTimer);
+  const visibleRegions = sortDisplayedRegions(getVisibleRegions());
+  const selectedRegions = getSelectedRegions();
+  const mappableRegions = getMapRegions(visibleRegions, selectedRegions);
+  elements.mapSummary.textContent = buildMapSummary(mappableRegions, selectedRegions);
+  elements.continentChips.innerHTML = renderContinentChips();
+  elements.hemisphereChips.innerHTML = renderHemisphereChips();
+  elements.climateChips.innerHTML = renderClimateChips();
+  elements.mapScopeChips.innerHTML = renderMapScopeChips();
+  elements.regionList.innerHTML = renderRegionOptions(visibleRegions);
+  elements.worldMap.innerHTML = renderWorldMap(mappableRegions);
+  applyMapMarkerLayout();
+  renderMapCandidatePicker();
+  finishPartialRender();
+}
+
+function syncSelectionControls() {
+  for (const input of elements.regionList.querySelectorAll("input[data-region-id]")) {
+    const selected = state.selectedIds.has(input.dataset.regionId);
+    input.checked = selected;
+    input.closest(".region-option")?.classList.toggle("is-selected", selected);
+  }
+  for (const marker of elements.worldMap.querySelectorAll("[data-map-region-id]")) {
+    const selected = state.selectedIds.has(marker.dataset.mapRegionId);
+    marker.classList.toggle("is-selected", selected);
+    marker.setAttribute("aria-pressed", String(selected));
+    marker.setAttribute("aria-label", `${marker.dataset.label} ${selected ? "선택 해제" : "선택"}`);
+  }
+  elements.worldMap.dispatchEvent(new Event("climate-map-selection"));
+}
+
+function renderSelection() {
+  const selectedRegions = getSelectedRegions();
+  normalizeComparisonBaseline(selectedRegions);
+  const trayMotion = window.ClimateMotion?.snapshotTray(elements.selectedTray);
+  const cardMotion = window.ClimateMotion?.snapshotCards(elements.selectedRegionsContent);
+  const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
+  resetClimateCsvExports();
+  elements.selectionSummary.textContent = `${selectedRegions.length}곳 선택`;
+  if (elements.selectedTray) {
+    elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
+    window.ClimateMotion?.animateTray(elements.selectedTray, trayMotion);
+  }
+  if (elements.downloadSelectedCsvButton) {
+    elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
+    elements.downloadSelectedCsvButton.textContent = "CSV";
+  }
+  if (state.mapScope === "selected") {
+    const mappableRegions = getMapRegions([], selectedRegions);
+    elements.mapSummary.textContent = buildMapSummary(mappableRegions, selectedRegions);
+    elements.worldMap.innerHTML = renderWorldMap(mappableRegions);
+    applyMapMarkerLayout();
+  } else {
+    syncSelectionControls();
+  }
+  elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
+  window.ClimateMotion?.animateCards(elements.selectedRegionsContent, cardMotion, elements.selectionSummary);
+  elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  positionExamMarkers(elements.comparisonContent);
+  window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
+  finishPartialRender();
+}
+
+// Exam controls only change the exam panel; re-rendering the whole page re-ran every chart and card animation and shifted the scroll position.
+function renderExamPanelOnly({ fadeQuestion = false } = {}) {
+  const panel = elements.comparisonContent.querySelector(".exam-source-panel");
+  if (!panel) {
+    render();
+    return;
+  }
+  const holder = document.createElement("div");
+  holder.innerHTML = renderExamClimateSourcePanel(getSelectedRegions());
+  const next = holder.firstElementChild;
+  if (!next) return;
+  if (panel.open) next.setAttribute("open", "");
+  panel.replaceWith(next);
+  positionExamMarkers(next);
+  resyncExamSegmentedThumbs(next);
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const target = fadeQuestion ? next.querySelector(".exam-question-card") : null;
+  if (target && !reduced) {
+    target.animate([{ opacity: 0.35 }, { opacity: 1 }], { duration: 240, easing: "cubic-bezier(0.16, 1, 0.3, 1)" });
+  }
+  syncUrlState("replace");
+}
+
+function renderComparisonOnly() {
+  const selectedRegions = getSelectedRegions();
+  normalizeComparisonBaseline(selectedRegions);
+  const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
+  const wasOpen = elements.comparisonContent.querySelector(".exam-source-panel")?.hasAttribute("open");
+  elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  positionExamMarkers(elements.comparisonContent);
+  window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
+  if (wasOpen) elements.comparisonContent.querySelector(".exam-source-panel")?.setAttribute("open", "");
+  finishPartialRender();
+}
+
+function render() {
+  const trayMotion = window.ClimateMotion?.snapshotTray(elements.selectedTray);
+  const cardMotion = window.ClimateMotion?.snapshotCards(elements.selectedRegionsContent);
+  const chartMotion = window.TwMotion?.snapshotCharts(elements.comparisonContent);
+  const examSourcePanelWasOpen = elements.comparisonContent
+    .querySelector(".exam-source-panel")
+    ?.hasAttribute("open");
+  resetClimateCsvExports();
+
+  const visibleRegions = sortDisplayedRegions(getVisibleRegions());
+  const selectedRegions = getSelectedRegions();
+  normalizeComparisonBaseline(selectedRegions);
+  const mappableRegions = getMapRegions(visibleRegions, selectedRegions);
+
+  elements.heroCount.textContent = `${state.regions.length}곳`;
+  elements.heroCaption.textContent = buildHeroCaption();
+  elements.selectionSummary.textContent = `${selectedRegions.length}곳 선택`;
+  if (elements.selectedTray) {
+    elements.selectedTray.innerHTML = renderSelectedTray(selectedRegions);
+    window.ClimateMotion?.animateTray(elements.selectedTray, trayMotion);
+  }
+  elements.mapSummary.textContent = buildMapSummary(mappableRegions, selectedRegions);
+  elements.continentChips.innerHTML = renderContinentChips();
+  elements.hemisphereChips.innerHTML = renderHemisphereChips();
+  elements.climateChips.innerHTML = renderClimateChips();
+  elements.mapScopeChips.innerHTML = renderMapScopeChips();
+  elements.worldMap.innerHTML = renderWorldMap(mappableRegions);
+  applyMapMarkerLayout();
+  renderMapCandidatePicker();
+  elements.regionList.innerHTML = renderRegionOptions(visibleRegions);
+  elements.apiStatusSummary.textContent = buildApiStatusSummary();
+  elements.apiStatusText.textContent = buildApiStatusText();
+  elements.apiResults.innerHTML = renderApiResults();
+  elements.apiSearchButton.disabled =
+    state.apiLoading || elements.apiSearchInput.value.trim().length < 2;
+  const customRegionCount = getCustomRegions().length;
+  elements.resetCustomRegionsButton.textContent = "추가한 도시 지우기";
+  elements.resetCustomRegionsButton.hidden = customRegionCount === 0;
+  elements.resetCustomRegionsButton.disabled = state.apiLoading || customRegionCount === 0;
+  if (elements.downloadSelectedCsvButton) {
+    elements.downloadSelectedCsvButton.disabled = selectedRegions.length === 0;
+    elements.downloadSelectedCsvButton.textContent = "CSV";
+  }
+  elements.selectedRegionsContent.innerHTML = renderSelectedRegions(selectedRegions);
+  window.ClimateMotion?.animateCards(elements.selectedRegionsContent, cardMotion, elements.selectionSummary);
+  elements.comparisonContent.innerHTML = renderComparison(selectedRegions);
+  positionExamMarkers(elements.comparisonContent);
+  window.TwMotion?.animateCharts(elements.comparisonContent, chartMotion);
+  if (examSourcePanelWasOpen) {
+    elements.comparisonContent.querySelector(".exam-source-panel")?.setAttribute("open", "");
+  }
+  const urlSyncMode = nextUrlSyncMode;
+  nextUrlSyncMode = "replace";
+  syncUrlState(urlSyncMode);
+}
+
+function getVisibleRegions() {
+  const normalizedQuery = state.query.toLowerCase();
+  return state.regions.filter((region) => {
+    const matchesContinent =
+      state.continent === "전체" || region.continent === state.continent;
+    const matchesHemisphere =
+      state.hemisphere === "전체" || getHemisphere(region) === state.hemisphere;
+    const matchesClimate =
+      state.climateGroup === "전체" || region.climateGroup === state.climateGroup;
+
+    if (!matchesContinent || !matchesHemisphere || !matchesClimate) {
+      return false;
+    }
+
+    if (!normalizedQuery) {
+      return true;
+    }
+
+    return window.ClimateSearchKit.matches([
+      region.name, region.englishName, region.continent,
+      getHemisphere(region), region.country, region.climateGroup,
+      region.climateCode, region.id, ...(region.aliases ?? []),
+    ], normalizedQuery);
+  });
+}
+
+function countryDisplayName(region) {
+  return region.countryKo || region.countryNameKo || window.CLIMATE_COUNTRY_NAMES_KO?.[region.country] || region.country || "";
+}
+
+function getSelectedRegions() {
+  return [...state.selectedIds].map((id) => state.regions.find((region) => region.id === id)).filter(Boolean);
+}
+
+function sortDisplayedRegions(regions) {
+  return [...regions].sort(compareRegionsByActiveSort);
+}
+
+function compareRegionsByActiveSort(left, right) {
+  switch (state.regionSort) {
+    case "name":
+      return collator.compare(left.name, right.name);
+    case "annualPrecipitationDesc":
+      return compareNumericDescending(left.annualPrecipitationMm, right.annualPrecipitationMm, left, right);
+    case "annualRangeDesc":
+      return compareNumericDescending(getWorldAnnualTemperatureRange(left), getWorldAnnualTemperatureRange(right), left, right);
+    case "warmestMonthDesc":
+      return compareNumericDescending(getWarmestMonthTemperature(left), getWarmestMonthTemperature(right), left, right);
+    case "coldestMonthAsc":
+      return compareNumericAscending(getColdestMonthTemperature(left), getColdestMonthTemperature(right), left, right);
+    default:
+      return sortRegions(left, right);
+  }
+}
+
+function getMapRegions(visibleRegions, selectedRegions) {
+  if (state.mapScope === "selected") {
+    return selectedRegions.filter(hasCoordinates);
+  }
+
+  return visibleRegions.filter(hasCoordinates);
+}
+
+function buildHeroCaption() {
+  const summary = state.dataset?.summary ?? {};
+  const openMeteoFallback = summary.openMeteoFallback ?? 0;
+  const period = String(summary.period ?? API_NORMAL_PERIOD.label).replace("-", "–");
+  const liveApiCount = state.regions.filter((region) => region.source?.type === "open-meteo-live").length;
+
+  const parts = [`JMA ${period}`];
+  if (openMeteoFallback > 0) parts.push(`보완 ${openMeteoFallback}`);
+  if (liveApiCount > 0) parts.push(`추가 ${liveApiCount}`);
+  return parts.join(" ");
+}
+
+function buildMapSummary(mappableRegions, selectedRegions) {
+  if (state.mapScope === "selected") {
+    return `${mappableRegions.length}/${selectedRegions.length}곳`;
+  }
+
+  const totalMappable = state.regions.filter(hasCoordinates).length;
+  return `${mappableRegions.length}/${totalMappable}곳`;
+}
+
+function formatSourceLabel(region) {
+  const source = region.source ?? {};
+
+  if (source.type === "jma") {
+    const isTemperatureOnly = source.variableSources?.precipitation === "open-meteo";
+    return isTemperatureOnly
+      ? `JMA 기온 / Open-Meteo 강수 ${source.period ?? ""}`.trim()
+      : `JMA 평년값 ${source.period ?? ""}`.trim();
+  }
+
+  if (source.type === "open-meteo") {
+    return `Open-Meteo ERA5 보완 ${source.period ?? ""}`.trim();
+  }
+
+  if (source.type === "open-meteo-live") {
+    return `Open-Meteo ${source.period ?? ""}`.trim();
+  }
+
+  return source.label ?? "출처 정보 확인 필요";
+}
+
+function formatSourceStationLabel(region) {
+  const source = region.source ?? {};
+
+  if (source.type === "jma") {
+    const stationName = source.jmaStationName || "지점명 미상";
+    return source.stn ? `JMA 지점 ${stationName} (${source.stn})` : `JMA 지점 ${stationName}`;
+  }
+
+  if (source.type === "open-meteo" && source.jmaStatus === "unavailable") {
+    return "JMA 평년값 미수록 지점";
+  }
+
+  return "";
+}
+
+function renderMapScopeChips() {
+  return MAP_SCOPE_ORDER.map((scopeId) => {
+    const isActive = state.mapScope === scopeId;
+    return `
+      <button
+        type="button"
+        class="chip-button ${isActive ? "is-active" : ""}"
+        data-map-scope="${scopeId}"
+        aria-pressed="${isActive}"
+      >
+        ${escapeHtml(MAP_SCOPE_LABELS[scopeId])}
+      </button>
+    `;
+  }).join("");
+}
+
+function renderContinentChips() {
+  const primaryFilterOrder = APP_CONFIG.primaryFilterOrder;
+  const counts = primaryFilterOrder.reduce((accumulator, continent) => {
+    if (continent === "전체") {
+      accumulator[continent] = state.regions.length;
+    } else {
+      accumulator[continent] = state.regions.filter(
+        (region) => region.continent === continent
+      ).length;
+    }
+    return accumulator;
+  }, {});
+
+  return primaryFilterOrder.map((continent) => {
+    const isActive = state.continent === continent;
+    return `
+      <button
+        type="button"
+        class="chip-button ${isActive ? "is-active" : ""}"
+        data-continent="${escapeHtml(continent)}"
+        aria-pressed="${isActive}"
+      >
+        ${escapeHtml(continent)} (${counts[continent]})
+      </button>
+    `;
+  }).join("");
+}
+
+function renderHemisphereChips() {
+  const counts = HEMISPHERE_ORDER.reduce((accumulator, hemisphere) => {
+    if (hemisphere === "전체") {
+      accumulator[hemisphere] = state.regions.length;
+    } else {
+      accumulator[hemisphere] = state.regions.filter(
+        (region) => getHemisphere(region) === hemisphere
+      ).length;
+    }
+    return accumulator;
+  }, {});
+
+  return HEMISPHERE_ORDER.map((hemisphere) => {
+    const isActive = state.hemisphere === hemisphere;
+    return `
+      <button
+        type="button"
+        class="chip-button ${isActive ? "is-active" : ""}"
+        data-hemisphere="${escapeHtml(hemisphere)}"
+        aria-pressed="${isActive}"
+      >
+        ${escapeHtml(hemisphere)} (${counts[hemisphere]})
+      </button>
+    `;
+  }).join("");
+}
+
+function renderClimateChips() {
+  const counts = CLIMATE_FILTER_ORDER.reduce((accumulator, climateGroup) => {
+    if (climateGroup === "전체") {
+      accumulator[climateGroup] = state.regions.length;
+    } else {
+      accumulator[climateGroup] = state.regions.filter(
+        (region) => region.climateGroup === climateGroup
+      ).length;
+    }
+    return accumulator;
+  }, {});
+
+  return CLIMATE_FILTER_ORDER.map((climateGroup) => {
+    const isActive = state.climateGroup === climateGroup;
+    const count = counts[climateGroup];
+    const isDisabled = climateGroup !== "전체" && count === 0;
+    return `
+      <button
+        type="button"
+        class="chip-button ${isActive ? "is-active" : ""} ${isDisabled ? "is-disabled" : ""}"
+        data-climate-group="${escapeHtml(climateGroup)}"
+        aria-pressed="${isActive}"
+        ${isDisabled ? "disabled" : ""}
+      >
+        ${escapeHtml(climateGroup)} (${count})
+      </button>
+    `;
+  }).join("");
+}
+
+function renderRegionOptions(regions) {
+  if (regions.length === 0) {
+    return renderEmptyState("검색 결과가 없습니다", "");
+  }
+
+  return regions
+    .map((region) => {
+      const isSelected = state.selectedIds.has(region.id);
+      return `
+        <label class="region-option ${isSelected ? "is-selected" : ""}">
+          <div class="region-option-top">
+            <div class="region-option-title">
+              <strong>${escapeHtml(region.name)}</strong>
+              ${renderMetaList([countryDisplayName(region), region.continent, getHemisphere(region)])}
+            </div>
+            <span class="region-option-check-wrap">
+              <input
+                type="checkbox"
+                data-region-id="${region.id}"
+                ${isSelected ? "checked" : ""}
+                aria-label="${escapeHtml(region.name)} 선택"
+              />
+              <svg class="region-option-check-mark" viewBox="0 0 20 20" aria-hidden="true"><path d="m5 10 3.5 3.5L15 6" /></svg>
+            </span>
+          </div>
+          <div class="region-option-meta">
+            ${renderMetaList([region.climateCode, formatTemp(region.annualMeanTemperatureC), formatMm(region.annualPrecipitationMm)])}
+          </div>
+        </label>
+      `;
+    })
+    .join("");
+}
+
+function renderSelectedRegions(selectedRegions) {
+  if (selectedRegions.length === 0) {
+    return window.ClimateChartKit.renderEmptyOutline();
+  }
+
+  const sharedChartScale = buildClimateChartScale(selectedRegions);
+
+  return selectedRegions
+    .map((region, index) => {
+      const csvKey = registerClimateCsvExport(
+        `world-region-${region.id}-raw`,
+        ["월", "평균 기온(°C)", "강수량(mm)"],
+        [...region.months.map((month, monthIndex) => [
+          month,
+          Number.isFinite(region.monthlyTemperatureC[monthIndex]) ? round(region.monthlyTemperatureC[monthIndex]) : "",
+          Number.isFinite(region.monthlyPrecipitationMm[monthIndex]) ? round(region.monthlyPrecipitationMm[monthIndex]) : "",
+        ]), ["연간", region.annualMeanTemperatureC, region.annualPrecipitationMm]],
+        `${region.name}-월별기후`
+      );
+
+      return `
+        <article class="region-card world-region-card" data-region-id="${escapeHtml(region.id)}">
+          <header class="region-card-head">
+            <div class="region-card-title">
+              <div class="region-card-title-line"><h3>${escapeHtml(region.name)}</h3><span class="region-card-climate-pill">${escapeHtml(String(region.climateCode ?? "").replace(/^(?:남|북)\s*/, ""))}</span></div>
+              <p class="region-card-sub">${renderMetaList([
+                countryDisplayName(region),
+                region.continent,
+                getHemisphere(region),
+              ])}</p>
+            </div>
+            ${window.ClimateChartKit.renderLocator(region)}
+            <dl class="region-card-stats">
+              <div><dt>연평균 기온</dt><dd>${formatTemp(region.annualMeanTemperatureC)}</dd></div>
+              <div><dt>연 강수량</dt><dd>${formatMm(region.annualPrecipitationMm)}</dd></div>
+            </dl>
+            ${
+              region.source?.type === "open-meteo-live"
+                ? `<button
+                    type="button"
+                    class="ghost-button custom-region-delete-button"
+                    data-delete-custom-region-id="${escapeHtml(region.id)}"
+                    aria-label="${escapeHtml(`${region.name} 추가 지역 삭제`)}"
+                  >삭제</button>`
+                : ""
+            }
+          </header>
+          <div class="region-card-chart">
+            ${renderClimateChart(region, sharedChartScale)}
+          </div>
+          <details class="climate-data-details">
+            <summary class="tw-disclosure-chevron">원 데이터</summary>
+            <div class="climate-data-tools">
+              <button
+                type="button"
+                class="ghost-button climate-csv-download"
+                data-climate-csv-download="${escapeHtml(csvKey)}"
+              >
+                CSV
+              </button>
+            </div>
+            <div class="table-wrap region-card-table is-transposed">
+              <table class="transpose-table">
+                <thead>
+                  <tr>
+                    <th></th>
+                    ${region.months.map((month, monthIndex) => `<th>${monthIndex + 1}</th>`).join("")}
+                    <th>연간</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">기온 °C</th>
+                    ${region.monthlyTemperatureC.map((value) => `<td>${climateDisplayNumber(value)}</td>`).join("")}
+                    <td>${climateDisplayNumber(region.annualMeanTemperatureC)}</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">강수량 mm</th>
+                    ${region.monthlyPrecipitationMm.map((value) => `<td>${climateDisplayNumber(value)}</td>`).join("")}
+                    <td>${climateDisplayNumber(region.annualPrecipitationMm)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </article>
+      `
+    })
+    .join("");
+}
+
+function buildClimateChartScale(regions) {
+  return window.ClimateChartKit.buildScale(regions);
+}
+
+function buildApiStatusSummary() {
+  if (state.apiLoading) {
+    return "찾는 중…";
+  }
+
+  const resultCount = state.apiResults.length;
+  const liveApiCount = state.regions.filter((region) => region.source?.type === "open-meteo-live").length;
+  return `결과 ${resultCount}곳, 추가 ${liveApiCount}곳`;
+}
+
+function buildApiStatusText() {
+  if (state.apiMessage) {
+    return state.apiMessage;
+  }
+
+  return "";
+}
+
+function renderApiResults() {
+  if (state.apiResults.length === 0) {
+    return "";
+  }
+
+  return state.apiResults
+    .map((result, index) => {
+      const existingRegion = findExistingRegionForApiResult(result);
+      const resultKey = getApiResultKey(result);
+      const isBusy = state.apiBusyKey === resultKey;
+      const locationMeta = [result.country, result.admin1, result.timezone].filter(Boolean);
+
+      return `
+        <article class="api-result-card">
+          <div class="api-result-card-head">
+            <div>
+              <h3>${escapeHtml(result.name)}</h3>
+              <p class="api-result-meta">${renderMetaList(locationMeta)}</p>
+            </div>
+            ${
+              existingRegion
+                ? `
+                  <button
+                    type="button"
+                    class="ghost-button"
+                    data-existing-region-id="${existingRegion.id}"
+                    data-region-name="${escapeHtml(existingRegion.name)}"
+                  >
+                    기존 지역 선택
+                  </button>
+                `
+                : `
+                  <button
+                    type="button"
+                    class="ghost-button"
+                    data-api-result-index="${index}"
+                    ${isBusy ? "disabled" : ""}
+                  >
+                    ${isBusy ? "추가하는 중…" : "추가"}
+                  </button>
+                `
+            }
+          </div>
+          <div class="api-result-pills">
+            <span class="stat-pill">좌표 ${escapeHtml(formatCoordinatePair(result))}</span>
+            ${
+              Number.isFinite(result.elevation)
+                ? `<span class="stat-pill">해발 ${escapeHtml(formatMeters(result.elevation))}</span>`
+                : ""
+            }
+            ${
+              Number.isFinite(result.population)
+                ? `<span class="stat-pill">인구 ${escapeHtml(formatPopulation(result.population))}</span>`
+                : ""
+            }
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+async function searchApiRegions() {
+  const query = elements.apiSearchInput.value.trim();
+  if (query.length < 2 || state.apiLoading) {
+    return;
+  }
+
+  state.apiLoading = true;
+  state.apiBusyKey = "";
+  state.apiMessage = "찾는 중…";
+  render();
+
+  try {
+    const url = new URL(API_SEARCH_URL);
+    url.searchParams.set("name", query);
+    url.searchParams.set("count", "8");
+    url.searchParams.set("language", "ko");
+    url.searchParams.set("format", "json");
+    if (APP_CONFIG.apiSearchCountryCode) {
+      url.searchParams.set("countryCode", APP_CONFIG.apiSearchCountryCode);
+    }
+
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`위치 검색에 실패했습니다. (${response.status})`);
+    }
+
+    const payload = await response.json();
+    state.apiResults = (payload.results ?? []).map(normalizeApiSearchResult);
+    state.apiMessage = state.apiResults.length > 0
+      ? ""
+      : `'${query}'${hasFinalConsonant(query) ? "을" : "를"} 찾지 못했습니다`;
+  } catch (error) {
+    state.apiResults = [];
+    console.warn("Climate location search failed:", error);
+    state.apiMessage = "지금은 검색할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+  } finally {
+    state.apiLoading = false;
+    render();
+  }
+}
+
+async function addRegionFromApiResult(resultIndex) {
+  const result = state.apiResults[resultIndex];
+  if (!result) {
+    return;
+  }
+
+  const existingRegion = findExistingRegionForApiResult(result);
+  if (existingRegion) {
+    toggleRegion(existingRegion.id, true);
+    state.apiMessage = `${withTopicParticle(existingRegion.name)} 이미 목록에 있어 바로 선택했습니다`;
+    pushUrlStateOnNextRender();
+    render();
+    return;
+  }
+
+  const resultKey = getApiResultKey(result);
+  state.apiLoading = true;
+  state.apiBusyKey = resultKey;
+  state.apiMessage = `${result.name} 평년값 계산 중…`;
+  render();
+
+  try {
+    const climate = await fetchApiClimateNormals(result);
+    const region = createRegionFromApiResult(result, climate);
+
+    state.regions = mergeRegions(state.regions, [region]).sort(sortRegions);
+    persistCustomRegions();
+    toggleRegion(region.id, true);
+    state.continent = "전체";
+    state.hemisphere = "전체";
+    state.climateGroup = "전체";
+    state.query = region.name;
+    elements.searchInput.value = region.name;
+    state.apiMessage = `${withObjectParticle(region.name)} 추가했습니다`;
+    pushUrlStateOnNextRender();
+  } catch (error) {
+    console.warn("Climate normals fetch failed:", error);
+    state.apiMessage = error instanceof Error && error.message === "일별 자료가 부족해 계산할 수 없습니다"
+      ? error.message
+      : "지금은 검색할 수 없습니다. 잠시 후 다시 시도해 주세요.";
+  } finally {
+    state.apiLoading = false;
+    state.apiBusyKey = "";
+    render();
+  }
+}
+
+function normalizeApiSearchResult(result) {
+  return {
+    id: result.id ?? null,
+    name: result.name,
+    englishName: result.name,
+    latitude: Number(result.latitude),
+    longitude: Number(result.longitude),
+    elevation: Number.isFinite(result.elevation) ? Number(result.elevation) : null,
+    country: result.country ?? "",
+    countryCode: result.country_code ?? "",
+    timezone: result.timezone ?? "",
+    population: Number.isFinite(result.population) ? Number(result.population) : null,
+    admin1: result.admin1 ?? "",
+  };
+}
+
+async function fetchApiClimateNormals(location) {
+  const url = buildArchiveApiUrl(location);
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`기후 데이터를 불러오지 못했습니다. (${response.status})`);
+  }
+
+  const payload = await response.json();
+  const daily = payload.daily ?? {};
+  const time = daily.time ?? [];
+  const temperatures = daily.temperature_2m_mean ?? [];
+  const precipitations = daily.precipitation_sum ?? [];
+
+  if (time.length === 0 || temperatures.length !== time.length || precipitations.length !== time.length) {
+    throw new Error("일별 자료가 부족해 계산할 수 없습니다");
+  }
+
+  return {
+    ...buildMonthlyNormalsFromDaily(time, temperatures, precipitations),
+    apiUrl: url.toString(),
+  };
+}
+
+function buildMonthlyNormalsFromDaily(times, temperatures, precipitations) {
+  const byMonthOfYear = new Array(12).fill(null).map(() => ({
+    temperatureSum: 0,
+    temperatureCount: 0,
+    precipitationSum: 0,
+    monthCount: 0,
+  }));
+  const byYearMonth = new Map();
+
+  times.forEach((time, index) => {
+    const monthIndex = Number(time.slice(5, 7)) - 1;
+    const bucketKey = time.slice(0, 7);
+    if (!byYearMonth.has(bucketKey)) {
+      byYearMonth.set(bucketKey, {
+        monthIndex,
+        temperatureSum: 0,
+        temperatureCount: 0,
+        precipitationTotal: 0,
+      });
+    }
+
+    const bucket = byYearMonth.get(bucketKey);
+    const temperatureValue = Number(temperatures[index]);
+    const precipitationValue = Number(precipitations[index]);
+
+    if (Number.isFinite(temperatureValue)) {
+      bucket.temperatureSum += temperatureValue;
+      bucket.temperatureCount += 1;
+    }
+
+    if (Number.isFinite(precipitationValue)) {
+      bucket.precipitationTotal += precipitationValue;
+    }
+  });
+
+  for (const bucket of byYearMonth.values()) {
+    const monthBucket = byMonthOfYear[bucket.monthIndex];
+    if (bucket.temperatureCount > 0) {
+      monthBucket.temperatureSum += bucket.temperatureSum / bucket.temperatureCount;
+      monthBucket.temperatureCount += 1;
+    }
+    monthBucket.precipitationSum += bucket.precipitationTotal;
+    monthBucket.monthCount += 1;
+  }
+
+  const monthlyTemperatureC = byMonthOfYear.map((bucket) =>
+    bucket.temperatureCount > 0 ? round(bucket.temperatureSum / bucket.temperatureCount) : 0
+  );
+  const monthlyPrecipitationMm = byMonthOfYear.map((bucket) =>
+    bucket.monthCount > 0 ? round(bucket.precipitationSum / bucket.monthCount) : 0
+  );
+
+  return {
+    months: MONTH_LABELS,
+    monthlyTemperatureC,
+    monthlyPrecipitationMm,
+    annualMeanTemperatureC: average(monthlyTemperatureC),
+    annualPrecipitationMm: round(
+      monthlyPrecipitationMm.reduce((sum, value) => sum + Number(value), 0)
+    ),
+  };
+}
+
+function createRegionFromApiResult(result, climate) {
+  const climateGroup = classifyClimateGroup({
+    monthlyTemperatureC: climate.monthlyTemperatureC,
+    monthlyPrecipitationMm: climate.monthlyPrecipitationMm,
+    latitude: result.latitude,
+    elevationM: result.elevation,
+  });
+  const regionId = result.id ? `api-${result.id}` : buildFallbackApiRegionId(result);
+
+  return {
+    id: regionId,
+    name: result.name,
+    englishName: result.englishName,
+    aliases: [result.name, result.englishName, result.admin1, result.country].filter(Boolean),
+    continent: inferPrimaryCategory(result.countryCode, result.latitude, result.longitude),
+    country: result.country,
+    countryCode: result.countryCode,
+    timezone: result.timezone,
+    elevationM: result.elevation,
+    climateCode: climateGroup,
+    climateGroup,
+    months: climate.months,
+    monthlyTemperatureC: climate.monthlyTemperatureC,
+    monthlyPrecipitationMm: climate.monthlyPrecipitationMm,
+    annualMeanTemperatureC: climate.annualMeanTemperatureC,
+    annualPrecipitationMm: climate.annualPrecipitationMm,
+    coordinates: {
+      latitude: result.latitude,
+      longitude: result.longitude,
+    },
+    hemisphere: result.latitude >= 0 ? "북반구" : "남반구",
+    source: {
+      type: "open-meteo-live",
+      label: "Open-Meteo",
+      period: API_NORMAL_PERIOD.label,
+      geocodingUrl: "https://open-meteo.com/en/docs/geocoding-api",
+      weatherUrl: "https://open-meteo.com/en/docs/historical-weather-api",
+      apiUrl: climate.apiUrl,
+    },
+  };
+}
+
+function buildArchiveApiUrl(location) {
+  const url = new URL(API_ARCHIVE_URL);
+  url.searchParams.set("latitude", String(location.latitude));
+  url.searchParams.set("longitude", String(location.longitude));
+  url.searchParams.set("start_date", API_NORMAL_PERIOD.start);
+  url.searchParams.set("end_date", API_NORMAL_PERIOD.end);
+  url.searchParams.set("daily", "temperature_2m_mean,precipitation_sum");
+  url.searchParams.set("timezone", "auto");
+  url.searchParams.set("models", "era5");
+  url.searchParams.set("cell_selection", "land");
+
+  if (Number.isFinite(location.elevation)) {
+    url.searchParams.set("elevation", String(location.elevation));
+  }
+
+  return url;
+}
+
+function findExistingRegionForApiResult(result) {
+  return state.regions.find((region) => {
+    if (!hasCoordinates(region)) {
+      return false;
+    }
+
+    const sameCountry =
+      !result.country || normalizeText(region.country ?? "") === normalizeText(result.country);
+    const sameName =
+      normalizeText(region.name) === normalizeText(result.name) ||
+      normalizeText(region.englishName ?? "") === normalizeText(result.englishName ?? "");
+    const closeDistance =
+      Math.abs(region.coordinates.latitude - result.latitude) < 0.45 &&
+      Math.abs(region.coordinates.longitude - result.longitude) < 0.45;
+    const nearlySamePoint =
+      Math.abs(region.coordinates.latitude - result.latitude) < 0.15 &&
+      Math.abs(region.coordinates.longitude - result.longitude) < 0.15;
+
+    return (sameName && closeDistance) || (sameCountry && nearlySamePoint);
+  });
+}
+
+function getApiResultKey(result) {
+  return result.id ? String(result.id) : `${result.name}-${result.latitude}-${result.longitude}`;
+}
+
+function buildFallbackApiRegionId(result) {
+  return `api-${normalizeText(result.name).replaceAll(/\s+/g, "-")}-${Math.abs(
+    Math.round(result.latitude * 10)
+  )}-${Math.abs(Math.round(result.longitude * 10))}`;
+}
+
+function loadSavedCustomRegions() {
+  try {
+    if (!window.localStorage) {
+      return [];
+    }
+    const rawValue = window.localStorage.getItem(CUSTOM_REGIONS_STORAGE_KEY);
+    if (!rawValue) {
+      return [];
+    }
+
+    const parsed = JSON.parse(rawValue);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter(isValidPersistedRegion);
+  } catch (error) {
+    console.warn("Failed to restore custom climate regions:", error);
+    return [];
+  }
+}
+
+function persistCustomRegions() {
+  try {
+    if (!window.localStorage) {
+      return;
+    }
+    const customRegions = state.regions
+      .filter((region) => region.source?.type === "open-meteo-live")
+      .filter(isValidPersistedRegion);
+    if (customRegions.length === 0) {
+      window.localStorage.removeItem(CUSTOM_REGIONS_STORAGE_KEY);
+      return;
+    }
+    window.localStorage.setItem(CUSTOM_REGIONS_STORAGE_KEY, JSON.stringify(customRegions));
+  } catch (error) {
+    console.warn("Failed to save custom climate regions:", error);
+  }
+}
+
+function mergeRegions(baseRegions, incomingRegions) {
+  const merged = new Map(baseRegions.map((region) => [region.id, region]));
+
+  incomingRegions.forEach((region) => {
+    if (!isValidPersistedRegion(region)) {
+      return;
+    }
+
+    merged.set(region.id, region);
+  });
+
+  return [...merged.values()];
+}
+
+function isValidPersistedRegion(region) {
+  return (
+    typeof region?.id === "string" &&
+    typeof region?.name === "string" &&
+    Array.isArray(region?.months) &&
+    region.months.length === 12 &&
+    Array.isArray(region?.monthlyTemperatureC) &&
+    region.monthlyTemperatureC.length === 12 &&
+    Array.isArray(region?.monthlyPrecipitationMm) &&
+    region.monthlyPrecipitationMm.length === 12 &&
+    typeof region?.continent === "string" &&
+    typeof region?.climateGroup === "string" &&
+    Number.isFinite(region?.annualMeanTemperatureC) &&
+    Number.isFinite(region?.annualPrecipitationMm) &&
+    hasCoordinates(region)
+  );
+}
+
+function renderComparison(selectedRegions) {
+  if (selectedRegions.length < 2) {
+    return renderEmptyState("두 곳 이상 선택하면 비교할 수 있습니다", "", true);
+  }
+
+  return (
+    window.ComparisonKit.render({
+      mode: state.comparisonMode,
+      baselineId: state.comparisonBaseline,
+      regions: selectedRegions.map((region) => ({
+        id: region.id,
+        name: region.name,
+        temps: region.monthlyTemperatureC,
+        precs: region.monthlyPrecipitationMm,
+      })),
+      csv: (key, headers, rows, filename) => registerClimateCsvExport(`world-${key}`, headers, rows, filename),
+    }) + renderExamClimateSourcePanel(selectedRegions)
+  );
+}
+
+function renderExamClimateSourcePanel(selectedRegions) {
+  const statements = getExamClimateStatements();
+  if (statements.length === 0) {
+    return "";
+  }
+
+  const monthContext = getExamMonthContext();
+  const generatedGroups = buildExamGeneratedComparisonGroups(selectedRegions, statements, monthContext);
+  const matchedFeatureGroups = getMatchedExamFeatureGroups(selectedRegions, statements);
+  const multipleChoiceQuestion = buildExamMultipleChoiceQuestion(
+    selectedRegions,
+    generatedGroups,
+    matchedFeatureGroups,
+    statements,
+    monthContext
+  );
+
+  const featureCards = mergeExamFeatureGroups(matchedFeatureGroups);
+
+  return `
+    <details class="exam-source-panel">
+      <summary class="exam-source-summary tw-disclosure-chevron">
+        <strong>기출 기반 선지</strong>
+      </summary>
+      <div class="exam-source-content">
+        ${renderExamMultipleChoiceQuestion(multipleChoiceQuestion)}
+        <section class="exam-source-block">
+          <h4><span>지역 특성</span><span class="tw-chip-count">${featureCards.length}</span></h4>
+          ${
+            featureCards.length > 0
+              ? `<div class="exam-feature-list">${featureCards.map(renderExamFeatureItem).join("")}</div>`
+              : renderExamMiniEmptyState("해당하는 선지가 없습니다")
+          }
+        </section>
+        <section class="exam-source-block">
+          <h4><span>지역 비교</span><span class="tw-chip-count">${generatedGroups.length}</span></h4>
+          ${
+            generatedGroups.length > 0
+              ? `<div class="exam-group-grid">${generatedGroups.map(renderExamGeneratedGroup).join("")}</div>`
+              : renderExamMiniEmptyState("해당하는 선지가 없습니다")
+          }
+        </section>
+      </div>
+    </details>
+  `;
+}
+
+function getExamClimateStatements() {
+  if (!Array.isArray(window.EXAM_CLIMATE_STATEMENTS)) {
+    return [];
+  }
+
+  return window.EXAM_CLIMATE_STATEMENTS.filter((statement) => !statement.source?.includes("해설"));
+}
+
+function getExamMonthContext() {
+  return buildExamMonthContext(state.examMonthIndex, state.examUseNightLength);
+}
+
+function buildExamMonthContext(monthIndex, useNightLength = state.examUseNightLength) {
+  const normalizedMonthIndex = normalizeExamMonthIndex(monthIndex);
+  const option = EXAM_MONTH_OPTIONS.find((candidate) => candidate.value === normalizedMonthIndex) ?? EXAM_MONTH_OPTIONS[0];
+  return {
+    monthIndex: option.value,
+    monthLabel: option.label,
+    dayOfYear: option.dayOfYear,
+    useNightLength,
+    dayNightLabel: useNightLength ? "밤 길이" : "낮 길이",
+  };
+}
+
+function normalizeExamMonthIndex(monthIndex) {
+  return EXAM_MONTH_OPTIONS.some((option) => option.value === monthIndex) ? monthIndex : EXAM_MONTH_OPTIONS[0].value;
+}
+
+function buildExamGeneratedComparisonGroups(selectedRegions, statements, monthContext) {
+  const sourceMap = new Map(statements.map((statement) => [statement.id, statement]));
+  const groupMap = new Map();
+
+  for (const template of EXAM_COMPARISON_TEMPLATES) {
+    const sources = template.sourceIds.map((sourceId) => sourceMap.get(sourceId)).filter(Boolean);
+    if (sources.length === 0) {
+      continue;
+    }
+
+    let group = groupMap.get(template.categoryKey);
+    if (!group) {
+      group = {
+        id: template.categoryKey,
+        categoryGroupKey: getExamTemplateCategoryGroupKey(template.categoryKey),
+        title: resolveExamTemplateValue(template.title, monthContext),
+        pattern: resolveExamTemplateValue(template.pattern, monthContext),
+        reversePattern: resolveExamTemplateValue(template.reversePattern, monthContext),
+        metricLabel: resolveExamTemplateValue(template.label, monthContext),
+        unit: template.unit,
+        minDifference: template.minDifference,
+        usesMonth: Boolean(template.usesMonth),
+        supportsNightToggle: Boolean(template.supportsNightToggle),
+        badges: template.badges ?? [],
+        renderSuperlativePositive: template.renderSuperlativePositive,
+        renderSuperlativeReverse: template.renderSuperlativeReverse,
+        monthContext,
+        sources: [],
+        sourceIds: new Set(),
+        examples: [],
+        exampleKeys: new Set(),
+        regionValues: [],
+        regionValueKeys: new Set(),
+        maxDifference: 0,
+      };
+      groupMap.set(template.categoryKey, group);
+    }
+
+    sources.forEach((source) => {
+      if (!group.sourceIds.has(source.id)) {
+        group.sources.push(source);
+        group.sourceIds.add(source.id);
+      }
+    });
+
+    selectedRegions.forEach((region) => {
+      if (group.regionValueKeys.has(region.id)) {
+        return;
+      }
+      const value = template.getValue(region, monthContext);
+      if (!Number.isFinite(value)) {
+        return;
+      }
+      group.regionValues.push({ region, value });
+      group.regionValueKeys.add(region.id);
+    });
+
+    for (let leftIndex = 0; leftIndex < selectedRegions.length; leftIndex += 1) {
+      for (let rightIndex = leftIndex + 1; rightIndex < selectedRegions.length; rightIndex += 1) {
+        const left = selectedRegions[leftIndex];
+        const right = selectedRegions[rightIndex];
+        const leftValue = template.getValue(left, monthContext);
+        const rightValue = template.getValue(right, monthContext);
+        if (!Number.isFinite(leftValue) || !Number.isFinite(rightValue)) {
+          continue;
+        }
+
+        const difference = Math.abs(leftValue - rightValue);
+        if (difference < template.minDifference) {
+          continue;
+        }
+
+        const higher = leftValue >= rightValue ? left : right;
+        const lower = leftValue >= rightValue ? right : left;
+        const exampleKey = `${higher.id}-${lower.id}`;
+        if (group.exampleKeys.has(exampleKey)) {
+          continue;
+        }
+
+        const higherValue = Math.max(leftValue, rightValue);
+        const lowerValue = Math.min(leftValue, rightValue);
+        group.maxDifference = Math.max(group.maxDifference, difference);
+        group.exampleKeys.add(exampleKey);
+        group.examples.push({
+          id: `${template.categoryKey}-${higher.id}-${lower.id}`,
+          categoryKey: template.categoryKey,
+          categoryTitle: group.title,
+          text: template.renderPositive(higher, lower, monthContext),
+          reverseText: template.renderReverse(higher, lower, monthContext),
+          falseText: template.renderFalse(higher, lower, monthContext),
+          falseReverseText: template.renderPositive(lower, higher, monthContext),
+          higherName: higher.name,
+          lowerName: lower.name,
+          higherRegion: higher,
+          lowerRegion: lower,
+          regionNames: [higher.name, lower.name],
+          pairKey: buildPairKey(higher.name, lower.name),
+          higherValue,
+          lowerValue,
+          difference,
+          source: group.sources[0] ?? null,
+        });
+      }
+    }
+  }
+
+  return [...groupMap.values()]
+    .filter((group) => group.examples.length > 0)
+    .map((group) => ({
+      ...group,
+      sourceIds: undefined,
+      exampleKeys: undefined,
+      regionValueKeys: undefined,
+      regionValues: group.regionValues.sort((left, right) => right.value - left.value),
+      examples: group.examples.sort((left, right) => right.difference - left.difference),
+    }))
+    .sort((left, right) => right.maxDifference - left.maxDifference);
+}
+
+function getMatchedExamFeatureGroups(selectedRegions, statements) {
+  const selectedNames = new Set(selectedRegions.map((region) => normalizeText(region.name)));
+
+  return statements
+    .filter(isExamFeatureAutomatable)
+    .map((statement) => ({
+      statement,
+      matchingRegions: selectedRegions.filter((region) => doesExamFeatureMatchRegion(statement, region)),
+    }))
+    .filter((group) => group.matchingRegions.length > 0)
+    .sort((left, right) => {
+      const leftDirect = (left.statement.regions ?? []).some((regionName) => selectedNames.has(normalizeText(regionName)));
+      const rightDirect = (right.statement.regions ?? []).some((regionName) => selectedNames.has(normalizeText(regionName)));
+      if (leftDirect !== rightDirect) {
+        return leftDirect ? -1 : 1;
+      }
+      return collator.compare(left.statement.source, right.statement.source);
+    });
+}
+
+function isExamFeatureAutomatable(statement) {
+  if (statement.kind !== "region-feature" || statement.automation === "reference-only") {
+    return false;
+  }
+  if (statement.automation === "computed") {
+    return typeof EXAM_FEATURE_PREDICATES[statement.predicateKey] === "function";
+  }
+  if (statement.automation === "climate-group") {
+    return (statement.climateGroups ?? []).length > 0;
+  }
+  if (statement.automation === "allowlist") {
+    return (statement.regions ?? []).length > 0;
+  }
+  return false;
+}
+
+function doesExamFeatureMatchRegion(statement, region) {
+  if (!isExamFeatureAutomatable(statement)) {
+    return false;
+  }
+  const regionMatches = (statement.regions ?? []).some((regionName) => normalizeText(regionName) === normalizeText(region.name));
+  if (regionMatches) {
+    return true;
+  }
+  if (statement.automation === "computed") {
+    return Boolean(EXAM_FEATURE_PREDICATES[statement.predicateKey]?.(region));
+  }
+  return (
+    statement.automation === "climate-group" &&
+    region.classificationReview?.status !== "review-required" &&
+    (statement.climateGroups ?? []).includes(region.climateGroup)
+  );
+}
+
+function resolveExamTemplateValue(value, monthContext) {
+  return typeof value === "function" ? value(monthContext) : value;
+}
+
+function buildPairKey(leftName, rightName) {
+  return [leftName, rightName].sort((left, right) => collator.compare(left, right)).join("__");
+}
+
+function getExamTemplateCategoryGroupKey(categoryKey) {
+  return EXAM_DUPLICATE_CATEGORY_GROUPS[categoryKey] ?? categoryKey;
+}
+
+function buildExamMultipleChoiceQuestion(selectedRegions, comparisonGroups, featureGroups, statements, monthContext) {
+  if (selectedRegions.length < 2) {
+    return null;
+  }
+
+  const seed = buildExamQuestionSeed(selectedRegions, monthContext);
+  const questionComparisonGroups = buildExamQuestionComparisonGroups(selectedRegions, statements, monthContext);
+  const discriminatingFeatureGroups = featureGroups.filter((group) =>
+    isExamFeatureDiscriminatingForSelection(group.statement, selectedRegions)
+  );
+  const trueCandidates = [
+    ...questionComparisonGroups.flatMap((group, groupIndex) =>
+      group.examples.map((example, exampleIndex) =>
+        buildComparisonChoiceCandidate(group, example, true, seed + groupIndex * 101 + exampleIndex)
+      )
+    ),
+    ...buildSuperlativeChoiceCandidates(questionComparisonGroups, selectedRegions, monthContext, true, seed + 5009),
+    ...discriminatingFeatureGroups.flatMap((group, groupIndex) =>
+      group.matchingRegions.map((region, regionIndex) =>
+        buildFeatureChoiceCandidate(group.statement, region, true, seed + groupIndex * 307 + regionIndex)
+      )
+    ),
+  ];
+  const falseCandidates = [
+    ...questionComparisonGroups.flatMap((group, groupIndex) =>
+      group.examples.map((example, exampleIndex) =>
+        buildComparisonChoiceCandidate(group, example, false, seed + groupIndex * 149 + exampleIndex + 9001)
+      )
+    ),
+    ...buildSuperlativeChoiceCandidates(questionComparisonGroups, selectedRegions, monthContext, false, seed + 8009),
+    ...buildFalseFeatureChoiceCandidates(selectedRegions, statements, seed + 11003),
+  ];
+
+  if (trueCandidates.length === 0 || falseCandidates.length < 4) {
+    return null;
+  }
+
+  const hasSuperlativeCandidates = [...trueCandidates, ...falseCandidates].some(
+    (candidate) => candidate.kind === "superlative"
+  );
+  const shouldUseSuperlativeSlot = hasSuperlativeCandidates && state.examQuestionSeed % 3 === 0;
+  const preferredTrueKind =
+    shouldUseSuperlativeSlot && state.examQuestionSeed % 6 === 0
+      ? "superlative"
+      : seed % 2 === 0
+        ? "comparison"
+        : "feature";
+  const shuffledTrueCandidates = seededShuffle(trueCandidates, seed);
+  const trueChoice =
+    shuffledTrueCandidates.find((candidate) => candidate.kind === preferredTrueKind) ?? shuffledTrueCandidates[0];
+  const selectedChoices = [trueChoice];
+  const tracker = createExamChoiceTracker();
+  rememberExamChoice(tracker, trueChoice);
+
+  const desiredKinds =
+    trueChoice.kind === "comparison"
+      ? shouldUseSuperlativeSlot
+        ? ["feature", "superlative", "feature", "comparison"]
+        : ["feature", "comparison", "feature", "comparison"]
+      : trueChoice.kind === "feature"
+        ? shouldUseSuperlativeSlot
+          ? ["comparison", "feature", "superlative", "comparison"]
+          : ["comparison", "feature", "comparison", "feature"]
+        : ["comparison", "feature", "comparison", "feature"];
+  const shuffledFalseCandidates = seededShuffle(falseCandidates, seed + 17);
+  const regularFalseCandidates = shuffledFalseCandidates.filter((candidate) => candidate.kind !== "superlative");
+  const superlativeFalseCandidates = shuffledFalseCandidates.filter((candidate) => candidate.kind === "superlative");
+
+  desiredKinds.forEach((kind) => {
+    if (selectedChoices.length >= 5) {
+      return;
+    }
+    const candidate = shuffledFalseCandidates.find(
+      (item) => item.kind === kind && canUseExamChoice(item, tracker, true)
+    );
+    if (candidate) {
+      selectedChoices.push(candidate);
+      rememberExamChoice(tracker, candidate);
+    }
+  });
+
+  regularFalseCandidates.forEach((candidate) => {
+    if (selectedChoices.length >= 5 || !canUseExamChoice(candidate, tracker, true)) {
+      return;
+    }
+    selectedChoices.push(candidate);
+    rememberExamChoice(tracker, candidate);
+  });
+
+  regularFalseCandidates.forEach((candidate) => {
+    if (selectedChoices.length >= 5 || !canUseExamChoice(candidate, tracker, false)) {
+      return;
+    }
+    selectedChoices.push(candidate);
+    rememberExamChoice(tracker, candidate);
+  });
+
+  superlativeFalseCandidates.forEach((candidate) => {
+    if (selectedChoices.length >= 5 || !canUseExamChoice(candidate, tracker, false)) {
+      return;
+    }
+    selectedChoices.push(candidate);
+    rememberExamChoice(tracker, candidate);
+  });
+
+  if (selectedChoices.length < 5) {
+    return null;
+  }
+
+  const variableRegions = orderExamRegionsForVariables(selectedRegions);
+  const variables = buildExamVariableLabels(variableRegions);
+  const choices = orderExamChoices(selectedChoices, seed + 31, variables);
+  const answerIndex = choices.findIndex((choice) => choice.isTrue);
+
+  return {
+    prompt: "지도에 표시된 지역에 대한 설명으로 옳은 것은?",
+    variablePrompt: buildExamVariablePrompt(variables),
+    choices,
+    answerIndex,
+    mapRegions: variableRegions.filter(hasCoordinates),
+    variables,
+  };
+}
+
+function buildExamVariablePrompt(variables) {
+  const first = variables[0]?.label;
+  const last = variables[variables.length - 1]?.label;
+  const range = first && last && first !== last ? `${first}~${last}` : (first ?? "");
+  return `지도에 표시된 ${range} 지역에 대한 설명으로 옳은 것은?`;
+}
+
+function orderExamRegionsForVariables(selectedRegions) {
+  const projection = buildMapProjection();
+  return [...selectedRegions]
+    .map((region, index) => ({
+      region,
+      index,
+      mapLeft: getExamRegionMapLeft(region, projection),
+      latitude: Number.isFinite(region.coordinates?.latitude)
+        ? region.coordinates.latitude
+        : Number.NEGATIVE_INFINITY,
+    }))
+    .sort((left, right) => {
+      const latitudeDifference = Math.abs(left.latitude - right.latitude);
+      if (latitudeDifference >= EXAM_LATITUDE_VARIABLE_PRIORITY_DIFFERENCE) {
+        return right.latitude - left.latitude;
+      }
+      if (left.mapLeft !== right.mapLeft) {
+        return left.mapLeft - right.mapLeft;
+      }
+      return left.index - right.index;
+    })
+    .map((item) => item.region);
+}
+
+function getExamRegionMapLeft(region, projection) {
+  if (!hasCoordinates(region)) {
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const position = projectCoordinateToPercent(region.coordinates, projection);
+  if (Number.isFinite(position.left)) {
+    return position.left;
+  }
+
+  return region.coordinates.longitude;
+}
+
+function buildExamVariableLabels(regions) {
+  return regions.map((region, index) => ({
+    regionId: region.id,
+    regionName: region.name,
+    label: EXAM_VARIABLE_LABELS[index] ?? `R${index + 1}`,
+  }));
+}
+
+function buildExamQuestionComparisonGroups(selectedRegions, statements, monthContext) {
+  const baseGroups = comparisonGroupsWithQuestionContext(
+    buildExamGeneratedComparisonGroups(selectedRegions, statements, monthContext),
+    monthContext
+  );
+  const nonMonthlyGroups = baseGroups.filter((group) => !group.usesMonth);
+  const monthlyGroups = EXAM_MONTH_OPTIONS.flatMap((option) => {
+    const optionContext = buildExamMonthContext(option.value, monthContext.useNightLength);
+    return comparisonGroupsWithQuestionContext(
+      buildExamGeneratedComparisonGroups(selectedRegions, statements, optionContext),
+      optionContext
+    ).filter((group) => group.usesMonth);
+  });
+
+  return [...nonMonthlyGroups, ...monthlyGroups];
+}
+
+function comparisonGroupsWithQuestionContext(groups, monthContext) {
+  return groups.map((group) => ({ ...group, monthContext }));
+}
+
+function buildComparisonChoiceCandidate(group, example, isTrue, seed) {
+  const usePositiveDirection = shouldUsePositiveExamDirection(seed, group.id, example.id, isTrue);
+  const higherValue = formatExamEvidenceValue(group, example.higherRegion, example.higherValue);
+  const lowerValue = formatExamEvidenceValue(group, example.lowerRegion, example.lowerValue);
+  const difference = formatExamMetricValue(example.difference, group.unit);
+  return {
+    kind: "comparison",
+    categoryKey: group.id,
+    categoryGroupKey: group.categoryGroupKey ?? group.id,
+    categoryTitle: group.title,
+    text: usePositiveDirection
+      ? isTrue
+        ? example.text
+        : example.falseReverseText
+      : isTrue
+        ? example.reverseText
+        : example.falseText,
+    isTrue,
+    regionNames: example.regionNames,
+    pairKey: example.pairKey,
+    source: example.source,
+    badges: group.badges ?? [],
+    explanation: `${group.title}: ${example.higherName} ${higherValue}, ${example.lowerName} ${lowerValue}`,
+    evidence: {
+      title: "근거",
+      rows: [
+        { label: example.higherName, value: higherValue },
+        { label: example.lowerName, value: lowerValue },
+        { label: "차이", value: difference },
+      ],
+      summary: `${withSubjectParticle(example.higherName)} ${example.lowerName}보다 ${group.metricLabel} 값이 큽니다.`,
+    },
+  };
+}
+
+function buildSuperlativeChoiceCandidates(comparisonGroups, selectedRegions, monthContext, isTrue, seed) {
+  if (selectedRegions.length < 4) {
+    return [];
+  }
+
+  return comparisonGroups
+    .filter(
+      (group) =>
+        typeof group.renderSuperlativePositive === "function" &&
+        typeof group.renderSuperlativeReverse === "function" &&
+        (group.regionValues ?? []).length >= 4
+    )
+    .map((group, index) =>
+      buildSuperlativeChoiceCandidate(group, group.monthContext ?? monthContext, isTrue, seed + index * 409)
+    )
+    .filter(Boolean);
+}
+
+function buildSuperlativeChoiceCandidate(group, monthContext, isTrue, seed) {
+  const usePositiveDirection = shouldUsePositiveExamDirection(seed, group.id, "superlative", isTrue);
+  const rankedValues = [...(group.regionValues ?? [])].sort((left, right) =>
+    usePositiveDirection ? right.value - left.value : left.value - right.value
+  );
+  const correctEntry = rankedValues[0];
+  const wrongEntry = rankedValues.find(
+    (entry, index) => index > 0 && Math.abs(entry.value - correctEntry.value) >= group.minDifference
+  ) ?? rankedValues[rankedValues.length - 1];
+  const selectedEntry = isTrue ? correctEntry : wrongEntry;
+  if (!correctEntry || !selectedEntry || (!isTrue && selectedEntry.region.id === correctEntry.region.id)) {
+    return null;
+  }
+
+  const renderSuperlative = usePositiveDirection ? group.renderSuperlativePositive : group.renderSuperlativeReverse;
+  const scopeLabel = getExamSuperlativeScopeLabel(rankedValues);
+  const correctDirectionLabel = usePositiveDirection ? "최댓값" : "최솟값";
+  const correctValue = formatExamMetricValue(correctEntry.value, group.unit);
+  return {
+    kind: "superlative",
+    categoryKey: group.id,
+    categoryGroupKey: group.categoryGroupKey ?? group.id,
+    categoryTitle: getExamSuperlativeTitle(group),
+    text: renderSuperlative(selectedEntry.region, monthContext, scopeLabel),
+    isTrue,
+    regionNames: rankedValues.map((entry) => entry.region.name),
+    pairKey: "",
+    source: group.sources[0] ?? null,
+    badges: group.badges ?? [],
+    explanation: `${group.title}: ${correctEntry.region.name} ${correctValue} (${scopeLabel} 중 ${correctDirectionLabel})`,
+    evidence: {
+      title: "근거",
+      rows: rankedValues.map((entry) => ({
+        label: entry.region.name,
+        value: formatExamEvidenceValue(group, entry.region, entry.value),
+      })),
+      summary: `${withSubjectParticle(correctEntry.region.name)} ${scopeLabel} 중 ${correctDirectionLabel}입니다.`,
+    },
+  };
+}
+
+function formatExamEvidenceValue(group, region, value) {
+  if (EXAM_LATITUDE_CATEGORY_KEYS.has(group.id) && Number.isFinite(region?.coordinates?.latitude)) {
+    return formatExamLatitude(region.coordinates.latitude);
+  }
+  return formatExamMetricValue(value, group.unit);
+}
+
+function formatExamLatitude(latitude) {
+  return `${latitude >= 0 ? "북위" : "남위"} ${Math.abs(latitude).toFixed(1)}°`;
+}
+
+function getExamSuperlativeScopeLabel(regionValues) {
+  return regionValues.length === 4 ? "네 지역" : "선택 지역";
+}
+
+function getExamSuperlativeTitle(group) {
+  return group.title.endsWith(" 비교") ? group.title.replace(/ 비교$/, " 최상급") : `${group.title} 최상급`;
+}
+
+function buildFeatureChoiceCandidate(statement, region, isTrue, seed = 0) {
+  const regionLabel = getExamFeatureRegionLabel(statement, region);
+  return {
+    kind: "feature",
+    categoryKey: statement.id,
+    categoryTitle: getExamFeatureTitle(statement),
+    text: materializeExamFeatureStatementText(statement, regionLabel, region, isTrue, seed),
+    isTrue,
+    regionNames: [region.name],
+    pairKey: "",
+    source: statement,
+    badges: [],
+    explanation: `${region.name}: ${getExamFeatureTitle(statement)}`,
+    evidence: buildFeatureChoiceEvidence(statement, region, isTrue),
+  };
+}
+
+function buildFeatureChoiceEvidence(statement, region, isTrue) {
+  if (statement.automation === "computed") {
+    return buildComputedFeatureChoiceEvidence(statement, region, isTrue);
+  }
+  const rows = [
+    { label: region.name, value: `${region.climateCode || region.climateGroup} 기후` },
+    Number.isFinite(region.annualMeanTemperatureC)
+      ? { label: "연평균 기온", value: formatTemp(region.annualMeanTemperatureC) }
+      : null,
+    Number.isFinite(region.annualPrecipitationMm)
+      ? { label: "연 강수량", value: formatMm(region.annualPrecipitationMm) }
+      : null,
+    Number.isFinite(region.elevationM) ? { label: "해발", value: formatMeters(region.elevationM) } : null,
+  ].filter(Boolean);
+
+  return {
+    title: "지역 데이터",
+    rows,
+    summary: isTrue
+      ? `${region.name}: 해당`
+      : `${region.name}: 해당 없음`,
+  };
+}
+
+function buildComputedFeatureChoiceEvidence(statement, region, isTrue) {
+  const latitude = Number(region.coordinates?.latitude);
+  if (statement.predicateKey === "southernHemisphere") {
+    return {
+      title: "좌표 판정",
+      rows: [{ label: region.name, value: Number.isFinite(latitude) ? formatExamLatitude(latitude) : "좌표 없음" }],
+      summary: isTrue
+        ? `${region.name}: 남반구`
+        : `${region.name}: 북반구`,
+    };
+  }
+
+  if (statement.predicateKey === "warmestMonthBelow0") {
+    return {
+      title: "월별 평년값 판정",
+      rows: [{ label: region.name, value: `최난월 ${formatTemp(getWarmestMonthTemperature(region))}` }],
+      summary: "",
+    };
+  }
+  if (statement.predicateKey === "tropicalHighlandSteady") {
+    const temps = region.monthlyTemperatureC;
+    return {
+      title: "월별 평년값 판정",
+      rows: [
+        { label: region.name, value: `연평균 기온 ${formatTemp(region.annualMeanTemperatureC)}` },
+        { label: "연교차", value: formatTemp(Math.max(...temps) - Math.min(...temps)) },
+      ],
+      summary: "",
+    };
+  }
+
+  const coldestMonthTemperature = getColdestMonthTemperature(region);
+  const thresholdRelation = statement.predicateKey === "coldestMonthAtLeast18" ? "18°C 이상" : "18°C 미만";
+  return {
+    title: "월별 평년값 판정",
+    rows: [
+      { label: region.name, value: `최한월 ${formatTemp(coldestMonthTemperature)}` },
+      { label: "판정 기준", value: thresholdRelation },
+    ],
+    summary: `${region.name} 최한월 평균 기온 ${formatTemp(coldestMonthTemperature)} (${coldestMonthTemperature >= 18 ? "18°C 이상" : "18°C 미만"})`,
+  };
+}
+
+function getExamFeatureRegionLabel(statement, region) {
+  return region.name;
+}
+
+function buildFalseFeatureChoiceCandidates(selectedRegions, statements, seed = 0) {
+  return statements
+    .filter(isExamFeatureAutomatable)
+    .filter((statement) => isExamFeatureDiscriminatingForSelection(statement, selectedRegions))
+    .flatMap((statement, statementIndex) =>
+      selectedRegions
+        .filter((region) => !doesExamFeatureMatchRegion(statement, region))
+        .filter((region) => isPlausibleFalseFeatureChoice(statement, region))
+        .map((region, regionIndex) =>
+          buildFeatureChoiceCandidate(statement, region, false, seed + statementIndex * 503 + regionIndex)
+        )
+    );
+}
+
+function isExamFeatureDiscriminatingForSelection(statement, selectedRegions) {
+  const matchCount = selectedRegions.filter((region) => doesExamFeatureMatchRegion(statement, region)).length;
+  return matchCount > 0 && matchCount < selectedRegions.length;
+}
+
+function isPlausibleFalseFeatureChoice(statement, region) {
+  if (statement.automation === "computed") {
+    return true;
+  }
+  const statementGroups = statement.climateGroups ?? [];
+  if (
+    statementGroups.length === 0 ||
+    !region.climateGroup ||
+    region.classificationReview?.status === "review-required" ||
+    isSpecificExamFeatureStatement(statement)
+  ) {
+    return false;
+  }
+
+  const targetFamilies = new Set(statementGroups.map(getExamClimateFamily));
+  return targetFamilies.has(getExamClimateFamily(region.climateGroup));
+}
+
+function isSpecificExamFeatureStatement(statement) {
+  const specificTags = new Set([
+    "경엽수림",
+    "수목 농업",
+    "올리브",
+    "오렌지",
+    "커피",
+    "카카오",
+    "플랜테이션",
+    "대추야자",
+    "오아시스",
+    "외래 하천",
+    "고상 가옥",
+    "순록 유목",
+    "수렵",
+    "타이가",
+    "침엽수림대",
+  ]);
+  return (statement.tags ?? []).some((tag) => specificTags.has(tag));
+}
+
+function getExamClimateFamily(climateGroup) {
+  if (["Af", "Am", "Aw"].includes(climateGroup)) return "tropical";
+  if (["BS", "Bw"].includes(climateGroup)) return "dry";
+  if (["Cfa", "Cfb", "Cs", "Cw"].includes(climateGroup)) return "temperate";
+  if (["Df", "Dw"].includes(climateGroup)) return "cold";
+  if (["ET", "EF"].includes(climateGroup)) return "polar";
+  return climateGroup;
+}
+
+function createExamChoiceTracker() {
+  return {
+    texts: new Set(),
+    comparisonPairs: new Set(),
+    featureRegions: new Set(),
+    categories: new Set(),
+    featureCount: 0,
+    superlativeCount: 0,
+  };
+}
+
+function canUseExamChoice(candidate, tracker, strict) {
+  if (tracker.texts.has(candidate.text)) {
+    return false;
+  }
+  if (candidate.kind === "feature" && tracker.featureCount >= 2) {
+    return false;
+  }
+  if (candidate.kind === "superlative" && tracker.superlativeCount >= 1) {
+    return false;
+  }
+  if (tracker.categories.has(getExamChoiceCategoryIdentity(candidate))) {
+    return false;
+  }
+  if (!strict) {
+    return true;
+  }
+  if (candidate.kind === "comparison" && tracker.comparisonPairs.has(candidate.pairKey)) {
+    return false;
+  }
+  if (candidate.kind === "feature" && candidate.regionNames.some((name) => tracker.featureRegions.has(name))) {
+    return false;
+  }
+  return true;
+}
+
+function rememberExamChoice(tracker, candidate) {
+  tracker.texts.add(candidate.text);
+  tracker.categories.add(getExamChoiceCategoryIdentity(candidate));
+  if (candidate.kind === "comparison") {
+    tracker.comparisonPairs.add(candidate.pairKey);
+  }
+  if (candidate.kind === "feature") {
+    tracker.featureCount += 1;
+    candidate.regionNames.forEach((name) => tracker.featureRegions.add(name));
+  }
+  if (candidate.kind === "superlative") {
+    tracker.superlativeCount += 1;
+  }
+}
+
+function getExamChoiceCategoryIdentity(candidate) {
+  if (candidate.categoryGroupKey) {
+    return candidate.categoryGroupKey;
+  }
+  return candidate.kind === "feature" ? candidate.categoryTitle : candidate.categoryKey;
+}
+
+function orderExamChoices(choices, seed, variables = []) {
+  return seededShuffle(choices, seed)
+    .map((choice, index) => ({ choice, index }))
+    .sort((left, right) => {
+      const regionCountDifference = getExamChoiceRegionCount(left.choice) - getExamChoiceRegionCount(right.choice);
+      if (regionCountDifference !== 0) {
+        return regionCountDifference;
+      }
+      const variableOrderDifference = compareExamChoiceVariableOrder(left.choice, right.choice, variables);
+      if (variableOrderDifference !== 0) {
+        return variableOrderDifference;
+      }
+      return left.index - right.index;
+    })
+    .map((item) => item.choice);
+}
+
+function getExamChoiceRegionCount(choice) {
+  return new Set(choice.regionNames).size;
+}
+
+function compareExamChoiceVariableOrder(leftChoice, rightChoice, variables) {
+  const leftOrder = getExamChoiceVariableOrder(leftChoice, variables);
+  const rightOrder = getExamChoiceVariableOrder(rightChoice, variables);
+  const maxLength = Math.max(leftOrder.length, rightOrder.length);
+
+  for (let index = 0; index < maxLength; index += 1) {
+    const leftRank = leftOrder[index] ?? Number.POSITIVE_INFINITY;
+    const rightRank = rightOrder[index] ?? Number.POSITIVE_INFINITY;
+    if (leftRank !== rightRank) {
+      return leftRank - rightRank;
+    }
+  }
+
+  return 0;
+}
+
+function getExamChoiceVariableOrder(choice, variables) {
+  const variableRanks = new Map(variables.map((variable, index) => [variable.regionName, index]));
+  const seenRanks = new Set();
+  const textRanks = variables
+    .map((variable, index) => ({
+      index,
+      textIndex: choice.text.indexOf(variable.regionName),
+    }))
+    .filter((item) => item.textIndex >= 0)
+    .sort((left, right) => left.textIndex - right.textIndex)
+    .map((item) => item.index);
+  const fallbackRanks = (choice.regionNames ?? [])
+    .map((name) => variableRanks.get(name))
+    .filter((rank) => typeof rank === "number");
+
+  return [...textRanks, ...fallbackRanks].filter((rank) => {
+    if (seenRanks.has(rank)) {
+      return false;
+    }
+    seenRanks.add(rank);
+    return true;
+  });
+}
+
+function buildExamQuestionSeed(selectedRegions, monthContext) {
+  const key = `${state.examQuestionSeed}|${monthContext.monthIndex}|${monthContext.useNightLength}|${selectedRegions
+    .map((region) => region.id)
+    .join("|")}`;
+  return hashStringToPositiveInteger(key);
+}
+
+function shouldUsePositiveExamDirection(seed, ...parts) {
+  const bucket = hashStringToPositiveInteger([seed, ...parts].join("|")) % 1000;
+  return bucket / 1000 < EXAM_POSITIVE_DIRECTION_WEIGHT;
+}
+
+function seededShuffle(items, seed) {
+  const shuffled = [...items];
+  let stateValue = seed || 1;
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    stateValue = (stateValue * 1664525 + 1013904223) % 4294967296;
+    const swapIndex = stateValue % (index + 1);
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function hashStringToPositiveInteger(value) {
+  let hash = 2166136261;
+  for (const character of value) {
+    hash ^= character.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function renderExamToggleChip(label, isPressed, dataAttribute) {
+  return `<button type="button" class="tw-chip exam-toggle${isPressed ? " is-active" : ""}" aria-pressed="${
+    isPressed ? "true" : "false"
+  }" ${dataAttribute}>${escapeHtml(label)}</button>`;
+}
+
+function renderExamSegmentedToggle(label, options, activeValue, attributeName) {
+  return `
+    <span class="tw-segmented exam-segmented" role="group" aria-label="${escapeHtml(label)}">
+      ${options
+        .map(
+          (option) =>
+            `<button type="button" aria-pressed="${option.value === activeValue ? "true" : "false"}" ${attributeName}="${
+              option.value
+            }">${escapeHtml(option.label)}</button>`
+        )
+        .join("")}
+    </span>
+  `;
+}
+
+function renderExamQuestionActions() {
+  return `
+    <div class="exam-question-actions">
+      ${renderExamToggleChip("지역명 가리기", state.examUseVariableLabels, "data-exam-variable-toggle")}
+      <button type="button" class="tw-button is-ghost is-sm" data-exam-question-refresh>다시 만들기</button>
+    </div>
+  `;
+}
+
+function renderExamMultipleChoiceQuestion(question) {
+  if (!question) {
+    return `
+      <section class="exam-question-card">
+        <div class="exam-question-head">
+          <h4>5지선다</h4>
+          ${renderExamQuestionActions()}
+        </div>
+        ${renderExamMiniEmptyState("기후가 다른 지역을 세 곳 이상 선택하면 만들어집니다.")}
+      </section>
+    `;
+  }
+
+  const questionMap = renderExamQuestionMap(question);
+  const prompt = state.examUseVariableLabels ? question.variablePrompt : question.prompt;
+  return `
+    <section class="exam-question-card">
+      <div class="exam-question-head">
+        <div>
+          <h4>5지선다</h4>
+          <p>${escapeHtml(prompt)}</p>
+        </div>
+        ${renderExamQuestionActions()}
+      </div>
+      <div class="exam-question-body${questionMap ? " has-map" : ""}">
+        ${questionMap}
+        <div class="exam-question-choices">
+          <ol class="exam-choice-list">
+            ${question.choices
+              .map(
+                (choice, index) => `
+                  <li>
+                    <span>${escapeHtml(getChoiceMarker(index))}</span>
+                    <p>${escapeHtml(formatExamQuestionText(choice.text, question.variables))}</p>
+                  </li>
+                `
+              )
+              .join("")}
+          </ol>
+          <details class="exam-answer-details">
+            <summary class="tw-disclosure-chevron">정답 보기</summary>
+            <div class="exam-answer-box">
+              <strong>정답 ${escapeHtml(getChoiceMarker(question.answerIndex))}</strong>
+              ${
+                state.examUseVariableLabels
+                  ? renderMetaList(question.variables.map((variable) => `${variable.label} ${variable.regionName}`))
+                  : ""
+              }
+              <div class="exam-answer-choice-list">
+                ${question.choices.map((choice, index) => renderExamAnswerChoice(choice, index, question.variables)).join("")}
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderExamAnswerChoice(choice, index, variables) {
+  return `
+    <article class="exam-answer-choice">
+      <strong class="exam-answer-marker">${escapeHtml(getChoiceMarker(index))}</strong>
+      ${renderExamTruthBadge(choice)}
+      <div class="exam-answer-body">
+        <p class="exam-answer-choice-text">${escapeHtml(formatExamQuestionText(choice.text, variables))}</p>
+        ${renderExamChoiceEvidence(choice, variables)}
+      </div>
+    </article>
+  `;
+}
+
+function renderExamChoiceEvidence(choice, variables) {
+  const parts = (choice.evidence?.rows ?? [])
+    .filter((row) => !EXAM_EVIDENCE_HIDDEN_ROW_LABELS.has(row.label))
+    .map((row) => formatExamQuestionText(`${row.label} ${row.value}`, variables));
+  return renderMetaList(parts);
+}
+
+function renderExamQuestionMap(question) {
+  const regions = (question.mapRegions ?? []).filter(hasCoordinates);
+  const projection = buildMapProjection();
+  if (regions.length === 0 || !projection) {
+    return "";
+  }
+
+  const markers = placeExamMapMarkers(
+    regions.map((region) => ({
+      region,
+      label: getExamQuestionMapLabel(region, question.variables),
+      ...projectCoordinateToPercent(region.coordinates, projection),
+    }))
+  );
+  return `
+    <div class="exam-question-map">
+      ${renderProjectedWorldMapBackground(projection)}
+      <div class="exam-map-markers">
+        ${markers
+          .map(
+            (marker) => `
+              <span
+                class="exam-map-marker${marker.below ? " is-below" : ""}${marker.align ? ` is-${marker.align}` : ""}"
+                data-map-x="${marker.left.toFixed(3)}"
+                data-map-y="${marker.top.toFixed(3)}"
+              ><span>${escapeHtml(marker.label)}</span></span>
+            `
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
+function placeExamMapMarkers(markers) {
+  // Label boxes are estimated in percent of the map frame; overlapping or edge-clipped labels flip below or align to the edge.
+  const placed = [];
+  markers.forEach((marker) => {
+    const halfWidth = 2 + [...marker.label].length * 0.9;
+    const below = marker.top < 16 || placed.some((other) => isExamMapLabelOverlapping(marker, halfWidth, other));
+    const align = marker.left - halfWidth < 0 ? "start" : marker.left + halfWidth > 100 ? "end" : "";
+    placed.push({ ...marker, halfWidth, below, align });
+  });
+  return placed;
+}
+
+function isExamMapLabelOverlapping(marker, halfWidth, other) {
+  return (
+    !other.below &&
+    Math.abs(marker.left - other.left) < halfWidth + other.halfWidth &&
+    Math.abs(marker.top - other.top) < 12
+  );
+}
+
+function positionExamMarkers(root) {
+  for (const marker of root.querySelectorAll(".exam-map-marker[data-map-x]")) {
+    marker.style.left = `${marker.dataset.mapX}%`;
+    marker.style.top = `${marker.dataset.mapY}%`;
+  }
+}
+
+function getExamQuestionMapLabel(region, variables) {
+  if (!state.examUseVariableLabels) {
+    return region.name;
+  }
+
+  return variables?.find((item) => item.regionId === region.id)?.label ?? region.name;
+}
+
+function formatExamQuestionText(text, variables) {
+  if (!state.examUseVariableLabels || !Array.isArray(variables) || variables.length === 0) {
+    return text;
+  }
+
+  const orderedVariables = [...variables]
+    .filter((item) => item.regionName && item.label)
+    .sort((left, right) => right.regionName.length - left.regionName.length);
+  let result = String(text);
+  orderedVariables.forEach((item) => {
+    result = result.split(item.regionName).join(item.label);
+  });
+
+  const labelPattern = orderedVariables.map((item) => escapeRegExp(item.label)).join("|");
+  if (!labelPattern) {
+    return result;
+  }
+
+  return result.replace(new RegExp(`(${labelPattern})(은|이(?!다)|을|과)`, "g"), (match, label, particle) => {
+    const particleMap = {
+      은: "는",
+      이: "가",
+      을: "를",
+      과: "와",
+    };
+    return `${label}${particleMap[particle] ?? particle}`;
+  });
+}
+
+function getChoiceMarker(index) {
+  return ["①", "②", "③", "④", "⑤"][index] ?? `${index + 1}.`;
+}
+
+function renderExamTruthBadge(choice) {
+  const label = choice.isTrue ? "O" : "X";
+  const name = choice.isTrue ? "정답" : "오답";
+  const className = choice.isTrue ? "is-true" : "is-false";
+  return `<span class="exam-truth-badge ${className}" role="img" aria-label="${name}">${label}</span>`;
+}
+
+const EXAM_ADMINISTRATION_RANK = { 수능: 3, "9월": 2, "6월": 1 };
+
+function parseExamSource(statement) {
+  const source = String(statement?.source ?? "");
+  const match = source.match(/^(\d{4})학년도\s+(수능|9월|6월)(?:\s+모의평가)?\s+문제\s+(\d+)번/);
+  if (!match) {
+    return { label: source, year: 0, rank: 0, question: 0, full: source };
+  }
+
+  return {
+    label: `${match[1]} ${match[2]} ${match[3]}번`,
+    year: Number(match[1]),
+    rank: EXAM_ADMINISTRATION_RANK[match[2]] ?? 0,
+    question: Number(match[3]),
+    full: formatExamStatementSource(statement),
+  };
+}
+
+function collectExamSourceEntries(statements) {
+  const entries = new Map();
+  (statements ?? []).forEach((statement) => {
+    const entry = parseExamSource(statement);
+    if (entry.label && !entries.has(entry.label)) {
+      entries.set(entry.label, entry);
+    }
+  });
+  return [...entries.values()].sort(
+    (left, right) => right.year - left.year || right.rank - left.rank || left.question - right.question
+  );
+}
+
+function renderExamSourceList(statements, extraItems = "") {
+  const entries = collectExamSourceEntries(statements);
+  const visible = entries.slice(0, EXAM_SOURCE_PREVIEW_LIMIT);
+  const hiddenCount = entries.length - visible.length;
+  if (visible.length === 0 && !extraItems) {
+    return "";
+  }
+
+  return `<span class="tw-meta-list exam-source-list" title="${escapeHtml(entries.map((entry) => entry.full).join("\n"))}">${extraItems}${visible
+    .map((entry) => `<span>${escapeHtml(entry.label)}</span>`)
+    .join("")}${hiddenCount > 0 ? `<span>+${hiddenCount}</span>` : ""}</span>`;
+}
+
+function renderExamMoreLabel(isExpanded, count) {
+  return isExpanded ? "접기" : `더 보기 <span class="tw-chip-count">${count}</span>`;
+}
+
+function renderExamGeneratedGroup(group) {
+  const examples = group.examples.slice(0, EXAM_GROUP_EXAMPLE_LIMIT);
+  const [topExample, ...moreExamples] = examples;
+  const isExpanded = moreExamples.length > 0 && state.examExpandedGroupIds.has(group.id);
+  return `
+    <article class="exam-group-card">
+      <h5 class="exam-group-title">${escapeHtml(group.title)}</h5>
+      ${renderExamExampleRow(group, topExample, true)}
+      ${
+        moreExamples.length > 0
+          ? `<div class="exam-more-list"${isExpanded ? "" : " hidden"}>${moreExamples
+              .map((example) => renderExamExampleRow(group, example, false))
+              .join("")}</div>`
+          : ""
+      }
+      ${renderExamGroupTransformControls(group)}
+      <div class="exam-group-foot">
+        ${renderExamSourceList(group.sources)}
+        ${
+          moreExamples.length > 0
+            ? `<button type="button" class="tw-button is-ghost is-sm exam-more-button" data-exam-more="${escapeHtml(
+                group.id
+              )}" data-exam-more-count="${moreExamples.length}" aria-expanded="${isExpanded ? "true" : "false"}">${renderExamMoreLabel(
+                isExpanded,
+                moreExamples.length
+              )}</button>`
+            : ""
+        }
+      </div>
+    </article>
+  `;
+}
+
+function renderExamExampleRow(group, example, isPrimary) {
+  return `
+    <div class="exam-example-row${isPrimary ? " is-primary" : ""}">
+      <p>${escapeHtml(example.text)}</p>
+      ${renderMetaList([
+        `${example.higherName} ${formatExamMetricValue(example.higherValue, group.unit)}`,
+        `${example.lowerName} ${formatExamMetricValue(example.lowerValue, group.unit)}`,
+        `차이 ${formatExamMetricValue(example.difference, group.unit)}`,
+      ])}
+    </div>
+  `;
+}
+
+function renderExamGroupTransformControls(group) {
+  const controls = [];
+  if (group.usesMonth) {
+    controls.push(
+      renderExamSegmentedToggle(
+        "월",
+        [
+          { value: 0, label: "1월" },
+          { value: 6, label: "7월" },
+        ],
+        state.examMonthIndex === 6 ? 6 : 0,
+        "data-exam-month-value"
+      )
+    );
+  }
+  if (group.supportsNightToggle) {
+    controls.push(
+      renderExamSegmentedToggle(
+        "낮밤",
+        [
+          { value: "day", label: "낮 길이" },
+          { value: "night", label: "밤 길이" },
+        ],
+        state.examUseNightLength ? "night" : "day",
+        "data-exam-night-value"
+      )
+    );
+  }
+
+  return controls.length > 0 ? `<div class="exam-transform-controls">${controls.join("")}</div>` : "";
+}
+
+function mergeExamFeatureGroups(featureGroups) {
+  const merged = new Map();
+  featureGroups.forEach(({ statement, matchingRegions }) => {
+    const text = normalizeExamFeatureStatementText(statement.text, getExamStatementPeriodLabels(statement));
+    const entry = merged.get(text) ?? {
+      text,
+      predicate: stripExamFeatureSubject(text),
+      statements: [],
+      regions: new Map(),
+    };
+    entry.statements.push(statement);
+    matchingRegions.forEach((region) => entry.regions.set(region.id, region));
+    merged.set(text, entry);
+  });
+  return [...merged.values()].map((entry) => ({ ...entry, regions: [...entry.regions.values()] }));
+}
+
+function stripExamFeatureSubject(text) {
+  return text
+    .replace(/^해당 지역(?:들)?(?:은|는|의|에서는|에는)\s+/, "")
+    .replace(/^(최한월|최난월|연평균) (평균 )?기온은 /, "$1 $2기온이 ");
+}
+
+function renderExamFeatureItem(entry) {
+  const visibleRegions = entry.regions.slice(0, EXAM_FEATURE_REGION_LIMIT);
+  const hiddenCount = entry.regions.length - visibleRegions.length;
+  return `
+    <article class="exam-feature-card">
+      <div class="exam-region-chips">
+        ${visibleRegions.map((region) => `<span class="exam-chip">${escapeHtml(region.name)}</span>`).join("")}
+        ${hiddenCount > 0 ? `<span class="exam-chip">+${hiddenCount}</span>` : ""}
+      </div>
+      <p class="exam-feature-text">${escapeHtml(entry.predicate)}</p>
+      ${renderExamSourceList(entry.statements)}
+    </article>
+  `;
+}
+
+function renderExamMiniEmptyState(message) {
+  return `<div class="exam-mini-empty">${escapeHtml(message)}</div>`;
+}
+
+function formatExamStatementSource(statement) {
+  return statement.sourceItem ? `${statement.source} <보기> ${statement.sourceItem}` : statement.source;
+}
+
+function getExamFeatureTitle(statement) {
+  const tags = new Set([...(statement.tags ?? []), ...(statement.climateGroups ?? [])]);
+  if (tags.has("일교차") && tags.has("연교차")) return "기온의 일교차와 연교차 비교";
+  if (tags.has("타이가") || tags.has("침엽수림대")) return "타이가 분포";
+  if (tags.has("수목 농업") || tags.has("올리브") || tags.has("오렌지")) return "수목 농업";
+  if (tags.has("경엽수림")) return "경엽수림 분포";
+  if (tags.has("스콜")) return "스콜 발생";
+  if (tags.has("대류성 강수") || tags.has("대류성 강수일수")) return "대류성 강수";
+  if (tags.has("초원") || tags.has("사바나")) return "사바나 초원";
+  if (tags.has("적도 수렴대")) return "적도 수렴대 영향";
+  if (tags.has("아열대 고압대") || tags.has("건기")) return "아열대 고압대와 건기";
+  if (tags.has("최한월 평균 기온")) return "최한월 평균 기온 조건";
+  if (tags.has("남반구") || tags.has("반구")) return "반구 판정";
+  if (tags.has("커피") || tags.has("카카오") || tags.has("플랜테이션")) return "플랜테이션 농업";
+  if (tags.has("대추야자") || tags.has("오아시스") || tags.has("외래 하천")) return "건조 지역 농업";
+  if (tags.has("고상 가옥")) return "고상 가옥";
+  if (tags.has("순록 유목") || tags.has("수렵")) return "순록 유목과 수렵";
+  if (tags.has("한류")) return "한류 영향";
+  if (tags.has("남동 무역풍") || tags.has("무역풍")) return "무역풍 영향";
+  return (statement.tags ?? [])[0] ? `${statement.tags[0]} 특성` : "지역 특성";
+}
+
+function normalizeExamFeatureStatementText(text, periodLabels = {}) {
+  return text
+    .replaceAll("\u2103", "°C")
+    .replace(/[A-D]\s*～\s*[A-D]\s*중/g, "선택 지역 중")
+    .replace(/[A-D]\s*와\s*[A-D]\s*에는/g, "해당 지역들에는")
+    .replace(/[A-D]\s*와\s*[A-D]\s*는/g, "해당 지역들은")
+    .replace(/[A-D]\s*와\s*[A-D]\s*에서는/g, "해당 지역들에서는")
+    .replace(/[A-D]\s*주변에서는/g, "해당 지역 주변에서는")
+    .replace(/[A-D]\s*에서는/g, "해당 지역에서는")
+    .replace(/[A-D]\s*는/g, "해당 지역은")
+    .replace(/[A-D]\s*의/g, "해당 지역의")
+    .replace(/[A-D]\s*보다/g, "다른 지역보다")
+    .replace(/\([가-라]\)\s*,\s*\([가-라]\)\s*모두/g, "해당 지역은")
+    .replace(/\(([가-라])\)\s*에서는/g, "해당 지역에서는")
+    .replace(/\(([가-라])\)\s*는/g, "해당 지역은")
+    .replace(/\(([가-라])\)\s*의/g, "해당 지역의")
+    .replace(/\(([가-라])\)\s*시기에\s*/g, (_, periodKey) =>
+      periodLabels[periodKey] ? `${periodLabels[periodKey]}에 ` : "해당 시기에 "
+    )
+    .replace(/\([가-라]\)\s*/g, "");
+}
+
+function materializeExamFeatureStatementText(statement, regionName, region, isTrue, seed = 0) {
+  const periodLabels = getExamFeaturePeriodLabels(statement, region, isTrue, seed);
+  return normalizeExamFeatureStatementText(statement.text, periodLabels)
+    .replace(/^에서는\s*/, `${regionName}에서는 `)
+    .replace(/^는\s*/, `${withTopicParticle(regionName)} `)
+    .replace(/^의\s*/, `${regionName}의 `)
+    .replace(/해당 지역들에는 모두/g, `${regionName}에는`)
+    .replace(/해당 지역들에는/g, `${regionName}에는`)
+    .replace(/해당 지역들은/g, withTopicParticle(regionName))
+    .replace(/해당 지역 주변에서는/g, `${regionName} 주변에서는`)
+    .replace(/해당 지역에서는/g, `${regionName}에서는`)
+    .replace(/해당 지역은/g, withTopicParticle(regionName))
+    .replace(/해당 지역의/g, `${regionName}의`)
+    .replace(/해당 지역/g, regionName);
+}
+
+function getExamStatementPeriodLabels(statement) {
+  return EXAM_STATEMENT_PERIOD_LABELS[statement.id] ?? {};
+}
+
+function getExamFeaturePeriodLabels(statement, region, isTrue, seed) {
+  if (!/\([가-라]\)\s*시기에/.test(statement.text)) {
+    return getExamStatementPeriodLabels(statement);
+  }
+
+  if (isMediterraneanDrySeasonStatement(statement) && region) {
+    const monthLabel = isTrue
+      ? getMediterraneanDrySeasonMonthLabel(region)
+      : getSeededExamMonthLabel(seed, statement.id, region.id);
+    return { 가: monthLabel, 나: monthLabel, 다: monthLabel, 라: monthLabel };
+  }
+
+  return getExamStatementPeriodLabels(statement);
+}
+
+function isMediterraneanDrySeasonStatement(statement) {
+  const tags = new Set(statement.tags ?? []);
+  return tags.has("아열대 고압대") && tags.has("건기");
+}
+
+function getMediterraneanDrySeasonMonthLabel(region) {
+  return getHemisphere(region) === "남반구" ? "1월" : "7월";
+}
+
+function getSeededExamMonthLabel(seed, ...parts) {
+  const value = hashStringToPositiveInteger([seed, ...parts].join("|")) % EXAM_MONTH_OPTIONS.length;
+  return EXAM_MONTH_OPTIONS[value]?.label ?? EXAM_MONTH_OPTIONS[0].label;
+}
+
+function formatExamMetricValue(value, unit) {
+  if (unit === "시간") {
+    return `${value.toFixed(1)}시간`;
+  }
+  if (unit === "°") {
+    return `${value.toFixed(1)}°`;
+  }
+  if (unit === "°C") {
+    return formatTemp(value);
+  }
+  if (unit === "mm") {
+    return formatMm(value);
+  }
+  return `${value.toFixed(1)}${unit}`;
+}
+
+function getApproximateDayLength(region, dayOfYear) {
+  const latitude = region.coordinates?.latitude;
+  if (!Number.isFinite(latitude)) {
+    return NaN;
+  }
+
+  const latitudeRadians = degreesToRadians(latitude);
+  const declinationRadians = degreesToRadians(getSolarDeclination(dayOfYear));
+  const hourAngleInput = -Math.tan(latitudeRadians) * Math.tan(declinationRadians);
+  if (hourAngleInput >= 1) {
+    return 0;
+  }
+  if (hourAngleInput <= -1) {
+    return 24;
+  }
+  return (24 / Math.PI) * Math.acos(hourAngleInput);
+}
+
+function getApproximateSolarNoonAltitude(region, dayOfYear) {
+  const latitude = region.coordinates?.latitude;
+  if (!Number.isFinite(latitude)) {
+    return NaN;
+  }
+  return 90 - Math.abs(latitude - getSolarDeclination(dayOfYear));
+}
+
+function getSolarDeclination(dayOfYear) {
+  return 23.44 * Math.sin(degreesToRadians((360 / 365) * (dayOfYear - 81)));
+}
+
+function degreesToRadians(degrees) {
+  return (degrees * Math.PI) / 180;
+}
+
+function withTopicParticle(text) {
+  return `${text}${hasFinalConsonant(text) ? "은" : "는"}`;
+}
+
+function withSubjectParticle(text) {
+  return `${text}${hasFinalConsonant(text) ? "이" : "가"}`;
+}
+
+function withObjectParticle(text) {
+  return `${text}${hasFinalConsonant(text) ? "을" : "를"}`;
+}
+
+function hasFinalConsonant(text) {
+  const lastCharacter = [...String(text).trim()].pop();
+  if (!lastCharacter) {
+    return false;
+  }
+
+  const code = lastCharacter.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) {
+    return false;
+  }
+  return (code - 0xac00) % 28 !== 0;
+}
+
+function renderClimateChart(region, sharedChartScale = null) {
+  return window.ClimateChartKit.render(region, sharedChartScale);
+}
+
+function renderWorldMap(regions) {
+  if (regions.length === 0) {
+    return renderEmptyState(
+      state.mapScope === "selected" ? "선택한 곳이 없습니다" : "표시할 곳이 없습니다",
+      ""
+    );
+  }
+
+  const projection = buildMapProjection();
+  if (!projection) {
+    return renderEmptyState(
+      "지도를 불러오지 못했습니다",
+      ""
+    );
+  }
+
+  const background = renderProjectedWorldMapBackground(projection);
+  return `
+    <div class="world-map-frame is-natural" data-map-scope="${state.mapScope}">
+      ${background}
+      <svg class="world-map-leaders" aria-hidden="true"></svg>
+      <div class="world-map-markers">
+        ${regions.map((region) => renderMapMarker(region, projection)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+let cachedMapProjection = null;
+let cachedMapBackground = null;
+
+function buildMapProjection() {
+  if (!state.worldMapData || !window.d3) {
+    return null;
+  }
+  if (cachedMapProjection) return cachedMapProjection;
+
+  const projection = createMapProjection(window.d3, APP_CONFIG.mapProjection);
+  const fitTarget = buildMapFitTarget() ?? state.worldMapData.land;
+  cachedMapProjection = projection.fitExtent(
+    [
+      [MAP_PROJECTION_PADDING.left, MAP_PROJECTION_PADDING.top],
+      [
+        MAP_VIEWBOX.width - MAP_PROJECTION_PADDING.right,
+        MAP_VIEWBOX.height - MAP_PROJECTION_PADDING.bottom,
+      ],
+    ],
+    fitTarget
+  );
+  return cachedMapProjection;
+}
+
+function renderProjectedWorldMapBackground(projection) {
+  if (cachedMapBackground) return cachedMapBackground;
+  const d3 = window.d3;
+  const width = MAP_VIEWBOX.width;
+  const height = MAP_VIEWBOX.height;
+  const path = d3.geoPath(projection);
+  const sphere = path({ type: "Sphere" });
+  const graticule = path(d3.geoGraticule10());
+  const land = path(state.worldMapData.land);
+  const borders = path(state.worldMapData.borders);
+  const shouldShowEquator = APP_CONFIG.mapShowEquator;
+  const equator = shouldShowEquator
+    ? path({
+        type: "LineString",
+        coordinates: [
+          [-180, 0],
+          [180, 0],
+        ],
+      })
+    : "";
+  const equatorLabelPosition =
+    shouldShowEquator && projection([174, 0]) ? projection([174, 0]) : [width - 32, height / 2];
+
+  cachedMapBackground = `
+    <svg class="world-map-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeHtml(
+      APP_CONFIG.mapAriaLabel
+    )}">
+      <rect class="map-ocean" width="${width}" height="${height}" />
+      <path d="${sphere}" class="map-sphere" />
+      <path d="${graticule}" class="map-graticule" />
+      <path d="${land}" class="map-landmass" />
+      <path d="${borders}" class="map-country-borders" />
+      ${
+        shouldShowEquator
+          ? `
+            <path d="${equator}" class="map-equator" />
+            <text
+              x="${round(equatorLabelPosition[0])}"
+              y="${round(equatorLabelPosition[1] - 10)}"
+              text-anchor="end"
+              class="map-equator-label"
+            >
+              0°
+            </text>
+          `
+          : ""
+      }
+    </svg>
+  `;
+  return cachedMapBackground;
+}
+
+function renderMapMarker(region, projection = null) {
+  const position = projectCoordinateToPercent(region.coordinates, projection);
+  const isSelected = state.selectedIds.has(region.id);
+  const label = [
+    region.name,
+    region.englishName,
+    region.climateGroup,
+    hasCoordinates(region) ? formatCoordinatePair(region.coordinates) : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  return `
+    <button
+      type="button"
+      class="map-marker ${isSelected ? "is-selected" : ""}"
+      data-map-region-id="${region.id}"
+      tabindex="0"
+      data-label="${escapeHtml(region.name)}"
+      data-mobile-label="${escapeHtml(region.name)}"
+      data-tooltip="${escapeHtml(label)}"
+      data-map-x="${position.left.toFixed(3)}"
+      data-map-y="${position.top.toFixed(3)}"
+      data-climate-group="${escapeHtml(region.climateGroup)}"
+      aria-pressed="${isSelected ? "true" : "false"}"
+      aria-label="${escapeHtml(region.name)} ${isSelected ? "선택 해제" : "선택"}"
+    >
+      <span class="sr-only">${escapeHtml(region.name)}</span>
+    </button>
+  `;
+}
+
+function collectNearbyMapCandidates(event, preferredMarker) {
+  const frame = preferredMarker.closest(".world-map-frame");
+  if (!frame) {
+    return { ids: [preferredMarker.dataset.mapRegionId], total: 1 };
+  }
+
+  const preferredRect = preferredMarker.getBoundingClientRect();
+  const usePreferredCenter = event.detail === 0 || !Number.isFinite(event.clientX) || !Number.isFinite(event.clientY);
+  const clickX = usePreferredCenter ? preferredRect.left + preferredRect.width / 2 : event.clientX;
+  const clickY = usePreferredCenter ? preferredRect.top + preferredRect.height / 2 : event.clientY;
+  const frameWidth = frame.getBoundingClientRect().width;
+  const radius = Math.min(
+    MAP_CANDIDATE_RADIUS_MAX,
+    Math.max(MAP_CANDIDATE_RADIUS_MIN, frameWidth * 0.045)
+  );
+  const preferredId = preferredMarker.dataset.mapRegionId;
+  const candidates = [...frame.querySelectorAll("button[data-map-region-id]")]
+    .map((marker) => {
+      const rect = marker.getBoundingClientRect();
+      const distance = Math.hypot(
+        rect.left + rect.width / 2 - clickX,
+        rect.top + rect.height / 2 - clickY
+      );
+      return { id: marker.dataset.mapRegionId, distance };
+    })
+    .filter((candidate) => candidate.id === preferredId || candidate.distance <= radius)
+    .sort((left, right) => left.distance - right.distance || collator.compare(left.id, right.id));
+
+  return {
+    ids: candidates.slice(0, MAP_CANDIDATE_LIMIT).map((candidate) => candidate.id),
+    total: candidates.length,
+  };
+}
+
+function closeMapCandidatePicker(restoreAnchorFocus = false) {
+  const anchorRegionId = state.mapCandidatePicker?.anchorRegionId ?? "";
+  state.mapCandidatePicker = null;
+  renderMapCandidatePicker();
+
+  if (restoreAnchorFocus && anchorRegionId) {
+    restoreFocusByDataAttribute("data-map-region-id", anchorRegionId);
+  }
+}
+
+function renderMapCandidatePicker() {
+  if (!elements.mapCandidatePicker) {
+    return;
+  }
+
+  const picker = state.mapCandidatePicker;
+  const visibleMarkerIds = new Set(
+    [...elements.worldMap.querySelectorAll("[data-map-region-id]")].map(
+      (marker) => marker.dataset.mapRegionId
+    )
+  );
+  const regions = (picker?.ids ?? [])
+    .map((regionId) => state.regions.find((region) => region.id === regionId))
+    .filter((region) => region && visibleMarkerIds.has(region.id));
+
+  if (!picker || regions.length < 2) {
+    elements.mapCandidatePicker.hidden = true;
+    elements.mapCandidatePicker.innerHTML = "";
+    if (picker && regions.length < 2) {
+      state.mapCandidatePicker = null;
+    }
+    return;
+  }
+
+  elements.mapCandidatePicker.innerHTML = `
+    <div class="map-candidate-picker-header">
+      <div class="map-candidate-picker-copy">
+        <strong>주변 지점 ${regions.length}곳</strong>
+      </div>
+      <button type="button" class="map-candidate-close" data-map-candidate-close>닫기</button>
+    </div>
+    <div class="map-candidate-list">
+      ${regions.map(renderMapCandidateOption).join("")}
+    </div>
+  `;
+  elements.mapCandidatePicker.hidden = false;
+}
+
+function renderMapCandidateOption(region) {
+  const isSelected = state.selectedIds.has(region.id);
+  const meta = [region.englishName, region.climateGroup].filter(Boolean);
+  return `
+    <button
+      type="button"
+      class="map-candidate-option ${isSelected ? "is-selected" : ""}"
+      data-map-candidate-id="${escapeHtml(region.id)}"
+      aria-pressed="${isSelected}"
+      aria-label="${escapeHtml(region.name)} ${isSelected ? "선택 해제" : "선택"}"
+    >
+      <span class="map-candidate-option-copy">
+        <strong>${escapeHtml(region.name)}</strong>
+        ${renderMetaList(meta)}
+      </span>
+      <span class="map-candidate-option-state">${isSelected ? "선택 중" : "선택"}</span>
+    </button>
+  `;
+}
+
+function hasCoordinates(region) {
+  return (
+    typeof region.coordinates?.latitude === "number" &&
+    typeof region.coordinates?.longitude === "number"
+  );
+}
+
+function projectCoordinateToPercent(coordinates, projection = null) {
+  if (projection) {
+    const projected = projection([coordinates.longitude, coordinates.latitude]);
+    if (Array.isArray(projected)) {
+      return {
+        left: (projected[0] / MAP_VIEWBOX.width) * 100,
+        top: (projected[1] / MAP_VIEWBOX.height) * 100,
+      };
+    }
+  }
+
+  return {
+    left: ((coordinates.longitude + 180) / 360) * 100,
+    top:
+      ((MAP_VIEWBOX.maxLatitude - coordinates.latitude) /
+        (MAP_VIEWBOX.maxLatitude - MAP_VIEWBOX.minLatitude)) *
+      100,
+  };
+}
+
+function applyMapMarkerLayout() {
+  const frame = elements.worldMap.querySelector(".world-map-frame");
+  const leaderLayer = elements.worldMap.querySelector(".world-map-leaders");
+  const markers = [...elements.worldMap.querySelectorAll(".map-marker")];
+
+  if (!frame || !leaderLayer || markers.length === 0) {
+    return;
+  }
+
+  markers.forEach((marker) => {
+    marker.style.left = `${marker.dataset.mapX}%`;
+    marker.style.top = `${marker.dataset.mapY}%`;
+    marker.style.setProperty("--marker-color", getClimateColor(marker.dataset.climateGroup));
+    marker.style.setProperty("--marker-auto-dx", "0px");
+    marker.style.setProperty("--marker-auto-dy", "0px");
+  });
+  leaderLayer.innerHTML = "";
+}
+
+function getClimateColor(climateGroup) {
+  return CLIMATE_COLORS[climateGroup] ?? COLORS.rain;
+}
+
+function getWarmestMonthTemperature(region) {
+  return Math.max(...region.monthlyTemperatureC);
+}
+
+function getColdestMonthTemperature(region) {
+  return Math.min(...region.monthlyTemperatureC);
+}
+
+function getJanuaryJulyPrecipitationRange(region) {
+  return Math.abs(region.monthlyPrecipitationMm[0] - region.monthlyPrecipitationMm[6]);
+}
+
+function getJanuaryJulyTemperatureRange(region) {
+  return Math.abs(region.monthlyTemperatureC[0] - region.monthlyTemperatureC[6]);
+}
+
+function getMonthlyPrecipitationRange(region) {
+  return Math.max(...region.monthlyPrecipitationMm) - Math.min(...region.monthlyPrecipitationMm);
+}
+
+function getLocalSeasonMonthIndexes(region, season) {
+  const isSouthernHemisphere = getHemisphere(region) === "남반구";
+  if (season === "summer") {
+    return isSouthernHemisphere ? [11, 0, 1] : [5, 6, 7];
+  }
+  return isSouthernHemisphere ? [5, 6, 7] : [11, 0, 1];
+}
+
+function getLocalSeasonPrecipitation(region, season) {
+  return sumMonthValues(region.monthlyPrecipitationMm, getLocalSeasonMonthIndexes(region, season));
+}
+
+function getLocalSeasonPrecipitationShare(region, season) {
+  const annualPrecipitation = Number.isFinite(region.annualPrecipitationMm)
+    ? region.annualPrecipitationMm
+    : sumMonthValues(region.monthlyPrecipitationMm, [...Array(12).keys()]);
+  if (annualPrecipitation <= 0) {
+    return Number.NaN;
+  }
+  return (getLocalSeasonPrecipitation(region, season) / annualPrecipitation) * 100;
+}
+
+function getWorldAnnualTemperatureRange(region) {
+  return round(getWarmestMonthTemperature(region) - getColdestMonthTemperature(region));
+}
+
+function compareNumericDescending(leftValue, rightValue, leftRegion, rightRegion) {
+  const difference = rightValue - leftValue;
+  if (Math.abs(difference) > 0.0001) {
+    return difference;
+  }
+  return sortRegions(leftRegion, rightRegion);
+}
+
+function compareNumericAscending(leftValue, rightValue, leftRegion, rightRegion) {
+  const difference = leftValue - rightValue;
+  if (Math.abs(difference) > 0.0001) {
+    return difference;
+  }
+  return sortRegions(leftRegion, rightRegion);
+}
+
+function formatCoordinatePair(location) {
+  const latitude =
+    typeof location?.latitude === "number" ? location.latitude : location?.coordinates?.latitude;
+  const longitude =
+    typeof location?.longitude === "number" ? location.longitude : location?.coordinates?.longitude;
+  return `${formatLatitude(latitude)} · ${formatLongitude(longitude)}`;
+}
+
+function formatLatitude(value) {
+  return `${value >= 0 ? "북위" : "남위"} ${formatDegrees(Math.abs(value))}°`;
+}
+
+function formatLongitude(value) {
+  return `${value >= 0 ? "동경" : "서경"} ${formatDegrees(Math.abs(value))}°`;
+}
+
+function formatDegrees(value) {
+  return coordinateFormatter.format(Number(value.toFixed(2)));
+}
+
+function formatMeters(value) {
+  return `${Math.round(value).toLocaleString("ko-KR")} m`;
+}
+
+function formatPopulation(value) {
+  return value >= 10000
+    ? `${Math.round(value).toLocaleString("ko-KR")}명`
+    : `${value.toLocaleString("ko-KR")}명`;
+}
+
+function inferContinentFromCountryCode(countryCode, latitude, longitude) {
+  const normalized = String(countryCode ?? "").toUpperCase();
+
+  if (AFRICA_COUNTRY_CODES.has(normalized)) {
+    return "아프리카";
+  }
+  if (AMERICAS_COUNTRY_CODES.has(normalized)) {
+    return "아메리카";
+  }
+  if (OCEANIA_COUNTRY_CODES.has(normalized)) {
+    return "오세아니아";
+  }
+
+  if (longitude <= -30) {
+    return "아메리카";
+  }
+  if (latitude < 0 && longitude >= 110) {
+    return "오세아니아";
+  }
+  if (latitude <= 37 && longitude >= -20 && longitude <= 55) {
+    return "아프리카";
+  }
+  return "유라시아";
+}
+
+function inferPrimaryCategory(countryCode, latitude, longitude) {
+  if (APP_CONFIG.primaryCategoryMode === "korea-region") {
+    return inferKoreanRegionCategory(latitude, longitude);
+  }
+
+  return inferContinentFromCountryCode(countryCode, latitude, longitude);
+}
+
+function inferKoreanRegionCategory(latitude, longitude) {
+  if (latitude < 34.2) {
+    return "제주";
+  }
+  if (latitude >= 37 && longitude <= 127.2) {
+    return "수도권";
+  }
+  if (latitude >= 37.2) {
+    return longitude >= 128 ? "강원 영동" : "강원 영서";
+  }
+  if (latitude >= 36 && longitude < 127.9) {
+    return "충청";
+  }
+  if (longitude >= 128) {
+    return "영남";
+  }
+  return latitude >= 35.2 ? "충청" : "호남";
+}
+
+function classifyClimateGroup({ monthlyTemperatureC, monthlyPrecipitationMm, latitude, elevationM }) {
+  const annualMeanTemperature = average(monthlyTemperatureC);
+  const annualPrecipitation = monthlyPrecipitationMm.reduce((sum, value) => sum + value, 0);
+  const coldestMonth = Math.min(...monthlyTemperatureC);
+  const warmestMonth = Math.max(...monthlyTemperatureC);
+  const driestMonth = Math.min(...monthlyPrecipitationMm);
+
+  if (Number.isFinite(elevationM) && elevationM >= 1500 && annualMeanTemperature > 0 && annualMeanTemperature < 18) {
+    return "H";
+  }
+  if (warmestMonth < 0) {
+    return "EF";
+  }
+  if (warmestMonth < 10) {
+    return "ET";
+  }
+
+  const isNorthernHemisphere = latitude >= 0;
+  const summerMonths = isNorthernHemisphere ? [3, 4, 5, 6, 7, 8] : [9, 10, 11, 0, 1, 2];
+  const winterMonths = isNorthernHemisphere ? [9, 10, 11, 0, 1, 2] : [3, 4, 5, 6, 7, 8];
+  const summerPrecipitation = sumMonthValues(monthlyPrecipitationMm, summerMonths);
+  const winterPrecipitation = sumMonthValues(monthlyPrecipitationMm, winterMonths);
+  const summerPrecipitationRatio =
+    annualPrecipitation > 0 ? summerPrecipitation / annualPrecipitation : 0;
+  let drynessThreshold = 20 * annualMeanTemperature;
+
+  if (summerPrecipitationRatio >= 0.7) {
+    drynessThreshold += 280;
+  } else if (summerPrecipitationRatio >= 0.3) {
+    drynessThreshold += 140;
+  }
+
+  if (annualPrecipitation < drynessThreshold) {
+    return annualPrecipitation < drynessThreshold / 2 ? "Bw" : "BS";
+  }
+
+  if (coldestMonth >= 18) {
+    if (driestMonth >= 60) {
+      return "Af";
+    }
+    if (driestMonth >= 100 - annualPrecipitation / 25) {
+      return "Am";
+    }
+    return "Aw";
+  }
+
+  const summerDryness = Math.min(...summerMonths.map((index) => monthlyPrecipitationMm[index]));
+  const winterWettest = Math.max(...winterMonths.map((index) => monthlyPrecipitationMm[index]));
+  const winterDryness = Math.min(...winterMonths.map((index) => monthlyPrecipitationMm[index]));
+  const summerWettest = Math.max(...summerMonths.map((index) => monthlyPrecipitationMm[index]));
+  const hasDrySummer = summerDryness < 40 && summerDryness < winterWettest / 3;
+  const hasDryWinter = winterDryness < summerWettest / 10;
+  const warmMonths = monthlyTemperatureC.filter((value) => value >= 10).length;
+
+  if (coldestMonth > 0) {
+    if (hasDrySummer) {
+      return "Cs";
+    }
+    if (hasDryWinter) {
+      return "Cw";
+    }
+    return warmestMonth >= 22 && warmMonths >= 4 ? "Cfa" : "Cfb";
+  }
+
+  return hasDryWinter ? "Dw" : "Df";
+}
+
+function sumMonthValues(values, monthIndexes) {
+  return monthIndexes.reduce((sum, monthIndex) => sum + values[monthIndex], 0);
+}
+
+function normalizeText(value) {
+  return String(value ?? "")
+    .normalize("NFKC")
+    .trim()
+    .toLowerCase();
+}
+
+function shuffleArray(values) {
+  const cloned = [...values];
+  for (let index = cloned.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [cloned[index], cloned[swapIndex]] = [cloned[swapIndex], cloned[index]];
+  }
+  return cloned;
+}
+
+function getHemisphere(region) {
+  return region.hemisphere ?? (region.coordinates?.latitude >= 0 ? "북반구" : "남반구");
+}
+
+function renderEmptyState(title, description, withAction = false) {
+  return `
+    <div class="empty-state">
+      <strong>${escapeHtml(title)}</strong>
+      ${description ? `<p>${escapeHtml(description)}</p>` : ""}
+      ${withAction ? `<button type="button" class="tw-button is-ghost is-sm" data-random-selection>무작위 4곳</button>` : ""}
+    </div>
+  `;
+}
+
+function sortRegions(left, right) {
+  const primaryFilterOrder = APP_CONFIG.primaryFilterOrder;
+  const leftIndex = primaryFilterOrder.indexOf(left.continent);
+  const rightIndex = primaryFilterOrder.indexOf(right.continent);
+  if (leftIndex !== rightIndex) {
+    return (leftIndex === -1 ? Number.MAX_SAFE_INTEGER : leftIndex) -
+      (rightIndex === -1 ? Number.MAX_SAFE_INTEGER : rightIndex);
+  }
+  return collator.compare(left.name, right.name);
+}
+
+function normalizeAppConfig(config) {
+  return {
+    datasetPath: config.datasetPath ?? "./data/climate-data.json",
+    defaultSampleNames:
+      Array.isArray(config.defaultSampleNames) && config.defaultSampleNames.length > 0
+        ? config.defaultSampleNames
+        : DEFAULT_WORLD_SAMPLE_NAMES,
+    primaryFilterOrder:
+      Array.isArray(config.primaryFilterOrder) && config.primaryFilterOrder.length > 0
+        ? config.primaryFilterOrder
+        : CONTINENT_ORDER,
+    primaryCategoryMode: config.primaryCategoryMode ?? "continent",
+    apiSearchCountryCode: config.apiSearchCountryCode ?? "",
+    mapProjection: config.mapProjection ?? "naturalEarth1",
+    mapBounds: config.mapBounds ?? null,
+    mapShowEquator: config.mapShowEquator ?? true,
+    mapAriaLabel: config.mapAriaLabel ?? "세계 지도",
+  };
+}
+
+function createMapProjection(d3, projectionName) {
+  if (projectionName === "mercator") {
+    return d3.geoMercator();
+  }
+  return d3.geoNaturalEarth1();
+}
+
+function buildMapFitTarget() {
+  const bounds = APP_CONFIG.mapBounds;
+  if (!bounds) {
+    return null;
+  }
+
+  return {
+    type: "Polygon",
+    coordinates: [[
+      [bounds.minLongitude, bounds.minLatitude],
+      [bounds.maxLongitude, bounds.minLatitude],
+      [bounds.maxLongitude, bounds.maxLatitude],
+      [bounds.minLongitude, bounds.maxLatitude],
+      [bounds.minLongitude, bounds.minLatitude],
+    ]],
+  };
+}
+
+function average(values) {
+  return round(values.reduce((sum, value) => sum + value, 0) / values.length);
+}
+
+function round(value) {
+  return Number(value.toFixed(1));
+}
+
+function climateDisplayNumber(value) {
+  return climateNumberFormatter.format(round(value)).replace(/^-/, "−");
+}
+
+function formatTemp(value) {
+  return `${climateDisplayNumber(value)}°C`;
+}
+
+function formatMm(value) {
+  return `${climateDisplayNumber(value)} mm`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}

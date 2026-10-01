@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Archive | Promenade Geography</title>
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../ds/fonts.css?v=32" />
+    <link rel="stylesheet" href="../../ds/tokens.css?v=47" />
+    <link rel="stylesheet" href="../../ds/base.css?v=53" />
+    <link rel="stylesheet" href="../../ds/components.css?v=54" />
+    <link rel="stylesheet" href="../../ds/patterns.css?v=51" />
+    <link rel="stylesheet" href="./cut.css?v=60" />
+  </head>
+  <body>
+    <header class="tw-nav is-static">
+      <nav class="tw-nav-inner" aria-label="Promenade Geography">
+        <a class="tw-brand" href="../../index.html" aria-label="Promenade Geography home"><span lang="en">Promenade</span></a>
+        <div class="tw-nav-links">
+          <a class="tw-nav-link" lang="en" href="../climate/index.html">Climate Atlas</a>
+          <a class="tw-nav-link" lang="en" href="../stats/index.html">Statistics</a>
+          <a class="tw-nav-link" lang="en" href="./index.html" aria-current="page">Archive</a>
+          <a class="tw-nav-link" lang="en" href="../../notes/index.html">Notes</a>
+          <a class="tw-nav-link" lang="en" href="https://twotimess-admission.twotimess.workers.dev" target="_blank" rel="noopener">Calculator<svg class="tw-nav-external" width="9" height="9" viewBox="0 0 9 9" aria-hidden="true"><path d="M2.5 0.75h5.75v5.75M8.25 0.75 0.75 8.25" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></a>
+        </div>
+        <span class="tw-nav-spacer"></span>
+        <a class="tw-button is-sm tw-nav-buy" href="https://search.kyobobook.co.kr/search?keyword=%ED%94%84%EB%A1%AC%EB%82%98%EB%93%9C&amp;gbCode=TOT&amp;target=total" target="_blank" rel="noopener"><span class="tw-nav-buy-long">저는 수능 지리 50점을 맞고 싶습니다</span><span class="tw-nav-buy-short" aria-hidden="true">지리 50점 맞고 싶습니다</span></a>
+        <details class="tw-nav-menu">
+          <summary aria-label="메뉴"><span class="tw-nav-menu-icon" aria-hidden="true"></span></summary>
+          <div class="tw-nav-menu-panel">
+            <a lang="en" href="../climate/index.html">Climate Atlas</a>
+            <a lang="en" href="../stats/index.html">Statistics</a>
+            <a lang="en" href="./index.html" aria-current="page">Archive</a>
+            <a lang="en" href="../../notes/index.html">Notes</a>
+            <a lang="en" href="https://twotimess-admission.twotimess.workers.dev" target="_blank" rel="noopener">Calculator<svg class="tw-nav-external" width="9" height="9" viewBox="0 0 9 9" aria-hidden="true"><path d="M2.5 0.75h5.75v5.75M8.25 0.75 0.75 8.25" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></a>
+          </div>
+        </details>
+      </nav>
+    </header>
+
+    <header class="tw-page tw-hero cut-hero">
+      <h1 class="tw-display" lang="en">Archive</h1>
+      <span class="tw-title-rule" aria-hidden="true"></span>
+      <div class="cut-hero-meta">
+        <nav id="subjectChips" class="tw-segmented" aria-label="과목"></nav>
+        <nav id="scopeChips" class="tw-segmented" aria-label="시험 범위">
+          <button type="button" data-scope="evaluation" aria-pressed="true">평가원</button>
+          <button type="button" data-scope="all" aria-pressed="false">전체</button>
+        </nav>
+      </div>
+    </header>
+
+    <div class="tw-subnav cut-toolbar">
+      <div class="tw-subnav-inner cut-toolbar-inner">
+        <button id="cutPrevExam" class="tw-button is-ghost is-sm cut-exam-arrow" type="button" aria-label="이전 시험">‹</button>
+        <div class="cut-exam-menu">
+          <button id="cutCurrentExam" class="tw-button cut-current-exam" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="cutExamPopover">시험 선택</button>
+          <div id="cutExamPopover" class="cut-exam-popover" role="dialog" aria-label="시험 목록" hidden></div>
+        </div>
+        <button id="cutNextExam" class="tw-button is-ghost is-sm cut-exam-arrow" type="button" aria-label="다음 시험">›</button>
+        <div id="yearChips" class="cut-chip-row" hidden></div>
+        <div id="examChips" class="cut-chip-row" hidden></div>
+      </div>
+    </div>
+
+    <main class="tw-page cut-page">
+      <form id="cutLookupForm" hidden>
+        <label>과목<select id="subjectSelect" name="subject"><option value="한국지리">한국지리</option><option value="세계지리">세계지리</option></select></label>
+        <label>학년도<select id="yearSelect" name="year"></select></label>
+        <label>시험<select id="examSelect" name="exam"></select></label>
+        <label>시험 목록<select id="cutExamPicker" name="examPicker"></select></label>
+      </form>
+      <p class="cut-status" id="lookupStatus" role="status">불러오는 중…</p>
+
+      <div class="cut-layout">
+        <section class="cut-result-panel" aria-labelledby="resultTitle">
+          <h2 id="resultTitle" class="tw-sr-only">등급컷</h2>
+          <div class="tw-card cut-result-card">
+            <div class="tw-table-wrap cut-grade-wrap" id="cutGradeWrap">
+              <table class="tw-table cut-grade-table">
+                <thead><tr><th scope="col">등급</th><th scope="col">원점수</th><th scope="col">표준점수</th><th scope="col">백분위</th></tr></thead>
+                <tbody class="cut-grade-grid" id="gradeCutGrid" aria-live="polite"></tbody>
+              </table>
+            </div>
+            <p id="cutGradeUnpublished" class="cut-grade-unpublished" hidden>등급컷 미발표</p>
+            <dl class="tw-meta-list cut-exam-meta" id="examMeta">
+              <div><dt>평균</dt><dd id="meanValue">-</dd></div>
+              <div><dt>표준편차</dt><dd id="sdValue">-</dd></div>
+            </dl>
+          </div>
+        </section>
+
+        <section class="cut-question-panel" aria-labelledby="questionAnalysisTitle">
+          <div class="cut-question-heading">
+            <h2 id="questionAnalysisTitle">문항 분석</h2>
+            <div class="cut-question-controls">
+              <a id="notesAnalysisLink" href="../../notes/2027-09-world/index.html" hidden>분석</a>
+              <div class="tw-segmented cut-question-sort" id="questionSort" role="group" aria-label="문항 정렬">
+                <button type="button" data-question-sort="number" aria-pressed="false">번호순</button>
+                <button type="button" data-question-sort="wrong" aria-pressed="true">오답률순 ↓</button>
+              </div>
+              <div class="tw-segmented cut-question-view" id="questionView" role="group" aria-label="문항 보기">
+                <button type="button" data-question-view="table" aria-pressed="true">표</button>
+                <button type="button" data-question-view="photo" aria-pressed="false">사진</button>
+              </div>
+            </div>
+          </div>
+          <div class="tw-table-wrap cut-question-table-wrap" id="questionTableWrap">
+            <table class="tw-table cut-question-table">
+              <thead><tr><th scope="col">번호</th><th scope="col">배점</th><th scope="col">오답률</th><th scope="col">①</th><th scope="col">②</th><th scope="col">③</th><th scope="col">④</th><th scope="col">⑤</th></tr></thead>
+              <tbody id="questionAnalysisGrid" class="cut-question-grid"></tbody>
+            </table>
+          </div>
+          <div id="questionPhotoGrid" class="cut-photo-grid" hidden></div>
+          <div id="questionUnpublished" class="cut-unpublished-items" hidden></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="tw-footer tw-site-footer"><div class="tw-footer-inner"><span class="tw-meta-list"><span lang="en">© 2026 twotimess</span><span><a id="sourceLink" href="https://www.ebsi.co.kr/ebs/xip/xipa/retrievePastGrdCutWrongAnswerRate.ebs?tab=1" target="_blank" rel="noreferrer" lang="en">EBSi</a>, <span id="collectionDate" lang="en"></span></span></span><span>출처를 밝히면 비영리 목적으로 자유롭게 쓸 수 있습니다. 영리 목적의 이용과 무단 전재를 금하며, 자료에는 출처를 확인할 수 있는 표식이 숨어 있습니다.</span><a class="tw-trap" href="../../atlas-archive/" rel="nofollow" tabindex="-1" aria-hidden="true">전체 관측 자료 보관소</a></div></footer>
+
+    <dialog id="cutLightbox" class="cut-lightbox" aria-label="문항 이미지">
+      <div class="cut-lightbox-shell">
+        <div class="cut-lightbox-head"><strong id="cutLightboxTitle"></strong><span id="cutLightboxPosition" class="cut-lightbox-position"></span><button id="cutLightboxClose" class="tw-button is-ghost is-sm" type="button" aria-label="닫기">닫기</button></div>
+        <div class="cut-lightbox-body"><div class="cut-lightbox-image-wrap"><img id="cutLightboxImage" alt="" /><span id="cutLightboxEmpty" hidden>문항 이미지가 없습니다</span></div><div class="cut-lightbox-side"><div class="cut-lightbox-stat"><span id="cutLightboxRateLabel">정답률</span><strong id="cutLightboxRate"></strong><span id="cutLightboxPoints"></span></div><ol id="cutLightboxChoices" class="cut-lightbox-choices" aria-label="선지별 선택 비율" hidden></ol></div></div>
+        <div class="cut-lightbox-actions"><button id="cutLightboxPrev" class="tw-button" type="button" aria-label="이전 문항">←</button><button id="cutLightboxNext" class="tw-button" type="button" aria-label="다음 문항">→</button></div>
+      </div>
+    </dialog>
+    <script src="../../ds/codec.js?v=1"></script>
+    <script src="../../ds/motion.js?v=52"></script>
+    <script src="../../ds/tooltip.js?v=43"></script>
+    <script src="./cut.js?v=60"></script>
+  </body>
+</html>

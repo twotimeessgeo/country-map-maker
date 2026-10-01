@@ -1,0 +1,88 @@
+/* DS 3.1 home, dark: the tool pages' nav bar over the armillary sundial in polished steel on black (ds/merid-3d.js). */
+html:has(body.portal-home) { background: #000; color-scheme: dark; }
+body.portal-home {
+  --tw-bg: #000; --tw-ink: #f4f4f4; --tw-ink-2: #9b9b9b; --tw-surface: #161616; --tw-surface-2: #222; --tw-surface-3: #2c2c2c; --tw-ink-3: #8a8a8a; --tw-ink-4: #555;
+  --tw-hairline: rgba(255,255,255,.10); --tw-hairline-strong: rgba(255,255,255,.18); --tw-scrim: rgba(0,0,0,.8);
+  margin: 0; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh; background: #000; color: var(--tw-ink);
+}
+body.portal-home .tw-nav.is-static { background: #000; }
+body.portal-home .tw-nav-link:hover { background: var(--tw-surface); }
+#homeBrand.is-intro > span { display: inline-block; overflow: hidden; vertical-align: bottom; }
+#homeBrand.is-intro > span > span { display: inline-block; animation: home-letter-in 520ms var(--tw-ease-out) both; animation-delay: calc(var(--letter-index) * 35ms); }
+.home-main { position: relative; flex: 1; min-height: 520px; overflow: hidden; }
+.home-stage { position: absolute; inset: 0; }
+.home-3d { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: grab; touch-action: pan-y; transition: opacity 1200ms var(--tw-ease-out); }
+.home-3d.is-live { opacity: 1; }
+.home-3d.is-dragging { cursor: grabbing; }
+@keyframes home-letter-in { from { transform: translateY(110%); } to { transform: translateY(0); } }
+@media (max-width: 719px) {
+  .home-main { min-height: 460px; }
+  }
+@media (prefers-reduced-motion: reduce) {
+  #homeBrand.is-intro > span > span { animation: none; }
+  .home-3d { transition: none; }
+}
+
+/* 수능 countdown: right side of the home bar, before the button; pinned to the bottom of the screen when the bar is too narrow. */
+.home-countdown {
+  display: flex; align-items: center; gap: 10px; margin-right: calc(var(--tw-space-4) * -1);
+  color: var(--tw-ink); opacity: 0; transition: opacity 600ms var(--tw-ease-out);
+}
+.home-countdown.is-live, .home-countdown.is-zero { opacity: 1; }
+.home-countdown-label { color: var(--tw-ink-2); font-size: var(--tw-text-xs); letter-spacing: .02em; }
+.home-countdown-digits {
+  display: inline-flex; align-items: center;
+  font-family: var(--tw-font-latin); font-weight: 300; font-size: 1.25rem; line-height: 1; letter-spacing: 0;
+}
+.home-countdown-cell { position: relative; display: inline-block; width: .6em; height: 1.1em; overflow: hidden; }
+.home-countdown-digit { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.home-countdown-digit.is-in { animation: countdown-in 460ms var(--tw-ease-out) both; }
+.home-countdown-digit.is-out { animation: countdown-out 460ms var(--tw-ease-out) both; }
+.home-countdown-sep { display: inline-block; width: .3em; margin-top: -.08em; text-align: center; color: var(--tw-ink-3); }
+.home-countdown.is-zero .home-countdown-digits { color: var(--tw-ink-2); }
+@keyframes countdown-in { from { transform: translateY(70%); opacity: 0; filter: blur(2px); } to { transform: translateY(0); opacity: 1; filter: none; } }
+@keyframes countdown-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-70%); opacity: 0; filter: blur(2px); } }
+@media (min-width: 900px) and (max-width: 1039px) {
+  .home-countdown-label { display: none; }
+}
+@media (max-width: 899px) {
+  .home-countdown {
+    position: fixed; z-index: 5; left: 0; right: 0; bottom: max(28px, env(safe-area-inset-bottom));
+    flex-direction: column; gap: 8px; margin: 0; pointer-events: none;
+  }
+  .home-countdown-digits { font-size: 2.25rem; }
+  .home-main { min-height: 360px; margin-bottom: calc(112px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-countdown { transition: none; opacity: 1; }
+  .home-countdown-digit.is-in, .home-countdown-digit.is-out { animation: none; }
+}
+
+/* Publisher mark: bottom right on the page grid, quiet on the black stage. */
+.home-publisher {
+  position: fixed; z-index: 4; left: 50%; bottom: max(28px, env(safe-area-inset-bottom));
+  display: flex; justify-content: flex-end;
+  width: min(var(--tw-page-max), 100% - (var(--tw-gutter) * 2)); transform: translateX(-50%);
+  pointer-events: none; animation: home-publisher-in 1200ms var(--tw-ease-out) 400ms both;
+}
+.home-publisher img { display: block; width: auto; height: 16px; }
+@keyframes home-publisher-in { from { opacity: 0; } to { opacity: 1; } }
+/* Narrow screens: the first screen stays as it was; the mark sits in a short footer below it, and the countdown
+   scrolls with the first screen instead of floating over the footer. */
+@media (max-width: 899px) {
+  .home-countdown {
+    position: absolute; bottom: auto;
+    top: calc(100svh - max(28px, env(safe-area-inset-bottom))); transform: translateY(-100%);
+  }
+  .home-publisher {
+    position: static; left: auto; bottom: auto; transform: none;
+    justify-content: center; width: auto;
+    padding: 32px 0 max(32px, env(safe-area-inset-bottom));
+    border-top: 1px solid var(--tw-hairline); animation: none;
+  }
+  .home-publisher img { height: 13px; }
+  .home-main { flex: none; min-height: 0; height: calc(100svh - var(--tw-nav-height) - 112px - env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-publisher { animation: none; }
+}
