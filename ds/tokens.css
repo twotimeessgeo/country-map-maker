@@ -1,0 +1,125 @@
+/*
+ * Promenade Design System 3.0 — tokens
+ * Monochrome, soft surfaces, pill controls, generous whitespace.
+ * Latin and numerals: TWK Lausanne (200, 300). Hangul falls through to Pretendard.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* UI and data are neutral; the title rule and Notes covers are narrow exceptions. */
+  --tw-bg: #ffffff;
+  --tw-surface: #f4f4f4;
+  --tw-surface-2: #ebebeb;
+  --tw-surface-3: #e0e0e0;
+  --tw-ink: #0d0d0d;
+  --tw-ink-2: #5d5d5d;
+  --tw-ink-3: #737373;
+  --tw-ink-4: #b4b4b4;
+  --tw-inverse: #ffffff;
+  --tw-hairline: rgba(0, 0, 0, 0.08);
+  --tw-hairline-strong: rgba(0, 0, 0, 0.14);
+  --tw-scrim: rgba(255, 255, 255, 0.86);
+  --tw-focus: 0 0 0 2px var(--tw-bg), 0 0 0 4px var(--tw-blue);
+  --tw-shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(0, 0, 0, 0.1);
+  --tw-shadow-thumb: 0 1px 2px rgba(0, 0, 0, 0.08), 0 1px 1px rgba(0, 0, 0, 0.04);
+
+  /* Type */
+  --tw-font-latin: "TWK Lausanne", "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", sans-serif;
+  --tw-font-sans: "TWK Lausanne", "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --tw-weight-display: 200;
+  --tw-weight-latin: 300;
+  --tw-weight-body: 400;
+  --tw-weight-medium: 500;
+  --tw-weight-strong: 600;
+
+  --tw-text-2xs: 0.6875rem; /* 11 */
+  --tw-text-xs: 0.75rem; /* 12 */
+  --tw-text-sm: 0.8125rem; /* 13 */
+  --tw-text-md: 0.9375rem; /* 15 */
+  --tw-text-lg: 1.0625rem; /* 17 */
+  --tw-text-xl: 1.375rem; /* 22 */
+  --tw-text-2xl: 1.75rem; /* 28 */
+  --tw-text-3xl: clamp(2rem, 3.2vw, 2.75rem);
+  --tw-text-display: clamp(2.75rem, 6.4vw, 5.25rem);
+  --tw-text-hero: clamp(3.5rem, 11vw, 9rem);
+
+  --tw-leading-tight: 1.08;
+  --tw-leading-snug: 1.3;
+  --tw-leading-body: 1.6;
+  --tw-track-display: -0.035em;
+  --tw-track-heading: -0.015em;
+  --tw-track-hero: -0.045em;
+  --tw-track-3xl: -0.025em;
+  --tw-track-2xl: -0.02em;
+  --tw-track-xl: -0.012em;
+  --tw-track-body: 0;
+  --tw-accent-gradient: linear-gradient(90deg, #0f1530 0%, #6d3ae0 55%, #d9786a 100%);
+
+  /* Space — 4px grid */
+  --tw-space-1: 4px;
+  --tw-space-2: 8px;
+  --tw-space-3: 12px;
+  --tw-space-4: 16px;
+  --tw-space-5: 20px;
+  --tw-space-6: 24px;
+  --tw-space-8: 32px;
+  --tw-space-10: 40px;
+  --tw-space-12: 48px;
+  --tw-space-16: 64px;
+  --tw-space-20: 80px;
+  --tw-space-24: 96px;
+
+  /* Radius */
+  --tw-radius-xs: 6px;
+  --tw-radius-sm: 10px;
+  --tw-radius-md: 14px;
+  --tw-radius-lg: 20px;
+  --tw-radius-xl: 28px;
+  --tw-radius-pill: 999px;
+
+  /* Size */
+  --tw-control-sm: 32px;
+  --tw-control-md: 40px;
+  --tw-control-lg: 48px;
+  --tw-nav-height: 60px;
+  --tw-page-max: 1320px;
+  --tw-read-max: 720px;
+  --tw-gutter: clamp(16px, 4vw, 40px);
+
+  /* Motion */
+  --tw-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --tw-dur-1: 120ms;
+  --tw-dur-2: 240ms;
+  --tw-dur-3: 400ms;
+}
+
+/*
+ * Promenade Design System 3.2 — additions to ds/tokens.css (3.0/3.1 values stay as they are)
+ * 1. Secondary blue: one hue, five steps, plus a deep step for text.
+ * 2. Type roles: leading/tracking for hero, small text.
+ * 3. Icons: frame = font size x 1.07, stroke matched to TWK Lausanne stems.
+ */
+
+:root {
+  /* Secondary blue. UI and data stay monochrome; blue is a narrow accent (see DS_3_2.md 1-3). */
+  --tw-blue: #45cfef;        /* 100 */
+  --tw-blue-80: #6ad9f2;
+  --tw-blue-60: #8fe2f5;
+  --tw-blue-40: #b5ecf9;
+  --tw-blue-20: #daf5fc;
+  --tw-blue-deep: #117e97;   /* text and links only: 4.7:1 on white */
+  --tw-on-blue: var(--tw-ink); /* text on any blue fill is ink, never white (white is 1.8:1) */
+
+  /* Type roles (3.1 tracking tokens are kept; these fill the gaps). */
+  --tw-leading-hero: 1;      /* hero, display */
+  /* headline: --tw-leading-tight 1.08 / subhead: --tw-leading-snug 1.3 / body: --tw-leading-body 1.6 */
+  --tw-leading-small: 1.45;  /* 11-13px */
+  --tw-track-small: 0.01em;  /* 11-13px, Latin and numerals */
+
+  /* Icons */
+  --tw-icon-size: 1.07em;            /* frame = font size x 1.07 */
+  --tw-icon-shift: -0.178em;         /* frame centred on Lausanne cap height (0.714em) */
+  --tw-icon-stroke: 2;               /* 24 grid; matches Lausanne 300 stem (0.095em) */
+  --tw-icon-stroke-display: 1.6;     /* next to Lausanne 200 (display, hero) */
+}

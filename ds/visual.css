@@ -1,0 +1,16 @@
+/* DS 3.1 color is confined to Notes article covers and optional list thumbnails. */
+@property --cover-a-x { syntax: "<percentage>"; inherits: false; initial-value: 50%; }
+@property --cover-a-y { syntax: "<percentage>"; inherits: false; initial-value: 45%; }
+@property --cover-b-x { syntax: "<percentage>"; inherits: false; initial-value: 85%; }
+@property --cover-b-y { syntax: "<percentage>"; inherits: false; initial-value: 90%; }
+.notes-cover { --cover-mid:#2a2466; --cover-light:#6d3ae0; --cover-end:#d9786a; position:relative; isolation:isolate; overflow:hidden; border:0; border-radius:var(--tw-radius-xl); background:#0f1530; color:#fff; box-shadow:none; }
+.notes-cover[data-cover-palette="dawn"] { --cover-mid:#1d3a5f; --cover-light:#3f8fb0; --cover-end:#e8b98a; }
+.notes-cover[data-cover-palette="glacier"] { --cover-mid:#1b2c44; --cover-light:#5b86b8; --cover-end:#cfe3f2; }
+.notes-cover[data-cover-palette="moss"] { --cover-mid:#1f2e2a; --cover-light:#4f7a5c; --cover-end:#d9d3a1; }
+.notes-cover[data-cover-palette="ember"] { --cover-mid:#3a1d24; --cover-light:#a8452f; --cover-end:#f0a45c; }
+.notes-cover::before { --cover-a-x:var(--cover-x1); --cover-a-y:var(--cover-y1); --cover-b-x:var(--cover-x2); --cover-b-y:var(--cover-y2); position:absolute; inset:0; z-index:-2; background: radial-gradient(ellipse 48% 47% at var(--cover-b-x) var(--cover-b-y),var(--cover-end),transparent 80%), radial-gradient(ellipse 54% 60% at var(--cover-a-x) var(--cover-a-y),var(--cover-light),transparent 77%), linear-gradient(var(--cover-angle,130deg),#0f1530 6%,var(--cover-mid) 100%); content:""; animation:cover-a 45s ease-in-out infinite alternate,cover-b 60s ease-in-out infinite alternate; animation-play-state:paused; }
+.notes-cover.is-visual-active::before { animation-play-state:running; }
+.notes-cover::after { position:absolute; inset:0; z-index:-1; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); background-size:180px 180px; mix-blend-mode:overlay; opacity:.06; pointer-events:none; content:""; }
+@keyframes cover-a { from { --cover-a-x:calc(var(--cover-x1) - 6%); --cover-a-y:calc(var(--cover-y1) + 4%); } to { --cover-a-x:calc(var(--cover-x1) + 6%); --cover-a-y:calc(var(--cover-y1) - 4%); } }
+@keyframes cover-b { from { --cover-b-x:calc(var(--cover-x2) - 5%); --cover-b-y:calc(var(--cover-y2) + 6%); } to { --cover-b-x:calc(var(--cover-x2) + 5%); --cover-b-y:calc(var(--cover-y2) - 6%); } }
+@media (prefers-reduced-motion:reduce) { .notes-cover::before { animation:none; --cover-a-x:var(--cover-x1); --cover-a-y:var(--cover-y1); --cover-b-x:var(--cover-x2); --cover-b-y:var(--cover-y2); } }

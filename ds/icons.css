@@ -1,0 +1,137 @@
+@import url("./icon-uris.css?v=ds32r1");
+
+/* Promenade DS 3.2 — icons. Usage: <svg class="tw-icon" aria-hidden="true"><use href="/ds/icons.svg#i-arrow-right"></use></svg> */
+.tw-icon {
+  display: inline-block;
+  flex: none;
+  width: var(--tw-icon-size);
+  height: var(--tw-icon-size);
+  vertical-align: var(--tw-icon-shift);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--tw-icon-stroke);
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-miterlimit: 4;
+  overflow: visible;
+}
+
+/* Next to display/hero text set in Lausanne 200 */
+.tw-icon--display { --tw-icon-stroke: var(--tw-icon-stroke-display); }
+
+/* Inside flex rows (buttons, pills, nav) the frame is centred instead of baseline-shifted */
+.tw-button .tw-icon,
+.tw-chip .tw-icon,
+.tw-segmented .tw-icon,
+.tw-nav-link .tw-icon { vertical-align: 0; }
+
+/* Explicit SVG frames; page illustration selectors must exclude these icons. */
+svg.tw-icon {
+  width: var(--tw-icon-size);
+  height: var(--tw-icon-size);
+  max-width: none;
+  padding: 0;
+}
+.tw-button span > .tw-icon,
+.tw-chip span > .tw-icon,
+.tw-segmented span > .tw-icon,
+.tw-nav-link span > .tw-icon { vertical-align: var(--tw-icon-shift); }
+.tw-icon use { pointer-events: none; }
+.tw-nav-external { margin-left: 0; }
+a:hover .tw-nav-external { opacity: 1; transform: translate(1px, -1px); }
+/* Summary children overlap without moving the existing label/content nodes. */
+.tw-nav-menu > summary > .tw-icon {
+  grid-area: 1 / 1;
+  transition: opacity var(--tw-dur-1) var(--tw-ease-out);
+  pointer-events: none;
+}
+/* Rotate the artwork while the 1.07em SVG frame stays fixed. */
+.tw-nav-menu > summary > .tw-icon > use {
+  transition: transform var(--tw-dur-1) var(--tw-ease-out);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.tw-nav-menu-open { opacity: 1; }
+.tw-nav-menu-close { opacity: 0; }
+.tw-nav-menu-open > use { transform: rotate(0); }
+.tw-nav-menu-close > use { transform: rotate(-20deg); }
+.tw-nav-menu[open]:not([data-closing]) .tw-nav-menu-open { opacity: 0; }
+.tw-nav-menu[open]:not([data-closing]) .tw-nav-menu-close { opacity: 1; }
+.tw-nav-menu[open]:not([data-closing]) .tw-nav-menu-open > use { transform: rotate(20deg); }
+.tw-nav-menu[open]:not([data-closing]) .tw-nav-menu-close > use { transform: rotate(0); }
+
+/* Native controls paint their masks on the first frame, without JS wrappers. */
+.tw-search::before,
+.tw-field:has(> .tw-select)::after,
+.comparison-select::after,
+.tw-check::before,
+.region-option-check-wrap::after {
+  content: "";
+  width: var(--tw-icon-size);
+  height: var(--tw-icon-size);
+  background-color: currentColor;
+  -webkit-mask: var(--tw-control-icon) center / contain no-repeat;
+  mask: var(--tw-control-icon) center / contain no-repeat;
+  pointer-events: none;
+}
+.tw-search { font-size: var(--tw-text-md); }
+.tw-search::before {
+  --tw-control-icon: var(--tw-icon-uri-search);
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  color: var(--tw-ink-2);
+}
+.tw-field:has(> .tw-select), .comparison-select { position: relative; }
+.tw-field:has(> .tw-select)::after, .comparison-select::after {
+  --tw-control-icon: var(--tw-icon-uri-chevron-down);
+  position: absolute;
+  right: 16px;
+  bottom: calc((var(--tw-control-md) - var(--tw-icon-size)) / 2);
+  color: var(--tw-ink);
+  font-size: var(--tw-text-md);
+}
+.comparison-select::after { font-size: var(--tw-text-sm); }
+.tw-check { font-size: var(--tw-text-xs); color: var(--tw-inverse); }
+.tw-check::before, .region-option-check-wrap::after {
+  --tw-control-icon: var(--tw-icon-uri-check);
+  opacity: 0;
+  transform: scale(.55);
+  transform-origin: 35% 60%;
+  transition: opacity var(--tw-climate-check-dur, var(--tw-dur-1)) var(--tw-ease-out), transform var(--tw-climate-check-dur, var(--tw-dur-1)) var(--tw-ease-out);
+}
+.tw-check:checked::before { opacity: 1; transform: scale(1); }
+.region-option-check-wrap::after {
+  position: absolute;
+  top: calc((100% - var(--tw-icon-size)) / 2);
+  left: calc((100% - var(--tw-icon-size)) / 2);
+  font-size: var(--tw-text-xs);
+  color: var(--tw-inverse);
+}
+.region-option-check-wrap:has(> input:checked)::after { opacity: 1; transform: scale(1); }
+.tw-input:focus-visible, .tw-select:focus-visible, .tw-check:focus-visible,
+.comparison-select select:focus-visible { box-shadow: var(--tw-focus); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tw-nav-menu > summary > .tw-icon, .tw-nav-menu > summary > .tw-icon > use, .tw-check::before,
+  .region-option-check-wrap::after { transition: none; }
+}
+.selected-tray-chip { gap: 0; }
+.stats-sort-arrow, .stats-outlink { font-size: inherit; }
+.map-zoom-controls button { display: inline-flex; align-items: center; justify-content: center; }
+.tw-arrow .tw-icon { transition: transform var(--tw-dur-1) var(--tw-ease-out); }
+a:hover .tw-arrow .tw-icon { transform: translateX(3px); }
+
+/* Existing plus/minus disclosures keep their native details/summary behavior. */
+summary.tw-icon-disclosure::after,
+details[open] > summary.tw-icon-disclosure::after { content: none; }
+.tw-icon-disclosure .tw-disclosure-minus { display: none; }
+details[open] > .tw-icon-disclosure .tw-disclosure-plus { display: none; }
+details[open] > .tw-icon-disclosure .tw-disclosure-minus { display: inline-block; }
+.exam-item-scale-path > li { display: inline; }
+.exam-item-scale-path > li:not(:last-child)::after { content: none; }
+.tw-button:has(> .tw-icon:only-child) { gap: 0; }
+
+.tw-disclosure-icons { display: inline-grid; vertical-align: var(--tw-icon-shift); }
+.tw-disclosure-icons > .tw-icon { grid-area: 1 / 1; vertical-align: 0; }

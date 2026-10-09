@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OX | Promenade Geography</title>
+    <meta name="description" content="한국지리와 세계지리 OX 퀴즈" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../ds/index.css?v=ds32r2">
+
+
+
+
+    <link rel="stylesheet" href="./styles.css?v=2" />
+  <link rel="preload" as="font" type="font/woff2" href="../../fonts/TWKLausanne-200.woff2" crossorigin /><link rel="preload" as="font" type="font/woff2" href="../../fonts/TWKLausanne-300.woff2" crossorigin />
+</head>
+  <body>
+    <header class="tw-nav is-static">
+      <nav class="tw-nav-inner" aria-label="Promenade Geography">
+        <a class="tw-brand" href="../../index.html" aria-label="Promenade Geography home"><span lang="en">Promenade</span></a>
+        <div class="tw-nav-links">
+          <a class="tw-nav-link" href="../climate/index.html" lang="en">Climate Atlas</a>
+          <a class="tw-nav-link" href="../stats/index.html" lang="en">Statistics</a>
+          <a class="tw-nav-link" href="./index.html" lang="en" aria-current="page">OX</a>
+          <a class="tw-nav-link" href="../cut/index.html" lang="en">Archive</a>
+          <a class="tw-nav-link" href="../../notes/index.html" lang="en">Notes</a>
+          <a class="tw-nav-link" lang="en" href="https://twotimess-admission.twotimess.workers.dev" target="_blank" rel="noopener"><span>Calculator <svg class="tw-icon tw-nav-external" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-external"></use></svg></span></a>
+        </div>
+        <span class="tw-nav-spacer"></span>
+        <a class="tw-button is-sm tw-nav-buy" href="../../meridian/index.html"><span class="tw-nav-buy-long">저는 수능 지리 50점을 맞고 싶습니다</span><span class="tw-nav-buy-short" aria-hidden="true">지리 50점 맞고 싶습니다</span></a>
+        <details class="tw-nav-menu">
+          <summary aria-label="메뉴"><svg class="tw-icon tw-nav-menu-open" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-menu"></use></svg><svg class="tw-icon tw-nav-menu-close" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-close"></use></svg></summary>
+          <div class="tw-nav-menu-panel">
+            <a href="../climate/index.html" lang="en">Climate Atlas</a>
+            <a href="../stats/index.html" lang="en">Statistics</a>
+            <a href="./index.html" lang="en" aria-current="page">OX</a>
+            <a href="../cut/index.html" lang="en">Archive</a>
+            <a href="../../notes/index.html" lang="en">Notes</a>
+            <a lang="en" href="https://twotimess-admission.twotimess.workers.dev" target="_blank" rel="noopener"><span>Calculator <svg class="tw-icon tw-nav-external" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-external"></use></svg></span></a>
+          <a class="tw-button is-outline is-sm tw-nav-buy-menu" href="../../meridian/index.html"><span class="tw-nav-buy-long">저는 수능 지리 50점을 맞고 싶습니다</span><span class="tw-nav-buy-short" aria-hidden="true">지리 50점 맞고 싶습니다</span></a></div>
+        </details>
+      </nav>
+    </header>
+    <main class="tw-page ox-stage">
+      <h1 class="tw-sr-only">OX</h1>
+      <div class="ox-controls">
+        <label class="ox-subject">
+          <span class="tw-sr-only">과목</span>
+          <select id="oxSubject">
+            <option value="korea">한국지리</option>
+            <option value="world">세계지리</option>
+          </select>
+        </label>
+        <div class="tw-segmented ox-scope" id="oxScope" role="group" aria-label="범위" hidden>
+          <button type="button" data-scope="all" aria-pressed="true">전 범위</button>
+          <button type="button" data-scope="region" aria-pressed="false">지역성</button>
+        </div>
+        <button class="ox-expand" id="oxExpand" type="button" aria-pressed="false" aria-label="확장 문장" disabled>확장</button>
+        <div class="tw-segmented ox-mode" id="oxMode" role="group" aria-label="방식">
+          <button type="button" data-mode="practice" aria-pressed="true">연습</button>
+          <button type="button" data-mode="attack" aria-pressed="false">타임어택</button>
+          <button type="button" data-mode="review" aria-pressed="false">오답<span class="ox-mode-count" id="oxNoteCount" lang="en" hidden></span></button>
+        </div>
+      </div>
+      <div class="ox-timer" id="oxTimer" hidden>
+        <span class="ox-timer-track" aria-hidden="true"><i id="oxTimerFill"></i></span>
+        <b class="ox-digits" id="oxTimerCount" lang="en" role="timer"></b>
+      </div>
+      <div class="ox-deck" id="oxDeck" aria-live="polite" aria-atomic="true"></div>
+      <p class="ox-echo" id="oxEcho"></p>
+      <div class="ox-answers" id="oxAnswers">
+        <button class="ox-answer" type="button" data-answer="O" aria-label="O" disabled><svg class="ox-shape" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8" pathLength="1"/></svg></button>
+        <button class="ox-answer" type="button" data-answer="X" aria-label="X" disabled><svg class="ox-shape" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 5 19 19" pathLength="1"/><path d="M19 5 5 19" pathLength="1"/></svg></button>
+      </div>
+      <div class="ox-board">
+        <div class="ox-field" id="oxField" aria-hidden="true"></div>
+        <div class="ox-stats">
+          <span class="ox-count" id="oxCount"><b class="ox-digits" id="oxRight" lang="en"></b><span lang="en" id="oxTotal"></span></span>
+          <span class="ox-best" id="oxBest" hidden>최고<b lang="en" id="oxBestCount"></b></span>
+          <span class="ox-streak" id="oxStreak" hidden>연속<b class="ox-digits" id="oxStreakCount" lang="en"></b></span>
+        </div>
+        <ol class="ox-missed" id="oxMissed" hidden></ol>
+      </div>
+      <div class="ox-audio">
+        <button class="ox-sound" id="oxSound" type="button" aria-pressed="false" aria-label="배경 음악"><svg class="tw-icon ox-sound-play" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-play"></use></svg><svg class="tw-icon ox-sound-pause" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-pause"></use></svg></button>
+        <span lang="en">Composed by Go Ichinose, Arranged by twotimess</span>
+        <button class="tw-button is-ghost is-sm ox-reset" id="oxReset" type="button">초기화</button>
+      </div>
+      <p class="tw-sr-only" id="oxStatus" role="status" aria-live="polite"></p>
+    </main>
+    <footer class="tw-footer tw-site-footer"><div class="tw-footer-inner"><span lang="en">© 2026 twotimess</span><span>출처를 밝히면 비영리 목적으로 자유롭게 쓸 수 있습니다. 영리 목적의 이용과 무단 전재를 금하며, 자료에는 출처를 확인할 수 있는 표식이 숨어 있습니다.</span><a class="tw-trap" href="../../atlas-archive/" rel="nofollow" tabindex="-1" aria-hidden="true">전체 관측 자료 보관소</a></div></footer>
+    <div class="tw-toast" id="oxToast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <noscript>OX 퀴즈를 풀려면 JavaScript를 켜 주세요</noscript>
+    <script src="../../ds/codec.js?v=1"></script>
+    <script src="./app.js?v=3"></script>
+    <script src="../../ds/motion.js?v=ds32r1"></script>
+    <script src="../../ds/tooltip.js?v=43"></script>
+  <script src="../../ds/stats.js?v=1" defer></script></body>
+</html>

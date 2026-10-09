@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Statistics | Promenade Geography</title>
+    <meta name="description" content="한국지리와 세계지리 통계표" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../../ds/index.css?v=ds32r2">
+
+
+
+
+    <link rel="stylesheet" href="./styles.css?v=ds32r2" />
+  <link rel="preload" as="font" type="font/woff2" href="../../fonts/TWKLausanne-200.woff2" crossorigin /><link rel="preload" as="font" type="font/woff2" href="../../fonts/TWKLausanne-300.woff2" crossorigin />
+</head>
+  <body>
+    <header class="tw-nav is-static">
+      <nav class="tw-nav-inner" aria-label="Promenade Geography">
+        <a class="tw-brand" href="../../index.html" aria-label="Promenade Geography home"><span lang="en">Promenade</span></a>
+        <div class="tw-nav-links">
+          <a class="tw-nav-link" href="../climate/index.html" lang="en">Climate Atlas</a>
+          <a class="tw-nav-link" href="./index.html" lang="en" aria-current="page">Statistics</a>
+          <a class="tw-nav-link" href="../ox/index.html" lang="en">OX</a>
+          <a class="tw-nav-link" href="../cut/index.html" lang="en">Archive</a>
+          <a class="tw-nav-link" href="../../notes/index.html" lang="en">Notes</a>
+          <a class="tw-nav-link" lang="en" href="https://twotimess-admission.twotimess.workers.dev" target="_blank" rel="noopener"><span>Calculator <svg class="tw-icon tw-nav-external" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-external"></use></svg></span></a>
+        </div>
+        <span class="tw-nav-spacer"></span>
+        <a class="tw-button is-sm tw-nav-buy" href="../../meridian/index.html"><span class="tw-nav-buy-long">저는 수능 지리 50점을 맞고 싶습니다</span><span class="tw-nav-buy-short" aria-hidden="true">지리 50점 맞고 싶습니다</span></a>
+        <details class="tw-nav-menu">
+          <summary aria-label="메뉴"><svg class="tw-icon tw-nav-menu-open" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-menu"></use></svg><svg class="tw-icon tw-nav-menu-close" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-close"></use></svg></summary>
+          <div class="tw-nav-menu-panel">
+            <a href="../climate/index.html" lang="en">Climate Atlas</a>
+            <a href="./index.html" lang="en" aria-current="page">Statistics</a>
+            <a href="../ox/index.html" lang="en">OX</a>
+            <a href="../cut/index.html" lang="en">Archive</a>
+            <a href="../../notes/index.html" lang="en">Notes</a>
+            <a lang="en" href="https://twotimess-admission.twotimess.workers.dev" target="_blank" rel="noopener"><span>Calculator <svg class="tw-icon tw-nav-external" aria-hidden="true" focusable="false"><use href="../../ds/icons.svg#i-external"></use></svg></span></a>
+          <a class="tw-button is-outline is-sm tw-nav-buy-menu" href="../../meridian/index.html"><span class="tw-nav-buy-long">저는 수능 지리 50점을 맞고 싶습니다</span><span class="tw-nav-buy-short" aria-hidden="true">지리 50점 맞고 싶습니다</span></a></div>
+        </details>
+      </nav>
+    </header>
+    <header class="tw-page tw-hero is-start stats-hero">
+      <h1 class="tw-display" lang="en">Statistics</h1>
+      <span class="tw-title-rule" aria-hidden="true"></span>
+      <nav class="tw-segmented stats-subject" aria-label="과목">
+        <a href="?subject=korea&topic=population" data-subject="korea">한국지리</a>
+        <a href="?subject=world&topic=religion" data-subject="world">세계지리</a>
+      </nav>
+    </header>
+    <div class="tw-subnav stats-toolbar" id="statsToolbar">
+      <div class="tw-subnav-inner">
+        <label class="tw-search stats-search">
+          <span class="tw-sr-only">통계표 검색</span>
+          <input class="tw-input" id="statsSearch" type="search" placeholder="표 또는 지역 검색" autocomplete="off" />
+        </label>
+      </div>
+      <div class="stats-search-results" id="statsSearchResults" hidden></div>
+    </div>
+    <div class="stats-sticky-overlay" id="statsStickyOverlay" hidden></div>
+    <main class="tw-page stats-layout">
+      <aside class="stats-aside" aria-label="주제">
+        <nav class="stats-topics" id="topicList" aria-label="주제 목록"></nav>
+      </aside>
+      <div class="stats-content" id="statsContent" aria-live="polite"></div>
+    </main>
+    <footer class="tw-footer tw-site-footer"><div class="tw-footer-inner"><span lang="en">© 2026 twotimess</span><span>출처를 밝히면 비영리 목적으로 자유롭게 쓸 수 있습니다. 영리 목적의 이용과 무단 전재를 금하며, 자료에는 출처를 확인할 수 있는 표식이 숨어 있습니다.</span><a class="tw-trap" href="../../atlas-archive/" rel="nofollow" tabindex="-1" aria-hidden="true">전체 관측 자료 보관소</a></div></footer>
+    <div class="tw-toast" id="statsToast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <noscript>통계표를 보려면 JavaScript를 켜 주세요</noscript>
+    <script src="../../ds/codec.js?v=1"></script>
+    <script src="./number-format.js?v=3"></script>
+    <script src="./app.js?v=ds32r1"></script>
+    <script src="../../ds/motion.js?v=ds32r1"></script>
+    <script src="../../ds/captcha.js?v=1"></script>
+    <script src="../../ds/guard.js?v=1"></script>
+    <script src="../../ds/mark.js?v=1"></script>
+  <script src="../../ds/stats.js?v=1" defer></script></body>
+</html>

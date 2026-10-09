@@ -1,0 +1,259 @@
+/* Meridian: the home's black, one video in the middle, one link under it. Controls are glass over the picture. */
+
+html:has(body.mx-dark) { background: #000; color-scheme: dark; }
+body.mx-dark {
+  --tw-bg: #000; --tw-ink: #f4f4f4; --tw-ink-2: #9b9b9b; --tw-ink-3: #8a8a8a; --tw-ink-4: #555;
+  --tw-surface: #161616; --tw-surface-2: #222; --tw-surface-3: #2c2c2c;
+  --tw-hairline: rgba(255,255,255,.10); --tw-hairline-strong: rgba(255,255,255,.18); --tw-scrim: rgba(0,0,0,.8);
+  --tw-inverse: #0d0d0d;
+  margin: 0; display: flex; flex-direction: column; min-height: 100vh; min-height: 100svh;
+  background: #000; color: var(--tw-ink);
+}
+body.mx-dark .tw-nav.is-static { background: #000; }
+body.mx-dark .tw-nav-link:hover { background: var(--tw-surface); }
+body.mx-dark .tw-nav-buy { display: none; } /* this page is where that button leads */
+
+/* Stage: frame and link centred in what is left under the bar. */
+.mx {
+  --mx-reserve: 188px; /* nav 60 + caption row 76 + a little air: the picture takes the screen */
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: var(--tw-space-6) var(--tw-gutter) var(--tw-space-10);
+}
+.mx-stage {
+  display: grid;
+  justify-items: center;
+  gap: var(--tw-space-6);
+  width: min(var(--tw-page-max), 100%, calc((100svh - var(--mx-reserve)) * 16 / 9));
+  min-width: min(100%, 640px);
+}
+.mx-player { width: 100%; margin: 0; }
+
+.mx-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--tw-radius-xl);
+  background: #000;
+  box-shadow: inset 0 0 0 1px var(--tw-hairline-strong), 0 0 0 1px rgba(255,255,255,.05);
+  outline: none;
+  isolation: isolate;
+  animation: mx-frame-in var(--tw-dur-3) var(--tw-ease-out) both;
+}
+.mx-frame:focus-visible { box-shadow: inset 0 0 0 1px var(--tw-hairline-strong), 0 0 0 2px #000, 0 0 0 4px var(--tw-blue); }
+@keyframes mx-frame-in { from { opacity: 0; transform: scale(.985); } }
+.mx-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
+  cursor: pointer;
+}
+
+/* Glass: QuickTime-style. Dark tint and blur so it reads on white cuts and black cuts alike. */
+.mx-glass, .mx-big {
+  color: #fff;
+  background: rgba(28, 28, 28, .52);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.08), 0 8px 28px rgba(0,0,0,.35);
+}
+/* The big button sits on black most of the time: a mid-grey glass, white icon. */
+.mx-big {
+  background: rgba(140, 140, 140, .34);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 8px 28px rgba(0,0,0,.35);
+}
+
+/* Big button: the only control before the first play. While playing it hides; while paused it stays. */
+.mx-big {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 76px;
+  height: 76px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  font-size: 26px;
+  cursor: pointer;
+  translate: -50% -50%;
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), opacity var(--tw-dur-2) var(--tw-ease-out), scale var(--tw-dur-2) var(--tw-ease-out);
+}
+.mx-big > .tw-icon { grid-area: 1 / 1; --tw-icon-stroke: 1.8; }
+/* Before the first play the poster is the white opening frame: dark glass, and off the title, in the corner where the strip will be. */
+.mx-player[data-state="idle"] .mx-big {
+  top: auto; left: clamp(14px, 2.4vw, 24px); bottom: clamp(14px, 2.4vw, 24px); translate: 0 0;
+  width: 56px; height: 56px; font-size: 20px;
+  background: rgba(28, 28, 28, .52); box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), inset 0 1px 0 rgba(255,255,255,.08), 0 8px 28px rgba(0,0,0,.35);
+}
+.mx-player[data-state="idle"] .mx-big:hover { background: rgba(60, 60, 60, .6); }
+.mx-big .mx-icon-play { transform: translateX(2px); }
+.mx-big:hover { background: rgba(170, 170, 170, .42); }
+.mx-big:active { scale: .94; }
+.mx-big:focus-visible { outline: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.22), 0 0 0 2px #000, 0 0 0 4px var(--tw-blue); }
+.mx-player[data-state="playing"] .mx-big { opacity: 0; scale: .9; pointer-events: none; }
+.mx-player:not([data-state="playing"]) .mx-icon-pause,
+.mx-player[data-state="playing"] .mx-icon-play { display: none; }
+
+/* Control strip: pinned to the bottom edge, slides away while playing after a moment of stillness. */
+.mx-glass {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: clamp(14px, 2.4vw, 24px);
+  display: flex;
+  align-items: center;
+  gap: var(--tw-space-2);
+  width: min(calc(100% - 2 * clamp(14px, 2.4vw, 24px)), 640px);
+  height: 48px;
+  padding: 0 var(--tw-space-2);
+  border-radius: var(--tw-radius-pill);
+  translate: -50% 0;
+  transition: opacity var(--tw-dur-2) var(--tw-ease-out), translate var(--tw-dur-2) var(--tw-ease-out);
+}
+.mx-player[data-state="idle"] .mx-glass,
+.mx-player[data-controls="hidden"] .mx-glass { opacity: 0; translate: -50% 8px; pointer-events: none; }
+.mx-player[data-controls="hidden"] .mx-video { cursor: none; }
+
+.mx-ctl {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-size: var(--tw-text-md);
+  cursor: pointer;
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), transform var(--tw-dur-1) var(--tw-ease-out);
+}
+.mx-ctl > .tw-icon { grid-area: 1 / 1; }
+.mx-ctl:hover { background: rgba(255,255,255,.12); }
+.mx-ctl:active { transform: scale(.92); }
+.mx-ctl:focus-visible { outline: none; box-shadow: 0 0 0 2px rgba(0,0,0,.6), 0 0 0 4px var(--tw-blue); }
+.mx-ctl[aria-pressed="true"] .mx-icon-on,
+.mx-ctl[aria-pressed="false"] .mx-icon-off { display: none; }
+#mxToggle .mx-icon-play { transform: translateX(1px); }
+
+.mx-time {
+  flex: none;
+  min-width: 2.6em;
+  color: rgba(255,255,255,.82);
+  font-family: var(--tw-font-latin);
+  font-size: var(--tw-text-xs);
+  font-weight: var(--tw-weight-latin);
+  line-height: var(--tw-leading-small);
+  letter-spacing: var(--tw-track-small);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+/* Seek: a 3px line, white to the thumb. The thumb shows itself when pointed at. */
+.mx-seek {
+  --p: 0%;
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 80px;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+.mx-seek:focus { outline: none; }
+.mx-seek::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(#fff, #fff) no-repeat 0 0 / var(--p) 100%, rgba(255,255,255,.26);
+}
+.mx-seek::-moz-range-track { height: 3px; border-radius: 3px; background: rgba(255,255,255,.26); }
+.mx-seek::-moz-range-progress { height: 3px; border-radius: 3px; background: #fff; }
+.mx-seek::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 11px;
+  height: 11px;
+  margin-top: -4px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  transform: scale(0);
+  transition: transform var(--tw-dur-1) var(--tw-ease-out);
+}
+.mx-seek::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  transform: scale(0);
+  transition: transform var(--tw-dur-1) var(--tw-ease-out);
+}
+.mx-seek:hover::-webkit-slider-thumb, .mx-seek:focus-visible::-webkit-slider-thumb, .mx-seek.is-scrubbing::-webkit-slider-thumb { transform: scale(1); }
+.mx-seek:hover::-moz-range-thumb, .mx-seek:focus-visible::-moz-range-thumb, .mx-seek.is-scrubbing::-moz-range-thumb { transform: scale(1); }
+.mx-seek:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 2px rgba(0,0,0,.6), 0 0 0 4px var(--tw-blue); }
+.mx-seek:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 2px rgba(0,0,0,.6), 0 0 0 4px var(--tw-blue); }
+
+/* Fullscreen: the frame fills the screen, the strip stays where it is. */
+.mx-frame:fullscreen { border-radius: 0; box-shadow: none; }
+.mx-frame:fullscreen .mx-video { object-fit: contain; }
+
+/* Under the frame: one line that says what this is, and the one button that buys it. */
+.mx-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tw-space-6);
+  width: 100%;
+  padding: 0 var(--tw-space-2);
+}
+.mx-lead {
+  margin: 0;
+  color: var(--tw-ink-2);
+  font-size: var(--tw-text-md);
+  line-height: var(--tw-leading-snug);
+  word-break: keep-all;
+  text-wrap: balance;
+}
+.mx-lead b { color: var(--tw-ink); font-weight: var(--tw-weight-medium); }
+.mx-buy {
+  flex: none;
+  background: #fff;
+  color: #0d0d0d;
+}
+.mx-buy:hover { background: #e6e6e6; }
+.mx-buy:focus-visible { outline: none; box-shadow: 0 0 0 2px #000, 0 0 0 4px var(--tw-blue); }
+
+@media (hover: none) {
+  .mx-seek::-webkit-slider-thumb { transform: scale(1); }
+  .mx-seek::-moz-range-thumb { transform: scale(1); }
+}
+@media (max-width: 900px) {
+  .mx-stage { width: 100%; min-width: 0; }
+}
+@media (max-width: 719px) {
+  .mx { padding: var(--tw-space-4) var(--tw-gutter) var(--tw-space-8); }
+  .mx-stage { gap: var(--tw-space-5); }
+  .mx-caption { flex-direction: column; align-items: start; gap: var(--tw-space-4); padding: 0 var(--tw-space-1); }
+  .mx-buy { width: 100%; }
+  .mx-frame { border-radius: var(--tw-radius-lg); }
+  .mx-big { width: 64px; height: 64px; font-size: 22px; }
+  .mx-player[data-state="idle"] .mx-big { width: 48px; height: 48px; font-size: 18px; left: 12px; bottom: 12px; }
+  .mx-glass { height: 40px; gap: var(--tw-space-1); bottom: 10px; width: calc(100% - 20px); }
+  .mx-ctl { width: 32px; height: 32px; }
+  #mxFull { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mx-frame { animation: none; }
+  .mx-seek::-webkit-slider-thumb { transform: scale(1); }
+  .mx-seek::-moz-range-thumb { transform: scale(1); }
+}

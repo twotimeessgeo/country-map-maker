@@ -1,0 +1,189 @@
+/* A deck of statement cards, two answers, and a board with one dot per statement. */
+html:has(.ox-stage) { overflow-x: hidden; overflow-x: clip; } /* a card on its way out must not widen the page */
+.ox-stage {
+  --ox-width: min(560px, 100%);
+  display: grid; align-content: start; justify-items: center;
+  min-height: calc(100vh - var(--tw-nav-height)); min-height: calc(100svh - var(--tw-nav-height));
+  padding-top: clamp(20px, 8vh, 88px); padding-bottom: var(--tw-space-12);
+}
+
+.ox-controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tw-space-2); width: var(--ox-width); min-height: 38px; margin-bottom: var(--tw-space-5); }
+.ox-subject { position: relative; flex: none; font-size: var(--tw-text-sm); }
+.ox-subject select {
+  height: 38px; padding: 0 34px 0 var(--tw-space-4); border: 0; border-radius: var(--tw-radius-pill);
+  background: var(--tw-surface); color: var(--tw-ink); font-size: var(--tw-text-sm); font-weight: var(--tw-weight-medium);
+  appearance: none; cursor: pointer; transition: background-color var(--tw-dur-1) var(--tw-ease-out);
+}
+.ox-subject select:hover { background: var(--tw-surface-2); }
+.ox-subject::after {
+  content: ""; position: absolute; top: 50%; right: 13px; width: var(--tw-icon-size); height: var(--tw-icon-size);
+  background-color: currentColor; -webkit-mask: var(--tw-icon-uri-chevron-down) center / contain no-repeat;
+  mask: var(--tw-icon-uri-chevron-down) center / contain no-repeat; transform: translateY(-50%); pointer-events: none;
+}
+.ox-scope, .ox-mode { flex: none; }
+.ox-scope > button, .ox-mode > button { min-width: 0; padding: 0 14px; }
+.ox-mode { margin-left: auto; }
+.ox-mode-count { margin-left: 5px; color: var(--tw-ink-3); font-size: var(--tw-text-xs); font-weight: var(--tw-weight-latin); font-variant-numeric: tabular-nums; }
+.ox-expand { flex: none; height: 38px; padding: 0 14px; border: 1px solid var(--tw-hairline); border-radius: var(--tw-radius-pill); background: transparent; color: var(--tw-ink-2); font-size: var(--tw-text-sm); font-weight: var(--tw-weight-medium); cursor: pointer; transition: background-color var(--tw-dur-1) var(--tw-ease-out), color var(--tw-dur-1) var(--tw-ease-out); }
+.ox-expand:hover { background: var(--tw-surface); }
+.ox-expand[aria-pressed="true"] { border-color: var(--tw-ink); background: var(--tw-ink); color: var(--tw-inverse); }
+.ox-expand:disabled { opacity: 0.5; cursor: wait; }
+
+/* 타임어택: the bar empties over the minute. */
+.ox-timer { display: flex; align-items: center; gap: var(--tw-space-3); width: var(--ox-width); height: 20px; margin: -6px 0 var(--tw-space-3); }
+.ox-timer-track { flex: 1 1 auto; height: 3px; overflow: hidden; border-radius: 3px; background: var(--tw-surface-2); }
+.ox-timer-track > i { display: block; height: 100%; border-radius: 3px; background: var(--tw-ink); transform-origin: 0 50%; }
+.ox-timer b { flex: none; min-width: 1.4em; font-size: var(--tw-text-md); font-weight: var(--tw-weight-latin); font-variant-numeric: tabular-nums; text-align: right; }
+
+/* Deck: the top card and two more showing underneath. */
+.ox-deck { position: relative; width: var(--ox-width); height: 228px; margin-bottom: 34px; }
+.ox-deck::before, .ox-deck::after { content: ""; position: absolute; inset: 0; border-radius: var(--tw-radius-xl); transform-origin: 50% 100%; }
+.ox-deck::before { background: var(--tw-surface-3); transform: translateY(20px) scale(0.9); }
+.ox-deck::after { background: var(--tw-surface-2); transform: translateY(10px) scale(0.95); }
+.ox-deck.is-shifting::before { animation: ox-layer-back var(--tw-dur-3) var(--tw-ease-out) both; }
+.ox-deck.is-shifting::after { animation: ox-layer-mid var(--tw-dur-3) var(--tw-ease-out) both; }
+@keyframes ox-layer-back { from { opacity: 0; transform: translateY(28px) scale(0.86); } }
+@keyframes ox-layer-mid { from { transform: translateY(20px) scale(0.9); } }
+
+.ox-card {
+  position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; overflow: hidden;
+  padding: 28px clamp(22px, 5vw, 40px); border-radius: var(--tw-radius-xl); background: var(--tw-surface);
+  transform-origin: 50% 100%; touch-action: pan-y; cursor: grab; -webkit-user-select: none; user-select: none;
+  transition: transform var(--tw-dur-2) var(--tw-ease-out);
+}
+.ox-card.is-dragging { cursor: grabbing; }
+.ox-card-pack { position: absolute; top: 12px; left: 18px; color: var(--tw-ink-3); font-size: var(--tw-text-xs); line-height: var(--tw-leading-small); letter-spacing: var(--tw-track-small); }
+.ox-card.is-leaving { z-index: 2; pointer-events: none; }
+.ox-card.is-rising { animation: ox-rise var(--tw-dur-3) var(--tw-ease-out) both; }
+@keyframes ox-rise { from { transform: translateY(10px) scale(0.95); background-color: var(--tw-surface-2); } }
+.ox-card.is-rising .ox-statement { animation: ox-fade var(--tw-dur-2) var(--tw-ease-out) 60ms both; }
+@keyframes ox-fade { from { opacity: 0; } }
+
+.ox-card-body { position: relative; display: grid; justify-items: center; gap: 10px; text-align: center; }
+.ox-statement {
+  max-width: 22em; color: var(--tw-ink); font-size: clamp(1.1875rem, 1.02rem + 0.6vw, 1.5rem); font-weight: var(--tw-weight-medium);
+  line-height: 1.45; letter-spacing: var(--tw-track-xl); text-wrap: balance; transition: color var(--tw-dur-2) var(--tw-ease-out);
+}
+/* The strike is a background on the inline text, so it runs through every line and can be drawn in. */
+.ox-statement > span {
+  background: linear-gradient(currentColor, currentColor) no-repeat 0 56% / 0 1.5px;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  transition: background-size var(--tw-dur-3) var(--tw-ease-out);
+}
+.ox-card.is-false .ox-statement { color: var(--tw-ink-3); }
+.ox-card.is-false .ox-statement > span { background-size: 100% 1.5px; }
+.ox-fix { max-width: 30em; color: var(--tw-ink); font-size: var(--tw-text-lg); line-height: 1.5; text-wrap: balance; animation: ox-fix-in var(--tw-dur-3) var(--tw-ease-out) 80ms both; }
+@keyframes ox-fix-in { from { opacity: 0; transform: translateY(6px); } }
+.ox-fix b, .ox-echo b { font-weight: var(--tw-weight-strong); }
+.ox-echo b { color: var(--tw-ink); }
+.ox-card.is-panel { cursor: default; }
+.ox-panel { display: grid; justify-items: center; gap: var(--tw-space-3); text-align: center; }
+.ox-big { display: flex; align-items: baseline; gap: 6px; line-height: 1; }
+.ox-big b { font-size: 4.5rem; font-weight: var(--tw-weight-display); letter-spacing: var(--tw-track-display); font-variant-numeric: tabular-nums; }
+.ox-big span { color: var(--tw-ink-2); font-size: var(--tw-text-lg); }
+.ox-panel-actions { display: flex; gap: var(--tw-space-2); }
+.ox-round {
+  display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--tw-surface-3); color: var(--tw-ink); font-size: var(--tw-text-lg); cursor: pointer;
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), transform var(--tw-dur-1) var(--tw-ease-out);
+}
+.ox-round.is-primary { background: var(--tw-ink); color: var(--tw-inverse); }
+.ox-round:active { transform: scale(0.94); }
+.ox-panel-note { color: var(--tw-ink-2); font-size: var(--tw-text-lg); }
+.ox-empty { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; border-radius: var(--tw-radius-xl); background: var(--tw-surface); color: var(--tw-ink-2); }
+
+/* O or X drawn large behind the text. */
+.ox-mark { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.ox-mark svg { width: 264px; height: 264px; max-width: none; fill: none; stroke: var(--tw-ink); stroke-width: 0.18; opacity: 0.16; overflow: visible; }
+.ox-mark svg * { stroke-dasharray: 1; stroke-dashoffset: calc(1 - var(--draw, 0)); }
+.ox-mark svg circle { transform: rotate(-90deg); transform-origin: 12px 12px; }
+.ox-mark.is-drawn svg * { animation: ox-draw 380ms var(--tw-ease-out) both; }
+.ox-mark.is-drawn svg path + path { animation-delay: 90ms; }
+@keyframes ox-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+.ox-echo { width: var(--ox-width); min-height: 1.6em; margin-bottom: var(--tw-space-4); padding: 0 var(--tw-space-3); color: var(--tw-ink-3); font-size: var(--tw-text-sm); text-align: center; text-wrap: balance; }
+.ox-echo:not(:empty) { animation: ox-fade var(--tw-dur-2) var(--tw-ease-out) both; }
+
+.ox-answers { display: flex; justify-content: center; gap: var(--tw-space-4); margin-bottom: var(--tw-space-8); }
+.ox-answer {
+  display: grid; place-items: center; width: 64px; height: 64px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--tw-surface); color: var(--tw-ink); cursor: pointer;
+  transition: background-color var(--tw-dur-1) var(--tw-ease-out), color var(--tw-dur-1) var(--tw-ease-out), transform var(--tw-dur-1) var(--tw-ease-out);
+}
+.ox-shape { width: 28px; height: 28px; max-width: none; fill: none; stroke: currentColor; stroke-width: 1.7; }
+@media (hover: hover) { .ox-answer:hover:not(:disabled) { background: var(--tw-surface-2); } }
+.ox-answer:active:not(:disabled) { transform: scale(0.94); }
+.ox-answer.is-pressed { animation: ox-press 200ms var(--tw-ease-out); }
+@keyframes ox-press { 40% { transform: scale(0.92); background-color: var(--tw-surface-3); } }
+.ox-answer:disabled { color: var(--tw-ink-4); cursor: default; }
+.ox-answer.is-go { background: var(--tw-ink); color: var(--tw-inverse); animation: none; }
+@media (hover: hover) { .ox-answer.is-go:hover:not(:disabled) { background: #2f2f2f; } }
+
+/* Board: every statement in the range is a dot. */
+.ox-board { display: grid; gap: 10px; width: var(--ox-width); }
+.ox-field { display: grid; grid-template-columns: repeat(auto-fill, 5px); justify-content: space-between; gap: 3px; }
+.ox-field i { width: 5px; height: 5px; border-radius: 50%; background: var(--tw-surface-3); }
+.ox-field.is-entering i { animation: ox-fade var(--tw-dur-2) var(--tw-ease-out) calc(var(--i) * 0.7ms) both; }
+.ox-field i.is-right { background: var(--tw-ink); }
+.ox-field i.is-missed { background: transparent; box-shadow: inset 0 0 0 1px var(--tw-ink-3); }
+.ox-field i.is-current { box-shadow: 0 0 0 2px var(--tw-bg), 0 0 0 3px var(--tw-ink); }
+.ox-field i.is-missed.is-current { box-shadow: inset 0 0 0 1px var(--tw-ink-3), 0 0 0 2px var(--tw-bg), 0 0 0 3px var(--tw-ink); }
+/* Every tenth right answer in a row sends a ripple through the board. */
+.ox-field.is-rippling i { animation: ox-ripple 520ms var(--tw-ease-out) calc(var(--i) * 1.1ms); }
+@keyframes ox-ripple { 35% { transform: scale(1.9); } }
+.ox-field i.is-landing { animation: ox-land var(--tw-dur-3) var(--tw-ease-out); }
+@keyframes ox-land { from { transform: scale(3.2); opacity: 0.15; } }
+
+.ox-field { min-height: 5px; }
+.ox-field.is-trail { grid-template-columns: repeat(auto-fill, 8px); justify-content: start; gap: 5px; min-height: 8px; }
+.ox-field.is-trail i { width: 8px; height: 8px; }
+.ox-field.is-trail i.is-missed { box-shadow: inset 0 0 0 1.5px var(--tw-ink-2); }
+.ox-stats { display: flex; align-items: center; justify-content: space-between; min-height: 20px; color: var(--tw-ink-3); font-size: var(--tw-text-xs); line-height: var(--tw-leading-small); letter-spacing: var(--tw-track-small); }
+.ox-stats b { color: var(--tw-ink); font-weight: var(--tw-weight-latin); font-variant-numeric: tabular-nums; }
+.ox-streak b, .ox-best b { margin-left: 5px; }
+.ox-count > span:not(:empty) { margin-left: 1px; }
+
+/* After 타임어택: what the missed statements should have said. */
+.ox-missed { display: grid; margin: var(--tw-space-2) 0 0; padding: 0; list-style: none; border-top: 1px solid var(--tw-hairline); }
+.ox-missed li { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: var(--tw-space-3); padding: 10px 0; border-bottom: 1px solid var(--tw-hairline); color: var(--tw-ink-2); font-size: var(--tw-text-sm); }
+.ox-missed .ox-shape { width: 16px; height: 16px; margin-top: 3px; stroke-width: 2; color: var(--tw-ink-3); }
+.ox-missed b { color: var(--tw-ink); font-weight: var(--tw-weight-strong); }
+
+.ox-audio { display: flex; align-items: center; gap: var(--tw-space-2); width: var(--ox-width); margin-top: var(--tw-space-8); color: var(--tw-ink-3); font-size: var(--tw-text-xs); line-height: var(--tw-leading-small); letter-spacing: var(--tw-track-small); }
+.ox-sound { display: grid; place-items: center; flex: none; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: var(--tw-surface); color: var(--tw-ink); font-size: var(--tw-text-sm); cursor: pointer; transition: background-color var(--tw-dur-1) var(--tw-ease-out); }
+.ox-sound:hover { background: var(--tw-surface-2); }
+.ox-sound > .tw-icon { grid-area: 1 / 1; }
+.ox-audio > span { min-width: 0; }
+.ox-reset { flex: none; margin-left: auto; color: var(--tw-ink-2); }
+.ox-reset[data-armed] { background: var(--tw-surface-2); color: var(--tw-ink); }
+.ox-sound[aria-pressed="true"] > .ox-sound-play, .ox-sound[aria-pressed="false"] > .ox-sound-pause { display: none; }
+.ox-digits { display: inline-flex; }
+.ox-digit { position: relative; display: inline-block; overflow: hidden; }
+.ox-digit > span { display: block; }
+.ox-digit > .is-out { position: absolute; inset: 0; }
+.ox-digit > .is-in { animation: none; }
+@keyframes ox-digit-in { from { transform: translateY(80%); opacity: 0; } }
+@keyframes ox-digit-out { to { transform: translateY(-80%); opacity: 0; } }
+.ox-digit > .is-in.is-down { animation-name: ox-digit-in-down; }
+.ox-digit > .is-out.is-down { animation-name: ox-digit-out-down; }
+@keyframes ox-digit-in-down { from { transform: translateY(-80%); opacity: 0; } }
+@keyframes ox-digit-out-down { to { transform: translateY(80%); opacity: 0; } }
+
+@media (max-width: 760px) {
+  .ox-stage { padding-top: var(--tw-space-4); }
+  .ox-controls { margin-bottom: var(--tw-space-4); }
+  .ox-mode { order: -1; width: 100%; margin-left: 0; }
+  .ox-mode > button { flex: 1 1 0; }
+  .ox-big b { font-size: 4rem; }
+  .ox-audio { margin-top: var(--tw-space-6); }
+  .ox-deck { height: 216px; }
+  .ox-card { padding: 24px 22px; }
+  .ox-fix { font-size: var(--tw-text-md); }
+  .ox-mark svg { width: 248px; height: 248px; }
+  .ox-echo { min-height: calc(1.6em * 2); margin-bottom: var(--tw-space-3); }
+  .ox-answers { gap: var(--tw-space-5); margin-bottom: var(--tw-space-6); }
+  .ox-answer { width: 72px; height: 72px; }
+  .ox-shape { width: 30px; height: 30px; }
+  .ox-field { grid-template-columns: repeat(auto-fill, 4px); }
+  .ox-field i { width: 4px; height: 4px; }
+}

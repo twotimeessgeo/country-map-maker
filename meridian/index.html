@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Meridian | Promenade Geography</title>
+    <meta name="theme-color" content="#000000" />
+    <meta property="og:title" content="Meridian" />
+    <meta property="og:image" content="https://twotimeessgeo.github.io/country-map-maker/meridian/media/poster.webp?v=2" />
+    <meta property="og:video" content="https://twotimeessgeo.github.io/country-map-maker/meridian/media/meridian-x-1080.mp4" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <link rel="stylesheet" href="../ds/index.css?v=ds32r2" />
+    <link rel="stylesheet" href="./meridian.css?v=4" />
+    <link rel="preload" as="image" href="./media/poster.webp?v=2" />
+  </head>
+  <body class="mx-dark">
+    <header class="tw-nav is-static">
+      <nav class="tw-nav-inner" aria-label="Promenade Geography">
+        <a class="tw-brand" href="../index.html" aria-label="Promenade Geography home"><span lang="en">Promenade</span></a>
+        <div class="tw-nav-links">
+          <a class="tw-nav-link" lang="en" href="../tools/climate/index.html">Climate Atlas</a>
+          <a class="tw-nav-link" lang="en" href="../tools/stats/index.html">Statistics</a>
+          <a class="tw-nav-link" lang="en" href="../tools/ox/index.html">OX</a>
+          <a class="tw-nav-link" lang="en" href="../tools/cut/index.html">Archive</a>
+          <a class="tw-nav-link" lang="en" href="../notes/index.html">Notes</a>
+          <a class="tw-nav-link" lang="en" href="https://twotimess-admission.twotimess.workers.dev" target="_blank" rel="noopener"><span>Calculator <svg class="tw-icon tw-nav-external" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-external"></use></svg></span></a>
+        </div>
+        <span class="tw-nav-spacer"></span>
+        <a class="tw-button is-sm tw-nav-buy" href="./index.html" aria-current="page"><span class="tw-nav-buy-long">저는 수능 지리 50점을 맞고 싶습니다</span><span class="tw-nav-buy-short" aria-hidden="true">지리 50점 맞고 싶습니다</span></a>
+        <details class="tw-nav-menu">
+          <summary aria-label="메뉴"><svg class="tw-icon tw-nav-menu-open" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-menu"></use></svg><svg class="tw-icon tw-nav-menu-close" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-close"></use></svg></summary>
+          <div class="tw-nav-menu-panel">
+            <a lang="en" href="../tools/climate/index.html">Climate Atlas</a>
+            <a lang="en" href="../tools/stats/index.html">Statistics</a>
+            <a lang="en" href="../tools/ox/index.html">OX</a>
+            <a lang="en" href="../tools/cut/index.html">Archive</a>
+            <a lang="en" href="../notes/index.html">Notes</a>
+            <a lang="en" href="https://twotimess-admission.twotimess.workers.dev" target="_blank" rel="noopener"><span>Calculator <svg class="tw-icon tw-nav-external" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-external"></use></svg></span></a>
+          <a class="tw-button is-outline is-sm tw-nav-buy-menu" href="./index.html" aria-current="page"><span class="tw-nav-buy-long">저는 수능 지리 50점을 맞고 싶습니다</span><span class="tw-nav-buy-short" aria-hidden="true">지리 50점 맞고 싶습니다</span></a></div>
+        </details>
+      </nav>
+    </header>
+
+    <main class="mx">
+      <div class="mx-stage">
+        <figure class="mx-player" id="mxPlayer" data-state="idle" data-controls="shown">
+          <div class="mx-frame" id="mxFrame" tabindex="0" aria-label="Meridian 영상">
+            <video id="mxVideo" class="mx-video" playsinline preload="metadata" poster="./media/poster.webp?v=2" width="1920" height="1080" data-src-2160="./media/meridian-x-2160.mp4" data-src-1080="./media/meridian-x-1080.mp4">
+              <source src="./media/meridian-x-1080.mp4" type="video/mp4" />
+            </video>
+
+            <button class="mx-big" id="mxBig" type="button" aria-label="재생">
+              <svg class="tw-icon mx-icon-play" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-play"></use></svg>
+              <svg class="tw-icon mx-icon-pause" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-pause"></use></svg>
+            </button>
+
+            <div class="mx-glass" id="mxGlass" role="group" aria-label="재생 조작">
+              <button class="mx-ctl" id="mxToggle" type="button" aria-label="재생">
+                <svg class="tw-icon mx-icon-play" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-play"></use></svg>
+                <svg class="tw-icon mx-icon-pause" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-pause"></use></svg>
+              </button>
+              <span class="mx-time" id="mxCurrent" lang="en">0:00</span>
+              <input class="mx-seek" id="mxSeek" type="range" min="0" max="1000" step="1" value="0" aria-label="재생 위치" aria-valuetext="0:00" style="--p: 0%" />
+              <span class="mx-time" id="mxRemaining" lang="en">−0:20</span>
+              <button class="mx-ctl" id="mxSound" type="button" aria-label="소리 끄기" aria-pressed="false">
+                <svg class="tw-icon mx-icon-on" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-volume"></use></svg>
+                <svg class="tw-icon mx-icon-off" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-volume-off"></use></svg>
+              </button>
+              <button class="mx-ctl" id="mxFull" type="button" aria-label="전체 화면">
+                <svg class="tw-icon" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-expand"></use></svg>
+              </button>
+            </div>
+          </div>
+        </figure>
+
+        <div class="mx-caption">
+          <p class="mx-lead"><b lang="en">Meridian.</b> 수능 세계지리, 한국지리 실전 모의고사. 시대인재북스.</p>
+          <a class="tw-button mx-buy" href="https://search.kyobobook.co.kr/search?keyword=%ED%94%84%EB%A1%AC%EB%82%98%EB%93%9C&amp;gbCode=TOT&amp;target=total" target="_blank" rel="noopener">교보문고에서 구매 <svg class="tw-icon" aria-hidden="true" focusable="false"><use href="../ds/icons.svg#i-external"></use></svg></a>
+        </div>
+      </div>
+    </main>
+
+    <script src="../ds/motion.js?v=ds32r1" defer></script>
+    <script src="./meridian.js?v=3" defer></script>
+  <script src="../ds/stats.js?v=1" defer></script></body>
+</html>
